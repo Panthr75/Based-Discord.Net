@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +10,19 @@ namespace Discord.API
 {
     internal class TriggerMetadata
     {
-        [JsonProperty("keyword_filter")]
+        [JsonPropertyName("keyword_filter")]
         public Optional<string[]> KeywordFilter { get; set; }
 
-        [JsonProperty("regex_patterns")]
+        [JsonPropertyName("regex_patterns")]
         public Optional<string[]> RegexPatterns { get; set; }
 
-        [JsonProperty("presets")]
+        [JsonPropertyName("presets")]
         public Optional<KeywordPresetTypes[]> Presets { get; set; }
 
-        [JsonProperty("allow_list")]
+        [JsonPropertyName("allow_list")]
         public Optional<string[]> AllowList { get; set; }
 
-        [JsonProperty("mention_total_limit")]
+        [JsonPropertyName("mention_total_limit")]
         public Optional<int> MentionLimit { get; set; }
     }
 }

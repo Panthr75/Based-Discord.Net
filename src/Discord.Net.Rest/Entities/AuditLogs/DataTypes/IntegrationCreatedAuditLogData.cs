@@ -8,7 +8,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an integration authorization.
 /// </summary>
-public class IntegrationCreatedAuditLogData : IAuditLogData
+public partial class IntegrationCreatedAuditLogData : IAuditLogData
 {
     internal IntegrationCreatedAuditLogData(IntegrationInfo info, IIntegration integration)
     {
@@ -16,13 +16,13 @@ public class IntegrationCreatedAuditLogData : IAuditLogData
         Data = info;
     }
 
-    internal static IntegrationCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static IntegrationCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<IntegrationInfoAuditLogModel>(changes, discord);
 
-        var integration = RestIntegration.Create(discord, null, log.Integrations.FirstOrDefault(x => x.Id == entry.TargetId));
+        var integration = RestIntegration.Create(discord, null, log!.Integrations.FirstOrDefault(x => x.Id == entry.TargetId)!);
 
         return new(new IntegrationInfo(data), integration);
     }

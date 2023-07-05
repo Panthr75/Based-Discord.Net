@@ -1,6 +1,6 @@
 using Discord.Net.Converters;
 using Discord.Net.Rest;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -9,8 +9,6 @@ namespace Discord.API.Rest
 {
     internal class UploadWebhookFileParams
     {
-        private static JsonSerializer _serializer = new JsonSerializer { ContractResolver = new DiscordContractResolver() };
-
         public FileAttachment[] Files { get; }
 
         public Optional<string> Content { get; set; }
@@ -29,7 +27,7 @@ namespace Discord.API.Rest
             Files = files;
         }
 
-        public IReadOnlyDictionary<string, object> ToDictionary()
+        public IReadOnlyDictionary<string, object> ToDictionary(JsonSerializerOptions? options)
         {
             var d = new Dictionary<string, object>();
 
@@ -76,12 +74,8 @@ namespace Discord.API.Rest
 
             payload["attachments"] = attachments;
 
-            var json = new StringBuilder();
-            using (var text = new StringWriter(json))
-            using (var writer = new JsonTextWriter(text))
-                _serializer.Serialize(writer, payload);
 
-            d["payload_json"] = json.ToString();
+            d["payload_json"] = JsonSerializer.Serialize(payload, options);
 
             return d;
         }

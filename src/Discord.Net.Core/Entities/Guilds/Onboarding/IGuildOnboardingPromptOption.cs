@@ -20,7 +20,7 @@ public interface IGuildOnboardingPromptOption : ISnowflakeEntity
     /// <summary>
     ///     Gets the emoji of the option. <see langword="null"/> if none is set.
     /// </summary>
-    IEmote Emoji { get; }
+    IEmote? Emoji { get; }
 
     /// <summary>
     ///     Gets the title of the option.
@@ -30,5 +30,5 @@ public interface IGuildOnboardingPromptOption : ISnowflakeEntity
     /// <summary>
     ///     Gets the description of the option. <see langword="null"/> if none is set.
     /// </summary>
-    string Description { get; }
+    string? Description { get; }
 }

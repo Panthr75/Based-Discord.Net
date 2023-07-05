@@ -30,7 +30,7 @@ namespace Discord
         /// <summary>
         ///     Gets the current autocomplete option that is actively being filled out.
         /// </summary>
-        AutocompleteOption Current { get; }
+        AutocompleteOption? Current { get; }
 
         /// <summary>
         ///     Gets a collection of all the other options the executing users has filled out.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Discord
@@ -23,7 +24,7 @@ namespace Discord
         /// <summary>
         ///     Gets the custom placeholder text if nothing is selected.
         /// </summary>
-        public string Placeholder { get; }
+        public string? Placeholder { get; }
 
         /// <summary>
         ///     Gets the minimum number of items that must be chosen.
@@ -54,16 +55,16 @@ namespace Discord
         public SelectMenuBuilder ToBuilder()
             => new SelectMenuBuilder(
                 CustomId,
-                Options.Select(x => new SelectMenuOptionBuilder(x.Label, x.Value, x.Description, x.Emote, x.IsDefault)).ToList(),
+                Options?.Select(x => new SelectMenuOptionBuilder(x.Label, x.Value, x.Description, x.Emote, x.IsDefault))?.ToList(),
                 Placeholder,
                 MaxValues,
                 MinValues,
                 IsDisabled, Type, ChannelTypes.ToList());
 
-        internal SelectMenuComponent(string customId, List<SelectMenuOption> options, string placeholder, int minValues, int maxValues, bool disabled, ComponentType type, IEnumerable<ChannelType> channelTypes = null)
+        internal SelectMenuComponent(string customId, List<SelectMenuOption>? options, string? placeholder, int minValues, int maxValues, bool disabled, ComponentType type, IEnumerable<ChannelType>? channelTypes = null)
         {
             CustomId = customId;
-            Options = options;
+            Options = (IReadOnlyCollection<SelectMenuOption>?)options ?? ImmutableList<SelectMenuOption>.Empty;
             Placeholder = placeholder;
             MinValues = minValues;
             MaxValues = maxValues;

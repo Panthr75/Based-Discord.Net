@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace Discord
@@ -16,21 +17,21 @@ namespace Discord
         /// <returns>
         ///     A collection of string containing all artists featured in the track (e.g. <c>Avicii</c>; <c>Rita Ora</c>).
         /// </returns>
-        public IReadOnlyCollection<string> Artists { get; internal set; }
+        public IReadOnlyCollection<string> Artists { get; internal set; } = ImmutableArray.Create<string>();
         /// <summary>
         ///     Gets the Spotify album title of the song.
         /// </summary>
         /// <returns>
         ///     A string containing the name of the album (e.g. <c>AVĪCI (01)</c>).
         /// </returns>
-        public string AlbumTitle { get; internal set; }
+        public string? AlbumTitle { get; internal set; }
         /// <summary>
         ///     Gets the track title of the song.
         /// </summary>
         /// <returns>
         ///     A string containing the name of the song (e.g. <c>Lonely Together (feat. Rita Ora)</c>).
         /// </returns>
-        public string TrackTitle { get; internal set; }
+        public string? TrackTitle { get; internal set; }
 
         /// <summary>
         ///     Gets the date when the track started playing.
@@ -78,7 +79,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the Spotify ID of the track (e.g. <c>7DoN0sCGIT9IcLrtBDm4f0</c>).
         /// </returns>
-        public string TrackId { get; internal set; }
+        public string? TrackId { get; internal set; }
         /// <summary>
         ///     Gets the session ID of the song.
         /// </summary>
@@ -88,7 +89,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the session ID.
         /// </returns>
-        public string SessionId { get; internal set; }
+        public string? SessionId { get; internal set; }
 
         /// <summary>
         ///     Gets the URL of the album art.
@@ -97,7 +98,7 @@ namespace Discord
         ///     A URL pointing to the album art of the track (e.g. 
         ///     <c>https://i.scdn.co/image/ba2fd8823d42802c2f8738db0b33a4597f2f39e7</c>).
         /// </returns>
-        public string AlbumArtUrl { get; internal set; }
+        public string? AlbumArtUrl { get; internal set; }
         /// <summary>
         ///     Gets the direct Spotify URL of the track.
         /// </summary>
@@ -105,7 +106,7 @@ namespace Discord
         ///     A URL pointing directly to the track on Spotify. (e.g. 
         ///     <c>https://open.spotify.com/track/7DoN0sCGIT9IcLrtBDm4f0</c>).
         /// </returns>
-        public string TrackUrl { get; internal set; }
+        public string? TrackUrl { get; internal set; }
 
         internal SpotifyGame() { }
 

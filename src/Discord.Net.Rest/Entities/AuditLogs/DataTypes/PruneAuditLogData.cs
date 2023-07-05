@@ -1,12 +1,11 @@
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a guild prune.
 /// </summary>
-public class PruneAuditLogData : IAuditLogData
+public partial class PruneAuditLogData : IAuditLogData
 {
     private PruneAuditLogData(int pruneDays, int membersRemoved)
     {
@@ -14,9 +13,9 @@ public class PruneAuditLogData : IAuditLogData
         MembersRemoved = membersRemoved;
     }
             
-    internal static PruneAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static PruneAuditLogData Create(EntryModel entry)
     {
-        return new PruneAuditLogData(entry.Options.PruneDeleteMemberDays.Value, entry.Options.PruneMembersRemoved.Value);
+        return new PruneAuditLogData(entry.Options!.PruneDeleteMemberDays!.Value, entry.Options!.PruneMembersRemoved!.Value);
     }
 
     /// <summary>

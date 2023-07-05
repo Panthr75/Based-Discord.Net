@@ -22,12 +22,12 @@ namespace Discord.Rest
         /// <remarks>
         ///     Will be null if the command is from a DM Channel.
         /// </remarks>
-        public RestGuild Guild { get; }
+        public RestGuild? Guild { get; }
 
         /// <summary>
         ///     Gets the <see cref="IRestMessageChannel"/> the command originated from.
         /// </summary>
-        public IRestMessageChannel Channel { get; }
+        public IRestMessageChannel? Channel { get; }
 
         /// <summary>
         ///     Gets the <see cref="RestUser"/> who executed the command.
@@ -45,7 +45,7 @@ namespace Discord.Rest
         /// <remarks>
         ///     If this property is <see langword="null"/> the default callback will be used.
         /// </remarks>
-        public Func<string, Task> InteractionResponseCallback { get; set; }
+        public Func<string, Task>? InteractionResponseCallback { get; set; }
 
         /// <inheritdoc cref="IRouteMatchContainer.SegmentMatches"/>
         public IReadOnlyCollection<IRouteSegmentMatch> SegmentMatches { get; private set; }
@@ -62,6 +62,7 @@ namespace Discord.Rest
             Channel = interaction.Channel;
             User = interaction.User;
             Interaction = interaction;
+            this.SegmentMatches = ImmutableArray<IRouteSegmentMatch>.Empty;
         }
 
         /// <summary>
@@ -88,10 +89,10 @@ namespace Discord.Rest
         IDiscordClient IInteractionContext.Client => Client;
 
         /// <inheritdoc/>
-        IGuild IInteractionContext.Guild => Guild;
+        IGuild? IInteractionContext.Guild => Guild;
 
         /// <inheritdoc/>
-        IMessageChannel IInteractionContext.Channel => Channel;
+        IMessageChannel? IInteractionContext.Channel => Channel;
 
         /// <inheritdoc/>
         IUser IInteractionContext.User => User;

@@ -21,7 +21,7 @@ public class SocketWebhookCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketWebhookCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<Model>(changes, discord);
 
@@ -50,7 +50,7 @@ public class SocketWebhookCreateAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the name of the webhook.
     /// </returns>
-    public string Name { get; }
+    public string? Name { get; }
 
     /// <summary>
     ///     Gets the ID of the channel that the webhook could send to.
@@ -67,5 +67,5 @@ public class SocketWebhookCreateAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the hash of the webhook's avatar.
     /// </returns>
-    public string Avatar { get; }
+    public string? Avatar { get; }
 }

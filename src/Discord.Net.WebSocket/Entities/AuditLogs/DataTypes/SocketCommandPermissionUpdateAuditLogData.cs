@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -21,15 +21,15 @@ public class SocketCommandPermissionUpdateAuditLogData : ISocketAuditLogData
 
     internal static SocketCommandPermissionUpdateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var before = new List<ApplicationCommandPermission>();
         var after = new List<ApplicationCommandPermission>();
 
         foreach (var change in changes)
         {
-            var oldValue = change.OldValue?.ToObject<API.ApplicationCommandPermissions>();
-            var newValue = change.NewValue?.ToObject<API.ApplicationCommandPermissions>();
+            var oldValue = change.OldValue?.Deserialize<API.ApplicationCommandPermissions>();
+            var newValue = change.NewValue?.Deserialize<API.ApplicationCommandPermissions>();
 
             if (oldValue is not null)
                 before.Add(new ApplicationCommandPermission(oldValue.Id, oldValue.Type, oldValue.Permission));
@@ -38,7 +38,7 @@ public class SocketCommandPermissionUpdateAuditLogData : ISocketAuditLogData
                 after.Add(new ApplicationCommandPermission(newValue.Id, newValue.Type, newValue.Permission));
         }
 
-        return new(before.ToImmutableArray(), after.ToImmutableArray(), entry.TargetId!.Value, entry.Options.ApplicationId!.Value);
+        return new(before.ToImmutableArray(), after.ToImmutableArray(), entry.TargetId!.Value, entry.Options!.ApplicationId!.Value);
     }
 
     /// <summary>

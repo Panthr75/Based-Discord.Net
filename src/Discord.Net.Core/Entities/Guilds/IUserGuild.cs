@@ -9,7 +9,7 @@ namespace Discord
         /// <summary>
         ///     Gets the icon URL associated with this guild, or <see langword="null" /> if one is not set.
         /// </summary>
-        string IconUrl { get; }
+        string? IconUrl { get; }
         /// <summary>
         ///     Returns <see langword="true" /> if the current user owns this guild.
         /// </summary>

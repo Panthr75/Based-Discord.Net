@@ -34,13 +34,13 @@ internal class AuditLogCache
         }
     }
 
-    public SocketAuditLogEntry Remove(ulong id)
+    public SocketAuditLogEntry? Remove(ulong id)
     {
         _entries.TryRemove(id, out var entry);
         return entry;
     }
 
-    public SocketAuditLogEntry Get(ulong id)
+    public SocketAuditLogEntry? Get(ulong id)
         => _entries.TryGetValue(id, out var result) ? result : null;
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="limit"/> is less than 0.</exception>
@@ -72,7 +72,7 @@ internal class AuditLogCache
         if (dir == Direction.Before)
             cachedEntriesIds = cachedEntriesIds.Reverse();
         if (dir == Direction.Around)
-            limit = limit / 2 + 1;
+            limit = (limit / 2) + 1;
 
         return cachedEntriesIds
             .Select(x => _entries.TryGetValue(x, out var entry) ? entry : null)

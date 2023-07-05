@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class Error
     {
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("message")]
-        public string Message { get; set; }
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = string.Empty;
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
     }
 }

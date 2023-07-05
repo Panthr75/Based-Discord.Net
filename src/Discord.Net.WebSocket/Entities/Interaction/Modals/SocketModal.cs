@@ -28,35 +28,44 @@ namespace Discord.WebSocket
 
         IUserMessage IModalInteraction.Message => Message;
 
-        internal SocketModal(DiscordSocketClient client, ModelBase model, ISocketMessageChannel channel, SocketUser user)
+        /// <inheritdoc cref="SocketInteraction.UserLocale"/>
+        new public string UserLocale => base.UserLocale!;
+
+        internal SocketModal(DiscordSocketClient client, ModelBase model, ISocketMessageChannel? channel, SocketUser user)
              : base(client, model.Id, channel, user)
         {
-            var dataModel = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
-
-            if (model.Message.IsSpecified)
+            if (!model.Data.IsSpecified)
             {
-                SocketUser author = null;
-                if (Channel is SocketGuildChannel ch)
-                {
-                    if (model.Message.Value.WebhookId.IsSpecified)
-                        author = SocketWebhookUser.Create(ch.Guild, Discord.State, model.Message.Value.Author.Value, model.Message.Value.WebhookId.Value);
-                    else if (model.Message.Value.Author.IsSpecified)
-                        author = ch.Guild.GetUser(model.Message.Value.Author.Value.Id);
-                }
-                else if (model.Message.Value.Author.IsSpecified)
-                    author = (Channel as SocketChannel)?.GetUser(model.Message.Value.Author.Value.Id);
-
-                author ??= Discord.State.GetOrAddUser(model.Message.Value.Author.Value.Id, _ => SocketGlobalUser.Create(Discord, Discord.State, model.Message.Value.Author.Value));
-
-                Message = SocketUserMessage.Create(Discord, Discord.State, author, Channel, model.Message.Value);
+                throw new InvalidOperationException("Cannot create socket message component interaction without any data.");
             }
+            var dataModel = (DataModel)model.Data.Value;
 
             Data = new SocketModalData(dataModel, client, client.State, client.State.GetGuild(model.GuildId.GetValueOrDefault()), model.User.GetValueOrDefault());
+
+            if (!model.Message.IsSpecified)
+            {
+                this.Message = null!;
+                return;
+            }
+
+            SocketUser? author = null;
+            if (Channel is SocketGuildChannel ch)
+            {
+                if (model.Message.Value.WebhookId.IsSpecified)
+                    author = SocketWebhookUser.Create(ch.Guild, Discord.State, model.Message.Value.Author.Value, model.Message.Value.WebhookId.Value);
+                else if (model.Message.Value.Author.IsSpecified)
+                    author = ch.Guild.GetUser(model.Message.Value.Author.Value.Id);
+            }
+            else if (model.Message.Value.Author.IsSpecified)
+                author = (Channel as SocketChannel)?.GetUser(model.Message.Value.Author.Value.Id);
+
+            author ??= Discord.State.GetOrAddUser(model.Message.Value.Author.Value.Id, _ => SocketGlobalUser.Create(Discord, Discord.State, model.Message.Value.Author.Value));
+
+            Message = SocketUserMessage.Create(Discord, Discord.State, author, Channel!, model.Message.Value);
+
         }
 
-        internal new static SocketModal Create(DiscordSocketClient client, ModelBase model, ISocketMessageChannel channel, SocketUser user)
+        internal new static SocketModal Create(DiscordSocketClient client, ModelBase model, ISocketMessageChannel? channel, SocketUser user)
         {
             var entity = new SocketModal(client, model, channel, user);
             entity.Update(model);
@@ -70,14 +79,14 @@ namespace Discord.WebSocket
         /// <inheritdoc/>
         public override async Task RespondWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -109,14 +118,14 @@ namespace Discord.WebSocket
                 }
             }
 
-            var response = new API.Rest.UploadInteractionFileParams(attachments?.ToArray())
+            var response = new API.Rest.UploadInteractionFileParams(attachments?.ToArray() ?? Array.Empty<FileAttachment>())
             {
                 Type = InteractionResponseType.ChannelMessageWithSource,
-                Content = text ?? Optional<string>.Unspecified,
-                AllowedMentions = allowedMentions != null ? allowedMentions?.ToModel() : Optional<API.AllowedMentions>.Unspecified,
-                Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
+                Content = Optional.CreateFromNullable(text),
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions).Map(m => m.ToModel()),
+                Embeds = embeds.Select(x => x.ToModel()).ToArray(),
                 IsTTS = isTTS,
-                MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified,
+                MessageComponents = Optional.CreateFromNullable(components).Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
                 Flags = ephemeral ? MessageFlags.Ephemeral : Optional<MessageFlags>.Unspecified
             };
 
@@ -134,14 +143,14 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task RespondAsync(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -178,12 +187,12 @@ namespace Discord.WebSocket
                 Type = InteractionResponseType.ChannelMessageWithSource,
                 Data = new API.InteractionCallbackData
                 {
-                    Content = text ?? Optional<string>.Unspecified,
-                    AllowedMentions = allowedMentions?.ToModel(),
+                    Content = Optional.CreateFromNullable(text),
+                    AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
                     Embeds = embeds.Select(x => x.ToModel()).ToArray(),
                     TTS = isTTS,
                     Flags = ephemeral ? MessageFlags.Ephemeral : Optional<MessageFlags>.Unspecified,
-                    Components = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified
+                    Components = Optional.CreateFromNullable(components).Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
                 }
             };
 
@@ -200,7 +209,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task UpdateAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public async Task UpdateAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
             var args = new MessageProperties();
             func(args);
@@ -222,7 +231,7 @@ namespace Discord.WebSocket
             var embeds = args.Embeds;
 
             bool hasText = args.Content.IsSpecified ? !string.IsNullOrEmpty(args.Content.Value) : false;
-            bool hasEmbeds = embed.IsSpecified && embed.Value != null || embeds.IsSpecified && embeds.Value?.Length > 0;
+            bool hasEmbeds = (embed.IsSpecified && embed.Value != null) || (embeds.IsSpecified && embeds.Value?.Length > 0);
 
             if (!hasText && !hasEmbeds)
                 Preconditions.NotNullOrEmpty(args.Content.IsSpecified ? args.Content.Value : string.Empty, nameof(args.Content));
@@ -231,12 +240,12 @@ namespace Discord.WebSocket
 
             if (embed.IsSpecified && embed.Value != null)
             {
-                apiEmbeds.Add(embed.Value.ToModel());
+                apiEmbeds!.Add(embed.Value.ToModel());
             }
 
             if (embeds.IsSpecified && embeds.Value != null)
             {
-                apiEmbeds.AddRange(embeds.Value.Select(x => x.ToModel()));
+                apiEmbeds!.AddRange(embeds.Value.Select(x => x.ToModel()));
             }
 
             Preconditions.AtMost(apiEmbeds?.Count ?? 0, 10, nameof(args.Embeds), "A max of 10 embeds are allowed.");
@@ -264,12 +273,10 @@ namespace Discord.WebSocket
                 Data = new API.InteractionCallbackData
                 {
                     Content = args.Content,
-                    AllowedMentions = args.AllowedMentions.IsSpecified ? args.AllowedMentions.Value?.ToModel() : Optional<API.AllowedMentions>.Unspecified,
-                    Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
-                    Components = args.Components.IsSpecified
-                        ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
-                        : Optional<API.ActionRowComponent[]>.Unspecified,
-                    Flags = args.Flags.IsSpecified ? args.Flags.Value ?? Optional<MessageFlags>.Unspecified : Optional<MessageFlags>.Unspecified
+                    AllowedMentions = args.AllowedMentions.Map(o => o.ToModel()),
+                    Embeds = Optional.CreateFromNullable(apiEmbeds?.ToArray()),
+                    Components = args.Components.Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
+                    Flags = Optional.CreateFromNullable(args.Flags.GetValueOrDefault())
                 }
             };
 
@@ -287,14 +294,14 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupAsync(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -309,30 +316,30 @@ namespace Discord.WebSocket
 
             var args = new API.Rest.CreateWebhookMessageParams
             {
-                Content = text,
-                AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified,
+                Content = Optional.CreateFromNullable(text),
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions).Map(m => m.ToModel()),
                 IsTTS = isTTS,
                 Embeds = embeds.Select(x => x.ToModel()).ToArray(),
-                Components = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified
+                Components = Optional.CreateFromNullable(components).Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
             };
 
             if (ephemeral)
                 args.Flags = MessageFlags.Ephemeral;
 
-            return await InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel, options);
+            return await InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel!, options);
         }
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -371,12 +378,20 @@ namespace Discord.WebSocket
             if (ephemeral)
                 flags |= MessageFlags.Ephemeral;
 
-            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray()) { Flags = flags, Content = text, IsTTS = isTTS, Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified, AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified, MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified };
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel, options).ConfigureAwait(false);
+            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray())
+            {
+                Flags = flags,
+                Content = Optional.CreateFromNullable(text),
+                IsTTS = isTTS,
+                Embeds = embeds.Select(x => x.ToModel()).ToArray(),
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions).Map(m => m.ToModel()),
+                MessageComponents = Optional.CreateFromNullable(components).Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
+            };
+            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel!, options).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>
-        public override async Task DeferAsync(bool ephemeral = false, RequestOptions options = null)
+        public override async Task DeferAsync(bool ephemeral = false, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds of no response/acknowledgement");
@@ -404,7 +419,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public override Task RespondWithModalAsync(Modal modal, RequestOptions options = null)
+        public override Task RespondWithModalAsync(Modal modal, RequestOptions? options = null)
             => throw new NotSupportedException("You cannot respond to a modal with a modal!");
 
         IModalInteractionData IModalInteraction.Data => Data;

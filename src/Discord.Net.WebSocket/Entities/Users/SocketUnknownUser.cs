@@ -18,7 +18,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get; internal set; }
         /// <inheritdoc />
-        public override string AvatarId { get; internal set; }
+        public override string? AvatarId { get; internal set; }
 
         /// <inheritdoc />
         public override bool IsBot { get; internal set; }
@@ -26,7 +26,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override bool IsWebhook => false;
         /// <inheritdoc />
-        internal override SocketPresence Presence { get { return new SocketPresence(UserStatus.Offline, null, null); } set { } }
+        internal override SocketPresence? Presence { get { return new SocketPresence(); } set { } }
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">This field is not supported for an unknown user.</exception>
         internal override SocketGlobalUser GlobalUser { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -34,6 +34,7 @@ namespace Discord.WebSocket
         internal SocketUnknownUser(DiscordSocketClient discord, ulong id)
             : base(discord, id)
         {
+            this.Username = string.Empty;
         }
         internal static SocketUnknownUser Create(DiscordSocketClient discord, ClientState state, Model model)
         {
@@ -46,6 +47,6 @@ namespace Discord.WebSocket
             ? $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Unknown)"
             : $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Unknown)";
 
-        internal new SocketUnknownUser Clone() => MemberwiseClone() as SocketUnknownUser;
+        internal new SocketUnknownUser Clone() => (SocketUnknownUser)MemberwiseClone();
     }
 }

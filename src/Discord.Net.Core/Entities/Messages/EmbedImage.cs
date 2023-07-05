@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
     /// <summary> An image for an <see cref="Embed"/>. </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedImage
+    public struct EmbedImage : IEquatable<EmbedImage>
     {
         /// <summary>
         ///     Gets the URL of the image.
@@ -20,7 +23,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the proxied URL of this image.
         /// </returns>
-        public string ProxyUrl { get; }
+        public string? ProxyUrl { get; }
         /// <summary>
         ///     Gets the height of this image.
         /// </summary>
@@ -38,9 +41,9 @@ namespace Discord
         /// </returns>
         public int? Width { get; }
 
-        internal EmbedImage(string url, string proxyUrl, int? height, int? width)
+        internal EmbedImage(string url, string? proxyUrl, int? height, int? width)
         {
-            Url = url;
+            Url = url ?? throw new ArgumentNullException(nameof(url));
             ProxyUrl = proxyUrl;
             Height = height;
             Width = width;
@@ -70,7 +73,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedImage"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedImage embedImage && Equals(embedImage);
 
         /// <summary>
@@ -78,11 +81,26 @@ namespace Discord
         /// </summary>
         /// <param name="embedImage">The <see cref="EmbedImage"/> to compare with the current <see cref="EmbedImage"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedImage? embedImage)
-            => GetHashCode() == embedImage?.GetHashCode();
+        public bool Equals(EmbedImage embedImage)
+        {
+            return this.Url == embedImage.Url &&
+                this.ProxyUrl == embedImage.ProxyUrl &&
+                this.Width == embedImage.Width &&
+                this.Height == embedImage.Height;
+        }
+
+        /// <inheritdoc cref="EmbedImage.Equals(EmbedImage)"/>
+        public bool Equals([NotNullWhen(true)] EmbedImage? embedImage)
+        {
+            if (!embedImage.HasValue)
+            {
+                return false;
+            }
+            return this.Equals(embedImage.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => (Height, Width, Url, ProxyUrl).GetHashCode();
+            => HashCode.Combine(Height, Width, Url, ProxyUrl);
     }
 }

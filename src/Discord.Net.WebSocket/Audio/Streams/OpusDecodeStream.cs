@@ -42,7 +42,7 @@ namespace Discord.Audio.Streams
 
             count = !_nextMissed || count > 0
                 ? _decoder.DecodeFrame(buffer, offset, count, _buffer, 0, false)
-                : _decoder.DecodeFrame(null, 0, 0, _buffer, 0, false);
+                : _decoder.DecodeFrame(null!, 0, 0, _buffer, 0, false);
 
             return _next.WriteAsync(_buffer, 0, count, cancelToken);
         }

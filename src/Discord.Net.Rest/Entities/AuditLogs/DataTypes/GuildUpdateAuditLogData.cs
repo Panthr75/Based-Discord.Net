@@ -1,5 +1,6 @@
 using Discord.API.AuditLogs;
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
 
@@ -8,7 +9,7 @@ namespace Discord.Rest
     /// <summary>
     ///     Contains a piece of audit log data related to a guild update.
     /// </summary>
-    public class GuildUpdateAuditLogData : IAuditLogData
+    public partial class GuildUpdateAuditLogData : IAuditLogData
     {
         private GuildUpdateAuditLogData(GuildInfo before, GuildInfo after)
         {
@@ -16,32 +17,32 @@ namespace Discord.Rest
             After = after;
         }
 
-        internal static GuildUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+        internal static GuildUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log = null)
         {
-            var changes = entry.Changes;
+            var changes = entry.Changes!;
             
             var ownerIdModel = changes.FirstOrDefault(x => x.ChangedProperty == "owner_id");
 
-            ulong? oldOwnerId = ownerIdModel?.OldValue?.ToObject<ulong>(discord.ApiClient.Serializer),
-                newOwnerId = ownerIdModel?.NewValue?.ToObject<ulong>(discord.ApiClient.Serializer);
+            ulong? oldOwnerId = ownerIdModel?.OldValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions),
+                newOwnerId = ownerIdModel?.NewValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
 
-            IUser oldOwner = null;
+            IUser? oldOwner = null;
             if (oldOwnerId != null)
             {
-                var oldOwnerInfo = log.Users.FirstOrDefault(x => x.Id == oldOwnerId.Value);
+                var oldOwnerInfo = log!.Users.FirstOrDefault(x => x.Id == oldOwnerId.Value)!;
                 oldOwner = RestUser.Create(discord, oldOwnerInfo);
             }
 
-            IUser newOwner = null;
+            IUser? newOwner = null;
             if (newOwnerId != null)
             {
-                var newOwnerInfo = log.Users.FirstOrDefault(x => x.Id == newOwnerId.Value);
+                var newOwnerInfo = log!.Users.FirstOrDefault(x => x.Id == newOwnerId.Value)!;
                 newOwner = RestUser.Create(discord, newOwnerInfo);
             }
 
             var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<GuildInfoAuditLogModel>(changes, discord);
 
-            return new GuildUpdateAuditLogData(new(before, oldOwner), new(after, newOwner));
+            return new GuildUpdateAuditLogData(new(before, oldOwner!), new(after, newOwner!));
         }
 
         /// <summary>

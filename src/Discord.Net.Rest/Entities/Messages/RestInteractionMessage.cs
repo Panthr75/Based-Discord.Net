@@ -34,8 +34,8 @@ namespace Discord.Rest
         ///     Deletes this object and all of it's children.
         /// </summary>
         /// <returns>A task that represents the asynchronous delete operation.</returns>
-        public Task DeleteAsync()
-            => InteractionHelper.DeleteInteractionResponseAsync(Discord, this);
+        public override Task DeleteAsync(RequestOptions? options = null)
+            => InteractionHelper.DeleteInteractionResponseAsync(Discord, this, options);
 
         /// <summary>
         ///     Modifies this interaction response
@@ -57,7 +57,7 @@ namespace Discord.Rest
         /// </returns>
         /// <exception cref="InvalidOperationException">The token used to modify/delete this message expired.</exception>
         /// /// <exception cref="Discord.Net.HttpException">Something went wrong during the request.</exception>
-        public new async Task ModifyAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public async override Task ModifyAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
             try
             {

@@ -14,7 +14,7 @@ namespace Discord
         /// <summary>
         ///     Creates a new <see cref="RequestOptions" /> class with its default settings.
         /// </summary>
-        public static RequestOptions Default => new RequestOptions();
+        public static RequestOptions Default => new();
 
         /// <summary>
         ///     Gets or sets the maximum time to wait for this request to complete.
@@ -47,7 +47,7 @@ namespace Discord
         ///     Gets or sets the reason that will be written to the guild's audit log if applicable. This may not apply
         ///     to all actions.
         /// </remarks>
-        public string AuditLogReason { get; set; }
+        public string? AuditLogReason { get; set; }
         /// <summary>
         ///		Gets or sets whether or not this request should use the system
         ///		clock for rate-limiting. Defaults to <see langword="true" />.
@@ -63,17 +63,17 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the callback to execute regarding ratelimits for this request.
         /// </summary>
-        public Func<IRateLimitInfo, Task> RatelimitCallback { get; set; }
+        public Func<IRateLimitInfo, Task>? RatelimitCallback { get; set; }
 
         internal bool IgnoreState { get; set; }
-        internal BucketId BucketId { get; set; }
+        internal BucketId? BucketId { get; set; }
         internal bool IsClientBucket { get; set; }
         internal bool IsReactionBucket { get; set; }
         internal bool IsGatewayBucket { get; set; }
 
         internal IDictionary<string, IEnumerable<string>> RequestHeaders { get; }
 
-        internal static RequestOptions CreateOrClone(RequestOptions options)
+        internal static RequestOptions CreateOrClone(RequestOptions? options)
         {
             if (options == null)
                 return new RequestOptions();
@@ -102,6 +102,6 @@ namespace Discord
             RequestHeaders = new Dictionary<string, IEnumerable<string>>();
         }
 
-        public RequestOptions Clone() => MemberwiseClone() as RequestOptions;
+        public RequestOptions Clone() => (RequestOptions)MemberwiseClone();
     }
 }

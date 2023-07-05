@@ -16,7 +16,7 @@ namespace Discord.Commands
         }
         public static async Task<ParseResult> ParseArgsAsync(CommandInfo command, ICommandContext context, bool ignoreExtraArgs, IServiceProvider services, string input, int startPos, IReadOnlyDictionary<char, char> aliasMap)
         {
-            ParameterInfo curParam = null;
+            ParameterInfo? curParam = null;
             StringBuilder argBuilder = new StringBuilder(input.Length);
             int endPos = input.Length;
             var curPart = ParserPart.None;
@@ -115,7 +115,7 @@ namespace Discord.Commands
                 }
 
                 //Has this parameter ended yet?
-                string argString = null;
+                string? argString = null;
                 if (curPart == ParserPart.Parameter)
                 {
                     if (curPos == endPos || char.IsWhiteSpace(c))

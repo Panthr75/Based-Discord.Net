@@ -9,26 +9,26 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a webhook creation.
 /// </summary>
-public class WebhookCreateAuditLogData : IAuditLogData
+public partial class WebhookCreateAuditLogData : IAuditLogData
 {
-    private WebhookCreateAuditLogData(IWebhook webhook, ulong webhookId, WebhookInfoAuditLogModel model)
+    private WebhookCreateAuditLogData(IWebhook? webhook, ulong webhookId, WebhookInfoAuditLogModel model)
     {
         Webhook = webhook;
         WebhookId = webhookId;
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         Type = model.Type!.Value;
         ChannelId = model.ChannelId!.Value;
         Avatar = model.AvatarHash;
     }
 
-    internal static WebhookCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static WebhookCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<WebhookInfoAuditLogModel>(changes, discord);
 
-        var webhookInfo = log.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
-        var webhook = webhookInfo == null ? null : RestWebhook.Create(discord, (IGuild)null, webhookInfo);
+        var webhookInfo = log?.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
+        var webhook = webhookInfo == null ? null : RestWebhook.Create(discord, (IGuild?)null, webhookInfo);
 
         return new WebhookCreateAuditLogData(webhook, entry.TargetId!.Value, data);
     }
@@ -41,7 +41,7 @@ public class WebhookCreateAuditLogData : IAuditLogData
     /// <returns>
     ///     A webhook object representing the webhook that was created if it still exists, otherwise returns <see langword="null" />.
     /// </returns>
-    public IWebhook Webhook { get; }
+    public IWebhook? Webhook { get; }
 
     // Doc Note: Corresponds to the *audit log* data
 
@@ -83,5 +83,5 @@ public class WebhookCreateAuditLogData : IAuditLogData
     /// <returns>
     ///     A string containing the hash of the webhook's avatar.
     /// </returns>
-    public string Avatar { get; }
+    public string? Avatar { get; }
 }

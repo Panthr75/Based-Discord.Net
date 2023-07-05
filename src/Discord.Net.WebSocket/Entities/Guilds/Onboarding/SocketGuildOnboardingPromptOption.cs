@@ -30,28 +30,28 @@ public class SocketGuildOnboardingPromptOption : SocketEntity<ulong>, IGuildOnbo
     public IReadOnlyCollection<SocketRole> Roles { get; private set; }
 
     /// <inheritdoc />
-    public IEmote Emoji { get; private set; }
+    public IEmote? Emoji { get; private set; }
 
     /// <inheritdoc />
     public string Title { get; private set; }
 
     /// <inheritdoc />
-    public string Description { get; private set; }
+    public string? Description { get; private set; }
 
     internal SocketGuildOnboardingPromptOption(DiscordSocketClient discord, ulong id, Model model, SocketGuild guild) : base(discord, id)
     {
         ChannelIds = model.ChannelIds.ToImmutableArray();
         RoleIds = model.RoleIds.ToImmutableArray();
         Title = model.Title;
-        Description = model.Description.IsSpecified ? model.Description.Value : null;
+        Description = model.Description.GetValueOrDefault();
 
         if (model.Emoji.Id.HasValue)
         {
-            Emoji = new Emote(model.Emoji.Id.Value, model.Emoji.Name, model.Emoji.Animated ?? false);
+            Emoji = new Emote(model.Emoji.Id.Value, model.Emoji.Name!, model.Emoji.Animated ?? false);
         }
         else if (!string.IsNullOrWhiteSpace(model.Emoji.Name))
         {
-            Emoji = new Emoji(model.Emoji.Name);
+            Emoji = new Emoji(model.Emoji.Name!);
         }
         else
         {

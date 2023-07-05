@@ -31,15 +31,15 @@ public class RoleConnectionMetadata
     /// <summary>
     ///     Gets translations of the name. <see langword="null"/> if not set.
     /// </summary>
-    public IReadOnlyDictionary<string, string> NameLocalizations { get; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; }
 
     /// <summary>
     ///     Gets translations of the description. <see langword="null"/> if not set.
     /// </summary>
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; }
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; }
 
     internal RoleConnectionMetadata(RoleConnectionMetadataType type, string key, string name, string description,
-        IDictionary<string, string> nameLocalizations = null, IDictionary<string, string> descriptionLocalizations = null)
+        IDictionary<string, string>? nameLocalizations = null, IDictionary<string, string>? descriptionLocalizations = null)
     {
         Type = type;
         Key = key;

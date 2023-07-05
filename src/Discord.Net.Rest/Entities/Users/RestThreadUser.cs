@@ -19,7 +19,7 @@ namespace Discord.Rest
         public IGuild Guild { get; }
 
         /// <inheritdoc cref="IThreadUser.GuildUser"/>
-        public RestGuildUser GuildUser { get; private set; }
+        public RestGuildUser? GuildUser { get; private set; }
 
         /// <inheritdoc/>
         public string Mention => MentionUtils.MentionUser(Id);
@@ -46,7 +46,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        IGuildUser IThreadUser.GuildUser => GuildUser;
+        IGuildUser? IThreadUser.GuildUser => GuildUser;
 
         /// <summary>
         ///     Gets the guild user for this thread user.
@@ -55,7 +55,7 @@ namespace Discord.Rest
         ///     A task representing the asynchronous get operation. The task returns a
         ///     <see cref="IGuildUser"/> that represents the current thread user.
         /// </returns>
-        public Task<IGuildUser> GetGuildUser()
+        public Task<IGuildUser?> GetGuildUser()
             => Guild.GetUserAsync(Id);
     }
 }

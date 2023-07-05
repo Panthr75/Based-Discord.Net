@@ -1,38 +1,40 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace Discord.API.Gateway;
 
 internal class AutoModActionExecutedEvent
 {
-    [JsonProperty("guild_id")]
+    [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
 
-    [JsonProperty("action")]
-    public Discord.API.AutoModAction Action { get; set; }
+    [JsonPropertyName("action")]
+    public Discord.API.AutoModAction Action { get; set; } = null!;
 
-    [JsonProperty("rule_id")]
+    [JsonPropertyName("rule_id")]
     public ulong RuleId { get; set; }
 
-    [JsonProperty("rule_trigger_type")]
+    [JsonPropertyName("rule_trigger_type")]
     public AutoModTriggerType TriggerType { get; set; }
 
-    [JsonProperty("user_id")]
+    [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
 
-    [JsonProperty("channel_id")]
+    [JsonPropertyName("channel_id")]
     public Optional<ulong> ChannelId { get; set; }
 
-    [JsonProperty("message_id")]
+    [JsonPropertyName("message_id")]
     public Optional<ulong> MessageId { get; set; }
 
-    [JsonProperty("alert_system_message_id")]
+    [JsonPropertyName("alert_system_message_id")]
     public Optional<ulong> AlertSystemMessageId { get; set; }
 
-    [JsonProperty("content")]
-    public string Content { get; set; }
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
 
-    [JsonProperty("matched_keyword")]
+    [JsonPropertyName("matched_keyword")]
     public Optional<string> MatchedKeyword { get; set; }
 
-    [JsonProperty("matched_content")]
+    [JsonPropertyName("matched_content")]
     public Optional<string> MatchedContent { get; set; }
 }

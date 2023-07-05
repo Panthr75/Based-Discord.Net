@@ -27,117 +27,169 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public DateTimeOffset? JoinedAt
-            => GuildUser.JoinedAt;
+            => GuildUser?.JoinedAt;
 
         /// <inheritdoc/>
         public string DisplayName
-            => GuildUser.Nickname ?? GuildUser.GlobalName ?? GuildUser.Username;
+        {
+            get
+            {
+                if (GuildUser is null)
+                {
+                    return string.Empty;
+                }
+
+                return GuildUser.Nickname ?? GuildUser.GlobalName ?? GuildUser.Username;
+            }
+        }
 
         /// <inheritdoc/>
-        public string Nickname
-            => GuildUser.Nickname;
+        public string? Nickname
+            => GuildUser?.Nickname;
 
         /// <inheritdoc/>
         public DateTimeOffset? PremiumSince
-            => GuildUser.PremiumSince;
+            => GuildUser?.PremiumSince;
 
         /// <inheritdoc/>
         public DateTimeOffset? TimedOutUntil
-            => GuildUser.TimedOutUntil;
+            => GuildUser?.TimedOutUntil;
 
         /// <inheritdoc/>
         public bool? IsPending
-            => GuildUser.IsPending;
+            => GuildUser?.IsPending;
         /// <inheritdoc />
         public int Hierarchy
-            => GuildUser.Hierarchy;
+            => GuildUser?.Hierarchy ?? 0;
 
         /// <inheritdoc/>
-        public override string AvatarId
+        /// <exception cref="InvalidOperationException" accessor="set">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public override string? AvatarId
         {
-            get => GuildUser.AvatarId;
-            internal set => GuildUser.AvatarId = value;
+            get => GuildUser?.AvatarId;
+            internal set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+                GuildUser.AvatarId = value;
+            }
         }
         /// <inheritdoc/>
-        public string DisplayAvatarId => GuildAvatarId ?? AvatarId;
+        public string? DisplayAvatarId => GuildAvatarId ?? AvatarId;
 
         /// <inheritdoc/>
-        public string GuildAvatarId
-            => GuildUser.GuildAvatarId;
+        public string? GuildAvatarId
+            => GuildUser?.GuildAvatarId;
 
         /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException" accessor="set">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
         public override ushort DiscriminatorValue
         {
-            get => GuildUser.DiscriminatorValue;
-            internal set => GuildUser.DiscriminatorValue = value;
+            get => GuildUser?.DiscriminatorValue ?? 0;
+            internal set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+
+                GuildUser.DiscriminatorValue = value;
+            }
         }
 
         /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException" accessor="set">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
         public override bool IsBot
         {
-            get => GuildUser.IsBot;
-            internal set => GuildUser.IsBot = value;
+            get => GuildUser?.IsBot ?? false;
+            internal set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+
+                GuildUser.IsBot = value;
+            }
         }
 
         /// <inheritdoc/>
         public override bool IsWebhook
-            => GuildUser.IsWebhook;
+            => GuildUser?.IsWebhook ?? false;
 
         /// <inheritdoc/>
+        /// <exception cref="InvalidOperationException" accessor="set">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
         public override string Username
         {
-            get => GuildUser.Username;
-            internal set => GuildUser.Username = value;
+            get => GuildUser?.Username ?? string.Empty;
+            internal set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+                GuildUser.Username = value;
+            }
         }
 
         /// <inheritdoc/>
         public bool IsDeafened
-            => GuildUser.IsDeafened;
+            => GuildUser?.IsDeafened ?? false;
 
         /// <inheritdoc/>
         public bool IsMuted
-            => GuildUser.IsMuted;
+            => GuildUser?.IsMuted ?? false;
 
         /// <inheritdoc/>
         public bool IsSelfDeafened
-            => GuildUser.IsSelfDeafened;
+            => GuildUser?.IsSelfDeafened ?? false;
 
         /// <inheritdoc/>
         public bool IsSelfMuted
-            => GuildUser.IsSelfMuted;
+            => GuildUser?.IsSelfMuted ?? false;
 
         /// <inheritdoc/>
         public bool IsSuppressed
-            => GuildUser.IsSuppressed;
+            => GuildUser?.IsSuppressed ?? false;
 
         /// <inheritdoc/>
-        public IVoiceChannel VoiceChannel
-            => GuildUser.VoiceChannel;
+        public IVoiceChannel? VoiceChannel
+            => GuildUser?.VoiceChannel;
 
         /// <inheritdoc/>
-        public string VoiceSessionId
-            => GuildUser.VoiceSessionId;
+        public string? VoiceSessionId
+            => GuildUser?.VoiceSessionId;
 
         /// <inheritdoc/>
         public bool IsStreaming
-            => GuildUser.IsStreaming;
+            => GuildUser?.IsStreaming ?? false;
 
         /// <inheritdoc/>
         public bool IsVideoing
-            => GuildUser.IsVideoing;
+            => GuildUser?.IsVideoing ?? false;
 
         /// <inheritdoc/>
         public GuildUserFlags Flags
-            => GuildUser.Flags;
+            => GuildUser?.Flags ?? GuildUserFlags.None;
 
         /// <inheritdoc/>
         public DateTimeOffset? RequestToSpeakTimestamp
-            => GuildUser.RequestToSpeakTimestamp;
+            => GuildUser?.RequestToSpeakTimestamp;
 
         /// <inheritdoc cref="IThreadUser.GuildUser"/>
-        public SocketGuildUser GuildUser { get; private set; }
+        public SocketGuildUser? GuildUser { get; private set; }
 
-        internal SocketThreadUser(SocketGuild guild, SocketThreadChannel thread, ulong userId, SocketGuildUser member = null)
+        internal SocketThreadUser(SocketGuild guild, SocketThreadChannel thread, ulong userId, SocketGuildUser? member = null)
             : base(guild.Discord, userId)
         {
             Thread = thread;
@@ -146,17 +198,17 @@ namespace Discord.WebSocket
                 GuildUser = member;
         }
 
-        internal static SocketThreadUser Create(SocketGuild guild, SocketThreadChannel thread, Model model, SocketGuildUser guildUser = null)
+        internal static SocketThreadUser Create(SocketGuild guild, SocketThreadChannel thread, Model model, SocketGuildUser? guildUser = null)
         {
             var entity = new SocketThreadUser(guild, thread, model.UserId.Value, guildUser);
             entity.Update(model);
             return entity;
         }
 
-        internal static SocketThreadUser Create(SocketGuild guild, SocketThreadChannel thread, SocketGuildUser owner)
+        internal static SocketThreadUser Create(SocketGuild guild, SocketThreadChannel thread, SocketGuildUser? owner)
         {
             // this is used for creating the owner of the thread.
-            var entity = new SocketThreadUser(guild, thread, owner.Id, owner);
+            var entity = new SocketThreadUser(guild, thread, owner?.Id ?? 0UL, owner);
             entity.Update(new Model
             {
                 JoinTimestamp = thread.CreatedAt,
@@ -172,42 +224,81 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public ChannelPermissions GetPermissions(IGuildChannel channel) => GuildUser.GetPermissions(channel);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public ChannelPermissions GetPermissions(IGuildChannel channel) => GuildUser?.GetPermissions(channel) ?? throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
 
         /// <inheritdoc/>
-        public Task KickAsync(string reason = null, RequestOptions options = null) => GuildUser.KickAsync(reason, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task KickAsync(string? reason = null, RequestOptions? options = null) => GuildUser?.KickAsync(reason, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions options = null) => GuildUser.ModifyAsync(func, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null) => GuildUser?.ModifyAsync(func, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task AddRoleAsync(ulong roleId, RequestOptions options = null) => GuildUser.AddRoleAsync(roleId, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task AddRoleAsync(ulong roleId, RequestOptions? options = null) => GuildUser?.AddRoleAsync(roleId, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task AddRoleAsync(IRole role, RequestOptions options = null) => GuildUser.AddRoleAsync(role, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task AddRoleAsync(IRole role, RequestOptions? options = null) => GuildUser?.AddRoleAsync(role, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null) => GuildUser.AddRolesAsync(roleIds, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null) => GuildUser?.AddRolesAsync(roleIds, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null) => GuildUser.AddRolesAsync(roles, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null) => GuildUser?.AddRolesAsync(roles, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task RemoveRoleAsync(ulong roleId, RequestOptions options = null) => GuildUser.RemoveRoleAsync(roleId, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task RemoveRoleAsync(ulong roleId, RequestOptions? options = null) => GuildUser?.RemoveRoleAsync(roleId, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task RemoveRoleAsync(IRole role, RequestOptions options = null) => GuildUser.RemoveRoleAsync(role, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task RemoveRoleAsync(IRole role, RequestOptions? options = null) => GuildUser?.RemoveRoleAsync(role, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null) => GuildUser.RemoveRolesAsync(roleIds, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null) => GuildUser?.RemoveRolesAsync(roleIds, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null) => GuildUser.RemoveRolesAsync(roles, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null) => GuildUser?.RemoveRolesAsync(roles, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
         /// <inheritdoc/>
-        public Task SetTimeOutAsync(TimeSpan span, RequestOptions options = null) => GuildUser.SetTimeOutAsync(span, options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task SetTimeOutAsync(TimeSpan span, RequestOptions? options = null) => GuildUser?.SetTimeOutAsync(span, options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
-        public Task RemoveTimeOutAsync(RequestOptions options = null) => GuildUser.RemoveTimeOutAsync(options);
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        public Task RemoveTimeOutAsync(RequestOptions? options = null) => GuildUser?.RemoveTimeOutAsync(options) ?? Task.FromException(new InvalidOperationException("This thread user doesn't have an associated guild user!"));
 
         /// <inheritdoc/>
         IThreadChannel IThreadUser.Thread => Thread;
@@ -219,31 +310,59 @@ namespace Discord.WebSocket
         IGuild IGuildUser.Guild => Guild;
 
         /// <inheritdoc />
-        IGuildUser IThreadUser.GuildUser => GuildUser;
+        IGuildUser? IThreadUser.GuildUser => GuildUser;
 
         /// <inheritdoc/>
         ulong IGuildUser.GuildId => Guild.Id;
 
         /// <inheritdoc/>
-        GuildPermissions IGuildUser.GuildPermissions => GuildUser.GuildPermissions;
+        GuildPermissions IGuildUser.GuildPermissions => GuildUser?.GuildPermissions ?? new GuildPermissions();
 
         /// <inheritdoc/>
-        IReadOnlyCollection<ulong> IGuildUser.RoleIds => GuildUser.Roles.Select(x => x.Id).ToImmutableArray();
+        IReadOnlyCollection<ulong> IGuildUser.RoleIds => GuildUser?.Roles?.Select(x => x.Id)?.ToImmutableArray() ?? ImmutableArray<ulong>.Empty;
 
         /// <inheritdoc />
-        string IGuildUser.GetDisplayAvatarUrl(ImageFormat format, ushort size) => GuildUser.GetDisplayAvatarUrl(format, size);
+        string? IGuildUser.GetDisplayAvatarUrl(ImageFormat format, ushort size) => GuildUser?.GetDisplayAvatarUrl(format, size);
 
         /// <inheritdoc />
-        string IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => GuildUser.GetGuildAvatarUrl(format, size);
+        string? IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => GuildUser?.GetGuildAvatarUrl(format, size);
 
-        internal override SocketGlobalUser GlobalUser { get => GuildUser.GlobalUser; set => GuildUser.GlobalUser = value; }
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        internal override SocketGlobalUser GlobalUser
+        {
+            get => GuildUser?.GlobalUser ?? throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+            set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+                GuildUser.GlobalUser = value;
+            }
+        }
 
-        internal override SocketPresence Presence { get => GuildUser.Presence; set => GuildUser.Presence = value; }
+        /// <exception cref="InvalidOperationException" accessor="set">
+        /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
+        /// </exception>
+        internal override SocketPresence? Presence
+        {
+            get => GuildUser?.Presence;
+            set
+            {
+                if (GuildUser is null)
+                {
+                    throw new InvalidOperationException("This thread user doesn't have an associated guild user!");
+                }
+                GuildUser.Presence = value;
+            }
+        }
 
         /// <summary>
         ///     Gets the guild user of this thread user.
         /// </summary>
         /// <param name="user"></param>
-        public static explicit operator SocketGuildUser(SocketThreadUser user) => user.GuildUser;
+        public static explicit operator SocketGuildUser?(SocketThreadUser user) => user.GuildUser;
     }
 }

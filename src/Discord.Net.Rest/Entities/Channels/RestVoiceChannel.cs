@@ -27,15 +27,15 @@ namespace Discord.Rest
         /// <inheritdoc />
         public int? UserLimit { get; private set; }
         /// <inheritdoc/>
-        public string RTCRegion { get; private set; }
+        public string? RTCRegion { get; private set; }
         /// <inheritdoc/>
         public VideoQualityMode VideoQualityMode { get; private set; }
 
-        internal RestVoiceChannel(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestVoiceChannel(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, guild, id)
         {
         }
-        internal new static RestVoiceChannel Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal new static RestVoiceChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestVoiceChannel(discord, guild, model.Id);
             entity.Update(model);
@@ -58,7 +58,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions? options = null)
         {
             var model = await ChannelHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             Update(model);
@@ -66,7 +66,7 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         /// <exception cref="InvalidOperationException">Cannot create a thread within a voice channel.</exception>
-        public override Task<RestThreadChannel> CreateThreadAsync(string name, ThreadType type = ThreadType.PublicThread, ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage message = null, bool? invitable = null, int? slowmode = null, RequestOptions options = null)
+        public override Task<RestThreadChannel> CreateThreadAsync(string name, ThreadType type = ThreadType.PublicThread, ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage? message = null, bool? invitable = null, int? slowmode = null, RequestOptions? options = null)
             => throw new InvalidOperationException("Cannot create a thread within a voice channel");
 
         #endregion
@@ -76,7 +76,7 @@ namespace Discord.Rest
         #region TextOverrides
 
         /// <inheritdoc/> <exception cref="NotSupportedException">Threads are not supported in voice channels</exception>
-        public override Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions options = null)
+        public override Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null)
             => throw new NotSupportedException("Threads are not supported in voice channels");
 
         #endregion
@@ -85,26 +85,29 @@ namespace Discord.Rest
         #region IAudioChannel
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Connecting to a REST-based channel is not supported.</exception>
-        Task<IAudioClient> IAudioChannel.ConnectAsync(bool selfDeaf, bool selfMute, bool external) { throw new NotSupportedException(); }
+        Task<IAudioClient?> IAudioChannel.ConnectAsync(bool selfDeaf, bool selfMute, bool external) { throw new NotSupportedException(); }
         Task IAudioChannel.DisconnectAsync() { throw new NotSupportedException(); }
-        Task IAudioChannel.ModifyAsync(Action<AudioChannelProperties> func, RequestOptions options) { throw new NotSupportedException(); }
+        Task IAudioChannel.ModifyAsync(Action<AudioChannelProperties> func, RequestOptions? options) { throw new NotSupportedException(); }
         #endregion
 
         #region IGuildChannel
         /// <inheritdoc />
-        Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IGuildUser>(null);
+        Task<IGuildUser?> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IGuildUser?>(null);
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>();
         #endregion
 
         #region INestedChannel
         /// <inheritdoc />
-        async Task<ICategoryChannel> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions options)
+        async Task<ICategoryChannel?> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions? options)
         {
             if (CategoryId.HasValue && mode == CacheMode.AllowDownload)
+            {
+                this.ValidateGuildExists();
                 return (await Guild.GetChannelAsync(CategoryId.Value, mode, options).ConfigureAwait(false)) as ICategoryChannel;
+            }
             return null;
         }
         #endregion

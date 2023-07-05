@@ -1,14 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class GuildMemberUpdateEvent : GuildMember
     {
-        [JsonProperty("joined_at")]
+        [JsonPropertyName("joined_at")]
         public new DateTimeOffset? JoinedAt { get; set; }
 
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
     }
 }

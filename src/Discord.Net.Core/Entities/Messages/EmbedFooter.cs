@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
     /// <summary> A footer field for an <see cref="Embed"/>. </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedFooter
+    public struct EmbedFooter : IEquatable<EmbedFooter>
     {
         /// <summary>
         ///     Gets the text of the footer field.
@@ -20,18 +23,18 @@ namespace Discord
         /// <returns>
         ///     A string containing the URL of the footer icon.
         /// </returns>
-        public string IconUrl { get; }
+        public string? IconUrl { get; }
         /// <summary>
         ///     Gets the proxied URL of the footer icon link.
         /// </summary>
         /// <returns>
         ///     A string containing the proxied URL of the footer icon.
         /// </returns>
-        public string ProxyUrl { get; }
+        public string? ProxyUrl { get; }
 
-        internal EmbedFooter(string text, string iconUrl, string proxyUrl)
+        internal EmbedFooter(string text, string? iconUrl, string? proxyUrl)
         {
-            Text = text;
+            Text = text ?? throw new ArgumentNullException(nameof(text));
             IconUrl = iconUrl;
             ProxyUrl = proxyUrl;
         }
@@ -60,7 +63,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedFooter"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedFooter embedFooter && Equals(embedFooter);
 
         /// <summary>
@@ -68,11 +71,26 @@ namespace Discord
         /// </summary>
         /// <param name="embedFooter">The <see cref="EmbedFooter"/> to compare with the current <see cref="EmbedFooter"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedFooter? embedFooter)
-            => GetHashCode() == embedFooter?.GetHashCode();
+        public bool Equals(EmbedFooter embedFooter)
+        {
+            return this.Text == embedFooter.Text &&
+                this.IconUrl == embedFooter.IconUrl &&
+                this.ProxyUrl == embedFooter.ProxyUrl;
+        }
+
+        /// <inheritdoc cref="EmbedFooter.Equals(EmbedFooter)"/>
+        public bool Equals([NotNullWhen(true)] EmbedFooter? embedFooter)
+        {
+            if (!embedFooter.HasValue)
+            {
+                return false;
+            }
+
+            return this.Equals(embedFooter.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => (Text, IconUrl, ProxyUrl).GetHashCode();
+            => HashCode.Combine(Text, IconUrl, ProxyUrl);
     }
 }

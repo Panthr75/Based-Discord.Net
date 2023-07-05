@@ -32,15 +32,15 @@ namespace Discord.WebSocket
             }
         }
 
-        public SocketMessage Remove(ulong id)
+        public SocketMessage? Remove(ulong id)
         {
-            _messages.TryRemove(id, out SocketMessage msg);
+            _messages.TryRemove(id, out SocketMessage? msg);
             return msg;
         }
 
-        public SocketMessage Get(ulong id)
+        public SocketMessage? Get(ulong id)
         {
-            if (_messages.TryGetValue(id, out SocketMessage result))
+            if (_messages.TryGetValue(id, out SocketMessage? result))
                 return result;
             return null;
         }
@@ -62,7 +62,7 @@ namespace Discord.WebSocket
                 cachedMessageIds = _orderedMessages.Where(x => x > fromMessageId.Value);
             else //Direction.Around
             {
-                if (!_messages.TryGetValue(fromMessageId.Value, out SocketMessage msg))
+                if (!_messages.TryGetValue(fromMessageId.Value, out SocketMessage? msg))
                     return ImmutableArray<SocketMessage>.Empty;
                 int around = limit / 2;
                 var before = GetMany(fromMessageId, Direction.Before, around);
@@ -74,12 +74,12 @@ namespace Discord.WebSocket
             if (dir == Direction.Before)
                 cachedMessageIds = cachedMessageIds.Reverse();
             if (dir == Direction.Around) //Only happens if fromMessageId is null, should only get "around" and itself (+1)
-                limit = limit / 2 + 1;
+                limit = (limit / 2) + 1;
 
             return cachedMessageIds
                 .Select(x =>
                 {
-                    if (_messages.TryGetValue(x, out SocketMessage msg))
+                    if (_messages.TryGetValue(x, out SocketMessage? msg))
                         return msg;
                     return null;
                 })

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
 
@@ -8,25 +9,25 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a change in a guild member's roles.
 /// </summary>
-public class MemberRoleAuditLogData : IAuditLogData
+public partial class MemberRoleAuditLogData : IAuditLogData
 {
-    private MemberRoleAuditLogData(IReadOnlyCollection<MemberRoleEditInfo> roles, IUser target)
+    private MemberRoleAuditLogData(IReadOnlyCollection<MemberRoleEditInfo> roles, IUser? target)
     {
         Roles = roles;
         Target = target;
     }
 
-    internal static MemberRoleAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static MemberRoleAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
-        var roleInfos = changes.SelectMany(x => x.NewValue.ToObject<API.Role[]>(discord.ApiClient.Serializer),
+        var roleInfos = changes.SelectMany(x => x.NewValue.Deserialize<API.Role[]>(discord.ApiClient.SerializerOptions)!,
                 (model, role) => new { model.ChangedProperty, Role = role })
             .Select(x => new MemberRoleEditInfo(x.Role.Name, x.Role.Id, x.ChangedProperty == "$add"))
             .ToList();
 
-        var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
-        RestUser user = (userInfo != null) ? RestUser.Create(discord, userInfo) : null;
+        var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
+        RestUser? user = (userInfo != null) ? RestUser.Create(discord, userInfo) : null;
 
         return new MemberRoleAuditLogData(roleInfos.ToReadOnlyCollection(), user);
     }
@@ -46,5 +47,5 @@ public class MemberRoleAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user that the role changes were performed on.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

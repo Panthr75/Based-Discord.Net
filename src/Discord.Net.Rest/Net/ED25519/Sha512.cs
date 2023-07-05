@@ -34,7 +34,7 @@ namespace Discord.Net.ED25519
         /// <param name="data">Array segment</param>
         public void Update(ArraySegment<byte> data)
         {
-            Update(data.Array, data.Offset, data.Count);
+            Update(data.Array!, data.Offset, data.Count);
         }
 
         /// <summary>

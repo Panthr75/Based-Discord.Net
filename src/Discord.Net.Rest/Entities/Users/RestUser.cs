@@ -23,15 +23,17 @@ namespace Discord.Rest
         /// <inheritdoc />
         public ushort DiscriminatorValue { get; private set; }
         /// <inheritdoc />
-        public string AvatarId { get; private set; }
+        public string? AvatarId { get; private set; }
         /// <inheritdoc />
-        public string BannerId { get; private set; }
+        public string? BannerId { get; private set; }
         /// <inheritdoc />
         public Color? AccentColor { get; private set; }
         /// <inheritdoc />
         public UserProperties? PublicFlags { get; private set; }
         /// <inheritdoc />
-        public string GlobalName { get; internal set; }
+        public string? GlobalName { get; private set; }
+        /// <inheritdoc />
+        public string? Pronouns { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -40,7 +42,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         public string Mention => MentionUtils.MentionUser(Id);
         /// <inheritdoc />
-        public virtual IActivity Activity => null;
+        public virtual IActivity? Activity => null;
         /// <inheritdoc />
         public virtual UserStatus Status => UserStatus.Offline;
         /// <inheritdoc />
@@ -53,20 +55,21 @@ namespace Discord.Rest
         internal RestUser(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Username = string.Empty;
         }
         internal static RestUser Create(BaseDiscordClient discord, Model model)
             => Create(discord, null, model, null);
-        internal static RestUser Create(BaseDiscordClient discord, IGuild guild, Model model, ulong? webhookId)
+        internal static RestUser Create(BaseDiscordClient discord, IGuild? guild, Model model, ulong? webhookId)
         {
             RestUser entity;
             if (webhookId.HasValue)
-                entity = new RestWebhookUser(discord, guild, model.Id, webhookId.Value);
+                entity = new RestWebhookUser(discord, guild!, model.Id, webhookId.Value);
             else
                 entity = new RestUser(discord, model.Id);
             entity.Update(model);
             return entity;
         }
-        internal static RestUser Create(BaseDiscordClient discord, IGuild guild, EventUserModel model)
+        internal static RestUser Create(BaseDiscordClient discord, IGuild? guild, EventUserModel model)
         {
             if (model.Member.IsSpecified)
             {
@@ -96,12 +99,19 @@ namespace Discord.Rest
                 PublicFlags = model.PublicFlags.Value;
             if (model.GlobalName.IsSpecified)
                 GlobalName = model.GlobalName.Value;
+            if (model.Pronouns.IsSpecified)
+                Pronouns = model.Pronouns.Value;
         }
 
         /// <inheritdoc />
-        public virtual async Task UpdateAsync(RequestOptions options = null)
+        public virtual async Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetUserAsync(Id, options).ConfigureAwait(false);
+            if (model is null)
+            {
+                return;
+            }
+
             Update(model);
         }
 
@@ -112,15 +122,15 @@ namespace Discord.Rest
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a rest DM channel where the user is the recipient.
         /// </returns>
-        public Task<RestDMChannel> CreateDMChannelAsync(RequestOptions options = null)
+        public Task<RestDMChannel> CreateDMChannelAsync(RequestOptions? options = null)
             => UserHelper.CreateDMChannelAsync(this, Discord, options);
 
         /// <inheritdoc />
-        public string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => CDN.GetUserAvatarUrl(Id, AvatarId, size, format);
 
         /// <inheritdoc />
-        public string GetBannerUrl(ImageFormat format = ImageFormat.Auto, ushort size = 256)
+        public string? GetBannerUrl(ImageFormat format = ImageFormat.Auto, ushort size = 256)
             => CDN.GetUserBannerUrl(Id, BannerId, size, format);
 
         /// <inheritdoc />
@@ -143,7 +153,7 @@ namespace Discord.Rest
 
         #region IUser
         /// <inheritdoc />
-        async Task<IDMChannel> IUser.CreateDMChannelAsync(RequestOptions options)
+        async Task<IDMChannel> IUser.CreateDMChannelAsync(RequestOptions? options)
             => await CreateDMChannelAsync(options).ConfigureAwait(false);
         #endregion
     }

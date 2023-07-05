@@ -1,6 +1,7 @@
 using Discord.Rest;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -18,9 +19,9 @@ public class SocketMemberRoleAuditLogData : ISocketAuditLogData
 
     internal static SocketMemberRoleAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
-        var roleInfos = changes.SelectMany(x => x.NewValue.ToObject<API.Role[]>(discord.ApiClient.Serializer),
+        var roleInfos = changes.SelectMany(x => x.NewValue!.Deserialize<API.Role[]>(discord.ApiClient.SerializerOptions)!,
                 (model, role) => new { model.ChangedProperty, Role = role })
             .Select(x => new SocketMemberRoleEditInfo(x.Role.Name, x.Role.Id, x.ChangedProperty == "$add"))
             .ToList();

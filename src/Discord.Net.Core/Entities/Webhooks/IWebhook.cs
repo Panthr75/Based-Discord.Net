@@ -16,15 +16,15 @@ namespace Discord
         /// <summary>
         ///     Gets the default name of this webhook.
         /// </summary>
-        string Name { get; }
+        string? Name { get; }
         /// <summary>
         ///     Gets the ID of this webhook's default avatar.
         /// </summary>
-        string AvatarId { get; }
+        string? AvatarId { get; }
         /// <summary>
         ///     Gets the URL to this webhook's default avatar.
         /// </summary>
-        string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
+        string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
 
         /// <summary>
         ///     Gets the channel for this webhook.
@@ -47,7 +47,7 @@ namespace Discord
         /// <summary>
         ///     Gets the user that created this webhook.
         /// </summary>
-        IUser Creator { get; }
+        IUser? Creator { get; }
 
         /// <summary>
         ///     Gets the ID of the application owning this webhook.
@@ -57,6 +57,6 @@ namespace Discord
         /// <summary>
         ///     Modifies this webhook.
         /// </summary>
-        Task ModifyAsync(Action<WebhookProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<WebhookProperties> func, RequestOptions? options = null);
     }
 }

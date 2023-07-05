@@ -8,7 +8,7 @@ namespace Discord.Rest
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public class RestUserGuild : RestEntity<ulong>, IUserGuild
     {
-        private string _iconId;
+        private string? _iconId;
 
         /// <inheritdoc />
         public string Name { get; private set; }
@@ -20,7 +20,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
         /// <inheritdoc />
-        public string IconUrl => CDN.GetGuildIconUrl(Id, _iconId);
+        public string? IconUrl => CDN.GetGuildIconUrl(Id, _iconId);
         /// <inheritdoc />
         public GuildFeatures Features { get; private set; }
 
@@ -33,6 +33,8 @@ namespace Discord.Rest
         internal RestUserGuild(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Name = string.Empty;
+            this.Features = new GuildFeatures(GuildFeature.None);
         }
         internal static RestUserGuild Create(BaseDiscordClient discord, Model model)
         {
@@ -52,19 +54,23 @@ namespace Discord.Rest
             ApproximatePresenceCount = model.ApproximatePresenceCount.IsSpecified ? model.ApproximatePresenceCount.Value : null;
         }
 
-        public async Task LeaveAsync(RequestOptions options = null)
+        public async Task LeaveAsync(RequestOptions? options = null)
         {
             await Discord.ApiClient.LeaveGuildAsync(Id, options).ConfigureAwait(false);
         }
 
-        public async Task<RestGuildUser> GetCurrentUserGuildMemberAsync(RequestOptions options = null)
+        public async Task<RestGuildUser?> GetCurrentUserGuildMemberAsync(RequestOptions? options = null)
         {
             var user = await Discord.ApiClient.GetCurrentUserGuildMember(Id, options);
+            if (user == null)
+            {
+                return null;
+            }
             return RestGuildUser.Create(Discord, null, user, Id);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(RequestOptions options = null)
+        public async Task DeleteAsync(RequestOptions? options = null)
         {
             await Discord.ApiClient.DeleteGuildAsync(Id, options).ConfigureAwait(false);
         }

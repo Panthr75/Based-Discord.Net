@@ -6,9 +6,9 @@ namespace Discord.Net.Rest
     {
         public Stream Stream { get; }
         public string Filename { get; }
-        public string ContentType { get; }
+        public string? ContentType { get; }
 
-        public MultipartFile(Stream stream, string filename, string contentType = null)
+        public MultipartFile(Stream stream, string filename, string? contentType = null)
         {
             Stream = stream;
             Filename = filename;

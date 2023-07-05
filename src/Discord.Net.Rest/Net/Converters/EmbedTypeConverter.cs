@@ -1,19 +1,16 @@
-using Newtonsoft.Json;
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.Net.Converters
 {
-    internal class EmbedTypeConverter : JsonConverter
+    internal class EmbedTypeConverter : JsonConverter<EmbedType>
     {
-        public static readonly EmbedTypeConverter Instance = new EmbedTypeConverter();
+        public static readonly EmbedTypeConverter Instance = new();
 
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => true;
-        public override bool CanWrite => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override EmbedType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return (string)reader.Value switch
+            return reader.GetString() switch
             {
                 "rich" => EmbedType.Rich,
                 "link" => EmbedType.Link,
@@ -28,36 +25,36 @@ namespace Discord.Net.Converters
             };
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, EmbedType value, JsonSerializerOptions options)
         {
-            switch ((EmbedType)value)
+            switch (value)
             {
                 case EmbedType.Rich:
-                    writer.WriteValue("rich");
+                    writer.WriteStringValue("rich");
                     break;
                 case EmbedType.Link:
-                    writer.WriteValue("link");
+                    writer.WriteStringValue("link");
                     break;
                 case EmbedType.Video:
-                    writer.WriteValue("video");
+                    writer.WriteStringValue("video");
                     break;
                 case EmbedType.Image:
-                    writer.WriteValue("image");
+                    writer.WriteStringValue("image");
                     break;
                 case EmbedType.Gifv:
-                    writer.WriteValue("gifv");
+                    writer.WriteStringValue("gifv");
                     break;
                 case EmbedType.Article:
-                    writer.WriteValue("article");
+                    writer.WriteStringValue("article");
                     break;
                 case EmbedType.Tweet:
-                    writer.WriteValue("tweet");
+                    writer.WriteStringValue("tweet");
                     break;
                 case EmbedType.Html:
-                    writer.WriteValue("html");
+                    writer.WriteStringValue("html");
                     break;
                 default:
-                    throw new JsonSerializationException("Invalid embed type");
+                    throw new JsonException("Invalid embed type");
             }
         }
     }

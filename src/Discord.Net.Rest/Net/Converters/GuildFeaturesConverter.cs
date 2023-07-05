@@ -1,66 +1,54 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Discord.Net.Converters
 {
-    internal class GuildFeaturesConverter : JsonConverter
+    internal class GuildFeaturesConverter : JsonConverter<GuildFeatures>
     {
-        public static GuildFeaturesConverter Instance
-            => new GuildFeaturesConverter();
-
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanWrite => false;
-        public override bool CanRead => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override GuildFeatures? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var obj = JToken.Load(reader);
-            var arr = obj.ToObject<string[]>();
+            string[]? featuresArray = JsonSerializer.Deserialize<string[]>(ref reader, options);
+            if (featuresArray == null)
+            {
+                return null;
+            }
 
-            GuildFeature features = GuildFeature.None;
             List<string> experimental = new();
 
-            foreach (var item in arr)
+            GuildFeature features = featuresArray.Select(feature =>
             {
-                if (Enum.TryParse<GuildFeature>(string.Concat(item.Split('_')), true, out var result))
+                if (!Enum.TryParse(string.Concat(feature.Split('_')), true, out GuildFeature result))
                 {
-                    features |= result;
+                    experimental.Add(feature);
+                    return GuildFeature.None;
                 }
-                else
-                {
-                    experimental.Add(item);
-                }
-            }
+                return result;
+            }).Aggregate(GuildFeature.None, (a, b) => a | b);
 
             return new GuildFeatures(features, experimental.ToArray());
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, GuildFeatures value, JsonSerializerOptions options)
         {
-            var guildFeatures = (GuildFeatures)value;
+            GuildFeature v = value.Value;
+#if NETSTANDARD2_0 || NETSTANDARD2_1
+            string[] allFeatures = Enum.GetValues(typeof(GuildFeature)).Cast<GuildFeature>()
+#else
+            string[] allFeatures = Enum.GetValues<GuildFeature>()
+#endif
+                .Where(f => f != GuildFeature.None && v.HasFlag(f))
+                .Select(f => FeatureToApiString(f))
+                .ToArray();
 
-            var enumValues = Enum.GetValues(typeof(GuildFeature));
+            JsonSerializer.Serialize(writer, allFeatures, options);
 
-            writer.WriteStartArray();
-
-            foreach (var enumValue in enumValues)
-            {
-                var val = (GuildFeature)enumValue;
-                if (val is GuildFeature.None)
-                    continue;
-
-                if (guildFeatures.Value.HasFlag(val))
-                {
-                    writer.WriteValue(FeatureToApiString(val));
-                }
-            }
-            writer.WriteEndArray();
         }
 
-        private string FeatureToApiString(GuildFeature feature)
+        private static string FeatureToApiString(GuildFeature feature)
         {
             var builder = new StringBuilder();
             var firstChar = true;
@@ -72,7 +60,7 @@ namespace Discord.Net.Converters
                     if (firstChar)
                         firstChar = false;
                     else
-                        builder.Append("_");
+                        builder.Append('_');
 
                     builder.Append(c);
                 }

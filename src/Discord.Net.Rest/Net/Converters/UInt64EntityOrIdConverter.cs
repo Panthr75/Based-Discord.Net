@@ -1,43 +1,58 @@
 using Discord.API;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Globalization;
 
 namespace Discord.Net.Converters
 {
-    internal class UInt64EntityOrIdConverter<T> : JsonConverter
+    internal class UInt64EntityOrIdConverter : JsonConverterFactory
     {
-        private readonly JsonConverter _innerConverter;
-
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => true;
-        public override bool CanWrite => false;
-
-        public UInt64EntityOrIdConverter(JsonConverter innerConverter)
+        public override bool CanConvert(Type typeToConvert)
         {
-            _innerConverter = innerConverter;
+            return typeToConvert.IsGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(EntityOrId<>);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
         {
-            switch (reader.TokenType)
+            Type converterType = typeof(Converter<>).MakeGenericType(typeToConvert.GetGenericArguments()[0]);
+
+            return (JsonConverter?)Activator.CreateInstance(converterType);
+        }
+
+        private sealed class Converter<T> : JsonConverter<EntityOrId<T>>
+        {
+            public override EntityOrId<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
-                case JsonToken.String:
-                case JsonToken.Integer:
-                    return new EntityOrId<T>(ulong.Parse(reader.ReadAsString(), NumberStyles.None, CultureInfo.InvariantCulture));
-                default:
-                    T obj;
-                    if (_innerConverter != null)
-                        obj = (T)_innerConverter.ReadJson(reader, typeof(T), null, serializer);
-                    else
-                        obj = serializer.Deserialize<T>(reader);
-                    return new EntityOrId<T>(obj);
-            }
-        }
+                if (reader.TokenType == JsonTokenType.String)
+                {
+                    return new EntityOrId<T>(ulong.Parse(reader.GetString()!, NumberStyles.None, CultureInfo.InvariantCulture));
+                }
+                if (reader.TokenType == JsonTokenType.Number)
+                {
+                    return new EntityOrId<T>(reader.GetUInt64());
+                }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new InvalidOperationException();
+                T? value = JsonSerializer.Deserialize<T>(ref reader, options);
+                if (value is null)
+                {
+                    return default;
+                }
+
+                return new EntityOrId<T>(value);
+            }
+
+            public override void Write(Utf8JsonWriter writer, EntityOrId<T> value, JsonSerializerOptions options)
+            {
+                if (value.IsObject)
+                {
+                    JsonSerializer.Serialize(writer, value.Object, options);
+                }
+                else
+                {
+                    writer.WriteNumberValue(value.Id);
+                }
+            }
         }
     }
 }

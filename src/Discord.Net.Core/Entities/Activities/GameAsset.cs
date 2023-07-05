@@ -15,14 +15,14 @@ namespace Discord
         /// <returns>
         ///     A string containing the description of the asset.
         /// </returns>
-        public string Text { get; internal set; }
+        public string? Text { get; internal set; }
         /// <summary>
         ///     Gets the image ID of the asset.
         /// </summary>
         /// <returns>
         ///     A string containing the unique image identifier of the asset.
         /// </returns>
-        public string ImageId { get; internal set; }
+        public string? ImageId { get; internal set; }
 
         /// <summary>
         ///     Returns the image URL of the asset.
@@ -32,7 +32,7 @@ namespace Discord
         /// <returns>
         ///     A string pointing to the image URL of the asset; <see langword="null" /> when the application ID does not exist.
         /// </returns>
-        public string GetImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
-            => ApplicationId.HasValue ? CDN.GetRichAssetUrl(ApplicationId.Value, ImageId, size, format) : null;
+        public string? GetImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+            => ImageId is not null && ApplicationId.HasValue ? CDN.GetRichAssetUrl(ApplicationId.Value, ImageId, size, format) : null;
     }
 }

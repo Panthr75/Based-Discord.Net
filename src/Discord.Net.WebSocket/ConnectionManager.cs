@@ -8,10 +8,30 @@ namespace Discord
 {
     internal class ConnectionManager : IDisposable
     {
-        public event Func<Task> Connected { add { _connectedEvent.Add(value); } remove { _connectedEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<Task>> _connectedEvent = new AsyncEvent<Func<Task>>();
-        public event Func<Exception, bool, Task> Disconnected { add { _disconnectedEvent.Add(value); } remove { _disconnectedEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<Exception, bool, Task>> _disconnectedEvent = new AsyncEvent<Func<Exception, bool, Task>>();
+        public event Func<Task> Connected
+        {
+            add
+            {
+                this._connectedEvent.Add(value);
+            } 
+            remove
+            {
+                this._connectedEvent.Remove(value);
+            } 
+        }
+        private readonly AsyncEvent<Func<Task>> _connectedEvent = new();
+        public event Func<Exception, bool, Task> Disconnected
+        {
+            add 
+            {
+                this._disconnectedEvent.Add(value); 
+            }
+            remove
+            {
+                this._disconnectedEvent.Remove(value);
+            }
+        }
+        private readonly AsyncEvent<Func<Exception, bool, Task>> _disconnectedEvent = new();
 
         private readonly SemaphoreSlim _stateLock;
         private readonly Logger _logger;
@@ -19,9 +39,9 @@ namespace Discord
         private readonly Func<Task> _onConnecting;
         private readonly Func<Exception, Task> _onDisconnecting;
 
-        private TaskCompletionSource<bool> _connectionPromise, _readyPromise;
-        private CancellationTokenSource _combinedCancelToken, _reconnectCancelToken, _connectionCancelToken;
-        private Task _task;
+        private TaskCompletionSource<bool>? _connectionPromise, _readyPromise;
+        private CancellationTokenSource? _combinedCancelToken, _reconnectCancelToken, _connectionCancelToken;
+        private Task? _task;
 
         private bool _isDisposed;
 
@@ -29,13 +49,13 @@ namespace Discord
         public CancellationToken CancelToken { get; private set; }
 
         internal ConnectionManager(SemaphoreSlim stateLock, Logger logger, int connectionTimeout,
-            Func<Task> onConnecting, Func<Exception, Task> onDisconnecting, Action<Func<Exception, Task>> clientDisconnectHandler)
+            Func<Task> onConnecting, Func<Exception, Task> onDisconnecting, Action<Func<Exception?, Task>> clientDisconnectHandler)
         {
-            _stateLock = stateLock;
-            _logger = logger;
-            _connectionTimeout = connectionTimeout;
-            _onConnecting = onConnecting;
-            _onDisconnecting = onDisconnecting;
+            this._stateLock = stateLock;
+            this._logger = logger;
+            this._connectionTimeout = connectionTimeout;
+            this._onConnecting = onConnecting;
+            this._onDisconnecting = onDisconnecting;
 
             clientDisconnectHandler(ex =>
             {
@@ -43,14 +63,14 @@ namespace Discord
                 {
                     var ex2 = ex as WebSocketClosedException;
                     if (ex2?.CloseCode == 4006)
-                        CriticalError(new Exception("WebSocket session expired", ex));
+                        this.CriticalError(new Exception("WebSocket session expired", ex));
                     else if (ex2?.CloseCode == 4014)
-                        CriticalError(new Exception("WebSocket connection was closed", ex));
+                        this.CriticalError(new Exception("WebSocket connection was closed", ex));
                     else
-                        Error(new Exception("WebSocket connection was closed", ex));
+                        this.Error(new Exception("WebSocket connection was closed", ex));
                 }
                 else
-                    Error(new Exception("WebSocket connection was closed"));
+                    this.Error(new Exception("WebSocket connection was closed"));
                 return Task.Delay(0);
             });
         }
@@ -60,11 +80,11 @@ namespace Discord
             if (State != ConnectionState.Disconnected)
                 throw new InvalidOperationException("Cannot start an already running client.");
 
-            await AcquireConnectionLock().ConfigureAwait(false);
+            await this.AcquireConnectionLock().ConfigureAwait(false);
             var reconnectCancelToken = new CancellationTokenSource();
-            _reconnectCancelToken?.Dispose();
-            _reconnectCancelToken = reconnectCancelToken;
-            _task = Task.Run(async () =>
+            this._reconnectCancelToken?.Dispose();
+            this._reconnectCancelToken = reconnectCancelToken;
+            this._task = Task.Run(async () =>
             {
                 try
                 {
@@ -74,9 +94,9 @@ namespace Discord
                     {
                         try
                         {
-                            await ConnectAsync(reconnectCancelToken).ConfigureAwait(false);
+                            await this.ConnectAsync(reconnectCancelToken).ConfigureAwait(false);
                             nextReconnectDelay = 1000; //Reset delay
-                            await _connectionPromise.Task.ConfigureAwait(false);
+                            await this._connectionPromise!.Task.ConfigureAwait(false);
                         }
                         // remove for testing.
                         //catch (OperationCanceledException ex)
@@ -89,16 +109,16 @@ namespace Discord
                         //}
                         catch (Exception ex)
                         {
-                            Error(ex); //In case this exception didn't come from another Error call
+                            this.Error(ex); //In case this exception didn't come from another Error call
                             if (!reconnectCancelToken.IsCancellationRequested)
                             {
-                                await _logger.WarningAsync(ex).ConfigureAwait(false);
-                                await DisconnectAsync(ex, true).ConfigureAwait(false);
+                                await this._logger.WarningAsync(ex).ConfigureAwait(false);
+                                await this.DisconnectAsync(ex, true).ConfigureAwait(false);
                             }
                             else
                             {
-                                await _logger.ErrorAsync(ex).ConfigureAwait(false);
-                                await DisconnectAsync(ex, false).ConfigureAwait(false);
+                                await this._logger.ErrorAsync(ex).ConfigureAwait(false);
+                                await this.DisconnectAsync(ex, false).ConfigureAwait(false);
                             }
                         }
 
@@ -112,132 +132,145 @@ namespace Discord
                         }
                     }
                 }
-                finally { _stateLock.Release(); }
+                finally
+                {
+                    this._stateLock.Release();
+                }
             });
         }
         public virtual Task StopAsync()
         {
-            Cancel();
+            this.Cancel();
             return Task.CompletedTask;
         }
 
         private async Task ConnectAsync(CancellationTokenSource reconnectCancelToken)
         {
-            _connectionCancelToken?.Dispose();
-            _combinedCancelToken?.Dispose();
-            _connectionCancelToken = new CancellationTokenSource();
-            _combinedCancelToken = CancellationTokenSource.CreateLinkedTokenSource(_connectionCancelToken.Token, reconnectCancelToken.Token);
-            CancelToken = _combinedCancelToken.Token;
+            this._connectionCancelToken?.Dispose();
+            this._combinedCancelToken?.Dispose();
+            this._connectionCancelToken = new CancellationTokenSource();
+            this._combinedCancelToken = CancellationTokenSource.CreateLinkedTokenSource(_connectionCancelToken.Token, reconnectCancelToken.Token);
+            this.CancelToken = _combinedCancelToken.Token;
 
-            _connectionPromise = new TaskCompletionSource<bool>();
-            State = ConnectionState.Connecting;
-            await _logger.InfoAsync("Connecting").ConfigureAwait(false);
+            this._connectionPromise = new TaskCompletionSource<bool>();
+            this.State = ConnectionState.Connecting;
+            await this._logger.InfoAsync("Connecting").ConfigureAwait(false);
 
             try
             {
                 var readyPromise = new TaskCompletionSource<bool>();
-                _readyPromise = readyPromise;
+                this._readyPromise = readyPromise;
 
                 //Abort connection on timeout
-                var cancelToken = CancelToken;
+                var cancelToken = this.CancelToken;
                 var _ = Task.Run(async () =>
                 {
                     try
                     {
-                        await Task.Delay(_connectionTimeout, cancelToken).ConfigureAwait(false);
+                        await Task.Delay(this._connectionTimeout, cancelToken).ConfigureAwait(false);
                         readyPromise.TrySetException(new TimeoutException());
                     }
                     catch (OperationCanceledException) { }
                 });
 
-                await _onConnecting().ConfigureAwait(false);
+                await this._onConnecting().ConfigureAwait(false);
 
-                await _logger.InfoAsync("Connected").ConfigureAwait(false);
-                State = ConnectionState.Connected;
-                await _logger.DebugAsync("Raising Event").ConfigureAwait(false);
-                await _connectedEvent.InvokeAsync().ConfigureAwait(false);
+                await this._logger.InfoAsync("Connected").ConfigureAwait(false);
+                this.State = ConnectionState.Connected;
+                await this._logger.DebugAsync("Raising Event").ConfigureAwait(false);
+                await this._connectedEvent.InvokeAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                Error(ex);
+                this.Error(ex);
                 throw;
             }
         }
         private async Task DisconnectAsync(Exception ex, bool isReconnecting)
         {
-            if (State == ConnectionState.Disconnected)
+            if (this.State == ConnectionState.Disconnected)
                 return;
-            State = ConnectionState.Disconnecting;
-            await _logger.InfoAsync("Disconnecting").ConfigureAwait(false);
+            this.State = ConnectionState.Disconnecting;
+            await this._logger.InfoAsync("Disconnecting").ConfigureAwait(false);
 
-            await _onDisconnecting(ex).ConfigureAwait(false);
+            await this._onDisconnecting(ex).ConfigureAwait(false);
 
-            await _disconnectedEvent.InvokeAsync(ex, isReconnecting).ConfigureAwait(false);
-            State = ConnectionState.Disconnected;
-            await _logger.InfoAsync("Disconnected").ConfigureAwait(false);
+            await this._disconnectedEvent.InvokeAsync(ex, isReconnecting).ConfigureAwait(false);
+            this.State = ConnectionState.Disconnected;
+            await this._logger.InfoAsync("Disconnected").ConfigureAwait(false);
         }
 
         public async Task CompleteAsync()
         {
-            await _readyPromise.TrySetResultAsync(true).ConfigureAwait(false);
+            if (this._readyPromise is null)
+            {
+                return;
+            }
+
+            await this._readyPromise.TrySetResultAsync(true).ConfigureAwait(false);
         }
         public async Task WaitAsync()
         {
-            await _readyPromise.Task.ConfigureAwait(false);
+            if (this._readyPromise is null)
+            {
+                return;
+            }
+
+            await this._readyPromise.Task.ConfigureAwait(false);
         }
 
         public void Cancel()
         {
-            _readyPromise?.TrySetCanceled();
-            _connectionPromise?.TrySetCanceled();
-            _reconnectCancelToken?.Cancel();
-            _connectionCancelToken?.Cancel();
+            this._readyPromise?.TrySetCanceled();
+            this._connectionPromise?.TrySetCanceled();
+            this._reconnectCancelToken?.Cancel();
+            this._connectionCancelToken?.Cancel();
         }
         public void Error(Exception ex)
         {
-            _readyPromise.TrySetException(ex);
-            _connectionPromise.TrySetException(ex);
-            _connectionCancelToken?.Cancel();
+            this._readyPromise?.TrySetException(ex);
+            this._connectionPromise?.TrySetException(ex);
+            this._connectionCancelToken?.Cancel();
         }
         public void CriticalError(Exception ex)
         {
-            _reconnectCancelToken?.Cancel();
-            Error(ex);
+            this._reconnectCancelToken?.Cancel();
+            this.Error(ex);
         }
         public void Reconnect()
         {
-            _readyPromise.TrySetCanceled();
-            _connectionPromise.TrySetCanceled();
-            _connectionCancelToken?.Cancel();
+            this._readyPromise?.TrySetCanceled();
+            this._connectionPromise?.TrySetCanceled();
+            this._connectionCancelToken?.Cancel();
         }
         private async Task AcquireConnectionLock()
         {
             while (true)
             {
-                await StopAsync().ConfigureAwait(false);
-                if (await _stateLock.WaitAsync(0).ConfigureAwait(false))
+                await this.StopAsync().ConfigureAwait(false);
+                if (await this._stateLock.WaitAsync(0).ConfigureAwait(false))
                     break;
             }
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_isDisposed)
+            if (!this._isDisposed)
             {
                 if (disposing)
                 {
-                    _combinedCancelToken?.Dispose();
-                    _reconnectCancelToken?.Dispose();
-                    _connectionCancelToken?.Dispose();
+                    this._combinedCancelToken?.Dispose();
+                    this._reconnectCancelToken?.Dispose();
+                    this._connectionCancelToken?.Dispose();
                 }
 
-                _isDisposed = true;
+                this._isDisposed = true;
             }
         }
 
         public void Dispose()
         {
-            Dispose(true);
+            this.Dispose(true);
         }
     }
 }

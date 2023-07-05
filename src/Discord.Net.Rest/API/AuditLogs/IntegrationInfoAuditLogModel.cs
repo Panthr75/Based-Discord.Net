@@ -1,33 +1,33 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class IntegrationInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-    [JsonField("type")]
-    public string Type { get; set; }
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
 
-    [JsonField("enabled")]
+    [JsonPropertyName("enabled")]
     public bool? Enabled { get; set; }
 
-    [JsonField("syncing")]
+    [JsonPropertyName("syncing")]
     public bool? Syncing { get; set; }
 
-    [JsonField("role_id")]
+    [JsonPropertyName("role_id")]
     public ulong? RoleId { get; set; }
 
-    [JsonField("enable_emoticons")]
+    [JsonPropertyName("enable_emoticons")]
     public bool? EnableEmojis { get; set; }
 
-    [JsonField("expire_behavior")]
+    [JsonPropertyName("expire_behavior")]
     public IntegrationExpireBehavior? ExpireBehavior { get; set; }
 
-    [JsonField("expire_grace_period")]
+    [JsonPropertyName("expire_grace_period")]
     public int? ExpireGracePeriod { get; set; }
 
-    [JsonField("scopes")]
-    public string[] Scopes { get; set; }
+    [JsonPropertyName("scopes")]
+    public string[]? Scopes { get; set; }
 }

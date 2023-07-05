@@ -1,22 +1,23 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class AutocompleteInteractionDataOption
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandOptionType Type { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<AutocompleteInteractionDataOption[]> Options { get; set; }
 
-        [JsonProperty("value")]
-        public Optional<object> Value { get; set; }
+        [JsonPropertyName("value")]
+        public Optional<ApplicationCommandOptionValue> Value { get; set; }
 
-        [JsonProperty("focused")]
+        [JsonPropertyName("focused")]
         public Optional<bool> Focused { get; set; }
     }
 }

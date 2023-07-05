@@ -46,7 +46,7 @@ namespace Discord.Commands
             return TypeReaderResult.FromError(CommandError.ObjectNotFound, "Channel not found.");
         }
 
-        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T channel, float score)
+        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T? channel, float score)
         {
             if (channel != null && !results.ContainsKey(channel.Id))
                 results.Add(channel.Id, new TypeReaderValue(channel, score));

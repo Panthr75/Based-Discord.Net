@@ -21,11 +21,11 @@ namespace Discord.Commands
     [DebuggerDisplay("{Name,nq}")]
     public class CommandInfo
     {
-        private static readonly System.Reflection.MethodInfo _convertParamsMethod = typeof(CommandInfo).GetTypeInfo().GetDeclaredMethod(nameof(ConvertParamsList));
-        private static readonly ConcurrentDictionary<Type, Func<IEnumerable<object>, object>> _arrayConverters = new ConcurrentDictionary<Type, Func<IEnumerable<object>, object>>();
+        private static readonly System.Reflection.MethodInfo _convertParamsMethod = typeof(CommandInfo).GetTypeInfo().GetDeclaredMethod(nameof(ConvertParamsList))!;
+        private static readonly ConcurrentDictionary<Type, Func<IEnumerable<object?>, object>> _arrayConverters = new();
 
         private readonly CommandService _commandService;
-        private readonly Func<ICommandContext, object[], IServiceProvider, CommandInfo, Task> _action;
+        private readonly Func<ICommandContext, object?[], IServiceProvider, CommandInfo, Task>? _action;
 
         /// <summary>
         ///     Gets the module that the command belongs in.
@@ -34,7 +34,7 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the name of the command. If none is set, the first alias is used.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
         /// <summary>
         ///     Gets the summary of the command.
         /// </summary>
@@ -42,7 +42,7 @@ namespace Discord.Commands
         ///     This field returns the summary of the command. <see cref="Summary"/> and <see cref="Remarks"/> can be
         ///     useful in help commands and various implementation that fetches details of the command for the user.
         /// </remarks>
-        public string Summary { get; }
+        public string? Summary { get; }
         /// <summary>
         ///     Gets the remarks of the command.
         /// </summary>
@@ -50,7 +50,7 @@ namespace Discord.Commands
         ///     This field returns the summary of the command. <see cref="Summary"/> and <see cref="Remarks"/> can be
         ///     useful in help commands and various implementation that fetches details of the command for the user.
         /// </remarks>
-        public string Remarks { get; }
+        public string? Remarks { get; }
         /// <summary>
         ///     Gets the priority of the command. This is used when there are multiple overloads of the command.
         /// </summary>
@@ -121,13 +121,13 @@ namespace Discord.Commands
             _commandService = service;
         }
 
-        public async Task<PreconditionResult> CheckPreconditionsAsync(ICommandContext context, IServiceProvider services = null)
+        public async Task<PreconditionResult> CheckPreconditionsAsync(ICommandContext context, IServiceProvider? services = null)
         {
             services ??= EmptyServiceProvider.Instance;
 
             async Task<PreconditionResult> CheckGroups(IEnumerable<PreconditionAttribute> preconditions, string type)
             {
-                foreach (IGrouping<string, PreconditionAttribute> preconditionGroup in preconditions.GroupBy(p => p.Group, StringComparer.Ordinal))
+                foreach (IGrouping<string?, PreconditionAttribute> preconditionGroup in preconditions.GroupBy(p => p.Group, StringComparer.Ordinal))
                 {
                     if (preconditionGroup.Key == null)
                     {
@@ -162,7 +162,7 @@ namespace Discord.Commands
             return PreconditionResult.FromSuccess();
         }
 
-        public async Task<ParseResult> ParseAsync(ICommandContext context, int startIndex, SearchResult searchResult, PreconditionResult preconditionResult = null, IServiceProvider services = null)
+        public async Task<ParseResult> ParseAsync(ICommandContext context, int startIndex, SearchResult searchResult, PreconditionResult? preconditionResult = null, IServiceProvider? services = null)
         {
             services ??= EmptyServiceProvider.Instance;
 
@@ -181,36 +181,38 @@ namespace Discord.Commands
             if (!parseResult.IsSuccess)
                 return Task.FromResult((IResult)ExecuteResult.FromError(parseResult));
 
-            var argList = new object[parseResult.ArgValues.Count];
+            var argList = new object?[parseResult.ArgValues.Count];
             for (int i = 0; i < parseResult.ArgValues.Count; i++)
             {
-                if (!parseResult.ArgValues[i].IsSuccess)
-                    return Task.FromResult((IResult)ExecuteResult.FromError(parseResult.ArgValues[i]));
-                argList[i] = parseResult.ArgValues[i].Values.First().Value;
+                TypeReaderResult argValue = parseResult.ArgValues[i];
+                if (!argValue.IsSuccess)
+                    return Task.FromResult((IResult)ExecuteResult.FromError(argValue));
+                argList[i] = argValue.Values.First().Value;
             }
 
-            var paramList = new object[parseResult.ParamValues.Count];
+            var paramList = new object?[parseResult.ParamValues.Count];
             for (int i = 0; i < parseResult.ParamValues.Count; i++)
             {
-                if (!parseResult.ParamValues[i].IsSuccess)
-                    return Task.FromResult((IResult)ExecuteResult.FromError(parseResult.ParamValues[i]));
-                paramList[i] = parseResult.ParamValues[i].Values.First().Value;
+                TypeReaderResult paramValue = parseResult.ParamValues[i];
+                if (!paramValue.IsSuccess)
+                    return Task.FromResult((IResult)ExecuteResult.FromError(paramValue));
+                paramList[i] = paramValue.Values.First().Value;
             }
 
             return ExecuteAsync(context, argList, paramList, services);
         }
-        public async Task<IResult> ExecuteAsync(ICommandContext context, IEnumerable<object> argList, IEnumerable<object> paramList, IServiceProvider services)
+        public async Task<IResult> ExecuteAsync(ICommandContext context, IEnumerable<object?> argList, IEnumerable<object?> paramList, IServiceProvider services)
         {
             services ??= EmptyServiceProvider.Instance;
 
             try
             {
-                object[] args = GenerateArgs(argList, paramList);
+                object?[] args = GenerateArgs(argList, paramList);
 
                 for (int position = 0; position < Parameters.Count; position++)
                 {
                     var parameter = Parameters[position];
-                    object argument = args[position];
+                    object? argument = args[position];
                     var result = await parameter.CheckPreconditionsAsync(context, argument, services).ConfigureAwait(false);
                     if (!result.IsSuccess)
                     {
@@ -238,30 +240,33 @@ namespace Discord.Commands
             }
         }
 
-        private async Task<IResult> ExecuteInternalAsync(ICommandContext context, object[] args, IServiceProvider services)
+        private async Task<IResult> ExecuteInternalAsync(ICommandContext context, object?[] args, IServiceProvider services)
         {
             await Module.Service._cmdLogger.DebugAsync($"Executing {GetLogText(context)}").ConfigureAwait(false);
             try
             {
-                var task = _action(context, args, services, this);
-                if (task is Task<IResult> resultTask)
+                if (_action != null)
                 {
-                    var result = await resultTask.ConfigureAwait(false);
-                    await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
-                    if (result is RuntimeResult execResult)
-                        return execResult;
-                }
-                else if (task is Task<ExecuteResult> execTask)
-                {
-                    var result = await execTask.ConfigureAwait(false);
-                    await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
-                    return result;
-                }
-                else
-                {
-                    await task.ConfigureAwait(false);
-                    var result = ExecuteResult.FromSuccess();
-                    await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                    var task = _action(context, args, services, this);
+                    if (task is Task<IResult> resultTask)
+                    {
+                        var result = await resultTask.ConfigureAwait(false);
+                        await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                        if (result is RuntimeResult execResult)
+                            return execResult;
+                    }
+                    else if (task is Task<ExecuteResult> execTask)
+                    {
+                        var result = await execTask.ConfigureAwait(false);
+                        await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                        return result;
+                    }
+                    else
+                    {
+                        await task.ConfigureAwait(false);
+                        var result = ExecuteResult.FromSuccess();
+                        await Module.Service._commandExecutedEvent.InvokeAsync(this, context, result).ConfigureAwait(false);
+                    }
                 }
 
                 var executeResult = ExecuteResult.FromSuccess();
@@ -271,7 +276,7 @@ namespace Discord.Commands
             {
                 var originalEx = ex;
                 while (ex is TargetInvocationException) //Happens with void-returning commands
-                    ex = ex.InnerException;
+                    ex = ex.InnerException!;
 
                 var wrappedEx = new CommandException(this, context, ex);
                 await Module.Service._cmdLogger.ErrorAsync(wrappedEx).ConfigureAwait(false);
@@ -295,15 +300,15 @@ namespace Discord.Commands
             }
         }
 
-        private object[] GenerateArgs(IEnumerable<object> argList, IEnumerable<object> paramsList)
+        private object?[] GenerateArgs(IEnumerable<object?> argList, IEnumerable<object?> paramsList)
         {
             int argCount = Parameters.Count;
-            var array = new object[Parameters.Count];
+            var array = new object?[Parameters.Count];
             if (HasVarArgs)
                 argCount--;
 
             int i = 0;
-            foreach (object arg in argList)
+            foreach (object? arg in argList)
             {
                 if (i == argCount)
                     throw new InvalidOperationException("Command was invoked with too many parameters.");
@@ -317,7 +322,7 @@ namespace Discord.Commands
                 var func = _arrayConverters.GetOrAdd(Parameters[Parameters.Count - 1].Type, t =>
                 {
                     var method = _convertParamsMethod.MakeGenericMethod(t);
-                    return (Func<IEnumerable<object>, object>)method.CreateDelegate(typeof(Func<IEnumerable<object>, object>));
+                    return (Func<IEnumerable<object?>, object>)method.CreateDelegate(typeof(Func<IEnumerable<object?>, object>));
                 });
                 array[i] = func(paramsList);
             }
@@ -325,7 +330,7 @@ namespace Discord.Commands
             return array;
         }
 
-        private static T[] ConvertParamsList<T>(IEnumerable<object> paramsList)
+        private static T[] ConvertParamsList<T>(IEnumerable<object?> paramsList)
             => paramsList.Cast<T>().ToArray();
 
         internal string GetLogText(ICommandContext context)

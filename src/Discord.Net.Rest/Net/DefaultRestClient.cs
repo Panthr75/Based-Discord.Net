@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -20,7 +21,7 @@ namespace Discord.Net.Rest
 
         private readonly HttpClient _client;
         private readonly string _baseUrl;
-        private readonly JsonSerializer _errorDeserializer;
+        private readonly JsonSerializerOptions _errorSerializerOptions;
         private CancellationToken _cancelToken;
         private bool _isDisposed;
 
@@ -39,7 +40,7 @@ namespace Discord.Net.Rest
             SetHeader("accept-encoding", "gzip, deflate");
 
             _cancelToken = CancellationToken.None;
-            _errorDeserializer = new JsonSerializer();
+            _errorSerializerOptions = new JsonSerializerOptions();
         }
         private void Dispose(bool disposing)
         {
@@ -66,8 +67,8 @@ namespace Discord.Net.Rest
             _cancelToken = cancelToken;
         }
 
-        public async Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null)
+        public async Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
         {
             string uri = Path.Combine(_baseUrl, endpoint);
             using (var restRequest = new HttpRequestMessage(GetMethod(method), uri))
@@ -80,8 +81,8 @@ namespace Discord.Net.Rest
                 return await SendInternalAsync(restRequest, cancelToken, headerOnly).ConfigureAwait(false);
             }
         }
-        public async Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null)
+        public async Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
         {
             string uri = Path.Combine(_baseUrl, endpoint);
             using (var restRequest = new HttpRequestMessage(GetMethod(method), uri))
@@ -97,8 +98,8 @@ namespace Discord.Net.Rest
         }
 
         /// <exception cref="InvalidOperationException">Unsupported param type.</exception>
-        public async Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken, bool headerOnly, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null)
+        public async Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken, bool headerOnly, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
         {
             string uri = Path.Combine(_baseUrl, endpoint);
 
@@ -175,7 +176,7 @@ namespace Discord.Net.Rest
                 var headers = response.Headers.ToDictionary(x => x.Key, x => x.Value.FirstOrDefault(), StringComparer.OrdinalIgnoreCase);
                 var stream = (!headerOnly || !response.IsSuccessStatusCode) ? await response.Content.ReadAsStreamAsync().ConfigureAwait(false) : null;
 
-                return new RestResponse(response.StatusCode, headers, stream);
+                return new RestResponse(response.StatusCode, headers!, stream);
             }
         }
 

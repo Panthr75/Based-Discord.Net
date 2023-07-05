@@ -1,19 +1,20 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API;
 
 internal class MessageComponentInteractionDataResolved
 {
-    [JsonProperty("users")]
+    [JsonPropertyName("users")]
     public Optional<Dictionary<string, User>> Users { get; set; }
 
-    [JsonProperty("members")]
+    [JsonPropertyName("members")]
     public Optional<Dictionary<string, GuildMember>> Members { get; set; }
 
-    [JsonProperty("channels")]
+    [JsonPropertyName("channels")]
     public Optional<Dictionary<string, Channel>> Channels { get; set; }
 
-    [JsonProperty("roles")]
+    [JsonPropertyName("roles")]
     public Optional<Dictionary<string, Role>> Roles { get; set; }
 }

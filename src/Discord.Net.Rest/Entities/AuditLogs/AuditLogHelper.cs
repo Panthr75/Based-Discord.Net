@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using AuditLogChange = Discord.API.AuditLogChange;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
@@ -10,85 +11,177 @@ namespace Discord.Rest;
 
 internal static class AuditLogHelper
 {
-    private static readonly Dictionary<ActionType, Func<BaseDiscordClient, EntryModel, Model,  IAuditLogData>> CreateMapping
-        = new ()
-        {
-            [ActionType.GuildUpdated] = GuildUpdateAuditLogData.Create, // log
-            [ActionType.ChannelCreated] = ChannelCreateAuditLogData.Create,
-            [ActionType.ChannelUpdated] = ChannelUpdateAuditLogData.Create,
-            [ActionType.ChannelDeleted] = ChannelDeleteAuditLogData.Create,
+    private static readonly Dictionary<ActionType, Func<BaseDiscordClient, EntryModel, Model?, IAuditLogData>> CreateMapping
+        = new();
 
-            [ActionType.OverwriteCreated] = OverwriteCreateAuditLogData.Create,
-            [ActionType.OverwriteUpdated] = OverwriteUpdateAuditLogData.Create,
-            [ActionType.OverwriteDeleted] = OverwriteDeleteAuditLogData.Create,
+    private static void AddAction(ActionType type, Func<BaseDiscordClient, EntryModel, Model?, IAuditLogData> func)
+    {
+        CreateMapping[type] = func;
+    }
+#if NET7_0_OR_GREATER
+    private static void AddAction<T>(ActionType type)
+        where T : ICreatableAuditLogData<T>, IAuditLogData
+    {
+        AuditLogHelper.AddAction(type, (BaseDiscordClient discord, EntryModel entry, Model? log) => T.Create(discord, entry, log));
+    }
+#else
 
-            [ActionType.Kick] = KickAuditLogData.Create,
-            [ActionType.Prune] = PruneAuditLogData.Create,
-            [ActionType.Ban] = BanAuditLogData.Create,
-            [ActionType.Unban] = UnbanAuditLogData.Create,
-            [ActionType.MemberUpdated] = MemberUpdateAuditLogData.Create,
-            [ActionType.MemberRoleUpdated] = MemberRoleAuditLogData.Create,
-            [ActionType.MemberMoved] = MemberMoveAuditLogData.Create,
-            [ActionType.MemberDisconnected] = MemberDisconnectAuditLogData.Create,
-            [ActionType.BotAdded] = BotAddAuditLogData.Create,
+#endif
 
-            [ActionType.RoleCreated] = RoleCreateAuditLogData.Create,
-            [ActionType.RoleUpdated] = RoleUpdateAuditLogData.Create,
-            [ActionType.RoleDeleted] = RoleDeleteAuditLogData.Create,
+    static AuditLogHelper()
+    {
+#if NET7_0_OR_GREATER
+        AddAction<GuildUpdateAuditLogData>(ActionType.GuildUpdated); // log
+        AddAction<ChannelCreateAuditLogData>(ActionType.ChannelCreated);
+        AddAction<ChannelUpdateAuditLogData>(ActionType.ChannelUpdated);
+        AddAction<ChannelDeleteAuditLogData>(ActionType.ChannelDeleted);
 
-            [ActionType.InviteCreated] = InviteCreateAuditLogData.Create,
-            [ActionType.InviteUpdated] = InviteUpdateAuditLogData.Create,
-            [ActionType.InviteDeleted] = InviteDeleteAuditLogData.Create,
+        AddAction<OverwriteCreateAuditLogData>(ActionType.OverwriteCreated);
+        AddAction<OverwriteUpdateAuditLogData>(ActionType.OverwriteUpdated);
+        AddAction<OverwriteDeleteAuditLogData>(ActionType.OverwriteDeleted);
 
-            [ActionType.WebhookCreated] = WebhookCreateAuditLogData.Create,
-            [ActionType.WebhookUpdated] = WebhookUpdateAuditLogData.Create,
-            [ActionType.WebhookDeleted] = WebhookDeleteAuditLogData.Create,
+        AddAction<KickAuditLogData>(ActionType.Kick);
+        AddAction<PruneAuditLogData>(ActionType.Prune);
+        AddAction<BanAuditLogData>(ActionType.Ban);
+        AddAction<UnbanAuditLogData>(ActionType.Unban);
+        AddAction<MemberUpdateAuditLogData>(ActionType.MemberUpdated);
+        AddAction<MemberRoleAuditLogData>(ActionType.MemberRoleUpdated);
+        AddAction<MemberMoveAuditLogData>(ActionType.MemberMoved);
+        AddAction<MemberDisconnectAuditLogData>(ActionType.MemberDisconnected);
+        AddAction<BotAddAuditLogData>(ActionType.BotAdded);
 
-            [ActionType.EmojiCreated] = EmoteCreateAuditLogData.Create,
-            [ActionType.EmojiUpdated] = EmoteUpdateAuditLogData.Create,
-            [ActionType.EmojiDeleted] = EmoteDeleteAuditLogData.Create,
+        AddAction<RoleCreateAuditLogData>(ActionType.RoleCreated);
+        AddAction<RoleUpdateAuditLogData>(ActionType.RoleUpdated);
+        AddAction<RoleDeleteAuditLogData>(ActionType.RoleDeleted);
 
-            [ActionType.MessageDeleted] = MessageDeleteAuditLogData.Create,
-            [ActionType.MessageBulkDeleted] = MessageBulkDeleteAuditLogData.Create,
-            [ActionType.MessagePinned] = MessagePinAuditLogData.Create,
-            [ActionType.MessageUnpinned] = MessageUnpinAuditLogData.Create,
+        AddAction<InviteCreateAuditLogData>(ActionType.InviteCreated);
+        AddAction<InviteUpdateAuditLogData>(ActionType.InviteUpdated);
+        AddAction<InviteDeleteAuditLogData>(ActionType.InviteDeleted);
 
-            [ActionType.EventCreate] = ScheduledEventCreateAuditLogData.Create,
-            [ActionType.EventUpdate] = ScheduledEventUpdateAuditLogData.Create,
-            [ActionType.EventDelete] = ScheduledEventDeleteAuditLogData.Create,
+        AddAction<WebhookCreateAuditLogData>(ActionType.WebhookCreated);
+        AddAction<WebhookUpdateAuditLogData>(ActionType.WebhookUpdated);
+        AddAction<WebhookDeleteAuditLogData>(ActionType.WebhookDeleted);
 
-            [ActionType.ThreadCreate] = ThreadCreateAuditLogData.Create,
-            [ActionType.ThreadUpdate] = ThreadUpdateAuditLogData.Create,
-            [ActionType.ThreadDelete] = ThreadDeleteAuditLogData.Create,
+        AddAction<EmoteCreateAuditLogData>(ActionType.EmojiCreated);
+        AddAction<EmoteUpdateAuditLogData>(ActionType.EmojiUpdated);
+        AddAction<EmoteDeleteAuditLogData>(ActionType.EmojiDeleted);
 
-            [ActionType.ApplicationCommandPermissionUpdate] = CommandPermissionUpdateAuditLogData.Create,
+        AddAction<MessageDeleteAuditLogData>(ActionType.MessageDeleted);
+        AddAction<MessageBulkDeleteAuditLogData>(ActionType.MessageBulkDeleted);
+        AddAction<MessagePinAuditLogData>(ActionType.MessagePinned);
+        AddAction<MessageUnpinAuditLogData>(ActionType.MessageUnpinned);
 
-            [ActionType.IntegrationCreated] = IntegrationCreatedAuditLogData.Create,
-            [ActionType.IntegrationUpdated] = IntegrationUpdatedAuditLogData.Create,
-            [ActionType.IntegrationDeleted] = IntegrationDeletedAuditLogData.Create,
+        AddAction<ScheduledEventCreateAuditLogData>(ActionType.EventCreate);
+        AddAction<ScheduledEventUpdateAuditLogData>(ActionType.EventUpdate);
+        AddAction<ScheduledEventDeleteAuditLogData>(ActionType.EventDelete);
 
-            [ActionType.StageInstanceCreated] = StageInstanceCreateAuditLogData.Create,
-            [ActionType.StageInstanceUpdated] = StageInstanceUpdatedAuditLogData.Create,
-            [ActionType.StageInstanceDeleted] = StageInstanceDeleteAuditLogData.Create,
+        AddAction<ThreadCreateAuditLogData>(ActionType.ThreadCreate);
+        AddAction<ThreadUpdateAuditLogData>(ActionType.ThreadUpdate);
+        AddAction<ThreadDeleteAuditLogData>(ActionType.ThreadDelete);
 
-            [ActionType.StickerCreated] = StickerCreatedAuditLogData.Create,
-            [ActionType.StickerUpdated] = StickerUpdatedAuditLogData.Create,
-            [ActionType.StickerDeleted] = StickerDeletedAuditLogData.Create,
+        AddAction<CommandPermissionUpdateAuditLogData>(ActionType.ApplicationCommandPermissionUpdate);
 
-            [ActionType.AutoModerationRuleCreate] = AutoModRuleCreatedAuditLogData.Create,
-            [ActionType.AutoModerationRuleUpdate] = AutoModRuleUpdatedAuditLogData.Create,
-            [ActionType.AutoModerationRuleDelete] = AutoModRuleDeletedAuditLogData.Create,
+        AddAction<IntegrationCreatedAuditLogData>(ActionType.IntegrationCreated);
+        AddAction<IntegrationUpdatedAuditLogData>(ActionType.IntegrationUpdated);
+        AddAction<IntegrationDeletedAuditLogData>(ActionType.IntegrationDeleted);
 
-            [ActionType.AutoModerationBlockMessage] = AutoModBlockedMessageAuditLogData.Create,
-            [ActionType.AutoModerationFlagToChannel] = AutoModFlaggedMessageAuditLogData.Create,
-            [ActionType.AutoModerationUserCommunicationDisabled] = AutoModTimeoutUserAuditLogData.Create,
+        AddAction<StageInstanceCreateAuditLogData>(ActionType.StageInstanceCreated);
+        AddAction<StageInstanceUpdatedAuditLogData>(ActionType.StageInstanceUpdated);
+        AddAction<StageInstanceDeleteAuditLogData>(ActionType.StageInstanceDeleted);
 
-            [ActionType.OnboardingQuestionCreated] = OnboardingPromptCreatedAuditLogData.Create,
-            [ActionType.OnboardingQuestionUpdated] = OnboardingPromptUpdatedAuditLogData.Create,
-            [ActionType.OnboardingUpdated] = OnboardingUpdatedAuditLogData.Create,
-        };
+        AddAction<StickerCreatedAuditLogData>(ActionType.StickerCreated);
+        AddAction<StickerUpdatedAuditLogData>(ActionType.StickerUpdated);
+        AddAction<StickerDeletedAuditLogData>(ActionType.StickerDeleted);
 
-    public static IAuditLogData CreateData(BaseDiscordClient discord, EntryModel entry, Model log = null)
+        AddAction<AutoModRuleCreatedAuditLogData>(ActionType.AutoModerationRuleCreate);
+        AddAction<AutoModRuleUpdatedAuditLogData>(ActionType.AutoModerationRuleUpdate);
+        AddAction<AutoModRuleDeletedAuditLogData>(ActionType.AutoModerationRuleDelete);
+
+        AddAction<AutoModBlockedMessageAuditLogData>(ActionType.AutoModerationBlockMessage);
+        AddAction<AutoModFlaggedMessageAuditLogData>(ActionType.AutoModerationFlagToChannel);
+        AddAction<AutoModTimeoutUserAuditLogData>(ActionType.AutoModerationUserCommunicationDisabled);
+
+        AddAction<OnboardingPromptCreatedAuditLogData>(ActionType.OnboardingQuestionCreated);
+        AddAction<OnboardingPromptUpdatedAuditLogData>(ActionType.OnboardingQuestionUpdated);
+        AddAction<OnboardingUpdatedAuditLogData>(ActionType.OnboardingUpdated);
+#else
+        AddAction(ActionType.GuildUpdated, GuildUpdateAuditLogData.Create); // log
+        AddAction(ActionType.ChannelCreated, ChannelCreateAuditLogData.Create);
+        AddAction(ActionType.ChannelUpdated, ChannelUpdateAuditLogData.Create);
+        AddAction(ActionType.ChannelDeleted, ChannelDeleteAuditLogData.Create);
+
+        AddAction(ActionType.OverwriteCreated, OverwriteCreateAuditLogData.Create);
+        AddAction(ActionType.OverwriteUpdated, OverwriteUpdateAuditLogData.Create);
+        AddAction(ActionType.OverwriteDeleted, OverwriteDeleteAuditLogData.Create);
+
+        AddAction(ActionType.Kick, KickAuditLogData.Create);
+        AddAction(ActionType.Prune, PruneAuditLogData.Create);
+        AddAction(ActionType.Ban, BanAuditLogData.Create);
+        AddAction(ActionType.Unban, UnbanAuditLogData.Create);
+        AddAction(ActionType.MemberUpdated, MemberUpdateAuditLogData.Create);
+        AddAction(ActionType.MemberRoleUpdated, MemberRoleAuditLogData.Create);
+        AddAction(ActionType.MemberMoved, MemberMoveAuditLogData.Create);
+        AddAction(ActionType.MemberDisconnected, MemberDisconnectAuditLogData.Create);
+        AddAction(ActionType.BotAdded, BotAddAuditLogData.Create);
+
+        AddAction(ActionType.RoleCreated, RoleCreateAuditLogData.Create);
+        AddAction(ActionType.RoleUpdated, RoleUpdateAuditLogData.Create);
+        AddAction(ActionType.RoleDeleted, RoleDeleteAuditLogData.Create);
+
+        AddAction(ActionType.InviteCreated, InviteCreateAuditLogData.Create);
+        AddAction(ActionType.InviteUpdated, InviteUpdateAuditLogData.Create);
+        AddAction(ActionType.InviteDeleted, InviteDeleteAuditLogData.Create);
+
+        AddAction(ActionType.WebhookCreated, WebhookCreateAuditLogData.Create);
+        AddAction(ActionType.WebhookUpdated, WebhookUpdateAuditLogData.Create);
+        AddAction(ActionType.WebhookDeleted, WebhookDeleteAuditLogData.Create);
+
+        AddAction(ActionType.EmojiCreated, EmoteCreateAuditLogData.Create);
+        AddAction(ActionType.EmojiUpdated, EmoteUpdateAuditLogData.Create);
+        AddAction(ActionType.EmojiDeleted, EmoteDeleteAuditLogData.Create);
+
+        AddAction(ActionType.MessageDeleted, MessageDeleteAuditLogData.Create);
+        AddAction(ActionType.MessageBulkDeleted, MessageBulkDeleteAuditLogData.Create);
+        AddAction(ActionType.MessagePinned, MessagePinAuditLogData.Create);
+        AddAction(ActionType.MessageUnpinned, MessageUnpinAuditLogData.Create);
+
+        AddAction(ActionType.EventCreate, ScheduledEventCreateAuditLogData.Create);
+        AddAction(ActionType.EventUpdate, ScheduledEventUpdateAuditLogData.Create);
+        AddAction(ActionType.EventDelete, ScheduledEventDeleteAuditLogData.Create);
+
+        AddAction(ActionType.ThreadCreate, ThreadCreateAuditLogData.Create);
+        AddAction(ActionType.ThreadUpdate, ThreadUpdateAuditLogData.Create);
+        AddAction(ActionType.ThreadDelete, ThreadDeleteAuditLogData.Create);
+
+        AddAction(ActionType.ApplicationCommandPermissionUpdate, CommandPermissionUpdateAuditLogData.Create);
+
+        AddAction(ActionType.IntegrationCreated, IntegrationCreatedAuditLogData.Create);
+        AddAction(ActionType.IntegrationUpdated, IntegrationUpdatedAuditLogData.Create);
+        AddAction(ActionType.IntegrationDeleted, IntegrationDeletedAuditLogData.Create);
+
+        AddAction(ActionType.StageInstanceCreated, StageInstanceCreateAuditLogData.Create);
+        AddAction(ActionType.StageInstanceUpdated, StageInstanceUpdatedAuditLogData.Create);
+        AddAction(ActionType.StageInstanceDeleted, StageInstanceDeleteAuditLogData.Create);
+
+        AddAction(ActionType.StickerCreated, StickerCreatedAuditLogData.Create);
+        AddAction(ActionType.StickerUpdated, StickerUpdatedAuditLogData.Create);
+        AddAction(ActionType.StickerDeleted, StickerDeletedAuditLogData.Create);
+
+        AddAction(ActionType.AutoModerationRuleCreate, AutoModRuleCreatedAuditLogData.Create);
+        AddAction(ActionType.AutoModerationRuleUpdate, AutoModRuleUpdatedAuditLogData.Create);
+        AddAction(ActionType.AutoModerationRuleDelete, AutoModRuleDeletedAuditLogData.Create);
+
+        AddAction(ActionType.AutoModerationBlockMessage, AutoModBlockedMessageAuditLogData.Create);
+        AddAction(ActionType.AutoModerationFlagToChannel, AutoModFlaggedMessageAuditLogData.Create);
+        AddAction(ActionType.AutoModerationUserCommunicationDisabled, AutoModTimeoutUserAuditLogData.Create);
+
+        AddAction(ActionType.OnboardingQuestionCreated, OnboardingPromptCreatedAuditLogData.Create);
+        AddAction(ActionType.OnboardingQuestionUpdated, OnboardingPromptUpdatedAuditLogData.Create);
+        AddAction(ActionType.OnboardingUpdated, OnboardingUpdatedAuditLogData.Create);
+#endif
+    }
+
+    public static IAuditLogData? CreateData(BaseDiscordClient discord, EntryModel entry, Model? log = null)
     {
         if (CreateMapping.TryGetValue(entry.Action, out var func))
             return func(discord, entry, log);
@@ -105,16 +198,16 @@ internal static class AuditLogHelper
 
         foreach (var property in props)
         {
-            if (property.GetCustomAttributes(typeof(JsonFieldAttribute), true).FirstOrDefault() is not JsonFieldAttribute jsonAttr)
+            if (property.GetCustomAttributes(typeof(JsonPropertyNameAttribute), true).FirstOrDefault() is not JsonPropertyNameAttribute jsonAttr)
                 continue;
             
-            var change = changes.FirstOrDefault(x => x.ChangedProperty == jsonAttr.FieldName);
+            var change = changes.FirstOrDefault(x => x.ChangedProperty == jsonAttr.Name);
 
             if (change is null)
                 continue;
             
-            property.SetValue(oldModel, change.OldValue?.ToObject(property.PropertyType, discord.ApiClient.Serializer));
-            property.SetValue(newModel, change.NewValue?.ToObject(property.PropertyType, discord.ApiClient.Serializer));
+            property.SetValue(oldModel, change.OldValue?.Deserialize(property.PropertyType, discord.ApiClient.SerializerOptions));
+            property.SetValue(newModel, change.NewValue?.Deserialize(property.PropertyType, discord.ApiClient.SerializerOptions));
         }
 
         return (oldModel, newModel);

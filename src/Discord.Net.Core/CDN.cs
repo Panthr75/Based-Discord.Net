@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord
 {
@@ -15,7 +16,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the team's icon.
         /// </returns>
-        public static string GetTeamIconUrl(ulong teamId, string iconId)
+        [return: NotNullIfNotNull(nameof(iconId))]
+        public static string? GetTeamIconUrl(ulong teamId, string? iconId)
             => iconId != null ? $"{DiscordConfig.CDNUrl}team-icons/{teamId}/{iconId}.jpg" : null;
 
         /// <summary>
@@ -26,7 +28,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the application's icon.
         /// </returns>
-        public static string GetApplicationIconUrl(ulong appId, string iconId)
+        [return: NotNullIfNotNull(nameof(iconId))]
+        public static string? GetApplicationIconUrl(ulong appId, string? iconId)
             => iconId != null ? $"{DiscordConfig.CDNUrl}app-icons/{appId}/{iconId}.jpg" : null;
 
         /// <summary>
@@ -39,7 +42,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the user's avatar in the specified size.
         /// </returns>
-        public static string GetUserAvatarUrl(ulong userId, string avatarId, ushort size, ImageFormat format)
+        [return: NotNullIfNotNull(nameof(avatarId))]
+        public static string? GetUserAvatarUrl(ulong userId, string? avatarId, ushort size, ImageFormat format)
         {
             if (avatarId == null)
                 return null;
@@ -47,7 +51,8 @@ namespace Discord
             return $"{DiscordConfig.CDNUrl}avatars/{userId}/{avatarId}.{extension}?size={size}";
         }
 
-        public static string GetGuildUserAvatarUrl(ulong userId, ulong guildId, string avatarId, ushort size, ImageFormat format)
+        [return: NotNullIfNotNull(nameof(avatarId))]
+        public static string? GetGuildUserAvatarUrl(ulong userId, ulong guildId, string? avatarId, ushort size, ImageFormat format)
         {
             if (avatarId == null)
                 return null;
@@ -65,7 +70,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the user's banner in the specified size.
         /// </returns>
-        public static string GetUserBannerUrl(ulong userId, string bannerId, ushort size, ImageFormat format)
+        [return: NotNullIfNotNull(nameof(bannerId))]
+        public static string? GetUserBannerUrl(ulong userId, string? bannerId, ushort size, ImageFormat format)
         {
             if (bannerId == null)
                 return null;
@@ -105,7 +111,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the guild's icon.
         /// </returns>
-        public static string GetGuildIconUrl(ulong guildId, string iconId)
+        [return: NotNullIfNotNull(nameof(iconId))]
+        public static string? GetGuildIconUrl(ulong guildId, string? iconId)
             => iconId != null ? $"{DiscordConfig.CDNUrl}icons/{guildId}/{iconId}.jpg" : null;
         /// <summary>
         ///     Returns a guild role's icon URL.
@@ -115,7 +122,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the guild role's icon.
         /// </returns>
-        public static string GetGuildRoleIconUrl(ulong roleId, string roleHash)
+        [return: NotNullIfNotNull(nameof(roleHash))]
+        public static string? GetGuildRoleIconUrl(ulong roleId, string? roleHash)
             => roleHash != null ? $"{DiscordConfig.CDNUrl}role-icons/{roleId}/{roleHash}.png" : null;
         /// <summary>
         ///     Returns a guild splash URL.
@@ -125,7 +133,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the guild's splash.
         /// </returns>
-        public static string GetGuildSplashUrl(ulong guildId, string splashId)
+        [return: NotNullIfNotNull(nameof(splashId))]
+        public static string? GetGuildSplashUrl(ulong guildId, string? splashId)
             => splashId != null ? $"{DiscordConfig.CDNUrl}splashes/{guildId}/{splashId}.jpg" : null;
         /// <summary>
         ///     Returns a guild discovery splash URL.
@@ -135,7 +144,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the guild's discovery splash.
         /// </returns>
-        public static string GetGuildDiscoverySplashUrl(ulong guildId, string discoverySplashId)
+        [return: NotNullIfNotNull(nameof(discoverySplashId))]
+        public static string? GetGuildDiscoverySplashUrl(ulong guildId, string? discoverySplashId)
             => discoverySplashId != null ? $"{DiscordConfig.CDNUrl}discovery-splashes/{guildId}/{discoverySplashId}.jpg" : null;
         /// <summary>
         ///     Returns a channel icon URL.
@@ -145,7 +155,8 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the channel's icon.
         /// </returns>
-        public static string GetChannelIconUrl(ulong channelId, string iconId)
+        [return: NotNullIfNotNull(nameof(iconId))]
+        public static string? GetChannelIconUrl(ulong channelId, string iconId)
             => iconId != null ? $"{DiscordConfig.CDNUrl}channel-icons/{channelId}/{iconId}.jpg" : null;
 
         /// <summary>
@@ -158,11 +169,12 @@ namespace Discord
         /// <returns>
         ///     A URL pointing to the guild's banner image.
         /// </returns>
-        public static string GetGuildBannerUrl(ulong guildId, string bannerId, ImageFormat format, ushort? size = null)
+        [return: NotNullIfNotNull(nameof(bannerId))]
+        public static string? GetGuildBannerUrl(ulong guildId, string? bannerId, ImageFormat format, ushort? size = null)
         {
             if (string.IsNullOrEmpty(bannerId))
                 return null;
-            string extension = FormatToExtension(format, bannerId);
+            string extension = FormatToExtension(format, bannerId!);
             return $"{DiscordConfig.CDNUrl}banners/{guildId}/{bannerId}.{extension}" + (size.HasValue ? $"?size={size}" : string.Empty);
         }
         /// <summary>
@@ -231,8 +243,13 @@ namespace Discord
         /// <param name="format">The format of the image.</param>
         /// <param name="size">The size of the image.</param>
         /// <returns></returns>
-        public static string GetEventCoverImageUrl(ulong guildId, ulong eventId, string assetId, ImageFormat format = ImageFormat.Auto, ushort size = 1024)
-            => $"{DiscordConfig.CDNUrl}guild-events/{eventId}/{assetId}.{FormatToExtension(format, assetId)}?size={size}";
+        public static string? GetEventCoverImageUrl(ulong guildId, ulong eventId, string? assetId, ImageFormat format = ImageFormat.Auto, ushort size = 1024)
+        {
+            if (string.IsNullOrEmpty(assetId))
+                return null;
+
+            return $"{DiscordConfig.CDNUrl}guild-events/{eventId}/{assetId}.{FormatToExtension(format, assetId!)}?size={size}";
+        }
 
         private static string FormatToExtension(StickerFormatType format)
         {

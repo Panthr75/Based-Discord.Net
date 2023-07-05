@@ -26,7 +26,7 @@ namespace Discord
         /// <summary>
         ///     Gets a collection of install parameters for this application.
         /// </summary>
-        ApplicationInstallParams InstallParams { get; }
+        ApplicationInstallParams? InstallParams { get; }
         /// <summary>
         ///     Gets a collection of tags related to the application.
         /// </summary>
@@ -34,7 +34,7 @@ namespace Discord
         /// <summary>
         ///     Gets the icon URL of the application.
         /// </summary>
-        string IconUrl { get; }
+        string? IconUrl { get; }
         /// <summary>
         ///     Gets if the bot is public. <see langword="null" /> if not set.
         /// </summary>
@@ -46,29 +46,29 @@ namespace Discord
         /// <summary>
         ///     Gets the team associated with this application if there is one.
         /// </summary>
-        ITeam Team { get; }
+        ITeam? Team { get; }
         /// <summary>
         ///     Gets the partial user object containing info on the owner of the application.
         /// </summary>
-        IUser Owner { get; }
+        IUser? Owner { get; }
         /// <summary>
         ///     Gets the url of the app's terms of service.
         /// </summary>
-        public string TermsOfService { get; }
+        public string? TermsOfService { get; }
         /// <summary>
         ///     Gets the the url of the app's privacy policy.
         /// </summary>
-        public string PrivacyPolicy { get; }
+        public string? PrivacyPolicy { get; }
 
         /// <summary>
         ///     Gets application's default custom authorization url. <see langword="null" /> if disabled.
         /// </summary>
-        public string CustomInstallUrl { get; }
+        public string? CustomInstallUrl { get; }
 
         /// <summary>
         ///     Gets the application's role connection verification entry point. <see langword="null" /> if not set.
         /// </summary>
-        public string RoleConnectionsVerificationUrl { get; }
+        public string? RoleConnectionsVerificationUrl { get; }
 
         /// <summary>
         ///     Gets the hex encoded key for verification in interactions.
@@ -78,17 +78,17 @@ namespace Discord
         /// <summary>
         ///     Gets the partial guild object of the application's developer's support server. <see langword="null" /> if not set.
         /// </summary>
-        public PartialGuild Guild { get; }
+        public PartialGuild? Guild { get; }
 
         /// <summary>
         ///     Gets the redirect uris configured for the application.
         /// </summary>
-        public IReadOnlyCollection<string> RedirectUris { get;}
+        public IReadOnlyCollection<string> RedirectUris { get; }
 
         /// <summary>
         ///      Gets application's interactions endpoint url. <see langword="null" /> if not set.
         /// </summary>
-        public string InteractionsEndpointUrl { get; }
+        public string? InteractionsEndpointUrl { get; }
 
         /// <summary>
         ///     Gets the approximate count of the guild the application was added to. <see langword="null" /> if not returned.

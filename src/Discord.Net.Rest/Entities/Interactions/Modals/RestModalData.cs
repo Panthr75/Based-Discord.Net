@@ -22,13 +22,14 @@ namespace Discord.Rest
 
         IReadOnlyCollection<IComponentInteractionData> IModalInteractionData.Components => Components;
 
-        internal RestModalData(Model model, BaseDiscordClient discord, IGuild guild)
+        internal RestModalData(Model? model, BaseDiscordClient discord, IGuild? guild)
         {
-            CustomId = model.CustomId;
-            Components = model.Components
-                .SelectMany(x => x.Components)
-                .Select(x => new RestMessageComponentData(x, discord, guild))
-                .ToArray();
+            CustomId = model?.CustomId ?? string.Empty;
+
+            Components = model?.Components
+                ?.SelectMany(x => x.Components)
+                ?.Select(x => new RestMessageComponentData(x, discord, guild))
+                ?.ToArray() ?? Array.Empty<RestMessageComponentData>();
         }
     }
 }

@@ -1,13 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
+using System;
 
 namespace Discord.API.Gateway
 {
     internal class MessageDeleteBulkEvent
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelId { get; set; }
-        [JsonProperty("ids")]
-        public ulong[] Ids { get; set; }
+        [JsonPropertyName("ids")]
+        public ulong[] Ids { get; set; } = Array.Empty<ulong>();
     }
 }

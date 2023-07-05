@@ -1,12 +1,11 @@
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to message deletion(s).
 /// </summary>
-public class MessageBulkDeleteAuditLogData : IAuditLogData
+public partial class MessageBulkDeleteAuditLogData : IAuditLogData
 {
     private MessageBulkDeleteAuditLogData(ulong channelId, int count)
     {
@@ -14,9 +13,9 @@ public class MessageBulkDeleteAuditLogData : IAuditLogData
         MessageCount = count;
     }
 
-    internal static MessageBulkDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static MessageBulkDeleteAuditLogData Create(EntryModel entry)
     {
-        return new MessageBulkDeleteAuditLogData(entry.TargetId.Value, entry.Options.Count.Value);
+        return new MessageBulkDeleteAuditLogData(entry.TargetId!.Value, entry.Options!.Count!.Value);
     }
 
     /// <summary>

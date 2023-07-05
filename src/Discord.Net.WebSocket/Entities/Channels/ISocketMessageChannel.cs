@@ -19,33 +19,33 @@ namespace Discord.WebSocket
         IReadOnlyCollection<SocketMessage> CachedMessages { get; }
 
         /// <inheritdoc cref="IMessageChannel.SendMessageAsync(string, bool, Embed, RequestOptions, AllowedMentions, MessageReference, MessageComponent, ISticker[], Embed[], MessageFlags)"/>
-        new Task<RestUserMessage> SendMessageAsync(string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, AllowedMentions allowedMentions = null, MessageReference messageReference = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None);
+        new Task<RestUserMessage> SendMessageAsync(string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageReference? messageReference = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None);
 
         /// <inheritdoc cref="IMessageChannel.SendFileAsync(string, string, bool, Embed, RequestOptions, bool, AllowedMentions, MessageReference, MessageComponent, ISticker[], Embed[], MessageFlags)"/>
-        new Task<RestUserMessage> SendFileAsync(string filePath, string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None);
+        new Task<RestUserMessage> SendFileAsync(string filePath, string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None);
 
         /// <inheritdoc cref="IMessageChannel.SendFileAsync(Stream, string, string, bool, Embed, RequestOptions, bool, AllowedMentions, MessageReference, MessageComponent, ISticker[], Embed[], MessageFlags)"/>
-        new Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None);
+        new Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None);
 
         /// <inheritdoc cref="IMessageChannel.SendFileAsync(FileAttachment, string, bool, Embed, RequestOptions, AllowedMentions, MessageReference, MessageComponent, ISticker[], Embed[], MessageFlags)"/>
-        new Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None);
+        new Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None);
 
         /// <inheritdoc cref="IMessageChannel.SendFilesAsync(IEnumerable{FileAttachment}, string, bool, Embed, RequestOptions, AllowedMentions, MessageReference, MessageComponent, ISticker[], Embed[], MessageFlags)"/>
-        new Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string text = null,
-            bool isTTS = false, Embed embed = null, RequestOptions options = null,
-            AllowedMentions allowedMentions = null, MessageReference messageReference = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null,
+        new Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null,
+            bool isTTS = false, Embed? embed = null, RequestOptions? options = null,
+            AllowedMentions? allowedMentions = null, MessageReference? messageReference = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null,
             MessageFlags flags = MessageFlags.None);
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Discord.WebSocket
         ///     A WebSocket-based message object; <see langword="null" /> if it does not exist in the cache or if caching is not
         ///     enabled.
         /// </returns>
-        SocketMessage GetCachedMessage(ulong id);
+        SocketMessage? GetCachedMessage(ulong id);
         /// <summary>
         ///     Gets the last N cached messages from this message channel.
         /// </summary>
@@ -148,6 +148,6 @@ namespace Discord.WebSocket
         ///     A task that represents the asynchronous get operation for retrieving pinned messages in this channel.
         ///     The task result contains a read-only collection of messages found in the pinned messages.
         /// </returns>
-        new Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions options = null);
+        new Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions? options = null);
     }
 }

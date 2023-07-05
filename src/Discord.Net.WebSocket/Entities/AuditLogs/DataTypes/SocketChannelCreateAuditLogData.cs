@@ -36,7 +36,7 @@ public class SocketChannelCreateAuditLogData : ISocketAuditLogData
         if (model.DefaultEmoji is not null)
         {
             if (model.DefaultEmoji.EmojiId.HasValue && model.DefaultEmoji.EmojiId.Value != 0)
-                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null, false);
+                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null!, false);
             else if (model.DefaultEmoji.EmojiName.IsSpecified)
                 DefaultReactionEmoji = new Emoji(model.DefaultEmoji.EmojiName.Value);
             else
@@ -53,7 +53,7 @@ public class SocketChannelCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketChannelCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes, discord);
 
@@ -74,7 +74,7 @@ public class SocketChannelCreateAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the name of the created channel.
     /// </returns>
-    public string ChannelName { get; }
+    public string? ChannelName { get; }
 
     /// <summary>
     ///     Gets the type of the created channel.
@@ -131,17 +131,17 @@ public class SocketChannelCreateAuditLogData : ISocketAuditLogData
     /// <summary>
     ///     Gets the topic that was set in the created channel.
     /// </summary>
-    public string Topic { get; }
+    public string? Topic { get; }
 
     /// <summary>
     ///     Gets tags available in the created forum channel.
     /// </summary>
-    public IReadOnlyCollection<ForumTag> AvailableTags { get; }
+    public IReadOnlyCollection<ForumTag>? AvailableTags { get; }
 
     /// <summary>
     ///     Gets the default reaction added to posts in the created forum channel.
     /// </summary>
-    public IEmote DefaultReactionEmoji { get; }
+    public IEmote? DefaultReactionEmoji { get; }
 
     /// <summary>
     ///     Gets the user limit configured in the created voice channel.
@@ -156,7 +156,7 @@ public class SocketChannelCreateAuditLogData : ISocketAuditLogData
     /// <summary>
     ///     Gets the region configured in the created voice channel.
     /// </summary>
-    public string RtcRegion { get; }
+    public string? RtcRegion { get; }
 
     /// <summary>
     ///     Gets channel flags configured for the created channel.

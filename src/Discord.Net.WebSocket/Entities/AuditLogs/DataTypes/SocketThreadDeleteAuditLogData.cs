@@ -14,7 +14,7 @@ public class SocketThreadDeleteAuditLogData : ISocketAuditLogData
     {
         ThreadId = id;
 
-        ThreadName = model.Name;
+        ThreadName = model.Name!;
         IsArchived = model.IsArchived!.Value;
         AutoArchiveDuration = model.ArchiveDuration!.Value;
         IsLocked = model.IsLocked!.Value;
@@ -26,7 +26,7 @@ public class SocketThreadDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketThreadDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<ThreadInfoAuditLogModel>(changes, discord);
 
@@ -99,7 +99,7 @@ public class SocketThreadDeleteAuditLogData : ISocketAuditLogData
     /// <remarks>
     ///     <see langword="null"/> if this is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<ulong> AppliedTags { get; }
+    public IReadOnlyCollection<ulong>? AppliedTags { get; }
 
     /// <summary>
     ///     Gets the flags of the thread channel.

@@ -35,7 +35,7 @@ namespace Discord.Commands
     public class RequireOwnerAttribute : PreconditionAttribute
     {
         /// <inheritdoc />
-        public override string ErrorMessage { get; set; }
+        public override string? ErrorMessage { get; set; }
 
         /// <inheritdoc />
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
@@ -44,7 +44,7 @@ namespace Discord.Commands
             {
                 case TokenType.Bot:
                     var application = await context.Client.GetApplicationInfoAsync().ConfigureAwait(false);
-                    if (context.User.Id != application.Owner.Id)
+                    if (context.User.Id != application.Owner?.Id)
                         return PreconditionResult.FromError(ErrorMessage ?? "Command can only be run by the owner of the bot.");
                     return PreconditionResult.FromSuccess();
                 default:

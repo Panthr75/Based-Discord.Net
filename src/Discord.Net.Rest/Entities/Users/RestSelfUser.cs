@@ -22,11 +22,12 @@ namespace Discord.Rest
         /// <inheritdoc />
         public PremiumType PremiumType { get; private set; }
         /// <inheritdoc />
-        public string Locale { get; private set; }
+        public string? Locale { get; private set; }
 
         internal RestSelfUser(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Email = string.Empty;
         }
         internal new static RestSelfUser Create(BaseDiscordClient discord, Model model)
         {
@@ -55,7 +56,7 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException">Unable to update this object using a different token.</exception>
-        public override async Task UpdateAsync(RequestOptions options = null)
+        public override async Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetMyUserAsync(options).ConfigureAwait(false);
             if (model.Id != Id)
@@ -65,7 +66,7 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException">Unable to modify this object using a different token.</exception>
-        public async Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions? options = null)
         {
             if (Id != Discord.CurrentUser.Id)
                 throw new InvalidOperationException("Unable to modify this object using a different token.");

@@ -1,14 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class GetBotGatewayResponse
     {
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("shards")]
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
+        [JsonPropertyName("shards")]
         public int Shards { get; set; }
-        [JsonProperty("session_start_limit")]
-        public SessionStartLimit SessionStartLimit { get; set; }
+        [JsonPropertyName("session_start_limit")]
+        public SessionStartLimit SessionStartLimit { get; set; } = null!;
     }
 }

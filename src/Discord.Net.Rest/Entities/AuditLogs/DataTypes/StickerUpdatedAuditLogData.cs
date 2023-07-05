@@ -7,7 +7,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a sticker update.
 /// </summary>
-public class StickerUpdatedAuditLogData : IAuditLogData
+public partial class StickerUpdatedAuditLogData : IAuditLogData
 {
     internal StickerUpdatedAuditLogData(StickerInfo before, StickerInfo after)
     {
@@ -15,9 +15,9 @@ public class StickerUpdatedAuditLogData : IAuditLogData
         After = after;
     }
 
-    internal static StickerUpdatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static StickerUpdatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<StickerInfoAuditLogModel>(changes, discord);
 
         return new StickerUpdatedAuditLogData(new(before), new (after));

@@ -111,7 +111,7 @@ public class ForumTagBuilder
     {
         Name = name;
         if (emoteId is not null)
-            Emoji = new Emote(emoteId.Value, null, false);
+            Emoji = new Emote(emoteId.Value, string.Empty, false);
         IsModerated = isModerated;
         Id = id;
     }
@@ -132,7 +132,7 @@ public class ForumTagBuilder
     /// Sets the name of the tag.
     /// </summary>
     /// <exception cref="ArgumentException">Name length must be less than or equal to <see cref="MaxNameLength"/>.</exception>
-    public ForumTagBuilder WithName(string name)
+    public ForumTagBuilder WithName(string? name)
     {
         Name = name;
         return this;
@@ -180,8 +180,8 @@ public class ForumTagBuilder
         => builder is not null &&
            Id == builder.Id &&
            Name == builder.Name &&
-           (Emoji is Emoji emoji && builder.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji) ||
-            Emoji is Emote emote && builder.Emoji is Emote otherEmote && emote.Equals(otherEmote)) &&
+           ((Emoji is Emoji emoji && builder.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji)) ||
+            (Emoji is Emote emote && builder.Emoji is Emote otherEmote && emote.Equals(otherEmote))) &&
            IsModerated == builder.IsModerated;
 
     public static bool operator ==(ForumTagBuilder? left, ForumTagBuilder? right)

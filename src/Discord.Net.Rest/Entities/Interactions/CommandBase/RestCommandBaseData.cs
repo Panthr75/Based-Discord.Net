@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,11 +21,13 @@ namespace Discord.Rest
         /// </summary>
         public virtual IReadOnlyCollection<TOption> Options { get; internal set; }
 
-        internal RestResolvableData<Model> ResolvableData;
+        internal RestResolvableData<Model>? ResolvableData;
 
         internal RestCommandBaseData(BaseDiscordClient client, Model model)
             : base(client, model.Id)
         {
+            this.Name = string.Empty;
+            this.Options = ImmutableArray<TOption>.Empty;
         }
 
         internal static async Task<RestCommandBaseData> CreateAsync(DiscordRestClient client, Model model, RestGuild guild, IRestMessageChannel channel, bool doApiCall)
@@ -34,7 +37,7 @@ namespace Discord.Rest
             return entity;
         }
 
-        internal virtual async Task UpdateAsync(DiscordRestClient client, Model model, RestGuild guild, IRestMessageChannel channel, bool doApiCall)
+        internal virtual async Task UpdateAsync(DiscordRestClient client, Model model, RestGuild? guild, IRestMessageChannel? channel, bool doApiCall)
         {
             Name = model.Name;
             if (model.Resolved.IsSpecified && ResolvableData == null)

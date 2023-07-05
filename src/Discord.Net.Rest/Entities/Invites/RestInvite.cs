@@ -14,7 +14,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         public string ChannelName { get; private set; }
         /// <inheritdoc />
-        public string GuildName { get; private set; }
+        public string? GuildName { get; private set; }
         /// <inheritdoc />
         public int? PresenceCount { get; private set; }
         /// <inheritdoc />
@@ -24,9 +24,9 @@ namespace Discord.Rest
         /// <inheritdoc />
         public ulong? GuildId { get; private set; }
         /// <inheritdoc />
-        public IUser Inviter { get; private set; }
+        public IUser? Inviter { get; private set; }
         /// <inheritdoc />
-        public IUser TargetUser { get; private set; }
+        public IUser? TargetUser { get; private set; }
         /// <inheritdoc />
         public TargetUserType TargetUserType { get; private set; }
 
@@ -39,7 +39,7 @@ namespace Discord.Rest
         public PartialGuild PartialGuild { get; private set; }
 
         /// <inheritdoc cref="IInvite.Application" />
-        public RestApplication Application { get; private set; }
+        public RestApplication? Application { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset? ExpiresAt { get; private set; }
@@ -47,24 +47,26 @@ namespace Discord.Rest
         /// <summary>
         ///     Gets guild scheduled event data. <see langword="null" /> if event id was invalid.
         /// </summary>
-        public RestGuildEvent ScheduledEvent { get; private set; }
+        public RestGuildEvent? ScheduledEvent { get; private set; }
 
-        internal IChannel Channel { get; }
+        internal IChannel? Channel { get; }
 
-        internal IGuild Guild { get; }
+        internal IGuild? Guild { get; }
 
         /// <inheritdoc />
         public string Code => Id;
         /// <inheritdoc />
         public string Url => $"{DiscordConfig.InviteUrl}{Code}";
 
-        internal RestInvite(BaseDiscordClient discord, IGuild guild, IChannel channel, string id)
+        internal RestInvite(BaseDiscordClient discord, IGuild? guild, IChannel? channel, string id)
             : base(discord, id)
         {
+            this.ChannelName = string.Empty;
+            this.PartialGuild = new PartialGuild();
             Guild = guild;
             Channel = channel;
         }
-        internal static RestInvite Create(BaseDiscordClient discord, IGuild guild, IChannel channel, Model model)
+        internal static RestInvite Create(BaseDiscordClient discord, IGuild? guild, IChannel? channel, Model model)
         {
             var entity = new RestInvite(discord, guild, channel, model.Code);
             entity.Update(model);
@@ -93,18 +95,23 @@ namespace Discord.Rest
 
             ExpiresAt = model.ExpiresAt.IsSpecified ? model.ExpiresAt.Value : null;
 
-            if(model.ScheduledEvent.IsSpecified)
+            if(model.ScheduledEvent.IsSpecified && this.Guild != null)
                 ScheduledEvent = RestGuildEvent.Create(Discord, Guild, model.ScheduledEvent.Value);
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(RequestOptions options = null)
+        public async Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetInviteAsync(Code, options).ConfigureAwait(false);
+            if (model == null)
+            {
+                return;
+            }
+
             Update(model);
         }
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => InviteHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>
@@ -142,7 +149,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        IApplication IInvite.Application => Application;
+        IApplication? IInvite.Application => Application;
         
         #endregion
     }

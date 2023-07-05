@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Discord.API
 {
     internal class ErrorDetails
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public Optional<string> Name { get; set; }
-        [JsonProperty("errors")]
-        public Error[] Errors { get; set; }
+        [JsonPropertyName("errors")]
+        public Error[] Errors { get; set; } = Array.Empty<Error>();
     }
 }

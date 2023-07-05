@@ -18,7 +18,7 @@ public class SocketScheduledEventUpdateAuditLogData : ISocketAuditLogData
 
     internal static SocketScheduledEventUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ScheduledEventInfoAuditLogModel>(changes, discord);
 

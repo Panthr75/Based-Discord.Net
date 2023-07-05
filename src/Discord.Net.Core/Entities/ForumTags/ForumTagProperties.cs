@@ -1,8 +1,11 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
+
 namespace Discord;
 
 #nullable enable
 
-public class ForumTagProperties : IForumTag
+public class ForumTagProperties : IForumTag, IEquatable<ForumTagProperties>
 {
     /// <summary>
     ///     Gets the Id of the tag.
@@ -27,18 +30,18 @@ public class ForumTagProperties : IForumTag
 
     public override int GetHashCode() => (Id, Name, Emoji, IsModerated).GetHashCode();
 
-    public override bool Equals(object? obj)
+    public override bool Equals([NotNullWhen(true)] object? obj)
         => obj is ForumTagProperties tag && Equals(tag);
 
     /// <summary>
     /// Gets whether supplied tag is equals to the current one.
     /// </summary>
-    public bool Equals(ForumTagProperties? tag)
+    public bool Equals([NotNullWhen(true)] ForumTagProperties? tag)
         => tag is not null &&
            Id == tag.Id &&
            Name == tag.Name &&
-           (Emoji is Emoji emoji && tag.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji) ||
-            Emoji is Emote emote && tag.Emoji is Emote otherEmote && emote.Equals(otherEmote)) &&
+           ((Emoji is Emoji emoji && tag.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji)) ||
+            (Emoji is Emote emote && tag.Emoji is Emote otherEmote && emote.Equals(otherEmote))) &&
            IsModerated == tag.IsModerated;
 
     public static bool operator ==(ForumTagProperties? left, ForumTagProperties? right)

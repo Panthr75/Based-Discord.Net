@@ -1,6 +1,4 @@
 using Discord.Overrides;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,6 +8,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Discord
@@ -27,12 +27,12 @@ namespace Discord
         /// <summary>
         ///     Gets the name of the override.
         /// </summary>
-        public string Name { get; internal set; }
+        public string? Name { get; internal set; }
 
         /// <summary>
         ///     Gets the description of the override.
         /// </summary>
-        public string Description { get; internal set; }
+        public string? Description { get; internal set; }
 
         /// <summary>
         ///     Gets the date this override was created.
@@ -44,22 +44,23 @@ namespace Discord
         /// </summary>
         public DateTimeOffset LastUpdated { get; internal set; }
 
-        internal static Override FromJson(string json)
+        internal static Override? FromJson(string json)
         {
-            var result = new Override();
 
-            using (var textReader = new StringReader(json))
-            using (var reader = new JsonTextReader(textReader))
+            JsonNode? obj = JsonNode.Parse(json);
+            if (obj == null)
             {
-                var obj = JObject.ReadFrom(reader);
-                result.Id = obj["id"].ToObject<Guid>();
-                result.Name = obj["name"].ToObject<string>();
-                result.Description = obj["description"].ToObject<string>();
-                result.CreatedAt = obj["created_at"].ToObject<DateTimeOffset>();
-                result.LastUpdated = obj["last_updated"].ToObject<DateTimeOffset>();
+                return null;
             }
 
-            return result;
+            return new Override()
+            {
+                Id = obj["id"]?.GetValue<Guid>() ?? default(Guid),
+                Name = obj["name"]?.GetValue<string>(),
+                Description = obj["description"]?.GetValue<string>(),
+                CreatedAt = obj["created_at"]?.GetValue<DateTimeOffset>() ?? default(DateTimeOffset),
+                LastUpdated = obj["last_updated"]?.GetValue<DateTimeOffset>() ?? default(DateTimeOffset)
+            };
         }
     }
 
@@ -82,6 +83,13 @@ namespace Discord
         ///     Gets the overrides type.
         /// </summary>
         public Type Type { get; internal set; }
+
+        public LoadedOverride(Assembly assembly, IOverride instance, Type type)
+        {
+            this.Assembly = assembly;
+            this.Instance = instance;
+            this.Type = type;
+        }
     }
 
     public sealed class BuildOverrides
@@ -126,7 +134,7 @@ namespace Discord
         ///     A task representing the asynchronous get operation. The tasks result is an <see cref="Override"/>
         ///     if it exists; otherwise <see langword="null"/>.
         /// </returns>
-        public static async Task<Override> GetOverrideAsync(string name)
+        public static async Task<Override?> GetOverrideAsync(string name)
         {
             using (var client = new HttpClient())
             {
@@ -207,7 +215,7 @@ namespace Discord
 
             foreach (var ovr in overrides)
             {
-                var inst = (IOverride)Activator.CreateInstance(ovr);
+                var inst = (IOverride)Activator.CreateInstance(ovr)!;
 
                 inst.RegisterPackageLookupHandler((s) =>
                 {
@@ -226,12 +234,9 @@ namespace Discord
                     }
                 });
 
-                loaded.Add(new LoadedOverride()
-                {
-                    Assembly = asm,
-                    Instance = inst,
-                    Type = ovr
-                });
+                loaded.Add(new LoadedOverride(assembly: asm,
+                    instance: inst,
+                    type: ovr));
             }
 
             return _loadedOverrides.AddOrUpdate(ovrride, loaded, (_, __) => loaded) != null;

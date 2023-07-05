@@ -8,7 +8,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a scheduled event updates.
 /// </summary>
-public class ScheduledEventUpdateAuditLogData : IAuditLogData
+public partial class ScheduledEventUpdateAuditLogData : IAuditLogData
 {
     private ScheduledEventUpdateAuditLogData(ulong id, ScheduledEventInfo before, ScheduledEventInfo after, IGuildScheduledEvent scheduledEvent)
     {
@@ -19,15 +19,15 @@ public class ScheduledEventUpdateAuditLogData : IAuditLogData
 
     }
 
-    internal static ScheduledEventUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ScheduledEventUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ScheduledEventInfoAuditLogModel>(changes, discord);
 
-        var scheduledEvent = log.GuildScheduledEvents.FirstOrDefault(x => x.Id == entry.TargetId);
+        var scheduledEvent = log?.GuildScheduledEvents?.FirstOrDefault(x => x.Id == entry.TargetId);
 
-        return new ScheduledEventUpdateAuditLogData(entry.TargetId!.Value, new(before), new(after), RestGuildEvent.Create(discord, null, scheduledEvent));
+        return new ScheduledEventUpdateAuditLogData(entry.TargetId!.Value, new(before), new(after), RestGuildEvent.Create(discord, null, scheduledEvent!));
     }
 
     /// <summary>

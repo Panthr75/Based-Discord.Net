@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Model = Discord.API.StickerItem;
@@ -13,11 +14,11 @@ namespace Discord.WebSocket
     {
         /// <inheritdoc/>
         public override IReadOnlyCollection<string> Tags
-            => null;
+            => ImmutableArray<string>.Empty;
 
         /// <inheritdoc/>
         public override string Description
-            => null;
+            => string.Empty;
 
         /// <inheritdoc/>
         public override ulong PackId
@@ -56,7 +57,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The sticker representing this unknown stickers Id, if none is found then <see langword="null"/>.
         /// </returns>
-        public Task<SocketSticker> ResolveAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        public Task<SocketSticker?> ResolveAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null)
             => Discord.GetStickerAsync(Id, mode, options);
 
         private new string DebuggerDisplay => $"{Name} ({Id})";

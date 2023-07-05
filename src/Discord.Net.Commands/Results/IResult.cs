@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Discord.Commands
 {
     /// <summary>
@@ -19,13 +21,14 @@ namespace Discord.Commands
         /// <returns>
         ///     A string containing the error reason.
         /// </returns>
-        string ErrorReason { get; }
+        string? ErrorReason { get; }
         /// <summary>
         ///     Indicates whether the operation was successful or not.
         /// </summary>
         /// <returns>
         ///     <see langword="true" /> if the result is positive; otherwise <see langword="false" />.
         /// </returns>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         bool IsSuccess { get; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Commands
 {
@@ -14,16 +15,18 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets on which pipeline stage the command may have matched or failed.
         /// </summary>
-        public IResult Pipeline { get; }
+        public IResult? Pipeline { get; }
 
         /// <inheritdoc />
         public CommandError? Error { get; }
         /// <inheritdoc />
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
         /// <inheritdoc />
+        [MemberNotNullWhen(true, nameof(this.Match))]
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private MatchResult(CommandMatch? match, IResult pipeline, CommandError? error, string errorReason)
+        private MatchResult(CommandMatch? match, IResult? pipeline, CommandError? error, string? errorReason)
         {
             Match = match;
             Error = error;

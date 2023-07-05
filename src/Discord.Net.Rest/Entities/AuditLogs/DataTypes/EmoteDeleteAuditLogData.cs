@@ -1,13 +1,13 @@
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to an emoji deletion.
 /// </summary>
-public class EmoteDeleteAuditLogData : IAuditLogData
+public partial class EmoteDeleteAuditLogData : IAuditLogData
 {
     private EmoteDeleteAuditLogData(ulong id, string name)
     {
@@ -15,13 +15,13 @@ public class EmoteDeleteAuditLogData : IAuditLogData
         Name = name;
     }
 
-    internal static EmoteDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static EmoteDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
+        var change = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "name");
 
-        var emoteName = change.OldValue?.ToObject<string>(discord.ApiClient.Serializer);
+        var emoteName = change?.OldValue?.Deserialize<string>(discord.ApiClient.SerializerOptions);
 
-        return new EmoteDeleteAuditLogData(entry.TargetId.Value, emoteName);
+        return new EmoteDeleteAuditLogData(entry.TargetId!.Value, emoteName!);
     }
 
     /// <summary>

@@ -17,8 +17,8 @@ public class RoleConnectionMetadataProperties
     private string _name;
     private string _description;
 
-    private IReadOnlyDictionary<string, string> _nameLocalizations;
-    private IReadOnlyDictionary<string, string> _descriptionLocalizations;
+    private IReadOnlyDictionary<string, string>? _nameLocalizations;
+    private IReadOnlyDictionary<string, string>? _descriptionLocalizations;
 
     /// <summary>
     ///     Gets or sets the of metadata value.
@@ -67,7 +67,7 @@ public class RoleConnectionMetadataProperties
     /// <summary>
     ///     Gets or sets translations of the name. <see langword="null"/> if not set.
     /// </summary>
-    public IReadOnlyDictionary<string, string> NameLocalizations
+    public IReadOnlyDictionary<string, string>? NameLocalizations
     {
         get => _nameLocalizations;
         set
@@ -83,7 +83,7 @@ public class RoleConnectionMetadataProperties
     /// <summary>
     ///     Gets or sets translations of the description. <see langword="null"/> if not set.
     /// </summary>
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations
     {
         get => _descriptionLocalizations;
         set
@@ -106,8 +106,12 @@ public class RoleConnectionMetadataProperties
     /// <param name="nameLocalizations">Translations for the name.</param>
     /// <param name="descriptionLocalizations">Translations for the description.</param>
     public RoleConnectionMetadataProperties(RoleConnectionMetadataType type, string key, string name, string description,
-        IDictionary<string, string> nameLocalizations = null, IDictionary<string, string> descriptionLocalizations = null)
+        IDictionary<string, string>? nameLocalizations = null, IDictionary<string, string>? descriptionLocalizations = null)
     {
+        this._key = null!;
+        this._name = null!;
+        this._description = null!;
+
         Type = type;
         Key = key;
         Name = name;
@@ -119,7 +123,12 @@ public class RoleConnectionMetadataProperties
     /// <summary>
     ///     Initializes a new instance of <see cref="RoleConnectionMetadataProperties"/>.
     /// </summary>
-    public RoleConnectionMetadataProperties() { }
+    public RoleConnectionMetadataProperties()
+    {
+        this._key = string.Empty;
+        this._name = string.Empty;
+        this._description = string.Empty;
+    }
 
     /// <summary>
     ///     Initializes a new <see cref="RoleConnectionMetadataProperties"/> with the data from provided <see cref="RoleConnectionMetadata"/>.

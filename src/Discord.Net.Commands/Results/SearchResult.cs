@@ -1,24 +1,27 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Commands
 {
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public struct SearchResult : IResult
     {
-        public string Text { get; }
-        public IReadOnlyList<CommandMatch> Commands { get; }
+        public string? Text { get; }
+        public IReadOnlyList<CommandMatch>? Commands { get; }
 
         /// <inheritdoc/>
         public CommandError? Error { get; }
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(true, nameof(this.Text), nameof(this.Commands))]
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private SearchResult(string text, IReadOnlyList<CommandMatch> commands, CommandError? error, string errorReason)
+        private SearchResult(string? text, IReadOnlyList<CommandMatch>? commands, CommandError? error, string? errorReason)
         {
             Text = text;
             Commands = commands;

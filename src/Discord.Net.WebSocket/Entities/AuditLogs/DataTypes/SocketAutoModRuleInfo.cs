@@ -43,7 +43,7 @@ public class SocketAutoModRuleInfo
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <inheritdoc cref="IAutoModRule.EventType"/>
     /// <remarks>
@@ -67,37 +67,37 @@ public class SocketAutoModRuleInfo
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<ulong> ExemptRoles { get; set; }
+    public IReadOnlyCollection<ulong>? ExemptRoles { get; set; }
 
     /// <inheritdoc cref="IAutoModRule.ExemptChannels"/>
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<ulong> ExemptChannels { get; set; }
+    public IReadOnlyCollection<ulong>? ExemptChannels { get; set; }
 
     /// <inheritdoc cref="IAutoModRule.KeywordFilter"/>
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<string> KeywordFilter { get; }
+    public IReadOnlyCollection<string>? KeywordFilter { get; }
 
     /// <inheritdoc cref="IAutoModRule.RegexPatterns"/>
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<string> RegexPatterns { get; }
+    public IReadOnlyCollection<string>? RegexPatterns { get; }
 
     /// <inheritdoc cref="IAutoModRule.AllowList"/>
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<string> AllowList { get; }
+    public IReadOnlyCollection<string>? AllowList { get; }
 
     /// <inheritdoc cref="IAutoModRule.Presets"/>
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<KeywordPresetTypes> Presets { get; }
+    public IReadOnlyCollection<KeywordPresetTypes>? Presets { get; }
 
     /// <inheritdoc cref="IAutoModRule.MentionTotalLimit"/>
     /// <remarks>
@@ -109,5 +109,5 @@ public class SocketAutoModRuleInfo
     /// <remarks>
     ///     <see langword="null"/> if this property is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<AutoModRuleAction> Actions { get; private set; }
+    public IReadOnlyCollection<AutoModRuleAction>? Actions { get; private set; }
 }

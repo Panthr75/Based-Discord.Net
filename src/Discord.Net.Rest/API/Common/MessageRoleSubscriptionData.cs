@@ -1,18 +1,19 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API;
 
 internal class MessageRoleSubscriptionData
 {
-    [JsonProperty("role_subscription_listing_id")]
+    [JsonPropertyName("role_subscription_listing_id")]
     public ulong SubscriptionListingId { get; set; }
 
-    [JsonProperty("tier_name")]
-    public string TierName { get; set; }
+    [JsonPropertyName("tier_name")]
+    public string TierName { get; set; } = string.Empty;
 
-    [JsonProperty("total_months_subscribed")]
+    [JsonPropertyName("total_months_subscribed")]
     public int MonthsSubscribed { get; set; }
 
-    [JsonProperty("is_renewal")]
+    [JsonPropertyName("is_renewal")]
     public bool IsRenewal { get; set; }
 }

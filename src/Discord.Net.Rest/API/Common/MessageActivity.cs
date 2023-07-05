@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Discord.API
 {
-    internal class MessageActivity
+    public class MessageActivity
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public Optional<MessageActivityType> Type { get; set; }
-        [JsonProperty("party_id")]
+        [JsonPropertyName("party_id")]
         public Optional<string> PartyId { get; set; }
     }
 }

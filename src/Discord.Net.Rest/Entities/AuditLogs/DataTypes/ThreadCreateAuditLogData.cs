@@ -10,14 +10,14 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a thread creation.
 /// </summary>
-public class ThreadCreateAuditLogData : IAuditLogData
+public partial class ThreadCreateAuditLogData : IAuditLogData
 {
-    private ThreadCreateAuditLogData(IThreadChannel thread, ulong id, ThreadInfoAuditLogModel model)
+    private ThreadCreateAuditLogData(IThreadChannel? thread, ulong id, ThreadInfoAuditLogModel model)
     {
         Thread = thread;
         ThreadId = id;
 
-        ThreadName = model.Name;
+        ThreadName = model.Name ?? string.Empty;
         IsArchived = model.IsArchived!.Value;
         AutoArchiveDuration = model.ArchiveDuration!.Value;
         IsLocked = model.IsLocked!.Value;
@@ -27,14 +27,15 @@ public class ThreadCreateAuditLogData : IAuditLogData
         ThreadType = model.Type;
     }
 
-    internal static ThreadCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ThreadCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<ThreadInfoAuditLogModel>(changes, discord);
 
-        var threadInfo = log.Threads.FirstOrDefault(x => x.Id == entry.TargetId!.Value);
-        var threadChannel = threadInfo == null ? null : RestThreadChannel.Create(discord, (IGuild)null, threadInfo);
+        var threadInfo = log?.Threads?.FirstOrDefault(x => x.Id == entry.TargetId!.Value);
+
+        var threadChannel = threadInfo == null ? null : RestThreadChannel.Create(discord, null, threadInfo);
 
         return new ThreadCreateAuditLogData(threadChannel, entry.TargetId!.Value, data);
     }
@@ -45,7 +46,7 @@ public class ThreadCreateAuditLogData : IAuditLogData
     /// <returns>
     ///     A thread object representing the thread that was created if it still exists, otherwise returns <see langword="null" />.
     /// </returns>
-    public IThreadChannel Thread { get; }
+    public IThreadChannel? Thread { get; }
 
     /// <summary>
     ///     Gets the snowflake ID of the thread.
@@ -111,7 +112,7 @@ public class ThreadCreateAuditLogData : IAuditLogData
     /// <remarks>
     ///     <see langword="null"/> if the property was not updated.
     /// </remarks>
-    public IReadOnlyCollection<ulong> AppliedTags { get; }
+    public IReadOnlyCollection<ulong>? AppliedTags { get; }
 
     /// <summary>
     ///     Gets the flags of the thread channel.

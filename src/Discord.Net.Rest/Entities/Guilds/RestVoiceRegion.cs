@@ -24,6 +24,7 @@ namespace Discord.Rest
         internal RestVoiceRegion(BaseDiscordClient client, string id)
             : base(client, id)
         {
+            this.Name = string.Empty;
         }
         internal static RestVoiceRegion Create(BaseDiscordClient client, Model model)
         {

@@ -427,8 +427,8 @@ namespace Discord.Commands
             if (isDefaultTypeReader)
             {
                 var isSuccess = _defaultTypeReaders.TryRemove(type, out var result);
-                if (isSuccess)
-                    readers.Add(result?.GetType(), result);
+                if (isSuccess && result is not null)
+                    readers.Add(result.GetType(), result);
 
                 return isSuccess;
             }
@@ -436,7 +436,7 @@ namespace Discord.Commands
             {
                 var isSuccess = _typeReaders.TryRemove(type, out var result);
 
-                if (isSuccess)
+                if (isSuccess && result is not null)
                     readers = result;
 
                 return isSuccess;
@@ -459,13 +459,13 @@ namespace Discord.Commands
             var nullableReader = NullableTypeReader.Create(valueType, valueTypeReader);
             readers[nullableReader.GetType()] = nullableReader;
         }
-        internal IDictionary<Type, TypeReader> GetTypeReaders(Type type)
+        internal IDictionary<Type, TypeReader>? GetTypeReaders(Type type)
         {
             if (_typeReaders.TryGetValue(type, out var definedTypeReaders))
                 return definedTypeReaders;
             return null;
         }
-        internal TypeReader GetDefaultTypeReader(Type type)
+        internal TypeReader? GetDefaultTypeReader(Type type)
         {
             if (_defaultTypeReaders.TryGetValue(type, out var reader))
                 return reader;
@@ -491,7 +491,7 @@ namespace Discord.Commands
             {
                 if (type == _entityTypeReaders[i].EntityType || typeInfo.ImplementedInterfaces.Contains(_entityTypeReaders[i].EntityType))
                 {
-                    reader = Activator.CreateInstance(_entityTypeReaders[i].TypeReaderType.MakeGenericType(type)) as TypeReader;
+                    reader = (TypeReader)Activator.CreateInstance(_entityTypeReaders[i].TypeReaderType.MakeGenericType(type))!;
                     _defaultTypeReaders[type] = reader;
                     return reader;
                 }
@@ -610,15 +610,15 @@ namespace Discord.Commands
 
             if (match.Command.Parameters.Count > 0)
             {
-                var argValuesSum = parseResult.ArgValues?.Sum(x => x.Values.OrderByDescending(y => y.Score).FirstOrDefault().Score) ?? 0;
-                var paramValuesSum = parseResult.ParamValues?.Sum(x => x.Values.OrderByDescending(y => y.Score).FirstOrDefault().Score) ?? 0;
+                var argValuesSum = parseResult.ArgValues?.Sum(x => x.Values!.OrderByDescending(y => y.Score).FirstOrDefault().Score) ?? 0;
+                var paramValuesSum = parseResult.ParamValues?.Sum(x => x.Values!.OrderByDescending(y => y.Score).FirstOrDefault().Score) ?? 0;
 
                 argValuesScore = argValuesSum / match.Command.Parameters.Count;
                 paramValuesScore = paramValuesSum / match.Command.Parameters.Count;
             }
 
             var totalArgsScore = (argValuesScore + paramValuesScore) / 2;
-            return match.Command.Priority + totalArgsScore * 0.99f;
+            return match.Command.Priority + (totalArgsScore * 0.99f);
         }
 
         /// <summary>
@@ -668,8 +668,8 @@ namespace Discord.Commands
                     switch (multiMatchHandling)
                     {
                         case MultiMatchHandling.Best:
-                            argList = parseResult.ArgValues.Select(x => x.Values.OrderByDescending(y => y.Score).First()).ToImmutableArray();
-                            paramList = parseResult.ParamValues.Select(x => x.Values.OrderByDescending(y => y.Score).First()).ToImmutableArray();
+                            argList = parseResult.ArgValues!.Select(x => x.Values!.OrderByDescending(y => y.Score).First()).ToImmutableArray();
+                            paramList = parseResult.ParamValues!.Select(x => x.Values!.OrderByDescending(y => y.Score).First()).ToImmutableArray();
                             parseResult = ParseResult.FromSuccess(argList, paramList);
                             break;
                     }

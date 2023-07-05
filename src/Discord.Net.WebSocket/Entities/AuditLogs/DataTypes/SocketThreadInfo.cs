@@ -51,7 +51,7 @@ public class SocketThreadInfo
     /// <remarks>
     ///     <see langword="null"/> if the property was not updated.
     /// </remarks>
-    public IReadOnlyCollection<ulong> AppliedTags { get; }
+    public IReadOnlyCollection<ulong>? AppliedTags { get; }
 
     /// <summary>
     ///     Gets the flags of the thread channel.
@@ -71,7 +71,7 @@ public class SocketThreadInfo
 
     internal SocketThreadInfo(ThreadInfoAuditLogModel model)
     {
-        Name = model.Name;
+        Name = model.Name!;
         IsArchived = model.IsArchived;
         AutoArchiveDuration = model.ArchiveDuration;
         IsLocked = model.IsLocked;

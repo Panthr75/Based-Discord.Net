@@ -1,17 +1,21 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Discord.Net.Converters;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class AuditLogChange
     {
-        [JsonProperty("key")]
-        public string ChangedProperty { get; set; }
+        [JsonPropertyName("key")]
+        public string ChangedProperty { get; set; } = string.Empty;
 
-        [JsonProperty("new_value")]
-        public JToken NewValue { get; set; }
+        [JsonPropertyName("new_value")]
+        [JsonConverter(typeof(JsonNodeConverter))]
+        public JsonNode? NewValue { get; set; }
 
-        [JsonProperty("old_value")]
-        public JToken OldValue { get; set; }
+        [JsonPropertyName("old_value")]
+        [JsonConverter(typeof(JsonNodeConverter))]
+        public JsonNode? OldValue { get; set; }
     }
 }

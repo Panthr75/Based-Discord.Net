@@ -1,20 +1,19 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class IntegrationApplication
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("icon")]
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("icon")]
         public Optional<string> Icon { get; set; }
-        [JsonProperty("description")]
-        public string Description { get; set; }
-        [JsonProperty("summary")]
-        public string Summary { get; set; }
-        [JsonProperty("bot")]
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+        [JsonPropertyName("bot")]
         public Optional<User> Bot { get; set; }
     }
 }

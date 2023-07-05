@@ -1,29 +1,44 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Discord.Rest
 {
     internal static class EntityExtensions
     {
-        public static IEmote ToIEmote(this API.Emoji model)
+        [return: NotNullIfNotNull(nameof(model))]
+        public static IEmote? ToIEmote(this API.Emoji? model)
         {
+            if (model is null)
+                return null;
+
             if (model.Id.HasValue)
                 return model.ToEntity();
-            return new Emoji(model.Name);
+            return new Emoji(model.Name!);
         }
 
-        public static GuildEmote ToEntity(this API.Emoji model)
-            => new GuildEmote(model.Id.Value,
-                model.Name,
-                model.Animated.GetValueOrDefault(),
-                model.Managed,
-                model.RequireColons,
-                ImmutableArray.Create(model.Roles),
-                model.User.IsSpecified ? model.User.Value.Id : (ulong?)null);
-
-        public static Embed ToEntity(this API.Embed model)
+        [return: NotNullIfNotNull(nameof(model))]
+        public static GuildEmote? ToEntity(this API.Emoji? model)
         {
+            if (model is null)
+                return null;
+
+            return new GuildEmote(model.Id!.Value,
+                        model.Name!,
+                        model.Animated.GetValueOrDefault(),
+                        model.Managed,
+                        model.RequireColons,
+                        ImmutableArray.Create(model.Roles),
+                        model.User.IsSpecified ? model.User.Value.Id : (ulong?)null);
+        }
+
+        [return: NotNullIfNotNull(nameof(model))]
+        public static Embed? ToEntity(this API.Embed? model)
+        {
+            if (model is null)
+                return null;
+
             return new Embed(model.Type, model.Title, model.Description, model.Url, model.Timestamp,
                 model.Color.HasValue ? new Color(model.Color.Value) : (Color?)null,
                 model.Image.IsSpecified ? model.Image.Value.ToEntity() : (EmbedImage?)null,
@@ -34,8 +49,12 @@ namespace Discord.Rest
                 model.Thumbnail.IsSpecified ? model.Thumbnail.Value.ToEntity() : (EmbedThumbnail?)null,
                 model.Fields.IsSpecified ? model.Fields.Value.Select(x => x.ToEntity()).ToImmutableArray() : ImmutableArray.Create<EmbedField>());
         }
-        public static RoleTags ToEntity(this API.RoleTags model)
+        [return: NotNullIfNotNull(nameof(model))]
+        public static RoleTags? ToEntity(this API.RoleTags? model)
         {
+            if (model is null)
+                return null;
+
             return new RoleTags(
                 model.BotId.IsSpecified ? model.BotId.Value : null,
                 model.IntegrationId.IsSpecified ? model.IntegrationId.Value : null,
@@ -43,8 +62,6 @@ namespace Discord.Rest
         }
         public static API.Embed ToModel(this Embed entity)
         {
-            if (entity == null)
-                return null;
             var model = new API.Embed
             {
                 Type = entity.Type,
@@ -72,14 +89,12 @@ namespace Discord.Rest
 
         public static API.AllowedMentions ToModel(this AllowedMentions entity)
         {
-            if (entity == null)
-                return null;
             return new API.AllowedMentions()
             {
-                Parse = entity.AllowedTypes?.EnumerateMentionTypes().ToArray(),
-                Roles = entity.RoleIds?.ToArray(),
-                Users = entity.UserIds?.ToArray(),
-                RepliedUser = entity.MentionRepliedUser ?? Optional.Create<bool>(),
+                Parse = Optional.CreateFromNullable(entity.AllowedTypes?.EnumerateMentionTypes()?.ToArray()),
+                Roles = Optional.CreateFromNullable(entity.RoleIds?.ToArray()),
+                Users = Optional.CreateFromNullable(entity.UserIds?.ToArray()),
+                RepliedUser = Optional.CreateFromNullable(entity.MentionRepliedUser),
             };
         }
         public static API.MessageReference ToModel(this MessageReference entity)
@@ -199,12 +214,13 @@ namespace Discord.Rest
                         User = new API.User
                         {
                             Username = command.User.Username,
-                            Avatar = command.User.AvatarId,
+                            Avatar = Optional.CreateFromNullable(command.User.AvatarId),
                             Bot = command.User.IsBot,
                             Discriminator = command.User.Discriminator == "0000" ? Optional<string>.Unspecified : command.User.Discriminator,
                             PublicFlags = command.User.PublicFlags.HasValue ? command.User.PublicFlags.Value : Optional<UserProperties>.Unspecified,
                             Id = command.User.Id,
-                            GlobalName = command.User.GlobalName,
+                            Pronouns = Optional.CreateFromNullable(command.User.Pronouns),
+                            GlobalName = Optional.CreateFromNullable(command.User.GlobalName),
                         }
                     };
                 }

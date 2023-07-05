@@ -69,7 +69,7 @@ namespace Discord.WebSocket
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string NameLocalized { get; private set; }
+        public string? NameLocalized { get; private set; }
 
         /// <summary>
         ///     Gets the localized description of this command.
@@ -77,7 +77,7 @@ namespace Discord.WebSocket
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string DescriptionLocalized { get; private set; }
+        public string? DescriptionLocalized { get; private set; }
 
         /// <inheritdoc/>
         public DateTimeOffset CreatedAt
@@ -86,7 +86,7 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the guild this command resides in; if this command is a global command then it will return <see langword="null"/>
         /// </summary>
-        public SocketGuild Guild
+        public SocketGuild? Guild
             => GuildId.HasValue ? Discord.GetGuild(GuildId.Value) : null;
 
         private ulong? GuildId { get; set; }
@@ -94,6 +94,11 @@ namespace Discord.WebSocket
         internal SocketApplicationCommand(DiscordSocketClient client, ulong id, ulong? guildId)
             : base(client, id)
         {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.Options = ImmutableArray<SocketApplicationCommandOption>.Empty;
+            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            this.DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
             GuildId = guildId;
         }
         internal static SocketApplicationCommand Create(DiscordSocketClient client, GatewayModel model)
@@ -137,21 +142,21 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => InteractionHelper.DeleteUnknownApplicationCommandAsync(Discord, GuildId, this, options);
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<ApplicationCommandProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<ApplicationCommandProperties> func, RequestOptions? options = null)
         {
             return ModifyAsync<ApplicationCommandProperties>(func, options);
         }
 
         /// <inheritdoc />
-        public async Task ModifyAsync<TArg>(Action<TArg> func, RequestOptions options = null) where TArg : ApplicationCommandProperties
+        public async Task ModifyAsync<TArg>(Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
         {
             var command = IsGlobalCommand
                 ? await InteractionHelper.ModifyGlobalCommandAsync(Discord, this, func, options).ConfigureAwait(false)
-                : await InteractionHelper.ModifyGuildCommandAsync(Discord, this, GuildId.Value, func, options);
+                : await InteractionHelper.ModifyGuildCommandAsync(Discord, this, GuildId!.Value, func, options);
 
             Update(command);
         }

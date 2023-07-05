@@ -1,5 +1,4 @@
 using Discord.API.AuditLogs;
-using System;
 using System.Collections.Generic;
 
 namespace Discord.Rest;
@@ -52,7 +51,7 @@ public class ThreadInfo
     /// <remarks>
     ///     <see langword="null"/> if the property was not updated.
     /// </remarks>
-    public IReadOnlyCollection<ulong> AppliedTags { get; }
+    public IReadOnlyCollection<ulong>? AppliedTags { get; }
 
     /// <summary>
     ///     Gets the flags of the thread channel.
@@ -72,7 +71,7 @@ public class ThreadInfo
 
     internal ThreadInfo(ThreadInfoAuditLogModel model)
     {
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         IsArchived = model.IsArchived;
         AutoArchiveDuration = model.ArchiveDuration;
         IsLocked = model.IsLocked;

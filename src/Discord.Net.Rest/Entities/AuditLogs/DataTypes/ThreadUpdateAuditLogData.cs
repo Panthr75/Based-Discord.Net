@@ -9,9 +9,9 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a thread update.
 /// </summary>
-public class ThreadUpdateAuditLogData : IAuditLogData
+public partial class ThreadUpdateAuditLogData : IAuditLogData
 {
-    private ThreadUpdateAuditLogData(IThreadChannel thread, ThreadType type, ThreadInfo before, ThreadInfo after)
+    private ThreadUpdateAuditLogData(IThreadChannel? thread, ThreadType type, ThreadInfo before, ThreadInfo after)
     {
         Thread = thread;
         ThreadType = type;
@@ -19,14 +19,14 @@ public class ThreadUpdateAuditLogData : IAuditLogData
         After = after;
     }
 
-    internal static ThreadUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ThreadUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
             
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ThreadInfoAuditLogModel>(changes, discord);
 
-        var threadInfo = log.Threads.FirstOrDefault(x => x.Id == entry.TargetId!.Value);
-        var threadChannel = threadInfo == null ? null : RestThreadChannel.Create(discord, (IGuild)null, threadInfo);
+        var threadInfo = log?.Threads?.FirstOrDefault(x => x.Id == entry.TargetId!.Value);
+        var threadChannel = threadInfo == null ? null : RestThreadChannel.Create(discord, null, threadInfo);
 
         return new ThreadUpdateAuditLogData(threadChannel, before.Type, new(before), new (after));
     }
@@ -39,7 +39,7 @@ public class ThreadUpdateAuditLogData : IAuditLogData
     /// <returns>
     ///     A thread object representing the thread that was created if it still exists, otherwise returns <see langword="null" />.
     /// </returns>
-    public IThreadChannel Thread { get; }
+    public IThreadChannel? Thread { get; }
 
     /// <summary>
     ///     Gets the type of the thread.

@@ -1,10 +1,11 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class GetGuildPruneCountResponse
     {
-        [JsonProperty("pruned")]
+        [JsonPropertyName("pruned")]
         public int Pruned { get; set; }
     }
 }

@@ -43,21 +43,21 @@ namespace Discord.WebSocket
         public IReadOnlyCollection<SocketGuildUser> Speakers
             => Users.Where(x => !x.IsSuppressed).ToImmutableArray();
 
-        internal new SocketStageChannel Clone() => MemberwiseClone() as SocketStageChannel;
+        internal new SocketStageChannel Clone() => (SocketStageChannel)MemberwiseClone();
 
         internal SocketStageChannel(DiscordSocketClient discord, ulong id, SocketGuild guild)
             : base(discord, id, guild) { }
 
-        internal new static SocketStageChannel Create(SocketGuild guild, ClientState state, Model model)
+        internal new static SocketStageChannel Create(SocketGuild? guild, ClientState state, Model model)
         {
-            var entity = new SocketStageChannel(guild?.Discord, model.Id, guild);
+            var entity = new SocketStageChannel(guild?.Discord!, model.Id, guild!);
             entity.Update(state, model);
             return entity;
         }
-        internal void Update(StageInstance model, bool isLive = false)
+        internal void Update(StageInstance? model, bool isLive = false)
         {
             IsLive = isLive;
-            if (isLive)
+            if (isLive && model != null)
             {
                 PrivacyLevel = model.PrivacyLevel;
                 IsDiscoverableDisabled = model.DiscoverableDisabled;
@@ -70,8 +70,13 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task StartStageAsync(string topic, StagePrivacyLevel privacyLevel = StagePrivacyLevel.GuildOnly, RequestOptions options = null)
+        public async Task StartStageAsync(string topic, StagePrivacyLevel privacyLevel = StagePrivacyLevel.GuildOnly, RequestOptions? options = null)
         {
+            Preconditions.NotNull(topic, nameof(topic));
+            topic = topic.Trim();
+            Preconditions.AtLeast(topic.Length, 1, nameof(topic), "A stage topic cannot be empty.");
+            Preconditions.AtMost(topic.Length, 120, nameof(topic), "A stage topic cannot exceed 120 characters");
+
             var args = new API.Rest.CreateStageInstanceParams
             {
                 ChannelId = Id,
@@ -85,7 +90,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task ModifyInstanceAsync(Action<StageInstanceProperties> func, RequestOptions options = null)
+        public async Task ModifyInstanceAsync(Action<StageInstanceProperties> func, RequestOptions? options = null)
         {
             var model = await ChannelHelper.ModifyAsync(this, Discord, func, options);
 
@@ -93,7 +98,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task StopStageAsync(RequestOptions options = null)
+        public async Task StopStageAsync(RequestOptions? options = null)
         {
             await Discord.ApiClient.DeleteStageInstanceAsync(Id, options);
 
@@ -101,7 +106,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task RequestToSpeakAsync(RequestOptions options = null)
+        public Task RequestToSpeakAsync(RequestOptions? options = null)
         {
             var args = new API.Rest.ModifyVoiceStateParams
             {
@@ -112,7 +117,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task BecomeSpeakerAsync(RequestOptions options = null)
+        public Task BecomeSpeakerAsync(RequestOptions? options = null)
         {
             var args = new API.Rest.ModifyVoiceStateParams
             {
@@ -123,7 +128,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task StopSpeakingAsync(RequestOptions options = null)
+        public Task StopSpeakingAsync(RequestOptions? options = null)
         {
             var args = new API.Rest.ModifyVoiceStateParams
             {
@@ -134,7 +139,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task MoveToSpeakerAsync(IGuildUser user, RequestOptions options = null)
+        public Task MoveToSpeakerAsync(IGuildUser user, RequestOptions? options = null)
         {
             var args = new API.Rest.ModifyVoiceStateParams
             {
@@ -146,7 +151,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task RemoveFromSpeakerAsync(IGuildUser user, RequestOptions options = null)
+        public Task RemoveFromSpeakerAsync(IGuildUser user, RequestOptions? options = null)
         {
             var args = new API.Rest.ModifyVoiceStateParams
             {

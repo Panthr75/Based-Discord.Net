@@ -12,15 +12,15 @@ namespace Discord.Commands.Builders
         private readonly List<Attribute> _attributes;
 
         public CommandBuilder Command { get; }
-        public string Name { get; internal set; }
-        public Type ParameterType { get; internal set; }
+        public string? Name { get; internal set; }
+        public Type? ParameterType { get; internal set; }
 
-        public TypeReader TypeReader { get; set; }
+        public TypeReader? TypeReader { get; set; }
         public bool IsOptional { get; set; }
         public bool IsRemainder { get; set; }
         public bool IsMultiple { get; set; }
-        public object DefaultValue { get; set; }
-        public string Summary { get; set; }
+        public object? DefaultValue { get; set; }
+        public string? Summary { get; set; }
 
         public IReadOnlyList<ParameterPreconditionAttribute> Preconditions => _preconditions;
         public IReadOnlyList<Attribute> Attributes => _attributes;
@@ -51,14 +51,19 @@ namespace Discord.Commands.Builders
             TypeReader = GetReader(type);
 
             if (type.GetTypeInfo().IsValueType)
-                DefaultValue = Activator.CreateInstance(type);
+                DefaultValue = Activator.CreateInstance(type)!;
             else if (type.IsArray)
-                DefaultValue = Array.CreateInstance(type.GetElementType(), 0);
+                DefaultValue = Array.CreateInstance(type.GetElementType()!, 0);
             ParameterType = type;
         }
 
-        private TypeReader GetReader(Type type)
+        private TypeReader? GetReader(Type? type)
         {
+            if (type == null)
+            {
+                return null;
+            }
+
             var commands = Command.Module.Service;
             if (type.GetTypeInfo().GetCustomAttribute<NamedArgumentTypeAttribute>() != null)
             {
@@ -76,7 +81,7 @@ namespace Discord.Commands.Builders
                         throw new InvalidOperationException($"Parameter type '{type.Name}' for command '{Command.Name}' must be a class with a public parameterless constructor to use as a NamedArgumentType.", ex);
                     }
 
-                    reader = (TypeReader)Activator.CreateInstance(readerType, new[] { commands });
+                    reader = (TypeReader)Activator.CreateInstance(readerType, new[] { commands })!;
                     commands.AddTypeReader(type, reader);
                 }
 
@@ -131,7 +136,7 @@ namespace Discord.Commands.Builders
         internal ParameterInfo Build(CommandInfo info)
         {
             if ((TypeReader ??= GetReader(ParameterType)) == null)
-                throw new InvalidOperationException($"No type reader found for type {ParameterType.Name}, one must be specified");
+                throw new InvalidOperationException($"No type reader found for type {ParameterType?.Name}, one must be specified");
 
             return new ParameterInfo(this, info, Command.Module.Service);
         }

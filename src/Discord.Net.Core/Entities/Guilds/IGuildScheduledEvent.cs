@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Discord
@@ -12,9 +11,9 @@ namespace Discord
     public interface IGuildScheduledEvent : IEntity<ulong>
     {
         /// <summary>
-        ///     Gets the guild this event is scheduled in.
+        ///     Gets the guild this event is scheduled in, if cached.
         /// </summary>
-        IGuild Guild { get; }
+        IGuild? Guild { get; }
 
         /// <summary>
         ///     Gets the id of the guild this event is scheduled in.
@@ -42,12 +41,12 @@ namespace Discord
         /// <remarks>
         ///     This field is <see langword="null"/> when the event doesn't have a description.
         /// </remarks>
-        string Description { get; }
+        string? Description { get; }
 
         /// <summary>
         ///     Gets the banner asset id of the event.
         /// </summary>
-        string CoverImageId { get; }
+        string? CoverImageId { get; }
 
         /// <summary>
         ///     Gets the start time of the event.
@@ -75,6 +74,17 @@ namespace Discord
         GuildScheduledEventType Type { get; }
 
         /// <summary>
+        /// Whether or not the type of this <see cref="IGuildScheduledEvent"/>
+        /// is <see cref="GuildScheduledEventType.External"/>.
+        /// </summary>
+        /// <remarks>
+        /// If <see langword="true"/>, <see cref="Location"/> will not
+        /// be <see langword="null"/>.
+        /// </remarks>
+        [MemberNotNullWhen(true, nameof(this.Location))]
+        bool IsExternal { get; }
+
+        /// <summary>
         ///     Gets the optional entity id of the event. The "entity" of the event
         ///     can be a stage instance event as is separate from <see cref="ChannelId"/>.
         /// </summary>
@@ -83,7 +93,7 @@ namespace Discord
         /// <summary>
         ///     Gets the location of the event if the <see cref="Type"/> is external.
         /// </summary>
-        string Location { get; }
+        string? Location { get; }
 
         /// <summary>
         ///     Gets the user count of the event.
@@ -96,7 +106,7 @@ namespace Discord
         /// <param name="format">The format to return.</param>
         /// <param name="size">The size of the image to return in. This can be any power of two between 16 and 2048.</param>
         /// <returns>The cover images url.</returns>
-        string GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024);
+        string? GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024);
 
         /// <summary>
         ///     Starts the event.
@@ -105,7 +115,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous start operation.
         /// </returns>
-        Task StartAsync(RequestOptions options = null);
+        Task StartAsync(RequestOptions? options = null);
         /// <summary>
         ///     Ends or cancels the event.
         /// </summary>
@@ -113,7 +123,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous end operation.
         /// </returns>
-        Task EndAsync(RequestOptions options = null);
+        Task EndAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Modifies the guild event.
@@ -123,7 +133,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
-        Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Deletes the current event.
@@ -132,7 +142,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous delete operation.
         /// </returns>
-        Task DeleteAsync(RequestOptions options = null);
+        Task DeleteAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of N users interested in the event.
@@ -153,7 +163,7 @@ namespace Discord
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(RequestOptions options = null);
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of N users interested in the event.
@@ -183,6 +193,21 @@ namespace Discord
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions options = null);
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions? options = null);
+
+        /// <summary>
+        /// This method attempts to fetch the guild for this scheduled event, if
+        /// there is no guild.
+        /// </summary>
+        /// <remarks>
+        /// If the guild was found successfully, then the <see cref="Guild">Guild</see>
+        /// property will be updated.
+        /// </remarks>
+        /// <param name="withCounts">Whether or not to include counts.</param>
+        /// <param name="options">The request options.</param>
+        /// <returns>
+        /// An awaitable task with the guild result.
+        /// </returns>
+        Task<IGuild?> GetGuildAsync(bool withCounts = false, RequestOptions? options = null);
     }
 }

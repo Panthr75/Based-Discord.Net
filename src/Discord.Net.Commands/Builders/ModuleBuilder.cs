@@ -8,7 +8,7 @@ namespace Discord.Commands.Builders
     public class ModuleBuilder
     {
         #region ModuleBuilder
-        private string _group;
+        private string? _group;
         private readonly List<CommandBuilder> _commands;
         private readonly List<ModuleBuilder> _submodules;
         private readonly List<PreconditionAttribute> _preconditions;
@@ -16,16 +16,19 @@ namespace Discord.Commands.Builders
         private readonly List<string> _aliases;
 
         public CommandService Service { get; }
-        public ModuleBuilder Parent { get; }
-        public string Name { get; set; }
-        public string Summary { get; set; }
-        public string Remarks { get; set; }
-        public string Group
+        public ModuleBuilder? Parent { get; }
+        public string? Name { get; set; }
+        public string? Summary { get; set; }
+        public string? Remarks { get; set; }
+        public string? Group
         {
             get => _group;
             set
             {
-                _aliases.Remove(_group);
+                if (_group is not null)
+                {
+                    _aliases.Remove(_group);
+                }
                 _group = value;
                 AddAliases(value);
             }
@@ -37,11 +40,11 @@ namespace Discord.Commands.Builders
         public IReadOnlyList<Attribute> Attributes => _attributes;
         public IReadOnlyList<string> Aliases => _aliases;
 
-        internal TypeInfo TypeInfo { get; set; }
+        internal TypeInfo? TypeInfo { get; set; }
         #endregion
 
         #region Automatic
-        internal ModuleBuilder(CommandService service, ModuleBuilder parent)
+        internal ModuleBuilder(CommandService service, ModuleBuilder? parent)
         {
             Service = service;
             Parent = parent;
@@ -55,7 +58,7 @@ namespace Discord.Commands.Builders
         #endregion
 
         #region User-defined
-        internal ModuleBuilder(CommandService service, ModuleBuilder parent, string primaryAlias)
+        internal ModuleBuilder(CommandService service, ModuleBuilder? parent, string primaryAlias)
             : this(service, parent)
         {
             Discord.Preconditions.NotNull(primaryAlias, nameof(primaryAlias));
@@ -79,7 +82,7 @@ namespace Discord.Commands.Builders
             return this;
         }
 
-        public ModuleBuilder AddAliases(params string[] aliases)
+        public ModuleBuilder AddAliases(params string?[] aliases)
         {
             for (int i = 0; i < aliases.Length; i++)
             {
@@ -99,7 +102,7 @@ namespace Discord.Commands.Builders
             _preconditions.Add(precondition);
             return this;
         }
-        public ModuleBuilder AddCommand(string primaryAlias, Func<ICommandContext, object[], IServiceProvider, CommandInfo, Task> callback, Action<CommandBuilder> createFunc)
+        public ModuleBuilder AddCommand(string primaryAlias, Func<ICommandContext, object?[], IServiceProvider, CommandInfo, Task> callback, Action<CommandBuilder> createFunc)
         {
             var builder = new CommandBuilder(this, primaryAlias, callback);
             createFunc(builder);
@@ -128,7 +131,7 @@ namespace Discord.Commands.Builders
             return this;
         }
 
-        private ModuleInfo BuildImpl(CommandService service, IServiceProvider services, ModuleInfo parent = null)
+        private ModuleInfo BuildImpl(CommandService service, IServiceProvider? services, ModuleInfo? parent = null)
         {
             //Default name to first alias
             if (Name == null)
@@ -143,9 +146,9 @@ namespace Discord.Commands.Builders
             return new ModuleInfo(this, service, services, parent);
         }
 
-        public ModuleInfo Build(CommandService service, IServiceProvider services) => BuildImpl(service, services);
+        public ModuleInfo Build(CommandService service, IServiceProvider? services) => BuildImpl(service, services);
 
-        internal ModuleInfo Build(CommandService service, IServiceProvider services, ModuleInfo parent) => BuildImpl(service, services, parent);
+        internal ModuleInfo Build(CommandService service, IServiceProvider? services, ModuleInfo parent) => BuildImpl(service, services, parent);
         #endregion
     }
 }

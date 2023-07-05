@@ -41,10 +41,6 @@ namespace Discord.WebSocket
             remove { _latencyUpdatedEvent.Remove(value); }
         }
         private readonly AsyncEvent<Func<int, int, Task>> _latencyUpdatedEvent = new AsyncEvent<Func<int, int, Task>>();
-
-        internal DiscordSocketClient(DiscordSocketConfig config, DiscordRestApiClient client) : base(config, client)
-        {
-        }
         #endregion
     }
 }

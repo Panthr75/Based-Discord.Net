@@ -27,8 +27,8 @@ namespace Discord.WebSocket
             if (model.SyncId.IsSpecified)
             {
                 var assets = model.Assets.GetValueOrDefault()?.ToEntity();
-                string albumText = assets?[1]?.Text;
-                string albumArtId = assets?[1]?.ImageId?.Replace("spotify:", "");
+                string? albumText = assets?[1]?.Text;
+                string? albumArtId = assets?[1]?.ImageId?.Replace("spotify:", "");
                 var timestamps = model.Timestamps.IsSpecified ? model.Timestamps.Value.ToEntity() : null;
                 return new SpotifyGame
                 {
@@ -38,7 +38,7 @@ namespace Discord.WebSocket
                     TrackUrl = CDN.GetSpotifyDirectUrl(model.SyncId.Value),
                     AlbumTitle = albumText,
                     TrackTitle = model.Details.GetValueOrDefault(),
-                    Artists = model.State.GetValueOrDefault()?.Split(';').Select(x => x?.Trim()).ToImmutableArray(),
+                    Artists = model.State.GetValueOrDefault()?.Split(';')?.Select(x => x.Trim())?.ToImmutableArray() ?? ImmutableArray<string>.Empty,
                     StartedAt = timestamps?.Start,
                     EndsAt = timestamps?.End,
                     Duration = timestamps?.End - timestamps?.Start,
@@ -91,9 +91,9 @@ namespace Discord.WebSocket
         }
 
         // (Small, Large)
-        public static GameAsset[] ToEntity(this API.GameAssets model, ulong? appId = null)
+        public static GameAsset?[] ToEntity(this API.GameAssets model, ulong? appId = null)
         {
-            return new GameAsset[]
+            return new GameAsset?[]
             {
                 model.SmallImage.IsSpecified ? new GameAsset
                 {

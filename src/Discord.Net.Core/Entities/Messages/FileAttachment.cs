@@ -19,7 +19,7 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the description of the file.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         ///     Gets or sets whether this file should be marked as a spoiler.
@@ -42,7 +42,7 @@ namespace Discord
         /// <param name="fileName">The name of the attachment.</param>
         /// <param name="description">The description of the attachment.</param>
         /// <param name="isSpoiler">Whether or not the attachment is a spoiler.</param>
-        public FileAttachment(Stream stream, string fileName, string description = null, bool isSpoiler = false)
+        public FileAttachment(Stream stream, string fileName, string? description = null, bool isSpoiler = false)
         {
             _isDisposed = false;
             FileName = fileName;
@@ -87,7 +87,7 @@ namespace Discord
         /// <exception cref="FileNotFoundException">The file specified in <paramref name="path" /> was not found.
         /// </exception>
         /// <exception cref="IOException">An I/O error occurred while opening the file. </exception>
-        public FileAttachment(string path, string fileName = null, string description = null, bool isSpoiler = false)
+        public FileAttachment(string path, string? fileName = null, string? description = null, bool isSpoiler = false)
         {
             _isDisposed = false;
             Stream = File.OpenRead(path);

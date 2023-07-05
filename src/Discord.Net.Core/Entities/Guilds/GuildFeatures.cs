@@ -88,10 +88,10 @@ namespace Discord
         public bool HasPrivateThreads
             => HasFeature(GuildFeature.PrivateThreads);
 
-        internal GuildFeatures(GuildFeature value, string[] experimental)
+        internal GuildFeatures(GuildFeature value, string[]? experimental = null)
         {
             Value = value;
-            Experimental = experimental.ToImmutableArray();
+            Experimental = experimental?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
         }
 
         /// <summary>

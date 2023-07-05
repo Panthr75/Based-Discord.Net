@@ -1,14 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class InviteDeleteEvent
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelId { get; set; }
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = string.Empty;
+        [JsonPropertyName("guild_id")]
         public Optional<ulong> GuildId { get; set; }
     }
 }

@@ -8,8 +8,8 @@ namespace Discord.WebSocket
 {
     internal static class SocketChannelHelper
     {
-        public static IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ISocketMessageChannel channel, DiscordSocketClient discord, MessageCache messages,
-            ulong? fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions options)
+        public static IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ISocketMessageChannel channel, DiscordSocketClient discord, MessageCache? messages,
+            ulong? fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions? options)
         {
             if (dir == Direction.After && fromMessageId == null)
                 return AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>();
@@ -38,7 +38,7 @@ namespace Discord.WebSocket
                     return result;
 
                 //Download remaining messages
-                ulong maxId = cachedMessages.Count > 0 ? cachedMessages.Max(x => x.Id) : fromMessageId.Value;
+                ulong? maxId = cachedMessages.Count > 0 ? cachedMessages.Max(x => x.Id) : fromMessageId;
                 var downloadedMessages = ChannelHelper.GetMessagesAsync(channel, discord, maxId, dir, limit, options);
                 if (cachedMessages.Count != 0)
                     return result.Concat(downloadedMessages);
@@ -54,7 +54,7 @@ namespace Discord.WebSocket
                 return ChannelHelper.GetMessagesAsync(channel, discord, fromMessageId, dir, limit, options);
             }
         }
-        public static IReadOnlyCollection<SocketMessage> GetCachedMessages(ISocketMessageChannel channel, DiscordSocketClient discord, MessageCache messages,
+        public static IReadOnlyCollection<SocketMessage> GetCachedMessages(ISocketMessageChannel channel, DiscordSocketClient discord, MessageCache? messages,
             ulong? fromMessageId, Direction dir, int limit)
         {
             if (messages != null) //Cache enabled
@@ -85,7 +85,7 @@ namespace Discord.WebSocket
             }
         }
         /// <exception cref="NotSupportedException">Unexpected <see cref="ISocketMessageChannel"/> type.</exception>
-        public static SocketMessage RemoveMessage(ISocketMessageChannel channel, DiscordSocketClient discord,
+        public static SocketMessage? RemoveMessage(ISocketMessageChannel channel, DiscordSocketClient discord,
             ulong id)
         {
             return channel switch

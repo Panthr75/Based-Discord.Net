@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,46 +9,55 @@ namespace Discord.API.Rest
 {
     internal class CreateApplicationCommandParams
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandType Type { get; set; }
 
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public string Description { get; set; }
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<ApplicationCommandOption[]> Options { get; set; }
 
-        [JsonProperty("default_permission")]
+        [JsonPropertyName("default_permission")]
         public Optional<bool> DefaultPermission { get; set; }
 
-        [JsonProperty("name_localizations")]
+        [JsonPropertyName("name_localizations")]
         public Optional<Dictionary<string, string>> NameLocalizations { get; set; }
 
-        [JsonProperty("description_localizations")]
+        [JsonPropertyName("description_localizations")]
         public Optional<Dictionary<string, string>> DescriptionLocalizations { get; set; }
 
-        [JsonProperty("dm_permission")]
+        [JsonPropertyName("dm_permission")]
         public Optional<bool?> DmPermission { get; set; }
 
-        [JsonProperty("default_member_permissions")]
+        [JsonPropertyName("default_member_permissions")]
         public Optional<GuildPermission?> DefaultMemberPermission { get; set; }
 
-        [JsonProperty("nsfw")]
+        [JsonPropertyName("nsfw")]
         public Optional<bool> Nsfw { get; set; }
 
-        public CreateApplicationCommandParams() { }
-        public CreateApplicationCommandParams(string name, string description, ApplicationCommandType type, ApplicationCommandOption[] options = null,
-            IDictionary<string, string> nameLocalizations = null, IDictionary<string, string> descriptionLocalizations = null, bool nsfw = false)
+        public CreateApplicationCommandParams()
+        {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+        }
+        public CreateApplicationCommandParams(string name,
+            string description,
+            ApplicationCommandType type,
+            ApplicationCommandOption[]? options = null,
+            IDictionary<string, string>? nameLocalizations = null,
+            IDictionary<string, string>? descriptionLocalizations = null,
+            bool nsfw = false)
         {
             Name = name;
             Description = description;
-            Options = Optional.Create(options);
+            Options = Optional.CreateFromNullable(options);
             Type = type;
-            NameLocalizations = nameLocalizations?.ToDictionary(x => x.Key, x => x.Value) ?? Optional<Dictionary<string, string>>.Unspecified;
-            DescriptionLocalizations = descriptionLocalizations?.ToDictionary(x => x.Key, x => x.Value) ?? Optional<Dictionary<string, string>>.Unspecified;
+            NameLocalizations = Optional.CreateFromNullable(nameLocalizations?.ToDictionary(x => x.Key, x => x.Value));
+            DescriptionLocalizations = Optional.CreateFromNullable(descriptionLocalizations?.ToDictionary(x => x.Key, x => x.Value));
             Nsfw = nsfw;
         }
     }

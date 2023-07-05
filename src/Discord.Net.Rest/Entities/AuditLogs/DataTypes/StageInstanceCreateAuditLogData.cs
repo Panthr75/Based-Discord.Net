@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
 
@@ -7,7 +8,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a stage going live.
 /// </summary>
-public class StageInstanceCreateAuditLogData : IAuditLogData
+public partial class StageInstanceCreateAuditLogData : IAuditLogData
 {
     /// <summary>
     ///     Gets the topic of the stage channel.
@@ -37,12 +38,12 @@ public class StageInstanceCreateAuditLogData : IAuditLogData
         StageChannelId = channelId;
     }
 
-    internal static StageInstanceCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static StageInstanceCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var topic = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "topic").NewValue.ToObject<string>(discord.ApiClient.Serializer);
-        var privacyLevel = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "privacy_level").NewValue.ToObject<StagePrivacyLevel>(discord.ApiClient.Serializer);
-        var user = log.Users.FirstOrDefault(x => x.Id == entry.UserId);
-        var channelId = entry.Options.ChannelId;
+        var topic = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "topic")!.NewValue.Deserialize<string>(discord.ApiClient.SerializerOptions)!;
+        var privacyLevel = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "privacy_level")!.NewValue.Deserialize<StagePrivacyLevel>(discord.ApiClient.SerializerOptions);
+        var user = log?.Users?.FirstOrDefault(x => x.Id == entry.UserId)!;
+        var channelId = entry.Options!.ChannelId;
 
         return new StageInstanceCreateAuditLogData(topic, privacyLevel, RestUser.Create(discord, user), channelId ?? 0);
     }

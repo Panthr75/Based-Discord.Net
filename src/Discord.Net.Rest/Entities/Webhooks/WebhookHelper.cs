@@ -9,7 +9,7 @@ namespace Discord.Rest
     internal static class WebhookHelper
     {
         public static async Task<Model> ModifyAsync(IWebhook webhook, BaseDiscordClient client,
-            Action<WebhookProperties> func, RequestOptions options)
+            Action<WebhookProperties> func, RequestOptions? options = null)
         {
             var args = new WebhookProperties();
             func(args);
@@ -29,7 +29,7 @@ namespace Discord.Rest
 
             return await client.ApiClient.ModifyWebhookAsync(webhook.Id, apiArgs, options).ConfigureAwait(false);
         }
-        public static async Task DeleteAsync(IWebhook webhook, BaseDiscordClient client, RequestOptions options)
+        public static async Task DeleteAsync(IWebhook webhook, BaseDiscordClient client, RequestOptions? options = null)
         {
             await client.ApiClient.DeleteWebhookAsync(webhook.Id, options).ConfigureAwait(false);
         }

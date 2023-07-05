@@ -34,11 +34,11 @@ namespace Discord.WebSocket
         public string DisplayName => Nickname ?? GlobalName ?? Username;
 
         /// <inheritdoc />
-        public string Nickname { get; private set; }
+        public string? Nickname { get; private set; }
         /// <inheritdoc/>
-        public string DisplayAvatarId => GuildAvatarId ?? AvatarId;
+        public string? DisplayAvatarId => GuildAvatarId ?? AvatarId;
         /// <inheritdoc/>
-        public string GuildAvatarId { get; private set; }
+        public string? GuildAvatarId { get; private set; }
         /// <inheritdoc />
         public override bool IsBot { get { return GlobalUser.IsBot; } internal set { GlobalUser.IsBot = value; } }
         /// <inheritdoc />
@@ -46,11 +46,11 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get { return GlobalUser.DiscriminatorValue; } internal set { GlobalUser.DiscriminatorValue = value; } }
         /// <inheritdoc />
-        public override string AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
+        public override string? AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
 
         /// <inheritdoc />
         public GuildPermissions GuildPermissions => new GuildPermissions(Permissions.ResolveGuild(Guild, this));
-        internal override SocketPresence Presence { get; set; }
+        internal override SocketPresence? Presence { get; set; }
 
         /// <inheritdoc />
         public override bool IsWebhook => false;
@@ -82,11 +82,11 @@ namespace Discord.WebSocket
         ///     Returns a collection of roles that the user possesses.
         /// </summary>
         public IReadOnlyCollection<SocketRole> Roles
-            => _roleIds.Select(id => Guild.GetRole(id)).Where(x => x != null).ToReadOnlyCollection(() => _roleIds.Length);
+            => _roleIds.Select(id => Guild.GetRole(id)!).Where(x => x is not null).ToReadOnlyCollection(() => _roleIds.Length);
         /// <summary>
         ///     Returns the voice channel the user is in, or <see langword="null" /> if none.
         /// </summary>
-        public SocketVoiceChannel VoiceChannel => VoiceState?.VoiceChannel;
+        public SocketVoiceChannel? VoiceChannel => VoiceState?.VoiceChannel;
         /// <inheritdoc />
         public string VoiceSessionId => VoiceState?.VoiceSessionId ?? "";
         /// <summary>
@@ -97,7 +97,7 @@ namespace Discord.WebSocket
         ///     connected to a voice channel.
         /// </returns>
         public SocketVoiceState? VoiceState => Guild.GetVoiceState(Id);
-        public AudioInStream AudioStream => Guild.GetAudioStream(Id);
+        public AudioInStream? AudioStream => Guild.GetAudioStream(Id);
         /// <inheritdoc />
         public DateTimeOffset? PremiumSince => DateTimeUtils.FromTicks(_premiumSinceTicks);
         /// <inheritdoc />
@@ -201,12 +201,14 @@ namespace Discord.WebSocket
         }
 
         internal override void Update(PresenceModel model)
+#pragma warning disable CS8774 // Member must have a non-null value when exiting.
         {
-            Presence ??= new SocketPresence();
+            this.Presence ??= new SocketPresence();
 
             Presence.Update(model);
             GlobalUser.Update(model);
         }
+#pragma warning restore CS8774 // Member must have a non-null value when exiting.
 
         private void UpdateRoles(ulong[] roleIds)
         {
@@ -218,53 +220,53 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
             => UserHelper.ModifyAsync(this, Discord, func, options);
         /// <inheritdoc />
-        public Task KickAsync(string reason = null, RequestOptions options = null)
+        public Task KickAsync(string? reason = null, RequestOptions? options = null)
             => UserHelper.KickAsync(this, Discord, reason, options);
         /// <inheritdoc />
-        public Task AddRoleAsync(ulong roleId, RequestOptions options = null)
+        public Task AddRoleAsync(ulong roleId, RequestOptions? options = null)
             => AddRolesAsync(new[] { roleId }, options);
         /// <inheritdoc />
-        public Task AddRoleAsync(IRole role, RequestOptions options = null)
+        public Task AddRoleAsync(IRole role, RequestOptions? options = null)
             => AddRoleAsync(role.Id, options);
         /// <inheritdoc />
-        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null)
+        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null)
             => UserHelper.AddRolesAsync(this, Discord, roleIds, options);
         /// <inheritdoc />
-        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null)
+        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null)
             => AddRolesAsync(roles.Select(x => x.Id), options);
         /// <inheritdoc />
-        public Task RemoveRoleAsync(ulong roleId, RequestOptions options = null)
+        public Task RemoveRoleAsync(ulong roleId, RequestOptions? options = null)
             => RemoveRolesAsync(new[] { roleId }, options);
         /// <inheritdoc />
-        public Task RemoveRoleAsync(IRole role, RequestOptions options = null)
+        public Task RemoveRoleAsync(IRole role, RequestOptions? options = null)
             => RemoveRoleAsync(role.Id, options);
         /// <inheritdoc />
-        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null)
+        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null)
             => UserHelper.RemoveRolesAsync(this, Discord, roleIds, options);
         /// <inheritdoc />
-        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null)
+        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null)
             => RemoveRolesAsync(roles.Select(x => x.Id));
         /// <inheritdoc />
-        public Task SetTimeOutAsync(TimeSpan span, RequestOptions options = null)
+        public Task SetTimeOutAsync(TimeSpan span, RequestOptions? options = null)
             => UserHelper.SetTimeoutAsync(this, Discord, span, options);
         /// <inheritdoc />
-        public Task RemoveTimeOutAsync(RequestOptions options = null)
+        public Task RemoveTimeOutAsync(RequestOptions? options = null)
             => UserHelper.RemoveTimeOutAsync(this, Discord, options);
         /// <inheritdoc />
         public ChannelPermissions GetPermissions(IGuildChannel channel)
             => new ChannelPermissions(Permissions.ResolveChannel(Guild, this, channel, GuildPermissions.RawValue));
 
         /// <inheritdoc />
-        public string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => GuildAvatarId is not null
                 ? GetGuildAvatarUrl(format, size)
                 : GetAvatarUrl(format, size);
 
         /// <inheritdoc />
-        public string GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => CDN.GetGuildUserAvatarUrl(Id, Guild.Id, GuildAvatarId, size, format);
 
         private string DebuggerDisplay => DiscriminatorValue != 0
@@ -273,7 +275,7 @@ namespace Discord.WebSocket
 
         internal new SocketGuildUser Clone()
         {
-            var clone = MemberwiseClone() as SocketGuildUser;
+            var clone = (SocketGuildUser)MemberwiseClone();
             clone.GlobalUser = GlobalUser.Clone();
             return clone;
         }
@@ -289,7 +291,7 @@ namespace Discord.WebSocket
 
         //IVoiceState
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => VoiceChannel;
+        IVoiceChannel? IVoiceState.VoiceChannel => VoiceChannel;
         #endregion
     }
 }

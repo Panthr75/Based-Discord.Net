@@ -24,7 +24,7 @@ public class SocketInviteCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketInviteCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<InviteInfoAuditLogModel>(changes, discord);
 

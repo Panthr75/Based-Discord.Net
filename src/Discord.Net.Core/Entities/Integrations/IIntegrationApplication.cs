@@ -16,15 +16,11 @@ namespace Discord
         /// <summary>
         ///     Gets the icon hash of the app.
         /// </summary>
-        string Icon { get; }
+        string? Icon { get; }
         /// <summary>
         ///     Gets the description of the app.
         /// </summary>
         string Description { get; }
-        /// <summary>
-        ///     Gets the summary of the app.
-        /// </summary>
-        string Summary { get; }
         /// <summary>
         ///     Gets the bot associated with this application.
         /// </summary>

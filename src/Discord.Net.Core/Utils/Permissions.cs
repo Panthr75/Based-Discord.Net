@@ -131,14 +131,17 @@ namespace Discord
                 ulong deniedPermissions = 0UL, allowedPermissions = 0UL;
                 foreach (var roleId in user.RoleIds)
                 {
-                    IRole role;
-                    if (roleId != guild.EveryoneRole.Id && (role = guild.GetRole(roleId)) != null)
+                    if (roleId != guild.EveryoneRole.Id)
                     {
-                        perms = channel.GetPermissionOverwrite(role);
-                        if (perms != null)
+                        IRole? role = guild.GetRole(roleId);
+                        if (role is not null)
                         {
-                            allowedPermissions |= perms.Value.AllowValue;
-                            deniedPermissions |= perms.Value.DenyValue;
+                            perms = channel.GetPermissionOverwrite(role);
+                            if (perms != null)
+                            {
+                                allowedPermissions |= perms.Value.AllowValue;
+                                deniedPermissions |= perms.Value.DenyValue;
+                            }
                         }
                     }
                 }

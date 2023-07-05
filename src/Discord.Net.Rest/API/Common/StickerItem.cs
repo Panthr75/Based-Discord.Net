@@ -1,16 +1,17 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class StickerItem
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("format_type")]
+        [JsonPropertyName("format_type")]
         public StickerFormatType FormatType { get; set; }
     }
 }

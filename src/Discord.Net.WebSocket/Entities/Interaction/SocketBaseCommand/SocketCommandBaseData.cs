@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Model = Discord.API.ApplicationCommandInteractionData;
 
 namespace Discord.WebSocket
@@ -16,11 +17,13 @@ namespace Discord.WebSocket
         /// </summary>
         public virtual IReadOnlyCollection<TOption> Options { get; internal set; }
 
-        internal readonly SocketResolvableData<Model> ResolvableData;
+        internal readonly SocketResolvableData<Model>? ResolvableData;
 
         internal SocketCommandBaseData(DiscordSocketClient client, Model model, ulong? guildId)
             : base(client, model.Id)
         {
+            Name = string.Empty;
+            Options = ImmutableArray<TOption>.Empty;
             if (model.Resolved.IsSpecified)
             {
                 ResolvableData = new SocketResolvableData<Model>(client, guildId, model);

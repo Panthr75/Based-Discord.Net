@@ -13,7 +13,7 @@ namespace Discord.Commands
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public class ParameterInfo
     {
-        private readonly TypeReader _reader;
+        private readonly TypeReader? _reader;
 
         /// <summary>
         ///     Gets the command that associates with this parameter.
@@ -22,11 +22,11 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the name of this parameter.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
         /// <summary>
         ///     Gets the summary of this parameter.
         /// </summary>
-        public string Summary { get; }
+        public string? Summary { get; }
         /// <summary>
         ///     Gets a value that indicates whether this parameter is optional or not.
         /// </summary>
@@ -43,7 +43,7 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the default value for this optional parameter if applicable.
         /// </summary>
-        public object DefaultValue { get; }
+        public object? DefaultValue { get; }
 
         /// <summary>
         ///     Gets a read-only list of precondition that apply to this parameter.
@@ -64,7 +64,7 @@ namespace Discord.Commands
             IsRemainder = builder.IsRemainder;
             IsMultiple = builder.IsMultiple;
 
-            Type = builder.ParameterType;
+            Type = builder.ParameterType!;
             DefaultValue = builder.DefaultValue;
 
             Preconditions = builder.Preconditions.ToImmutableArray();
@@ -73,7 +73,7 @@ namespace Discord.Commands
             _reader = builder.TypeReader;
         }
 
-        public async Task<PreconditionResult> CheckPreconditionsAsync(ICommandContext context, object arg, IServiceProvider services = null)
+        public async Task<PreconditionResult> CheckPreconditionsAsync(ICommandContext context, object? arg, IServiceProvider? services = null)
         {
             services ??= EmptyServiceProvider.Instance;
 
@@ -87,13 +87,13 @@ namespace Discord.Commands
             return PreconditionResult.FromSuccess();
         }
 
-        public async Task<TypeReaderResult> ParseAsync(ICommandContext context, string input, IServiceProvider services = null)
+        public async Task<TypeReaderResult> ParseAsync(ICommandContext context, string input, IServiceProvider? services = null)
         {
             services ??= EmptyServiceProvider.Instance;
-            return await _reader.ReadAsync(context, input, services).ConfigureAwait(false);
+            return await _reader!.ReadAsync(context, input, services).ConfigureAwait(false);
         }
 
-        public override string ToString() => Name;
+        public override string? ToString() => Name;
         private string DebuggerDisplay => $"{Name}{(IsOptional ? " (Optional)" : "")}{(IsRemainder ? " (Remainder)" : "")}";
     }
 }

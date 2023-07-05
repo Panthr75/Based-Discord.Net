@@ -1,27 +1,27 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class InviteInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("code")]
-    public string Code { get; set; }
+    [JsonPropertyName("code")]
+    public string Code { get; set; } = string.Empty;
 
-    [JsonField("channel_id")]
+    [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
 
-    [JsonField("inviter_id")]
+    [JsonPropertyName("inviter_id")]
     public ulong? InviterId { get; set; }
 
-    [JsonField("uses")]
+    [JsonPropertyName("uses")]
     public int? Uses { get; set; }
 
-    [JsonField("max_uses")]
+    [JsonPropertyName("max_uses")]
     public int? MaxUses { get; set; }
 
-    [JsonField("max_age")]
+    [JsonPropertyName("max_age")]
     public int? MaxAge { get; set; }
 
-    [JsonField("temporary")]
+    [JsonPropertyName("temporary")]
     public bool? Temporary { get; set; }
 }

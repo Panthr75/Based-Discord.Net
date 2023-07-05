@@ -1,22 +1,23 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class ApplicationCommandInteractionData : IResolvable, IDiscordInteractionData
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<ApplicationCommandInteractionDataOption[]> Options { get; set; }
 
-        [JsonProperty("resolved")]
+        [JsonPropertyName("resolved")]
         public Optional<ApplicationCommandInteractionDataResolved> Resolved { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandType Type { get; set; }
     }
 }

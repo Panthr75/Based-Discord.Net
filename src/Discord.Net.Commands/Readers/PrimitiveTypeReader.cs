@@ -8,7 +8,7 @@ namespace Discord.Commands
         public static TypeReader Create(Type type)
         {
             type = typeof(PrimitiveTypeReader<>).MakeGenericType(type);
-            return Activator.CreateInstance(type) as TypeReader;
+            return (TypeReader)Activator.CreateInstance(type)!;
         }
     }
 

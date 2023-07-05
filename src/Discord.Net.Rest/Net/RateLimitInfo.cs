@@ -1,6 +1,7 @@
 using Discord.API;
 using Discord.Net.Rest;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -32,7 +33,7 @@ namespace Discord.Net
         public TimeSpan? ResetAfter { get; private set; }
 
         /// <inheritdoc/>
-        public string Bucket { get; }
+        public string? Bucket { get; }
 
         /// <inheritdoc/>
         public TimeSpan? Lag { get; }
@@ -40,11 +41,11 @@ namespace Discord.Net
         /// <inheritdoc/>
         public string Endpoint { get; }
 
-        internal RateLimitInfo(Dictionary<string, string> headers, string endpoint)
+        internal RateLimitInfo(Dictionary<string, string?> headers, string endpoint)
         {
             Endpoint = endpoint;
 
-            IsGlobal = headers.TryGetValue("X-RateLimit-Global", out string temp) &&
+            IsGlobal = headers.TryGetValue("X-RateLimit-Global", out string? temp) &&
                        bool.TryParse(temp, out var isGlobal) && isGlobal;
             Limit = headers.TryGetValue("X-RateLimit-Limit", out temp) &&
                 int.TryParse(temp, NumberStyles.None, CultureInfo.InvariantCulture, out var limit) ? limit : (int?)null;
@@ -61,15 +62,11 @@ namespace Discord.Net
                 DateTimeOffset.TryParse(temp, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? DateTimeOffset.UtcNow - date : (TimeSpan?)null;
         }
 
-        internal Ratelimit ReadRatelimitPayload(Stream response)
+        internal Ratelimit? ReadRatelimitPayload(Stream response)
         {
             if (response != null && response.Length != 0)
             {
-                using (TextReader text = new StreamReader(response))
-                using (JsonReader reader = new JsonTextReader(text))
-                {
-                    return Discord.Rest.DiscordRestClient.Serializer.Deserialize<Ratelimit>(reader);
-                }
+                return JsonSerializer.Deserialize<Ratelimit>(response, Discord.Rest.DiscordRestClient.SerializerOptions);
             }
 
             return null;

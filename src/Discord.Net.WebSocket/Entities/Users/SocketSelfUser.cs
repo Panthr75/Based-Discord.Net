@@ -27,15 +27,15 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get { return GlobalUser.DiscriminatorValue; } internal set { GlobalUser.DiscriminatorValue = value; } }
         /// <inheritdoc />
-        public override string AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
+        public override string? AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
         /// <inheritdoc />
-        internal override SocketPresence Presence { get { return GlobalUser.Presence; } set { GlobalUser.Presence = value; } }
+        internal override SocketPresence? Presence { get { return GlobalUser.Presence; } set { GlobalUser.Presence = value; } }
         /// <inheritdoc />
         public UserProperties Flags { get; internal set; }
         /// <inheritdoc />
         public PremiumType PremiumType { get; internal set; }
         /// <inheritdoc />
-        public string Locale { get; internal set; }
+        public string? Locale { get; internal set; }
 
         /// <inheritdoc />
         public override bool IsWebhook => false;
@@ -43,6 +43,7 @@ namespace Discord.WebSocket
         internal SocketSelfUser(DiscordSocketClient discord, SocketGlobalUser globalUser)
             : base(discord, globalUser.Id)
         {
+            this.Email = string.Empty;
             GlobalUser = globalUser;
         }
         internal static SocketSelfUser Create(DiscordSocketClient discord, ClientState state, Model model)
@@ -88,13 +89,13 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions? options = null)
             => UserHelper.ModifyAsync(this, Discord, func, options);
 
         private string DebuggerDisplay => DiscriminatorValue != 0
             ? $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Self)"
             : $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Self)";
 
-        internal new SocketSelfUser Clone() => MemberwiseClone() as SocketSelfUser;
+        internal new SocketSelfUser Clone() => (SocketSelfUser)MemberwiseClone();
     }
 }

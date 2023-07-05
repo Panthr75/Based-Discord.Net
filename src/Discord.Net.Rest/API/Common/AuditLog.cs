@@ -1,31 +1,33 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class AuditLog
     {
-        [JsonProperty("webhooks")]
-        public Webhook[] Webhooks { get; set; }
+        [JsonPropertyName("webhooks")]
+        public Webhook[] Webhooks { get; set; } = Array.Empty<Webhook>();
 
-        [JsonProperty("threads")]
-        public Channel[] Threads { get; set; }
+        [JsonPropertyName("threads")]
+        public Channel[] Threads { get; set; } = Array.Empty<Channel>();
 
-        [JsonProperty("integrations")]
-        public Integration[] Integrations { get; set; }
+        [JsonPropertyName("integrations")]
+        public Integration[] Integrations { get; set; } = Array.Empty<Integration>();
 
-        [JsonProperty("users")]
-        public User[] Users { get; set; }
+        [JsonPropertyName("users")]
+        public User[] Users { get; set; } = Array.Empty<User>();
 
-        [JsonProperty("audit_log_entries")]
-        public AuditLogEntry[] Entries { get; set; }
+        [JsonPropertyName("audit_log_entries")]
+        public AuditLogEntry[] Entries { get; set; } = Array.Empty<AuditLogEntry>();
 
-        [JsonProperty("application_commands")]
-        public ApplicationCommand[] Commands { get; set; }
+        [JsonPropertyName("application_commands")]
+        public ApplicationCommand[] Commands { get; set; } = Array.Empty<ApplicationCommand>();
 
-        [JsonProperty("auto_moderation_rules")]
-        public AutoModerationRule[] AutoModerationRules { get; set;}
+        [JsonPropertyName("auto_moderation_rules")]
+        public AutoModerationRule[] AutoModerationRules { get; set; } = Array.Empty<AutoModerationRule>();
 
-        [JsonProperty("guild_scheduled_events")]
-        public GuildScheduledEvent[] GuildScheduledEvents { get; set; }
+        [JsonPropertyName("guild_scheduled_events")]
+        public GuildScheduledEvent[] GuildScheduledEvents { get; set; } = Array.Empty<GuildScheduledEvent>();
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
@@ -8,19 +7,19 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to message deletion(s).
 /// </summary>
-public class MessageDeleteAuditLogData : IAuditLogData
+public partial class MessageDeleteAuditLogData : IAuditLogData
 {
-    private MessageDeleteAuditLogData(ulong channelId, int count, IUser user)
+    private MessageDeleteAuditLogData(ulong channelId, int count, IUser? user)
     {
         ChannelId = channelId;
         MessageCount = count;
         Target = user;
     }
 
-    internal static MessageDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static MessageDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
-        return new MessageDeleteAuditLogData(entry.Options.ChannelId.Value, entry.Options.Count.Value, userInfo != null ? RestUser.Create(discord, userInfo) : null);
+        var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
+        return new MessageDeleteAuditLogData(entry.Options!.ChannelId!.Value, entry.Options!.Count!.Value, userInfo != null ? RestUser.Create(discord, userInfo) : null);
     }
 
     /// <summary>
@@ -47,5 +46,5 @@ public class MessageDeleteAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user that created the deleted messages.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

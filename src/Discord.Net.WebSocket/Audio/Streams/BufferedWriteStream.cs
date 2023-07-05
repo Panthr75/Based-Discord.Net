@@ -33,14 +33,14 @@ namespace Discord.Audio.Streams
         private readonly ConcurrentQueue<Frame> _queuedFrames;
         private readonly ConcurrentQueue<byte[]> _bufferPool;
         private readonly SemaphoreSlim _queueLock;
-        private readonly Logger _logger;
+        private readonly Logger? _logger;
         private readonly int _ticksPerFrame, _queueLength;
         private bool _isPreloaded;
         private int _silenceFrames;
 
         public BufferedWriteStream(AudioStream next, IAudioClient client, int bufferMillis, CancellationToken cancelToken, int maxFrameSize = 1500)
-            : this(next, client as AudioClient, bufferMillis, cancelToken, null, maxFrameSize) { }
-        internal BufferedWriteStream(AudioStream next, AudioClient client, int bufferMillis, CancellationToken cancelToken, Logger logger, int maxFrameSize = 1500)
+            : this(next, (AudioClient)client, bufferMillis, cancelToken, null, maxFrameSize) { }
+        internal BufferedWriteStream(AudioStream next, AudioClient client, int bufferMillis, CancellationToken cancelToken, Logger? logger, int maxFrameSize = 1500)
         {
             //maxFrameSize = 1275 was too limiting at 128kbps,2ch,60ms
             _next = next;
@@ -140,7 +140,7 @@ namespace Discord.Audio.Streams
         public override void WriteHeader(ushort seq, uint timestamp, bool missed) { } //Ignore, we use our own timing
         public override async Task WriteAsync(byte[] data, int offset, int count, CancellationToken cancelToken)
         {
-            CancellationTokenSource writeCancelToken = null;
+            CancellationTokenSource? writeCancelToken = null;
             if (cancelToken.CanBeCanceled)
             {
                 writeCancelToken = CancellationTokenSource.CreateLinkedTokenSource(cancelToken, _cancelToken);
@@ -150,7 +150,7 @@ namespace Discord.Audio.Streams
                 cancelToken = _cancelToken;
 
             await _queueLock.WaitAsync(-1, cancelToken).ConfigureAwait(false);
-            if (!_bufferPool.TryDequeue(out byte[] buffer))
+            if (!_bufferPool.TryDequeue(out byte[]? buffer))
             {
 #if DEBUG
                 var _ = _logger?.DebugAsync("Buffer overflow"); //Should never happen because of the queueLock

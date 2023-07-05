@@ -1,22 +1,24 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class AutocompleteInteractionData : IDiscordInteractionData
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandType Type { get; set; }
 
-        [JsonProperty("version")]
+        [JsonPropertyName("version")]
         public ulong Version { get; set; }
 
-        [JsonProperty("options")]
-        public AutocompleteInteractionDataOption[] Options { get; set; }
+        [JsonPropertyName("options")]
+        public AutocompleteInteractionDataOption[] Options { get; set; } = Array.Empty<AutocompleteInteractionDataOption>();
     }
 }

@@ -20,19 +20,19 @@ namespace Discord.WebSocket
 
         internal IReadOnlyCollection<SocketChannel> Channels => _channels.ToReadOnlyCollection();
         internal IReadOnlyCollection<SocketDMChannel> DMChannels => _dmChannels.ToReadOnlyCollection();
-        internal IReadOnlyCollection<SocketGroupChannel> GroupChannels => _groupChannels.Select(x => GetChannel(x) as SocketGroupChannel).ToReadOnlyCollection(_groupChannels);
+        internal IReadOnlyCollection<SocketGroupChannel> GroupChannels => _groupChannels.Select(x => (SocketGroupChannel)GetChannel(x)!).ToReadOnlyCollection(_groupChannels);
         internal IReadOnlyCollection<SocketGuild> Guilds => _guilds.ToReadOnlyCollection();
         internal IReadOnlyCollection<SocketGlobalUser> Users => _users.ToReadOnlyCollection();
         internal IReadOnlyCollection<SocketApplicationCommand> Commands => _commands.ToReadOnlyCollection();
 
         internal IReadOnlyCollection<ISocketPrivateChannel> PrivateChannels =>
-            _dmChannels.Select(x => x.Value as ISocketPrivateChannel).Concat(
-                _groupChannels.Select(x => GetChannel(x) as ISocketPrivateChannel))
+            _dmChannels.Select(x => (ISocketPrivateChannel)x.Value).Concat(
+                _groupChannels.Select(x => (ISocketPrivateChannel)GetChannel(x)!))
             .ToReadOnlyCollection(() => _dmChannels.Count + _groupChannels.Count);
 
         public ClientState(int guildCount, int dmChannelCount)
         {
-            double estimatedChannelCount = guildCount * AverageChannelsPerGuild + dmChannelCount;
+            double estimatedChannelCount = (guildCount * AverageChannelsPerGuild) + dmChannelCount;
             double estimatedUsersCount = guildCount * AverageUsersPerGuild;
             _channels = new ConcurrentDictionary<ulong, SocketChannel>(ConcurrentHashSet.DefaultConcurrencyLevel, (int)(estimatedChannelCount * CollectionMultiplier));
             _dmChannels = new ConcurrentDictionary<ulong, SocketDMChannel>(ConcurrentHashSet.DefaultConcurrencyLevel, (int)(dmChannelCount * CollectionMultiplier));
@@ -42,15 +42,15 @@ namespace Discord.WebSocket
             _commands = new ConcurrentDictionary<ulong, SocketApplicationCommand>();
         }
 
-        internal SocketChannel GetChannel(ulong id)
+        internal SocketChannel? GetChannel(ulong id)
         {
-            if (_channels.TryGetValue(id, out SocketChannel channel))
+            if (_channels.TryGetValue(id, out SocketChannel? channel))
                 return channel;
             return null;
         }
-        internal SocketDMChannel GetDMChannel(ulong userId)
+        internal SocketDMChannel? GetDMChannel(ulong userId)
         {
-            if (_dmChannels.TryGetValue(userId, out SocketDMChannel channel))
+            if (_dmChannels.TryGetValue(userId, out SocketDMChannel? channel))
                 return channel;
             return null;
         }
@@ -68,9 +68,9 @@ namespace Discord.WebSocket
                     break;
             }
         }
-        internal SocketChannel RemoveChannel(ulong id)
+        internal SocketChannel? RemoveChannel(ulong id)
         {
-            if (_channels.TryRemove(id, out SocketChannel channel))
+            if (_channels.TryRemove(id, out SocketChannel? channel))
             {
                 switch (channel)
                 {
@@ -100,9 +100,9 @@ namespace Discord.WebSocket
             _dmChannels.Clear();
         }
 
-        internal SocketGuild GetGuild(ulong id)
+        internal SocketGuild? GetGuild(ulong id)
         {
-            if (_guilds.TryGetValue(id, out SocketGuild guild))
+            if (_guilds.TryGetValue(id, out SocketGuild? guild))
                 return guild;
             return null;
         }
@@ -110,9 +110,9 @@ namespace Discord.WebSocket
         {
             _guilds[guild.Id] = guild;
         }
-        internal SocketGuild RemoveGuild(ulong id)
+        internal SocketGuild? RemoveGuild(ulong id)
         {
-            if (_guilds.TryRemove(id, out SocketGuild guild))
+            if (_guilds.TryRemove(id, out SocketGuild? guild))
             {
                 guild.PurgeChannelCache(this);
                 guild.PurgeUserCache();
@@ -121,9 +121,9 @@ namespace Discord.WebSocket
             return null;
         }
 
-        internal SocketGlobalUser GetUser(ulong id)
+        internal SocketGlobalUser? GetUser(ulong id)
         {
-            if (_users.TryGetValue(id, out SocketGlobalUser user))
+            if (_users.TryGetValue(id, out SocketGlobalUser? user))
                 return user;
             return null;
         }
@@ -131,9 +131,9 @@ namespace Discord.WebSocket
         {
             return _users.GetOrAdd(id, userFactory);
         }
-        internal SocketGlobalUser RemoveUser(ulong id)
+        internal SocketGlobalUser? RemoveUser(ulong id)
         {
-            if (_users.TryRemove(id, out SocketGlobalUser user))
+            if (_users.TryRemove(id, out SocketGlobalUser? user))
                 return user;
             return null;
         }
@@ -143,9 +143,9 @@ namespace Discord.WebSocket
                 guild.PurgeUserCache();
         }
 
-        internal SocketApplicationCommand GetCommand(ulong id)
+        internal SocketApplicationCommand? GetCommand(ulong id)
         {
-            if (_commands.TryGetValue(id, out SocketApplicationCommand command))
+            if (_commands.TryGetValue(id, out SocketApplicationCommand? command))
                 return command;
             return null;
         }
@@ -157,9 +157,9 @@ namespace Discord.WebSocket
         {
             return _commands.GetOrAdd(id, commandFactory);
         }
-        internal SocketApplicationCommand RemoveCommand(ulong id)
+        internal SocketApplicationCommand? RemoveCommand(ulong id)
         {
-            if (_commands.TryRemove(id, out SocketApplicationCommand command))
+            if (_commands.TryRemove(id, out SocketApplicationCommand? command))
                 return command;
             return null;
         }

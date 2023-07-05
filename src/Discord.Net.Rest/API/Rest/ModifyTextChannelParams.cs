@@ -1,20 +1,20 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class ModifyTextChannelParams : ModifyGuildChannelParams
     {
-        [JsonProperty("topic")]
+        [JsonPropertyName("topic")]
         public Optional<string> Topic { get; set; }
 
-        [JsonProperty("nsfw")]
+        [JsonPropertyName("nsfw")]
         public Optional<bool> IsNsfw { get; set; }
 
-        [JsonProperty("rate_limit_per_user")]
+        [JsonPropertyName("rate_limit_per_user")]
         public Optional<int> SlowModeInterval { get; set; }
 
-        [JsonProperty("default_thread_rate_limit_per_user")]
+        [JsonPropertyName("default_thread_rate_limit_per_user")]
         public Optional<int> DefaultSlowModeInterval { get; set; }
     }
 }

@@ -23,51 +23,51 @@ namespace Discord.Rest
         public ComponentType Type { get; }
 
         /// <inheritdoc/>
-        public IReadOnlyCollection<string> Values { get; }
+        public IReadOnlyCollection<string>? Values { get; }
 
         /// <inheritdoc cref="IComponentInteractionData.Channels"/>
-        public IReadOnlyCollection<RestChannel> Channels { get; }
+        public IReadOnlyCollection<RestChannel>? Channels { get; }
 
         /// <inheritdoc cref="IComponentInteractionData.Users"/>
-        public IReadOnlyCollection<RestUser> Users { get; }
+        public IReadOnlyCollection<RestUser>? Users { get; }
 
         /// <inheritdoc cref="IComponentInteractionData.Roles"/>
-        public IReadOnlyCollection<RestRole> Roles { get; }
+        public IReadOnlyCollection<RestRole>? Roles { get; }
 
         /// <inheritdoc cref="IComponentInteractionData.Members"/>
-        public IReadOnlyCollection<RestGuildUser> Members { get; }
+        public IReadOnlyCollection<RestGuildUser>? Members { get; }
 
         #region IComponentInteractionData
 
         /// <inheritdoc/>
-        IReadOnlyCollection<IChannel> IComponentInteractionData.Channels => Channels;
+        IReadOnlyCollection<IChannel>? IComponentInteractionData.Channels => Channels;
 
         /// <inheritdoc/>
-        IReadOnlyCollection<IUser> IComponentInteractionData.Users => Users;
+        IReadOnlyCollection<IUser>? IComponentInteractionData.Users => Users;
 
         /// <inheritdoc/>
-        IReadOnlyCollection<IRole> IComponentInteractionData.Roles => Roles;
+        IReadOnlyCollection<IRole>? IComponentInteractionData.Roles => Roles;
 
         /// <inheritdoc/>
-        IReadOnlyCollection<IGuildUser> IComponentInteractionData.Members => Members;
+        IReadOnlyCollection<IGuildUser>? IComponentInteractionData.Members => Members;
 
         #endregion
 
         /// <inheritdoc/>
-        public string Value { get; }
+        public string? Value { get; }
 
-        internal RestMessageComponentData(Model model, BaseDiscordClient discord, IGuild guild)
+        internal RestMessageComponentData(Model? model, BaseDiscordClient discord, IGuild? guild)
         {
-            CustomId = model.CustomId;
-            Type = model.ComponentType;
-            Values = model.Values.GetValueOrDefault();
-            Value = model.Value.GetValueOrDefault();
+            CustomId = model?.CustomId ?? string.Empty;
+            Type = model?.ComponentType ?? (ComponentType)0;
+            Values = model?.Values.GetValueOrDefault();
+            Value = model?.Value.GetValueOrDefault() ?? string.Empty;
 
-            if (model.Resolved.IsSpecified)
+            if (model?.Resolved.IsSpecified ?? false)
             {
                 Users = model.Resolved.Value.Users.IsSpecified
                     ? model.Resolved.Value.Users.Value.Select(user => RestUser.Create(discord, user.Value)).ToImmutableArray()
-                    : Array.Empty<RestUser>();
+                    : null;
 
                 Members = model.Resolved.Value.Members.IsSpecified
                     ? model.Resolved.Value.Members.Value.Select(member =>
@@ -85,17 +85,17 @@ namespace Discord.Rest
                             return RestDMChannel.Create(discord, channel.Value);
                         return RestChannel.Create(discord, channel.Value);
                     }).ToImmutableArray()
-                    : Array.Empty<RestChannel>();
+                    : null;
 
                 Roles = model.Resolved.Value.Roles.IsSpecified
                     ? model.Resolved.Value.Roles.Value.Select(role => RestRole.Create(discord, guild, role.Value)).ToImmutableArray()
-                    : Array.Empty<RestRole>();
+                    : null;
             }
         }
 
-        internal RestMessageComponentData(IMessageComponent component, BaseDiscordClient discord, IGuild guild)
+        internal RestMessageComponentData(IMessageComponent component, BaseDiscordClient discord, IGuild? guild)
         {
-            CustomId = component.CustomId;
+            CustomId = component.CustomId ?? string.Empty;
             Type = component.Type;
 
             if (component is API.TextInputComponent textInput)

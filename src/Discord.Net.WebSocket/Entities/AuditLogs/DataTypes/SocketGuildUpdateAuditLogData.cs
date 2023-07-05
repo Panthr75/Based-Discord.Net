@@ -18,7 +18,7 @@ namespace Discord.WebSocket
 
         internal static SocketGuildUpdateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
         {
-            var info = Rest.AuditLogHelper.CreateAuditLogEntityInfo<InfoModel>(entry.Changes, discord);
+            var info = Rest.AuditLogHelper.CreateAuditLogEntityInfo<InfoModel>(entry.Changes!, discord);
 
             var data = new SocketGuildUpdateAuditLogData(SocketGuildInfo.Create(info.Item1), SocketGuildInfo.Create(info.Item2));
             return data;

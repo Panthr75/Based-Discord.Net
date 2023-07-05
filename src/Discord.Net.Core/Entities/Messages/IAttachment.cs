@@ -65,11 +65,11 @@ namespace Discord
         /// <summary>
         ///     Gets the description of the attachment; or <see langword="null"/> if there is none set.
         /// </summary>
-        string Description { get; }
+        string? Description { get; }
         /// <summary>
         ///     Gets the media's <see href="https://en.wikipedia.org/wiki/Media_type">MIME type</see> if present; otherwise <see langword="null"/>.
         /// </summary>
-        string ContentType { get; }
+        string? ContentType { get; }
 
         /// <summary>
         ///     Gets the duration of the audio file. <see langword="null"/> if the attachment is not a voice message.
@@ -79,6 +79,6 @@ namespace Discord
         /// <summary>
         ///     Gets the base64 encoded bytearray representing a sampled waveform. <see langword="null"/> if the attachment is not a voice message.
         /// </summary>
-        public string Waveform { get; }
+        public string? Waveform { get; }
     }
 }

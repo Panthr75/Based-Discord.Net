@@ -1,13 +1,15 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class GuildStickerUpdateEvent
     {
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
 
-        [JsonProperty("stickers")]
-        public Sticker[] Stickers { get; set; }
+        [JsonPropertyName("stickers")]
+        public Sticker[] Stickers { get; set; } = Array.Empty<Sticker>();
     }
 }

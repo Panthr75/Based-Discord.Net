@@ -17,7 +17,7 @@ public class SocketRoleDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketRoleDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<Model>(changes, discord);
 

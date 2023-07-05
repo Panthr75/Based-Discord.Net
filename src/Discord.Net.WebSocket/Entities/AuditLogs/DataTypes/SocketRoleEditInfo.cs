@@ -16,7 +16,7 @@ public struct SocketRoleEditInfo
 
         Mentionable = model.IsMentionable;
         Hoist = model.Hoist;
-        Name = model.Name;
+        Name = model.Name!;
 
         if(model.Permissions is not null)
             Permissions = new GuildPermissions(model.Permissions.Value);
@@ -75,5 +75,5 @@ public struct SocketRoleEditInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string IconId { get; }
+    public string? IconId { get; }
 }

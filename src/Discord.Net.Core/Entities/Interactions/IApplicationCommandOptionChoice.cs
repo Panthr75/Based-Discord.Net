@@ -15,12 +15,12 @@ namespace Discord
         /// <summary>
         ///     Gets the value of the choice.
         /// </summary>
-        object Value { get; }
+        ApplicationCommandOptionValue Value { get; }
 
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command option.
         /// </summary>
-        IReadOnlyDictionary<string, string> NameLocalizations { get; }
+        IReadOnlyDictionary<string, string>? NameLocalizations { get; }
 
         /// <summary>
         ///     Gets the localized name of this command option.
@@ -28,6 +28,6 @@ namespace Discord
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        string NameLocalized { get; }
+        string? NameLocalized { get; }
     }
 }

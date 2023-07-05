@@ -13,7 +13,7 @@ namespace Discord
         /// <summary>
         ///     Gets the child components in this row.
         /// </summary>
-        public IReadOnlyCollection<IMessageComponent> Components { get; internal set; }
+        public IReadOnlyCollection<IMessageComponent> Components { get; internal set; } = new List<IMessageComponent>();
 
         internal ActionRowComponent() { }
 
@@ -22,6 +22,6 @@ namespace Discord
             Components = components;
         }
 
-        string IMessageComponent.CustomId => null;
+        string? IMessageComponent.CustomId => null;
     }
 }

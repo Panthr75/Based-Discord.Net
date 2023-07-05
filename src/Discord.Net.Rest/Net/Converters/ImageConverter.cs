@@ -1,42 +1,34 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.IO;
 using Model = Discord.API.Image;
 
 namespace Discord.Net.Converters
 {
-    internal class ImageConverter : JsonConverter
+    internal class ImageConverter : JsonConverter<Model>
     {
-        public static readonly ImageConverter Instance = new ImageConverter();
-
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => true;
-        public override bool CanWrite => true;
-
-        /// <exception cref="InvalidOperationException">Cannot read from image.</exception>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override Model Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new InvalidOperationException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Model value, JsonSerializerOptions options)
         {
-            var image = (Model)value;
-
-            if (image.Stream != null)
+            if (value.Stream != null)
             {
                 byte[] bytes;
                 int length;
-                if (image.Stream.CanSeek)
+                if (value.Stream.CanSeek)
                 {
-                    bytes = new byte[image.Stream.Length - image.Stream.Position];
-                    length = image.Stream.Read(bytes, 0, bytes.Length);
+                    bytes = new byte[value.Stream.Length - value.Stream.Position];
+                    length = value.Stream.Read(bytes, 0, bytes.Length);
                 }
                 else
                 {
                     using (var cloneStream = new MemoryStream())
                     {
-                        image.Stream.CopyTo(cloneStream);
+                        value.Stream.CopyTo(cloneStream);
                         bytes = new byte[cloneStream.Length];
                         cloneStream.Position = 0;
                         cloneStream.Read(bytes, 0, bytes.Length);
@@ -45,10 +37,12 @@ namespace Discord.Net.Converters
                 }
 
                 string base64 = Convert.ToBase64String(bytes, 0, length);
-                writer.WriteValue($"data:image/jpeg;base64,{base64}");
+                writer.WriteStringValue($"data:image/jpeg;base64,{base64}");
             }
-            else if (image.Hash != null)
-                writer.WriteValue(image.Hash);
+            else if (value.Hash != null)
+                writer.WriteStringValue(value.Hash);
+            else
+                writer.WriteNullValue();
         }
     }
 }

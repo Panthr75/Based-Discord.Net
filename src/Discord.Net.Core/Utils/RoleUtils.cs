@@ -2,7 +2,7 @@ namespace Discord
 {
     internal static class RoleUtils
     {
-        public static int Compare(IRole left, IRole right)
+        public static int Compare(IRole? left, IRole? right)
         {
             if (left == null)
                 return -1;

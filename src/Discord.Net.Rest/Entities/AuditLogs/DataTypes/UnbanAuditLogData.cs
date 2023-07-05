@@ -7,16 +7,16 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an unban.
 /// </summary>
-public class UnbanAuditLogData : IAuditLogData
+public partial class UnbanAuditLogData : IAuditLogData
 {
-    private UnbanAuditLogData(IUser user)
+    private UnbanAuditLogData(IUser? user)
     {
         Target = user;
     }
 
-    internal static UnbanAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static UnbanAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
+        var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
         return new UnbanAuditLogData((userInfo != null) ? RestUser.Create(discord, userInfo) : null);
     }
 
@@ -26,5 +26,5 @@ public class UnbanAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user that was unbanned.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

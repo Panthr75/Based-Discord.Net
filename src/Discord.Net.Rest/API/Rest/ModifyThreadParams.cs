@@ -1,29 +1,30 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API.Rest
 {
     internal class ModifyThreadParams
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public Optional<string> Name { get; set; }
 
-        [JsonProperty("archived")]
+        [JsonPropertyName("archived")]
         public Optional<bool> Archived { get; set; }
 
-        [JsonProperty("auto_archive_duration")]
+        [JsonPropertyName("auto_archive_duration")]
         public Optional<ThreadArchiveDuration> AutoArchiveDuration { get; set; }
 
-        [JsonProperty("locked")]
+        [JsonPropertyName("locked")]
         public Optional<bool> Locked { get; set; }
 
-        [JsonProperty("rate_limit_per_user")]
+        [JsonPropertyName("rate_limit_per_user")]
         public Optional<int> Slowmode { get; set; }
 
-        [JsonProperty("applied_tags")]
+        [JsonPropertyName("applied_tags")]
         public Optional<IEnumerable<ulong>> AppliedTags { get; set; }
 
-        [JsonProperty("flags")]
+        [JsonPropertyName("flags")]
         public Optional<ChannelFlags> Flags { get; set; }
     }
 }

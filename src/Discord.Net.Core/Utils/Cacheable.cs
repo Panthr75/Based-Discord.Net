@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Discord
@@ -15,6 +16,7 @@ namespace Discord
         /// <summary>
         ///     Gets whether this entity is cached.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.Value))]
         public bool HasValue { get; }
         /// <summary>
         ///     Gets the ID of this entity.
@@ -27,10 +29,10 @@ namespace Discord
         ///     This value is not guaranteed to be set; in cases where the entity cannot be pulled from cache, it is
         ///     <see langword="null" />.
         /// </remarks>
-        public TEntity Value { get; }
-        private Func<Task<TEntity>> DownloadFunc { get; }
+        public TEntity? Value { get; }
+        private Func<Task<TEntity?>> DownloadFunc { get; }
 
-        internal Cacheable(TEntity value, TId id, bool hasValue, Func<Task<TEntity>> downloadFunc)
+        internal Cacheable(TEntity? value, TId id, bool hasValue, Func<Task<TEntity?>> downloadFunc)
         {
             Value = value;
             Id = id;
@@ -47,7 +49,7 @@ namespace Discord
         ///     A task that represents the asynchronous download operation. The task result contains the downloaded
         ///     entity.
         /// </returns>
-        public async Task<TEntity> DownloadAsync()
+        public async Task<TEntity?> DownloadAsync()
         {
             return await DownloadFunc().ConfigureAwait(false);
         }
@@ -61,7 +63,7 @@ namespace Discord
         ///     A task that represents the asynchronous operation that attempts to get the message via cache or to
         ///     download the message. The task result contains the downloaded entity.
         /// </returns>
-        public async Task<TEntity> GetOrDownloadAsync() => HasValue ? Value : await DownloadAsync().ConfigureAwait(false);
+        public async Task<TEntity?> GetOrDownloadAsync() => HasValue ? Value : await DownloadAsync().ConfigureAwait(false);
     }
     public struct Cacheable<TCachedEntity, TDownloadableEntity, TRelationship, TId>
         where TCachedEntity : IEntity<TId>, TRelationship
@@ -71,6 +73,7 @@ namespace Discord
         /// <summary>
         ///     Gets whether this entity is cached.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.Value))]
         public bool HasValue { get; }
         /// <summary>
         ///     Gets the ID of this entity.
@@ -83,10 +86,10 @@ namespace Discord
         ///     This value is not guaranteed to be set; in cases where the entity cannot be pulled from cache, it is
         ///     <see langword="null" />.
         /// </remarks>
-        public TCachedEntity Value { get; }
-        private Func<Task<TDownloadableEntity>> DownloadFunc { get; }
+        public TCachedEntity? Value { get; }
+        private Func<Task<TDownloadableEntity?>> DownloadFunc { get; }
 
-        internal Cacheable(TCachedEntity value, TId id, bool hasValue, Func<Task<TDownloadableEntity>> downloadFunc)
+        internal Cacheable(TCachedEntity? value, TId id, bool hasValue, Func<Task<TDownloadableEntity?>> downloadFunc)
         {
             Value = value;
             Id = id;
@@ -103,7 +106,7 @@ namespace Discord
         ///     A task that represents the asynchronous download operation. The task result contains the downloaded
         ///     entity.
         /// </returns>
-        public async Task<TDownloadableEntity> DownloadAsync()
+        public async Task<TDownloadableEntity?> DownloadAsync()
         {
             return await DownloadFunc().ConfigureAwait(false);
         }
@@ -117,6 +120,6 @@ namespace Discord
         ///     A task that represents the asynchronous operation that attempts to get the message via cache or to
         ///     download the message. The task result contains the downloaded entity.
         /// </returns>
-        public async Task<TRelationship> GetOrDownloadAsync() => HasValue ? Value : await DownloadAsync().ConfigureAwait(false);
+        public async Task<TRelationship?> GetOrDownloadAsync() => HasValue ? Value : await DownloadAsync().ConfigureAwait(false);
     }
 }

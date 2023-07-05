@@ -1,18 +1,16 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class PresenceUpdateParams
-
     {
-        [JsonProperty("status")]
+        [JsonPropertyName("status")]
         public UserStatus Status { get; set; }
-        [JsonProperty("since", NullValueHandling = NullValueHandling.Include), Int53]
+        [JsonPropertyName("since")]
         public long? IdleSince { get; set; }
-        [JsonProperty("afk")]
+        [JsonPropertyName("afk")]
         public bool IsAFK { get; set; }
-        [JsonProperty("activities")]
-        public object[] Activities { get; set; } // TODO, change to interface later
+        [JsonPropertyName("activities")]
+        public object[]? Activities { get; set; } // TODO, change to interface later
     }
 }

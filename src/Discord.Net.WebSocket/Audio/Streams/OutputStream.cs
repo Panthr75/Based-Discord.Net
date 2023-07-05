@@ -8,7 +8,7 @@ namespace Discord.Audio.Streams
     {
         private readonly DiscordVoiceAPIClient _client;
         public OutputStream(IAudioClient client)
-            : this((client as AudioClient).ApiClient) { }
+            : this(((AudioClient)client).ApiClient) { }
         internal OutputStream(DiscordVoiceAPIClient client)
         {
             _client = client;

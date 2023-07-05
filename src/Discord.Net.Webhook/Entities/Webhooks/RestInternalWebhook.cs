@@ -14,8 +14,8 @@ namespace Discord.Webhook
         public string Token { get; }
 
         public ulong ChannelId { get; private set; }
-        public string Name { get; private set; }
-        public string AvatarId { get; private set; }
+        public string? Name { get; private set; }
+        public string? AvatarId { get; private set; }
         public ulong? GuildId { get; private set; }
         public ulong? ApplicationId { get; private set; }
 
@@ -49,23 +49,23 @@ namespace Discord.Webhook
             ApplicationId = model.ApplicationId;
         }
 
-        public string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
            => CDN.GetUserAvatarUrl(Id, AvatarId, size, format);
 
-        public async Task ModifyAsync(Action<WebhookProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<WebhookProperties> func, RequestOptions? options = null)
         {
             var model = await WebhookClientHelper.ModifyAsync(_client, func, options).ConfigureAwait(false);
             Update(model);
         }
 
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => WebhookClientHelper.DeleteAsync(_client, options);
 
         public override string ToString() => $"Webhook: {Name}:{Id}";
         private string DebuggerDisplay => $"Webhook: {Name} ({Id})";
 
-        IUser IWebhook.Creator => null;
-        IIntegrationChannel IWebhook.Channel => null;
-        IGuild IWebhook.Guild => null;
+        IUser? IWebhook.Creator => null;
+        IIntegrationChannel IWebhook.Channel => null!;
+        IGuild IWebhook.Guild => null!;
     }
 }

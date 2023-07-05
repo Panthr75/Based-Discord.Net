@@ -22,7 +22,7 @@ public struct MemberInfo
     /// <returns>
     ///     A string representing the nickname of the updated member; <see langword="null"/> if none is set.
     /// </returns>
-    public string Nickname { get; }
+    public string? Nickname { get; }
 
     /// <summary>
     ///     Gets a value that indicates whether the updated member is deafened by the guild.

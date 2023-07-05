@@ -33,9 +33,9 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the voice channel that the user is currently in; or <see langword="null" /> if none.
         /// </summary>
-        public SocketVoiceChannel VoiceChannel { get; }
+        public SocketVoiceChannel? VoiceChannel { get; }
         /// <inheritdoc />
-        public string VoiceSessionId { get; }
+        public string? VoiceSessionId { get; }
         /// <inheritdoc/>
         public DateTimeOffset? RequestToSpeakTimestamp { get; private set; }
 
@@ -55,7 +55,7 @@ namespace Discord.WebSocket
         public bool IsVideoing => (_voiceStates & Flags.SelfVideo) != 0;
 
 
-        internal SocketVoiceState(SocketVoiceChannel voiceChannel, DateTimeOffset? requestToSpeak, string sessionId, bool isSelfMuted, bool isSelfDeafened, bool isMuted, bool isDeafened, bool isSuppressed, bool isStream, bool isVideo)
+        internal SocketVoiceState(SocketVoiceChannel? voiceChannel, DateTimeOffset? requestToSpeak, string? sessionId, bool isSelfMuted, bool isSelfDeafened, bool isMuted, bool isDeafened, bool isSuppressed, bool isStream, bool isVideo)
         {
             VoiceChannel = voiceChannel;
             VoiceSessionId = sessionId;
@@ -78,7 +78,7 @@ namespace Discord.WebSocket
                 voiceStates |= Flags.SelfVideo;
             _voiceStates = voiceStates;
         }
-        internal static SocketVoiceState Create(SocketVoiceChannel voiceChannel, Model model)
+        internal static SocketVoiceState Create(SocketVoiceChannel? voiceChannel, Model model)
         {
             return new SocketVoiceState(voiceChannel, model.RequestToSpeakTimestamp.IsSpecified ? model.RequestToSpeakTimestamp.Value : null, model.SessionId, model.SelfMute, model.SelfDeaf, model.Mute, model.Deaf, model.Suppress, model.SelfStream, model.SelfVideo);
         }
@@ -94,6 +94,6 @@ namespace Discord.WebSocket
         internal SocketVoiceState Clone() => this;
 
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => VoiceChannel;
+        IVoiceChannel? IVoiceState.VoiceChannel => VoiceChannel;
     }
 }

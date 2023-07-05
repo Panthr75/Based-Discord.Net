@@ -20,7 +20,7 @@ public class SocketRoleUpdateAuditLogData : ISocketAuditLogData
 
     internal static SocketRoleUpdateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<Model>(changes, discord);
 

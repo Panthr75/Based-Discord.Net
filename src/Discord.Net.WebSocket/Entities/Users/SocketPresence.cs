@@ -20,8 +20,8 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public IReadOnlyCollection<IActivity> Activities { get; private set; }
 
-        internal SocketPresence() { }
-        internal SocketPresence(UserStatus status, IImmutableSet<ClientType> activeClients, IImmutableList<IActivity> activities)
+        internal SocketPresence() : this(UserStatus.Offline, null, null) { }
+        internal SocketPresence(UserStatus status, IImmutableSet<ClientType>? activeClients, IImmutableList<IActivity>? activities)
         {
             Status = status;
             ActiveClients = activeClients ?? ImmutableHashSet<ClientType>.Empty;
@@ -53,7 +53,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A collection of all <see cref="ClientType"/>s that this user is active.
         /// </returns>
-        private static IReadOnlyCollection<ClientType> ConvertClientTypesDict(IDictionary<string, string> clientTypesDict)
+        private static IReadOnlyCollection<ClientType> ConvertClientTypesDict(IDictionary<string, string>? clientTypesDict)
         {
             if (clientTypesDict == null || clientTypesDict.Count == 0)
                 return ImmutableHashSet<ClientType>.Empty;
@@ -95,6 +95,6 @@ namespace Discord.WebSocket
         public override string ToString() => Status.ToString();
         private string DebuggerDisplay => $"{Status}{(Activities?.FirstOrDefault()?.Name ?? "")}";
 
-        internal SocketPresence Clone() => MemberwiseClone() as SocketPresence;
+        internal SocketPresence Clone() => (SocketPresence)MemberwiseClone();
     }
 }

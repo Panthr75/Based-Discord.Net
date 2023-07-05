@@ -50,6 +50,7 @@ namespace Discord.WebSocket
         internal SocketGuildChannel(DiscordSocketClient discord, ulong id, SocketGuild guild)
             : base(discord, id)
         {
+            Name = string.Empty;
             Guild = guild;
         }
         internal static SocketGuildChannel Create(SocketGuild guild, ClientState state, Model model)
@@ -82,10 +83,10 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions? options = null)
             => ChannelHelper.ModifyAsync(this, Discord, func, options);
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => ChannelHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>
@@ -130,7 +131,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task representing the asynchronous permission operation for adding the specified permissions to the channel.
         /// </returns>
-        public virtual async Task AddPermissionOverwriteAsync(IUser user, OverwritePermissions permissions, RequestOptions options = null)
+        public virtual async Task AddPermissionOverwriteAsync(IUser user, OverwritePermissions permissions, RequestOptions? options = null)
         {
             await ChannelHelper.AddPermissionOverwriteAsync(this, Discord, user, permissions, options).ConfigureAwait(false);
         }
@@ -144,7 +145,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task representing the asynchronous permission operation for adding the specified permissions to the channel.
         /// </returns>
-        public virtual async Task AddPermissionOverwriteAsync(IRole role, OverwritePermissions permissions, RequestOptions options = null)
+        public virtual async Task AddPermissionOverwriteAsync(IRole role, OverwritePermissions permissions, RequestOptions? options = null)
         {
             await ChannelHelper.AddPermissionOverwriteAsync(this, Discord, role, permissions, options).ConfigureAwait(false);
         }
@@ -156,7 +157,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task representing the asynchronous operation for removing the specified permissions from the channel.
         /// </returns>
-        public virtual async Task RemovePermissionOverwriteAsync(IUser user, RequestOptions options = null)
+        public virtual async Task RemovePermissionOverwriteAsync(IUser user, RequestOptions? options = null)
         {
             await ChannelHelper.RemovePermissionOverwriteAsync(this, Discord, user, options).ConfigureAwait(false);
         }
@@ -168,12 +169,12 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task representing the asynchronous operation for removing the specified permissions from the channel.
         /// </returns>
-        public virtual async Task RemovePermissionOverwriteAsync(IRole role, RequestOptions options = null)
+        public virtual async Task RemovePermissionOverwriteAsync(IRole role, RequestOptions? options = null)
         {
             await ChannelHelper.RemovePermissionOverwriteAsync(this, Discord, role, options).ConfigureAwait(false);
         }
 
-        public new virtual SocketGuildUser GetUser(ulong id) => null;
+        public new virtual SocketGuildUser? GetUser(ulong id) => null;
 
         /// <summary>
         ///     Gets the name of the channel.
@@ -183,14 +184,14 @@ namespace Discord.WebSocket
         /// </returns>
         public override string ToString() => Name;
         private string DebuggerDisplay => $"{Name} ({Id}, Guild)";
-        internal new SocketGuildChannel Clone() => MemberwiseClone() as SocketGuildChannel;
+        internal new SocketGuildChannel Clone() => (SocketGuildChannel)MemberwiseClone();
         #endregion
 
         #region SocketChannel
         /// <inheritdoc />
         internal override IReadOnlyCollection<SocketUser> GetUsersInternal() => Users;
         /// <inheritdoc />
-        internal override SocketUser GetUserInternal(ulong id) => GetUser(id);
+        internal override SocketUser? GetUserInternal(ulong id) => GetUser(id);
         #endregion
 
         #region IGuildChannel
@@ -206,35 +207,35 @@ namespace Discord.WebSocket
         OverwritePermissions? IGuildChannel.GetPermissionOverwrite(IUser user)
             => GetPermissionOverwrite(user);
         /// <inheritdoc />
-        async Task IGuildChannel.AddPermissionOverwriteAsync(IRole role, OverwritePermissions permissions, RequestOptions options)
+        async Task IGuildChannel.AddPermissionOverwriteAsync(IRole role, OverwritePermissions permissions, RequestOptions? options)
             => await AddPermissionOverwriteAsync(role, permissions, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task IGuildChannel.AddPermissionOverwriteAsync(IUser user, OverwritePermissions permissions, RequestOptions options)
+        async Task IGuildChannel.AddPermissionOverwriteAsync(IUser user, OverwritePermissions permissions, RequestOptions? options)
             => await AddPermissionOverwriteAsync(user, permissions, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task IGuildChannel.RemovePermissionOverwriteAsync(IRole role, RequestOptions options)
+        async Task IGuildChannel.RemovePermissionOverwriteAsync(IRole role, RequestOptions? options)
             => await RemovePermissionOverwriteAsync(role, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task IGuildChannel.RemovePermissionOverwriteAsync(IUser user, RequestOptions options)
+        async Task IGuildChannel.RemovePermissionOverwriteAsync(IUser user, RequestOptions? options)
             => await RemovePermissionOverwriteAsync(user, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => ImmutableArray.Create<IReadOnlyCollection<IGuildUser>>(Users).ToAsyncEnumerable(); //Overridden in Text/Voice
         /// <inheritdoc />
-        Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IGuildUser>(GetUser(id)); //Overridden in Text/Voice
+        Task<IGuildUser?> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IGuildUser?>(GetUser(id)); //Overridden in Text/Voice
         #endregion
 
         #region IChannel
         /// <inheritdoc />
         string IChannel.Name => Name;
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => ImmutableArray.Create<IReadOnlyCollection<IUser>>(Users).ToAsyncEnumerable(); //Overridden in Text/Voice
         /// <inheritdoc />
-        Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IUser>(GetUser(id)); //Overridden in Text/Voice
+        Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IUser?>(GetUser(id)); //Overridden in Text/Voice
         #endregion
     }
 }

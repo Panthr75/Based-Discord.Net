@@ -13,7 +13,7 @@ namespace Discord.Rest
         public string Name { get; }
 
         /// <inheritdoc/>
-        public object Value { get; }
+        public ApplicationCommandOptionValue Value { get; }
 
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command option choice.
@@ -26,13 +26,13 @@ namespace Discord.Rest
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string NameLocalized { get; }
+        public string? NameLocalized { get; }
 
         internal RestApplicationCommandChoice(Model model)
         {
             Name = model.Name;
             Value = model.Value;
-            NameLocalizations = model.NameLocalizations.GetValueOrDefault(null)?.ToImmutableDictionary();
+            NameLocalizations = model.NameLocalizations.GetValueOrDefault(null)?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
             NameLocalized = model.NameLocalized.GetValueOrDefault(null);
         }
     }

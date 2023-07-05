@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Model = Discord.API.Gateway.Reaction;
 
 namespace Discord.WebSocket
@@ -5,7 +7,7 @@ namespace Discord.WebSocket
     /// <summary>
     ///     Represents a WebSocket-based reaction object.
     /// </summary>
-    public class SocketReaction : IReaction
+    public class SocketReaction : IReaction, IEquatable<SocketReaction>
     {
         /// <summary>
         ///     Gets the ID of the user who added the reaction.
@@ -60,11 +62,11 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A WebSocket-based message channel.
         /// </returns>
-        public ISocketMessageChannel Channel { get; }
+        public ISocketMessageChannel? Channel { get; }
         /// <inheritdoc />
         public IEmote Emote { get; }
 
-        internal SocketReaction(ISocketMessageChannel channel, ulong messageId, Optional<SocketUserMessage> message, ulong userId, Optional<IUser> user, IEmote emoji)
+        internal SocketReaction(ISocketMessageChannel? channel, ulong messageId, Optional<SocketUserMessage> message, ulong userId, Optional<IUser> user, IEmote emoji)
         {
             Channel = channel;
             MessageId = messageId;
@@ -73,29 +75,37 @@ namespace Discord.WebSocket
             User = user;
             Emote = emoji;
         }
-        internal static SocketReaction Create(Model model, ISocketMessageChannel channel, Optional<SocketUserMessage> message, Optional<IUser> user)
+        internal static SocketReaction Create(Model model, ISocketMessageChannel? channel, Optional<SocketUserMessage> message, Optional<IUser> user)
         {
             IEmote emote;
             if (model.Emoji.Id.HasValue)
-                emote = new Emote(model.Emoji.Id.Value, model.Emoji.Name, model.Emoji.Animated.GetValueOrDefault());
+                emote = new Emote(model.Emoji.Id.Value, model.Emoji.Name!, model.Emoji.Animated.GetValueOrDefault());
             else
-                emote = new Emoji(model.Emoji.Name);
+                emote = new Emoji(model.Emoji.Name!);
             return new SocketReaction(channel, model.MessageId, message, model.UserId, user, emote);
         }
 
         /// <inheritdoc />
-        public override bool Equals(object other)
+        public override bool Equals([NotNullWhen(true)] object? other)
         {
-            if (other == null)
+            if (other is null)
                 return false;
-            if (other == this)
+            if (ReferenceEquals(other, this))
                 return true;
 
-            var otherReaction = other as SocketReaction;
-            if (otherReaction == null)
-                return false;
+            if (other is SocketReaction reaction)
+            {
+                return this.Equals(reaction);
+            }
+            return false;
+        }
 
-            return UserId == otherReaction.UserId && MessageId == otherReaction.MessageId && Emote.Equals(otherReaction.Emote);
+        public bool Equals([NotNullWhen(true)] SocketReaction? other)
+        {
+            return other is not null &&
+                this.UserId == other.UserId &&
+                this.MessageId == other.MessageId &&
+                this.Emote.Equals(other.Emote);
         }
 
         /// <inheritdoc />

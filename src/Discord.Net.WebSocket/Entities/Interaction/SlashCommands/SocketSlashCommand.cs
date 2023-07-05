@@ -1,3 +1,4 @@
+using System;
 using DataModel = Discord.API.ApplicationCommandInteractionData;
 using Model = Discord.API.Interaction;
 
@@ -13,19 +14,21 @@ namespace Discord.WebSocket
         /// </summary>
         public new SocketSlashCommandData Data { get; }
 
-        internal SocketSlashCommand(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        internal SocketSlashCommand(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
             : base(client, model, channel, user)
         {
-            var dataModel = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
+            if (!model.Data.IsSpecified)
+            {
+                throw new InvalidOperationException("Cannot create socket slash command without any data.");
+            }
+            var dataModel = (DataModel)model.Data.Value;
 
             ulong? guildId = model.GuildId.ToNullable();
 
             Data = SocketSlashCommandData.Create(client, dataModel, guildId);
         }
 
-        internal new static SocketInteraction Create(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        internal new static SocketInteraction Create(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
         {
             var entity = new SocketSlashCommand(client, model, channel, user);
             entity.Update(model);

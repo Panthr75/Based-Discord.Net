@@ -6,11 +6,11 @@ namespace Discord.API.Rest
 {
     internal class CreateStickerParams
     {
-        public Stream File { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Tags { get; set; }
-        public string FileName { get; set; }
+        public Stream File { get; set; } = null!;
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string Tags { get; set; } = string.Empty;
+        public string? FileName { get; set; }
 
         public IReadOnlyDictionary<string, object> ToDictionary()
         {

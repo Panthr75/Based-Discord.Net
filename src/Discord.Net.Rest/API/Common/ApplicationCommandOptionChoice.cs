@@ -1,20 +1,21 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API
 {
     internal class ApplicationCommandOptionChoice
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("value")]
-        public object Value { get; set; }
+        [JsonPropertyName("value")]
+        public ApplicationCommandOptionValue Value { get; set; } = string.Empty;
 
-        [JsonProperty("name_localizations")]
+        [JsonPropertyName("name_localizations")]
         public Optional<Dictionary<string, string>> NameLocalizations { get; set; }
 
-        [JsonProperty("name_localized")]
+        [JsonPropertyName("name_localized")]
         public Optional<string> NameLocalized { get; set; }
     }
 }

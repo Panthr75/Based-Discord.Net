@@ -1,14 +1,14 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API;
 
-[JsonObject(MemberSerialization = MemberSerialization.OptIn)]
-internal class ModifyForumReactionEmojiParams
+public class ModifyForumReactionEmojiParams
 {
-    [JsonProperty("emoji_id")]
+    [JsonPropertyName("emoji_id")]
     public Optional<ulong?> EmojiId { get; set; }
 
-    [JsonProperty("emoji_name")]
+    [JsonPropertyName("emoji_name")]
     public Optional<string> EmojiName { get; set; }
 }
 

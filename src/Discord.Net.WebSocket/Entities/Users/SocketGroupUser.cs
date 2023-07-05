@@ -28,9 +28,9 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get { return GlobalUser.DiscriminatorValue; } internal set { GlobalUser.DiscriminatorValue = value; } }
         /// <inheritdoc />
-        public override string AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
+        public override string? AvatarId { get { return GlobalUser.AvatarId; } internal set { GlobalUser.AvatarId = value; } }
         /// <inheritdoc />
-        internal override SocketPresence Presence { get { return GlobalUser.Presence; } set { GlobalUser.Presence = value; } }
+        internal override SocketPresence? Presence { get { return GlobalUser.Presence; } set { GlobalUser.Presence = value; } }
 
         /// <inheritdoc />
         public override bool IsWebhook => false;
@@ -52,7 +52,7 @@ namespace Discord.WebSocket
             ? $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Group)"
             : $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Group)";
 
-        internal new SocketGroupUser Clone() => MemberwiseClone() as SocketGroupUser;
+        internal new SocketGroupUser Clone() => (SocketGroupUser)MemberwiseClone();
         #endregion
 
         #region IVoiceState
@@ -67,9 +67,9 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         bool IVoiceState.IsSuppressed => false;
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => null;
+        IVoiceChannel? IVoiceState.VoiceChannel => null;
         /// <inheritdoc />
-        string IVoiceState.VoiceSessionId => null;
+        string? IVoiceState.VoiceSessionId => null;
         /// <inheritdoc />
         bool IVoiceState.IsStreaming => false;
         /// <inheritdoc />

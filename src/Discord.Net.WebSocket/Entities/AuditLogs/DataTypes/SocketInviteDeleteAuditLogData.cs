@@ -23,7 +23,7 @@ public class SocketInviteDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketInviteDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<InviteInfoAuditLogModel>(changes, discord);
 

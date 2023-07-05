@@ -1,18 +1,18 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class WebhookInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("channel_id")]
+    [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
 
-    [JsonField("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-    [JsonField("type")]
+    [JsonPropertyName("type")]
     public WebhookType? Type { get; set; }
 
-    [JsonField("avatar_hash")]
-    public string AvatarHash { get; set; }
+    [JsonPropertyName("avatar_hash")]
+    public string? AvatarHash { get; set; }
 }

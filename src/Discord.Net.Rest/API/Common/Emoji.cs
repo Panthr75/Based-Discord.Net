@@ -1,22 +1,25 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class Emoji
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong? Id { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("animated")]
+        /// <remarks>Only <see langword="null"/> in <see cref="Reaction"/></remarks>
+        [JsonPropertyName("name")]
+        public string? Name { get; set; } = string.Empty;
+        [JsonPropertyName("animated")]
         public bool? Animated { get; set; }
-        [JsonProperty("roles")]
-        public ulong[] Roles { get; set; }
-        [JsonProperty("require_colons")]
+        [JsonPropertyName("roles")]
+        public ulong[] Roles { get; set; } = Array.Empty<ulong>();
+        [JsonPropertyName("require_colons")]
         public bool RequireColons { get; set; }
-        [JsonProperty("managed")]
+        [JsonPropertyName("managed")]
         public bool Managed { get; set; }
-        [JsonProperty("user")]
+        [JsonPropertyName("user")]
         public Optional<User> User { get; set; }
     }
 }

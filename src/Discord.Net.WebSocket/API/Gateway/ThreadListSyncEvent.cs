@@ -1,19 +1,21 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class ThreadListSyncEvent
     {
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
 
-        [JsonProperty("channel_ids")]
+        [JsonPropertyName("channel_ids")]
         public Optional<ulong[]> ChannelIds { get; set; }
 
-        [JsonProperty("threads")]
-        public Channel[] Threads { get; set; }
+        [JsonPropertyName("threads")]
+        public Channel[] Threads { get; set; } = Array.Empty<Channel>();
 
-        [JsonProperty("members")]
-        public ThreadMember[] Members { get; set; }
+        [JsonPropertyName("members")]
+        public ThreadMember[] Members { get; set; } = Array.Empty<ThreadMember>();
     }
 }

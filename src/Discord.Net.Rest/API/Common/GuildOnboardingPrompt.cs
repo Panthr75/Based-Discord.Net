@@ -1,27 +1,29 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API;
 
 internal class GuildOnboardingPrompt
 {
-    [JsonProperty("id")]
+    [JsonPropertyName("id")]
     public ulong Id { get; set; }
 
-    [JsonProperty("options")]
-    public GuildOnboardingPromptOption[] Options { get; set; }
+    [JsonPropertyName("options")]
+    public GuildOnboardingPromptOption[] Options { get; set; } = Array.Empty<GuildOnboardingPromptOption>();
 
-    [JsonProperty("title")]
-    public string Title { get; set; }
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = string.Empty;
 
-    [JsonProperty("single_select")]
+    [JsonPropertyName("single_select")]
     public bool IsSingleSelect { get; set; }
 
-    [JsonProperty("required")]
+    [JsonPropertyName("required")]
     public bool IsRequired { get; set; }
 
-    [JsonProperty("in_onboarding")]
+    [JsonPropertyName("in_onboarding")]
     public bool IsInOnboarding { get; set; }
 
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public GuildOnboardingPromptType Type { get; set; }
 }

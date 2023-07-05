@@ -1,3 +1,4 @@
+using Discord.Utils;
 using System.Collections.Generic;
 
 namespace Discord
@@ -40,12 +41,12 @@ namespace Discord
         /// <summary>
         ///     Gets the smallest number value the user can input.
         /// </summary>
-        double? MinValue { get; }
+        NumericValue? MinValue { get; }
 
         /// <summary>
         ///     Gets the largest number value the user can input.
         /// </summary>
-        double? MaxValue { get; }
+        NumericValue? MaxValue { get; }
 
         /// <summary>
         ///     Gets the minimum allowed length for a string input.
@@ -75,12 +76,12 @@ namespace Discord
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command option.
         /// </summary>
-        IReadOnlyDictionary<string, string> NameLocalizations { get; }
+        IReadOnlyDictionary<string, string>? NameLocalizations { get; }
 
         /// <summary>
         ///     Gets the localization dictionary for the description field of this command option.
         /// </summary>
-        IReadOnlyDictionary<string, string> DescriptionLocalizations { get; }
+        IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; }
 
         /// <summary>
         ///     Gets the localized name of this command option.
@@ -88,7 +89,7 @@ namespace Discord
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        string NameLocalized { get; }
+        string? NameLocalized { get; }
 
         /// <summary>
         ///     Gets the localized description of this command option.
@@ -96,6 +97,6 @@ namespace Discord
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to true when requesting the command.
         /// </remarks>
-        string DescriptionLocalized { get; }
+        string? DescriptionLocalized { get; }
     }
 }

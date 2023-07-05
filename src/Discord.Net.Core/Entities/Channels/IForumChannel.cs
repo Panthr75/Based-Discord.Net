@@ -26,7 +26,7 @@ namespace Discord
         /// <returns>
         ///     A string representing the topic set in the channel; <see langword="null" /> if none is set.
         /// </returns>
-        string Topic { get; }
+        string? Topic { get; }
 
         /// <summary>
         ///     Gets the default archive duration for a newly created post.
@@ -63,7 +63,7 @@ namespace Discord
         ///     If the emoji is <see cref="Emote"/> only the <see cref="Emote.Id"/> will be populated.
         ///     Use <see cref="IGuild.GetEmoteAsync"/> to get the emoji.
         /// </remarks>
-        IEmote DefaultReactionEmoji { get; }
+        IEmote? DefaultReactionEmoji { get; }
 
         /// <summary>
         /// Gets the rule used to order posts in forum channels.
@@ -90,7 +90,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
-        Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Creates a new post (thread) within the forum.
@@ -114,8 +114,8 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation.
         /// </returns>
         Task<IThreadChannel> CreatePostAsync(string title, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay, int? slowmode = null,
-            string text = null, Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[] tags = null);
+            string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null);
 
         /// <summary>
         ///     Creates a new post (thread) within the forum.
@@ -141,9 +141,9 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation.
         /// </returns>
         Task<IThreadChannel> CreatePostWithFileAsync(string title, string filePath, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
-            int? slowmode = null, string text = null, Embed embed = null, RequestOptions options = null, bool isSpoiler = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null,
-            ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[] tags = null);
+            int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, bool isSpoiler = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null,
+            ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null);
 
         /// <summary>
         ///     Creates a new post (thread) within the forum.
@@ -170,9 +170,9 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation.
         /// </returns>
         public Task<IThreadChannel> CreatePostWithFileAsync(string title, Stream stream, string filename, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
-            int? slowmode = null, string text = null, Embed embed = null, RequestOptions options = null, bool isSpoiler = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null,
-            ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[] tags = null);
+            int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, bool isSpoiler = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null,
+            ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null);
 
         /// <summary>
         ///     Creates a new post (thread) within the forum.
@@ -197,8 +197,8 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation.
         /// </returns>
         public Task<IThreadChannel> CreatePostWithFileAsync(string title, FileAttachment attachment, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
-            int? slowmode = null, string text = null, Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[] tags = null);
+            int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null);
 
         /// <summary>
         ///     Creates a new post (thread) within the forum.
@@ -223,8 +223,8 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation.
         /// </returns>
         public Task<IThreadChannel> CreatePostWithFilesAsync(string title, IEnumerable<FileAttachment> attachments, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
-            int? slowmode = null, string text = null, Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[] tags = null);
+            int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null);
 
         /// <summary>
         ///     Gets a collection of active threads within this forum channel.
@@ -234,7 +234,7 @@ namespace Discord
         ///     A task that represents an asynchronous get operation for retrieving the threads. The task result contains
         ///     a collection of active threads.
         /// </returns>
-        Task<IReadOnlyCollection<IThreadChannel>> GetActiveThreadsAsync(RequestOptions options = null);
+        Task<IReadOnlyCollection<IThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of publicly archived threads within this forum channel.
@@ -246,7 +246,7 @@ namespace Discord
         ///     A task that represents an asynchronous get operation for retrieving the threads. The task result contains
         ///     a collection of publicly archived threads.
         /// </returns>
-        Task<IReadOnlyCollection<IThreadChannel>> GetPublicArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions options = null);
+        Task<IReadOnlyCollection<IThreadChannel>> GetPublicArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of privately archived threads within this forum channel.
@@ -261,7 +261,7 @@ namespace Discord
         ///     A task that represents an asynchronous get operation for retrieving the threads. The task result contains
         ///     a collection of privately archived threads.
         /// </returns>
-        Task<IReadOnlyCollection<IThreadChannel>> GetPrivateArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions options = null);
+        Task<IReadOnlyCollection<IThreadChannel>> GetPrivateArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of privately archived threads that the current bot has joined within this forum channel.
@@ -273,6 +273,6 @@ namespace Discord
         ///     A task that represents an asynchronous get operation for retrieving the threads. The task result contains
         ///     a collection of privately archived threads.
         /// </returns>
-        Task<IReadOnlyCollection<IThreadChannel>> GetJoinedPrivateArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions options = null);
+        Task<IReadOnlyCollection<IThreadChannel>> GetJoinedPrivateArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null);
     }
 }

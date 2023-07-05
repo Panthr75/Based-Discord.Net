@@ -1,12 +1,11 @@
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to message getting flagged by automod.
 /// </summary>
-public class AutoModFlaggedMessageAuditLogData : IAuditLogData
+public partial class AutoModFlaggedMessageAuditLogData : IAuditLogData
 {
     internal AutoModFlaggedMessageAuditLogData(ulong channelId, string autoModRuleName, AutoModTriggerType autoModRuleTriggerType)
     {
@@ -15,9 +14,9 @@ public class AutoModFlaggedMessageAuditLogData : IAuditLogData
         AutoModRuleTriggerType = autoModRuleTriggerType;
     }
 
-    internal static AutoModFlaggedMessageAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static AutoModFlaggedMessageAuditLogData Create(EntryModel entry)
     {
-        return new(entry.Options.ChannelId!.Value, entry.Options.AutoModRuleName,
+        return new(entry.Options!.ChannelId!.Value, entry.Options.AutoModRuleName!,
             entry.Options.AutoModRuleTriggerType!.Value);
     }
 

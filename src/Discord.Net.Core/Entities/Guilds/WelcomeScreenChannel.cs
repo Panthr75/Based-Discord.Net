@@ -21,18 +21,18 @@ public class WelcomeScreenChannel : ISnowflakeEntity
     ///     If the emoji is <see cref="Emote"/> only the <see cref="Emote.Id"/> will be populated.
     ///     Use <see cref="IGuild.GetEmoteAsync"/> to get the emoji.
     /// </remarks>
-    public IEmote Emoji { get; }
+    public IEmote? Emoji { get; }
 
     /// <inheritdoc/>
     public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
-    internal WelcomeScreenChannel(ulong id, string description, string emojiName = null, ulong? emoteId = null)
+    internal WelcomeScreenChannel(ulong id, string description, string? emojiName = null, ulong? emoteId = null)
     {
         Id = id;
         Description = description;
 
         if (emoteId.HasValue && emoteId.Value != 0)
-            Emoji = new Emote(emoteId.Value, emojiName, false);
+            Emoji = new Emote(emoteId.Value, emojiName ?? string.Empty, false);
         else if (emojiName != null)
             Emoji = new Emoji(emojiName);
         else

@@ -18,14 +18,14 @@ namespace Discord
         /// <summary>
         ///     Gets the value of the option.
         /// </summary>
-        public object Value { get; }
+        public ApplicationCommandOptionValue Value { get; }
 
         /// <summary>
         ///     Gets whether or not this option is focused by the executing user.
         /// </summary>
         public bool Focused { get; }
 
-        internal AutocompleteOption(ApplicationCommandOptionType type, string name, object value, bool focused)
+        internal AutocompleteOption(ApplicationCommandOptionType type, string name, ApplicationCommandOptionValue value, bool focused)
         {
             Type = type;
             Name = name;

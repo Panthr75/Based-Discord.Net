@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
@@ -9,17 +12,17 @@ namespace Discord
     ///     Represents an embed object seen in an <see cref="IUserMessage"/>.
     /// </summary>
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
-    public class Embed : IEmbed
+    public class Embed : IEmbed, IEquatable<Embed>
     {
         /// <inheritdoc/>
         public EmbedType Type { get; }
 
         /// <inheritdoc/>
-        public string Description { get; internal set; }
+        public string? Description { get; internal set; }
         /// <inheritdoc/>
-        public string Url { get; internal set; }
+        public string? Url { get; internal set; }
         /// <inheritdoc/>
-        public string Title { get; internal set; }
+        public string? Title { get; internal set; }
         /// <inheritdoc/>
         public DateTimeOffset? Timestamp { get; internal set; }
         /// <inheritdoc/>
@@ -45,9 +48,9 @@ namespace Discord
             Fields = ImmutableArray.Create<EmbedField>();
         }
         internal Embed(EmbedType type,
-            string title,
-            string description,
-            string url,
+            string? title,
+            string? description,
+            string? url,
             DateTimeOffset? timestamp,
             Color? color,
             EmbedImage? image,
@@ -92,14 +95,14 @@ namespace Discord
         /// <summary>
         ///     Gets the title of the embed.
         /// </summary>
-        public override string ToString() => Title;
+        public override string? ToString() => Title;
         private string DebuggerDisplay => $"{Title} ({Type})";
 
-        public static bool operator ==(Embed left, Embed right)
+        public static bool operator ==(Embed? left, Embed? right)
         => left is null ? right is null
                 : left.Equals(right);
 
-        public static bool operator !=(Embed left, Embed right)
+        public static bool operator !=(Embed? left, Embed? right)
             => !(left == right);
 
         /// <summary>
@@ -110,7 +113,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="Embed"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is Embed embed && Equals(embed);
 
         /// <summary>
@@ -118,8 +121,21 @@ namespace Discord
         /// </summary>
         /// <param name="embed">The <see cref="Embed"/> to compare with the current <see cref="Embed"/></param>
         /// <returns></returns>
-        public bool Equals(Embed embed)
-            => GetHashCode() == embed?.GetHashCode();
+        public bool Equals([NotNullWhen(true)] Embed? embed)
+        {
+            return embed is not null &&
+                this.Type == embed.Type &&
+                this.Title == embed.Title &&
+                this.Description == embed.Description &&
+                this.Timestamp == embed.Timestamp &&
+                this.Color == embed.Color &&
+                this.Image == embed.Image &&
+                this.Video == embed.Video &&
+                this.Author == embed.Author &&
+                this.Footer == embed.Footer &&
+                this.Provider == embed.Provider &&
+                this.Thumbnail == embed.Thumbnail;
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
@@ -127,9 +143,9 @@ namespace Discord
             unchecked
             {
                 var hash = 17;
-                hash = hash * 23 + (Type, Title, Description, Timestamp, Color, Image, Video, Author, Footer, Provider, Thumbnail).GetHashCode();
+                hash = (hash * 23) + (Type, Title, Description, Timestamp, Color, Image, Video, Author, Footer, Provider, Thumbnail).GetHashCode();
                 foreach (var field in Fields)
-                    hash = hash * 23 + field.GetHashCode();
+                    hash = (hash * 23) + field.GetHashCode();
                 return hash;
             }
         }

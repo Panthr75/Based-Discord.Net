@@ -9,14 +9,44 @@ namespace Discord
     public class ModalBuilder
     {
         /// <summary>
+        /// The maximum length of the title in a modal.
+        /// </summary>
+        public const int MaxTitleLength = 45;
+
+        private ModalComponentBuilder _components;
+        private string _title;
+
+        /// <summary>
         ///     Gets or sets the components of the current modal.
         /// </summary>
-        public ModalComponentBuilder Components { get; set; } = new();
+        public ModalComponentBuilder Components
+        {
+            get => this._components;
+            set => this._components = value ?? new();
+        }
 
         /// <summary>
         ///     Gets or sets the title of the current modal.
         /// </summary>
-        public string Title { get; set; }
+        public string Title
+        {
+            get => this._title;
+            set
+            {
+                if (value is null)
+                {
+                    this._title = string.Empty;
+                    return;
+                }
+
+                if (value.Length > MaxTitleLength)
+                {
+                    throw new ArgumentException($"A title of a modal can only have a maximum of {MaxTitleLength} characters", nameof(value));
+                }
+
+                this._title = value;
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the custom id of the current modal.
@@ -28,13 +58,17 @@ namespace Discord
             {
                 > ComponentBuilder.MaxCustomIdLength => throw new ArgumentOutOfRangeException(nameof(value), $"Custom Id length must be less or equal to {ComponentBuilder.MaxCustomIdLength}."),
                 0 => throw new ArgumentOutOfRangeException(nameof(value), "Custom Id length must be at least 1."),
-                _ => value
+                _ => value!
             };
         }
 
-        private string _customId;
+        private string _customId = string.Empty;
 
-        public ModalBuilder() { }
+        public ModalBuilder()
+        {
+            this._title = string.Empty;
+            this._components = new();
+        }
 
         /// <summary>
         ///     Creates a new instance of a <see cref="ModalBuilder"/>
@@ -43,11 +77,11 @@ namespace Discord
         /// <param name="customId">The modal's customId.</param>
         /// <param name="components">The modal's components.</param>
         /// <exception cref="ArgumentException">Only TextInputComponents are allowed.</exception>
-        public ModalBuilder(string title, string customId, ModalComponentBuilder components = null)
+        public ModalBuilder(string title, string customId, ModalComponentBuilder? components = null) : this()
         {
             Title = title;
             CustomId = customId;
-            Components = components ?? new();
+            Components = components!; // null check on components
         }
 
         /// <summary>
@@ -92,15 +126,24 @@ namespace Discord
         /// <param name="minLength">The input's minimum length.</param>
         /// <param name="maxLength">The input's maximum length.</param>
         /// <param name="style">The input's style.</param>
+        /// <param name="required">Whether or not the text input is required.</param>
+        /// <param name="value">The default value for the text input (if any).</param>
         /// <returns>The current builder.</returns>
-        public ModalBuilder AddTextInput(string label, string customId, TextInputStyle style = TextInputStyle.Short,
-            string placeholder = "", int? minLength = null, int? maxLength = null, bool? required = null, string value = null)
+        public ModalBuilder AddTextInput(string label,
+            string customId,
+            TextInputStyle style = TextInputStyle.Short,
+            string? placeholder = "",
+            int? minLength = null,
+            int? maxLength = null,
+            bool? required = null,
+            string? value = null)
             => AddTextInput(new(label, customId, style, placeholder, minLength, maxLength, required, value));
 
         /// <summary>
         ///     Adds multiple components to the current builder.
         /// </summary>
         /// <param name="components">The components to add.</param>
+        /// <param name="row">The row to add the components to.</param>
         /// <returns>The current builder</returns>
         public ModalBuilder AddComponents(List<IMessageComponent> components, int row)
         {
@@ -161,7 +204,7 @@ namespace Discord
             }
         }
 
-        private List<ActionRowBuilder> _actionRows;
+        private List<ActionRowBuilder> _actionRows = new();
 
         /// <summary>
         ///     Creates a new builder from the provided list of components.
@@ -203,10 +246,19 @@ namespace Discord
         /// <param name="minLength">The input's minimum length.</param>
         /// <param name="maxLength">The input's maximum length.</param>
         /// <param name="style">The input's style.</param>
+        /// <param name="row">The row to put the text input in.</param>
+        /// <param name="required">Whether or not the text input is required.</param>
+        /// <param name="value">The default value for the text input (if any).</param>
         /// <returns>The current builder.</returns>
-        public ModalComponentBuilder WithTextInput(string label, string customId, TextInputStyle style = TextInputStyle.Short,
-            string placeholder = null, int? minLength = null, int? maxLength = null, int row = 0, bool? required = null,
-            string value = null)
+        public ModalComponentBuilder WithTextInput(string label,
+            string customId,
+            TextInputStyle style = TextInputStyle.Short,
+            string? placeholder = null,
+            int? minLength = null,
+            int? maxLength = null,
+            int row = 0,
+            bool? required = null,
+            string? value = null)
             => WithTextInput(new(label, customId, style, placeholder, minLength, maxLength, required, value), row);
 
         /// <summary>
@@ -263,6 +315,6 @@ namespace Discord
         /// </summary>
         /// <returns>A <see cref="ModalComponent"/> representing the builder.</returns>
         public ModalComponent Build()
-            => new(ActionRows?.Select(x => x.Build()).ToList());
+            => new(ActionRows.Select(x => x.Build()).ToList());
     }
 }

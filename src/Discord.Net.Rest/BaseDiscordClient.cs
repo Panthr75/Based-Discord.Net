@@ -22,6 +22,7 @@ namespace Discord.Rest
         internal readonly Logger _restLogger;
         private readonly SemaphoreSlim _stateLock;
         private bool _isFirstLogin, _isDisposed;
+        private ISelfUser? _currentUser;
 
         internal API.DiscordRestApiClient ApiClient { get; }
         internal LogManager LogManager { get; }
@@ -32,7 +33,11 @@ namespace Discord.Rest
         /// <summary>
         ///     Gets the logged-in user.
         /// </summary>
-        public ISelfUser CurrentUser { get; protected set; }
+        public ISelfUser CurrentUser
+        {
+            get => this._currentUser ?? throw new InvalidOperationException("Client is not logged in");
+            protected set => this._currentUser = value;
+        }
         /// <inheritdoc />
         public TokenType TokenType => ApiClient.AuthTokenType;
         internal bool UseInteractionSnowflakeDate { get; private set; }
@@ -133,7 +138,7 @@ namespace Discord.Rest
             await ApiClient.LogoutAsync().ConfigureAwait(false);
 
             await OnLogoutAsync().ConfigureAwait(false);
-            CurrentUser = null;
+            _currentUser = null;
             LoginState = LoginState.LoggedOut;
 
             await _loggedOutEvent.InvokeAsync().ConfigureAwait(false);
@@ -171,11 +176,11 @@ namespace Discord.Rest
         public ValueTask DisposeAsync() => DisposeAsync(true);
 
         /// <inheritdoc />
-        public Task<int> GetRecommendedShardCountAsync(RequestOptions options = null)
+        public Task<int> GetRecommendedShardCountAsync(RequestOptions? options = null)
             => ClientHelper.GetRecommendShardCountAsync(this, options);
 
         /// <inheritdoc />
-        public Task<BotGateway> GetBotGatewayAsync(RequestOptions options = null)
+        public Task<BotGateway> GetBotGatewayAsync(RequestOptions? options = null)
             => ClientHelper.GetBotGatewayAsync(this, options);
         #endregion
 
@@ -186,70 +191,70 @@ namespace Discord.Rest
         ISelfUser IDiscordClient.CurrentUser => CurrentUser;
 
         /// <inheritdoc />
-        Task<IApplication> IDiscordClient.GetApplicationInfoAsync(RequestOptions options)
-            => throw new NotSupportedException();
+        Task<IApplication> IDiscordClient.GetApplicationInfoAsync(RequestOptions? options)
+            => Task.FromException<IApplication>(new NotSupportedException());
 
         /// <inheritdoc />
-        Task<IChannel> IDiscordClient.GetChannelAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IChannel>(null);
+        Task<IChannel?> IDiscordClient.GetChannelAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IChannel?>(null);
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IPrivateChannel>> IDiscordClient.GetPrivateChannelsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IPrivateChannel>> IDiscordClient.GetPrivateChannelsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IPrivateChannel>>(ImmutableArray.Create<IPrivateChannel>());
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IDMChannel>> IDiscordClient.GetDMChannelsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IDMChannel>> IDiscordClient.GetDMChannelsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IDMChannel>>(ImmutableArray.Create<IDMChannel>());
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IGroupChannel>> IDiscordClient.GetGroupChannelsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IGroupChannel>> IDiscordClient.GetGroupChannelsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IGroupChannel>>(ImmutableArray.Create<IGroupChannel>());
 
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IConnection>> IDiscordClient.GetConnectionsAsync(RequestOptions options)
+        Task<IReadOnlyCollection<IConnection>> IDiscordClient.GetConnectionsAsync(RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IConnection>>(ImmutableArray.Create<IConnection>());
 
         /// <inheritdoc />
-        Task<IInvite> IDiscordClient.GetInviteAsync(string inviteId, RequestOptions options)
-            => Task.FromResult<IInvite>(null);
+        Task<IInvite?> IDiscordClient.GetInviteAsync(string inviteId, RequestOptions? options)
+            => Task.FromResult<IInvite?>(null);
 
         /// <inheritdoc />
-        Task<IGuild> IDiscordClient.GetGuildAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IGuild>(null);
+        Task<IGuild?> IDiscordClient.GetGuildAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IGuild?>(null);
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IGuild>> IDiscordClient.GetGuildsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IGuild>> IDiscordClient.GetGuildsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IGuild>>(ImmutableArray.Create<IGuild>());
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Creating a guild is not supported with the base client.</exception>
-        Task<IGuild> IDiscordClient.CreateGuildAsync(string name, IVoiceRegion region, Stream jpegIcon, RequestOptions options)
-            => throw new NotSupportedException();
+        Task<IGuild> IDiscordClient.CreateGuildAsync(string name, IVoiceRegion region, Stream? jpegIcon, RequestOptions? options)
+            => Task.FromException<IGuild>(new NotSupportedException());
 
         /// <inheritdoc />
-        Task<IUser> IDiscordClient.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IUser>(null);
+        Task<IUser?> IDiscordClient.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IUser?>(null);
         /// <inheritdoc />
-        Task<IUser> IDiscordClient.GetUserAsync(string username, string discriminator, RequestOptions options)
-            => Task.FromResult<IUser>(null);
+        Task<IUser?> IDiscordClient.GetUserAsync(string username, string? discriminator, RequestOptions? options)
+            => Task.FromResult<IUser?>(null);
 
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IVoiceRegion>> IDiscordClient.GetVoiceRegionsAsync(RequestOptions options)
+        Task<IReadOnlyCollection<IVoiceRegion>> IDiscordClient.GetVoiceRegionsAsync(RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IVoiceRegion>>(ImmutableArray.Create<IVoiceRegion>());
         /// <inheritdoc />
-        Task<IVoiceRegion> IDiscordClient.GetVoiceRegionAsync(string id, RequestOptions options)
-            => Task.FromResult<IVoiceRegion>(null);
+        Task<IVoiceRegion?> IDiscordClient.GetVoiceRegionAsync(string id, RequestOptions? options)
+            => Task.FromResult<IVoiceRegion?>(null);
 
         /// <inheritdoc />
-        Task<IWebhook> IDiscordClient.GetWebhookAsync(ulong id, RequestOptions options)
-            => Task.FromResult<IWebhook>(null);
+        Task<IWebhook?> IDiscordClient.GetWebhookAsync(ulong id, RequestOptions? options)
+            => Task.FromResult<IWebhook?>(null);
 
         /// <inheritdoc />
-        Task<IApplicationCommand> IDiscordClient.GetGlobalApplicationCommandAsync(ulong id, RequestOptions options)
-            => Task.FromResult<IApplicationCommand>(null);
+        Task<IApplicationCommand?> IDiscordClient.GetGlobalApplicationCommandAsync(ulong id, RequestOptions? options)
+            => Task.FromResult<IApplicationCommand?>(null);
 
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.GetGlobalApplicationCommandsAsync(bool withLocalizations, string locale, RequestOptions options)
+        Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.GetGlobalApplicationCommandsAsync(bool withLocalizations, string? locale, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IApplicationCommand>>(ImmutableArray.Create<IApplicationCommand>());
-        Task<IApplicationCommand> IDiscordClient.CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions options)
-            => Task.FromResult<IApplicationCommand>(null);
+        Task<IApplicationCommand?> IDiscordClient.CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions? options)
+            => Task.FromResult<IApplicationCommand?>(null);
         Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties,
-            RequestOptions options)
+            RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IApplicationCommand>>(ImmutableArray.Create<IApplicationCommand>());
 
         /// <inheritdoc />

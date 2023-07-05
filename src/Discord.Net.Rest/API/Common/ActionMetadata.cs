@@ -1,21 +1,16 @@
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class ActionMetadata
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public Optional<ulong> ChannelId { get; set; }
 
-        [JsonProperty("duration_seconds")]
+        [JsonPropertyName("duration_seconds")]
         public Optional<int> DurationSeconds { get; set; }
 
-        [JsonProperty("custom_message")]
+        [JsonPropertyName("custom_message")]
         public Optional<string> CustomMessage { get; set; }
     }
 }

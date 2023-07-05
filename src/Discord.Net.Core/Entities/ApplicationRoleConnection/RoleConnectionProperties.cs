@@ -12,14 +12,14 @@ public class RoleConnectionProperties
     private const int MaxPlatformUsernameLength = 100;
     private const int MaxMetadataRecords = 100;
 
-    private string _platformName;
-    private string _platformUsername;
-    private Dictionary<string, string> _metadata;
+    private string? _platformName;
+    private string? _platformUsername;
+    private Dictionary<string, string>? _metadata;
 
     /// <summary>
     ///     Gets or sets the vanity name of the platform a bot has connected. Max 50 characters.
     /// </summary>
-    public string PlatformName
+    public string? PlatformName
     {
         get => _platformName;
         set
@@ -33,7 +33,7 @@ public class RoleConnectionProperties
     /// <summary>
     ///     Gets or sets the username on the platform a bot has connected. Max 100 characters.
     /// </summary>
-    public string PlatformUsername
+    public string? PlatformUsername
     {
         get => _platformUsername;
         set
@@ -47,7 +47,7 @@ public class RoleConnectionProperties
     /// <summary>
     ///     Gets or sets object mapping <see cref="RoleConnectionMetadata"/> keys to their string-ified values.
     /// </summary>
-    public Dictionary<string, string> Metadata
+    public Dictionary<string, string>? Metadata
     {
         get => _metadata;
         set
@@ -106,7 +106,7 @@ public class RoleConnectionProperties
         if (!Metadata.ContainsKey(key))
             Preconditions.AtMost(Metadata.Count + 1, MaxPlatformUsernameLength, nameof(Metadata), $"Metadata records count must be less or equal to {MaxMetadataRecords}");
 
-        _metadata[key] = value;
+        _metadata![key] = value;
         return this;
     }
 
@@ -116,11 +116,11 @@ public class RoleConnectionProperties
     /// <param name="platformName">The name of the platform a bot has connected.</param>s
     /// <param name="platformUsername">Gets the username on the platform a bot has connected.</param>
     /// <param name="metadata">Object mapping <see cref="RoleConnectionMetadata"/> keys to their values.</param>
-    public RoleConnectionProperties(string platformName, string platformUsername, IDictionary<string, string> metadata = null)
+    public RoleConnectionProperties(string? platformName, string? platformUsername, IDictionary<string, string>? metadata = null)
     {
         PlatformName = platformName;
         PlatformUsername = platformUsername;
-        Metadata = metadata.ToDictionary();
+        Metadata = metadata?.ToDictionary();
     }
 
     /// <summary>

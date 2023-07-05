@@ -17,7 +17,7 @@ namespace Discord.Rest
         /// <param name="accessToken">The OAuth2 access token for the user, requested with the guilds.join scope.</param>
         /// <param name="func">The delegate containing the properties to be applied to the user upon being added to the guild.</param>
         /// <param name="options">The options to be used when sending the request.</param>
-        public static Task AddGuildUserAsync(this BaseDiscordClient client, ulong guildId, ulong userId, string accessToken, Action<AddGuildUserProperties> func = null, RequestOptions options = null)
+        public static Task AddGuildUserAsync(this BaseDiscordClient client, ulong guildId, ulong userId, string accessToken, Action<AddGuildUserProperties>? func = null, RequestOptions? options = null)
             => GuildHelper.AddGuildUserAsync(guildId, client, userId, accessToken, func, options);
     }
 }

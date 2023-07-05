@@ -1,20 +1,19 @@
 using Discord.API.AuditLogs;
 using System;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a scheduled event deletion.
 /// </summary>
-public class ScheduledEventDeleteAuditLogData : IAuditLogData
+public partial class ScheduledEventDeleteAuditLogData : IAuditLogData
 {
     private ScheduledEventDeleteAuditLogData(ulong id, ScheduledEventInfoAuditLogModel model)
     {
         Id = id;
         ChannelId = model.ChannelId;
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         Description = model.Description;
         ScheduledStartTime = model.StartTime;
         ScheduledEndTime = model.EndTime;
@@ -26,9 +25,9 @@ public class ScheduledEventDeleteAuditLogData : IAuditLogData
         Image = model.Image;
     }
 
-    internal static ScheduledEventDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ScheduledEventDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<ScheduledEventInfoAuditLogModel>(changes, discord);
 
@@ -53,7 +52,7 @@ public class ScheduledEventDeleteAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the description of the event. null if none is set.
     /// </summary>
-    public string Description { get; }
+    public string? Description { get; }
 
     /// <summary>
     ///     Gets the time the event was scheduled for.
@@ -88,10 +87,10 @@ public class ScheduledEventDeleteAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the metadata for the entity associated with the event.
     /// </summary>
-    public string Location { get; }
+    public string? Location { get; }
 
     /// <summary>
     ///     Gets the image hash of the image that was attached to the event. Null if not set.
     /// </summary>
-    public string Image { get; }
+    public string? Image { get; }
 }

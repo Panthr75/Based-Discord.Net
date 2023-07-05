@@ -57,7 +57,7 @@ namespace Discord.Rest
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string NameLocalized { get; private set; }
+        public string? NameLocalized { get; private set; }
 
         /// <summary>
         ///     Gets the localized description of this command.
@@ -65,14 +65,21 @@ namespace Discord.Rest
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string DescriptionLocalized { get; private set; }
+        public string? DescriptionLocalized { get; private set; }
 
         /// <inheritdoc/>
         public DateTimeOffset CreatedAt
             => SnowflakeUtils.FromSnowflake(Id);
 
         internal RestApplicationCommand(BaseDiscordClient client, ulong id)
-            : base(client, id) { }
+            : base(client, id)
+        {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.Options = ImmutableArray<RestApplicationCommandOption>.Empty;
+            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            this.DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
+        }
 
         internal static RestApplicationCommand Create(BaseDiscordClient client, Model model, ulong? guildId)
         {
@@ -108,16 +115,16 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public abstract Task DeleteAsync(RequestOptions options = null);
+        public abstract Task DeleteAsync(RequestOptions? options = null);
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<ApplicationCommandProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<ApplicationCommandProperties> func, RequestOptions? options = null)
         {
             return ModifyAsync<ApplicationCommandProperties>(func, options);
         }
 
         /// <inheritdoc/>
-        public abstract Task ModifyAsync<TArg>(Action<TArg> func, RequestOptions options = null)
+        public abstract Task ModifyAsync<TArg>(Action<TArg> func, RequestOptions? options = null)
             where TArg : ApplicationCommandProperties;
 
         IReadOnlyCollection<IApplicationCommandOption> IApplicationCommand.Options => Options;

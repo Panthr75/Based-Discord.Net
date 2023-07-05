@@ -9,13 +9,13 @@ namespace Discord
     public class Game : IActivity
     {
         /// <inheritdoc/>
-        public string Name { get; internal set; }
+        public string Name { get; internal set; } = string.Empty;
         /// <inheritdoc/>
         public ActivityType Type { get; internal set; }
         /// <inheritdoc/>
         public ActivityProperties Flags { get; internal set; }
         /// <inheritdoc/>
-        public string Details { get; internal set; }
+        public string? Details { get; internal set; }
 
         internal Game() { }
         /// <summary>
@@ -23,7 +23,9 @@ namespace Discord
         /// </summary>
         /// <param name="name">The name of the game.</param>
         /// <param name="type">The type of activity.</param>
-        public Game(string name, ActivityType type = ActivityType.Playing, ActivityProperties flags = ActivityProperties.None, string details = null)
+        /// <param name="flags">The flags for the game.</param>
+        /// <param name="details">The details of the game.</param>
+        public Game(string name, ActivityType type = ActivityType.Playing, ActivityProperties flags = ActivityProperties.None, string? details = null)
         {
             Name = name;
             Type = type;

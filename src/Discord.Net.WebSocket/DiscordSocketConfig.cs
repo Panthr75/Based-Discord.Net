@@ -34,7 +34,7 @@ namespace Discord.WebSocket
         ///     Gets or sets the WebSocket host to connect to. If <see langword="null" />, the client will use the
         ///     /gateway endpoint.
         /// </summary>
-        public string GatewayHost { get; set; } = null;
+        public string? GatewayHost { get; set; } = null;
 
         /// <summary>
         ///     Gets or sets the time, in milliseconds, to wait for a connection to complete before aborting.
@@ -208,6 +208,6 @@ namespace Discord.WebSocket
             UdpSocketProvider = DefaultUdpSocketProvider.Instance;
         }
 
-        internal DiscordSocketConfig Clone() => MemberwiseClone() as DiscordSocketConfig;
+        internal DiscordSocketConfig Clone() => (DiscordSocketConfig)MemberwiseClone();
     }
 }

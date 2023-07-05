@@ -57,13 +57,13 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task CloseAsync(RequestOptions options = null)
+        public Task CloseAsync(RequestOptions? options = null)
             => ChannelHelper.DeleteAsync(this, Discord, options);
         #endregion
 
         #region Messages
         /// <inheritdoc />
-        public SocketMessage GetCachedMessage(ulong id)
+        public SocketMessage? GetCachedMessage(ulong id)
             => null;
         /// <summary>
         ///     Gets the message associated with the given <paramref name="id"/>.
@@ -73,7 +73,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The message gotten from either the cache or the download, or <see langword="null" /> if none is found.
         /// </returns>
-        public async Task<IMessage> GetMessageAsync(ulong id, RequestOptions options = null)
+        public async Task<IMessage?> GetMessageAsync(ulong id, RequestOptions? options = null)
         {
             return await ChannelHelper.GetMessageAsync(this, Discord, id, options).ConfigureAwait(false);
         }
@@ -90,7 +90,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Paged collection of messages.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, null, Direction.Before, limit, options);
         /// <summary>
         ///     Gets a collection of messages in this channel.
@@ -106,7 +106,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Paged collection of messages.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, fromMessageId, dir, limit, options);
         /// <summary>
         ///     Gets a collection of messages in this channel.
@@ -122,7 +122,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Paged collection of messages.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, fromMessage.Id, dir, limit, options);
         /// <inheritdoc />
         public IReadOnlyCollection<SocketMessage> GetCachedMessages(int limit = DiscordConfig.MaxMessagesPerBatch)
@@ -134,76 +134,76 @@ namespace Discord.WebSocket
         public IReadOnlyCollection<SocketMessage> GetCachedMessages(IMessage fromMessage, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch)
             => ImmutableArray.Create<SocketMessage>();
         /// <inheritdoc />
-        public Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions options = null)
+        public Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions? options = null)
             => ChannelHelper.GetPinnedMessagesAsync(this, Discord, options);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
-        public Task<RestUserMessage> SendMessageAsync(string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, AllowedMentions allowedMentions = null, MessageReference messageReference = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public Task<RestUserMessage> SendMessageAsync(string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageReference? messageReference = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendMessageAsync(this, Discord, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, embeds, flags);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
-        public Task<RestUserMessage> SendFileAsync(string filePath, string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public Task<RestUserMessage> SendFileAsync(string filePath, string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, filePath, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, isSpoiler, embeds, flags);
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
-        public Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, stream, filename, text, isTTS, embed, allowedMentions,
                 messageReference, components, stickers, options, isSpoiler, embeds, flags);
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
-        public Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, attachment, text, isTTS, embed, allowedMentions,
                 messageReference, components, stickers, options, embeds, flags);
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
-        public Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFilesAsync(this, Discord, attachments, text, isTTS, embed, allowedMentions,
                 messageReference, components, stickers, options, embeds, flags);
 
         /// <inheritdoc />
-        public Task DeleteMessageAsync(ulong messageId, RequestOptions options = null)
+        public Task DeleteMessageAsync(ulong messageId, RequestOptions? options = null)
             => ChannelHelper.DeleteMessageAsync(this, messageId, Discord, options);
         /// <inheritdoc />
-        public Task DeleteMessageAsync(IMessage message, RequestOptions options = null)
+        public Task DeleteMessageAsync(IMessage message, RequestOptions? options = null)
             => ChannelHelper.DeleteMessageAsync(this, message.Id, Discord, options);
 
         /// <inheritdoc />
-        public async Task<IUserMessage> ModifyMessageAsync(ulong messageId, Action<MessageProperties> func, RequestOptions options = null)
+        public async Task<IUserMessage> ModifyMessageAsync(ulong messageId, Action<MessageProperties> func, RequestOptions? options = null)
             => await ChannelHelper.ModifyMessageAsync(this, messageId, func, Discord, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public Task TriggerTypingAsync(RequestOptions options = null)
+        public Task TriggerTypingAsync(RequestOptions? options = null)
             => ChannelHelper.TriggerTypingAsync(this, Discord, options);
         /// <inheritdoc />
-        public IDisposable EnterTypingState(RequestOptions options = null)
+        public IDisposable EnterTypingState(RequestOptions? options = null)
             => ChannelHelper.EnterTypingState(this, Discord, options);
 
         internal void AddMessage(SocketMessage msg)
         {
         }
-        internal SocketMessage RemoveMessage(ulong id)
+        internal SocketMessage? RemoveMessage(ulong id)
         {
             return null;
         }
@@ -217,7 +217,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A <see cref="SocketUser"/> object that is a recipient of this channel; otherwise <see langword="null" />.
         /// </returns>
-        public new SocketUser GetUser(ulong id)
+        public new SocketUser? GetUser(ulong id)
         {
             if (id == Recipient.Id)
                 return Recipient;
@@ -232,14 +232,14 @@ namespace Discord.WebSocket
         /// </summary>
         public override string ToString() => $"@{Recipient}";
         private string DebuggerDisplay => $"@{Recipient} ({Id}, DM)";
-        internal new SocketDMChannel Clone() => MemberwiseClone() as SocketDMChannel;
+        internal new SocketDMChannel Clone() => (SocketDMChannel)MemberwiseClone();
         #endregion
 
         #region SocketChannel
         /// <inheritdoc />
         internal override IReadOnlyCollection<SocketUser> GetUsersInternal() => Users;
         /// <inheritdoc />
-        internal override SocketUser GetUserInternal(ulong id) => GetUser(id);
+        internal override SocketUser? GetUserInternal(ulong id) => GetUser(id);
         #endregion
 
         #region IDMChannel
@@ -259,7 +259,7 @@ namespace Discord.WebSocket
 
         #region IMessageChannel
         /// <inheritdoc />
-        async Task<IMessage> IMessageChannel.GetMessageAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IMessage?> IMessageChannel.GetMessageAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return await GetMessageAsync(id, options).ConfigureAwait(false);
@@ -267,48 +267,48 @@ namespace Discord.WebSocket
                 return GetCachedMessage(id);
         }
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(int limit, CacheMode mode, RequestOptions options)
-            => mode == CacheMode.CacheOnly ? null : GetMessagesAsync(limit, options);
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(int limit, CacheMode mode, RequestOptions? options)
+            => mode == CacheMode.CacheOnly ? AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>() : GetMessagesAsync(limit, options);
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(ulong fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions options)
-            => mode == CacheMode.CacheOnly ? null : GetMessagesAsync(fromMessageId, dir, limit, options);
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(ulong fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions? options)
+            => mode == CacheMode.CacheOnly ? AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>() : GetMessagesAsync(fromMessageId, dir, limit, options);
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(IMessage fromMessage, Direction dir, int limit, CacheMode mode, RequestOptions options)
-            => mode == CacheMode.CacheOnly ? null : GetMessagesAsync(fromMessage.Id, dir, limit, options);
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(IMessage fromMessage, Direction dir, int limit, CacheMode mode, RequestOptions? options)
+            => mode == CacheMode.CacheOnly ? AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>() : GetMessagesAsync(fromMessage.Id, dir, limit, options);
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IMessage>> IMessageChannel.GetPinnedMessagesAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IMessage>> IMessageChannel.GetPinnedMessagesAsync(RequestOptions? options)
             => await GetPinnedMessagesAsync(options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(string filePath, string text, bool isTTS, Embed embed,
-            RequestOptions options, bool isSpoiler, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(string filePath, string? text, bool isTTS, Embed? embed,
+            RequestOptions? options, bool isSpoiler, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(filePath, text, isTTS, embed, options, isSpoiler, allowedMentions, messageReference,
             components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(Stream stream, string filename, string text, bool isTTS,
-            Embed embed, RequestOptions options, bool isSpoiler, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(Stream stream, string filename, string? text, bool isTTS,
+            Embed? embed, RequestOptions? options, bool isSpoiler, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(stream, filename, text, isTTS, embed, options, isSpoiler, allowedMentions, messageReference,
                 components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(FileAttachment attachment, string text, bool isTTS,
-            Embed embed, RequestOptions options, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(FileAttachment attachment, string? text, bool isTTS,
+            Embed? embed, RequestOptions? options, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(attachment, text, isTTS, embed, options, allowedMentions, messageReference, components,
                 stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFilesAsync(IEnumerable<FileAttachment> attachments, string text,
-            bool isTTS, Embed embed, RequestOptions options, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFilesAsync(IEnumerable<FileAttachment> attachments, string? text,
+            bool isTTS, Embed? embed, RequestOptions? options, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
            => await SendFilesAsync(attachments, text, isTTS, embed, options, allowedMentions, messageReference, components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendMessageAsync(string text, bool isTTS, Embed embed, RequestOptions options,
-            AllowedMentions allowedMentions, MessageReference messageReference, MessageComponent components,
-            ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendMessageAsync(string? text, bool isTTS, Embed? embed, RequestOptions? options,
+            AllowedMentions? allowedMentions, MessageReference? messageReference, MessageComponent? components,
+            ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendMessageAsync(text, isTTS, embed, options, allowedMentions, messageReference, components, stickers, embeds, flags).ConfigureAwait(false);
         #endregion
 
@@ -317,10 +317,10 @@ namespace Discord.WebSocket
         string IChannel.Name => $"@{Recipient}";
 
         /// <inheritdoc />
-        Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IUser>(GetUser(id));
+        Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IUser?>(GetUser(id));
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => ImmutableArray.Create<IReadOnlyCollection<IUser>>(Users).ToAsyncEnumerable();
         #endregion
     }

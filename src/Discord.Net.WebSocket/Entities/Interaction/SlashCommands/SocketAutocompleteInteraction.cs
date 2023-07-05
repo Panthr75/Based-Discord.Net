@@ -21,20 +21,24 @@ namespace Discord.WebSocket
         /// <inheritdoc/>
         public override bool HasResponded { get; internal set; }
 
-        private object _lock = new object();
+        /// <inheritdoc cref="SocketInteraction.UserLocale"/>
+        new public string UserLocale => base.UserLocale!;
 
-        internal SocketAutocompleteInteraction(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        private readonly object _lock = new object();
+
+        internal SocketAutocompleteInteraction(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
             : base(client, model.Id, channel, user)
         {
-            var dataModel = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
+            if (!model.Data.IsSpecified)
+            {
+                throw new InvalidOperationException("Cannot create socket autocomplete interaction without any data.");
+            }
+            var dataModel = (DataModel)model.Data.Value;
 
-            if (dataModel != null)
-                Data = new SocketAutocompleteInteractionData(dataModel);
+            Data = new SocketAutocompleteInteractionData(dataModel);
         }
 
-        internal new static SocketAutocompleteInteraction Create(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        internal new static SocketAutocompleteInteraction Create(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
         {
             var entity = new SocketAutocompleteInteraction(client, model, channel, user);
             entity.Update(model);
@@ -55,7 +59,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task that represents the asynchronous operation of responding to this interaction.
         /// </returns>
-        public async Task RespondAsync(IEnumerable<AutocompleteResult> result, RequestOptions options = null)
+        public async Task RespondAsync(IEnumerable<AutocompleteResult> result, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot respond to an interaction after {InteractionHelper.ResponseTimeLimit} seconds!");
@@ -89,22 +93,94 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task that represents the asynchronous operation of responding to this interaction.
         /// </returns>
-        public Task RespondAsync(RequestOptions options = null, params AutocompleteResult[] result)
+        public Task RespondAsync(RequestOptions? options = null, params AutocompleteResult[] result)
             => RespondAsync(result, options);
-        public override Task RespondAsync(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
-            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
-        public override Task<RestFollowupMessage> FollowupAsync(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
-            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
-        public override Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
-            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
-        public override Task DeferAsync(bool ephemeral = false, RequestOptions options = null)
-            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
-        public override Task RespondWithFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+
+#pragma warning disable CS0809 // Obsolete member overrides non-obsolete member
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
+        public override Task RespondAsync(string? text = null,
+            Embed[]? embeds = null,
+            bool isTTS = false,
+            bool ephemeral = false,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
             => throw new NotSupportedException("Autocomplete interactions don't support this method!");
 
         /// <inheritdoc/>
-        public override Task RespondWithModalAsync(Modal modal, RequestOptions requestOptions = null)
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
+        public override Task<RestFollowupMessage> FollowupAsync(string? text = null,
+            Embed[]? embeds = null,
+            bool isTTS = false,
+            bool ephemeral = false,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
+            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
+        public override Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments,
+            string? text = null,
+            Embed[]? embeds = null,
+            bool isTTS = false,
+            bool ephemeral = false,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
+            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        public override Task DeferAsync(bool ephemeral = false, RequestOptions? options = null)
+            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
+        public override Task RespondWithFilesAsync(IEnumerable<FileAttachment> attachments,
+            string? text = null,
+            Embed[]? embeds = null,
+            bool isTTS = false,
+            bool ephemeral = false,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
+            => throw new NotSupportedException("Autocomplete interactions don't support this method!");
+
+        /// <inheritdoc/>
+        /// <remarks>
+        /// <b>Not supported!</b>
+        /// </remarks>
+        /// <exception cref="NotSupportedException"></exception>
+        [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
+        public override Task RespondWithModalAsync(Modal modal, RequestOptions? requestOptions = null)
             => throw new NotSupportedException("Autocomplete interactions cannot have normal responces!");
+#pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
 
         //IAutocompleteInteraction
         /// <inheritdoc/>

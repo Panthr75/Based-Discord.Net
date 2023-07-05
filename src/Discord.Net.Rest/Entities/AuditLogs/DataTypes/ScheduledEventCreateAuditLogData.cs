@@ -9,13 +9,13 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a scheduled event creation.
 /// </summary>
-public class ScheduledEventCreateAuditLogData : IAuditLogData
+public partial class ScheduledEventCreateAuditLogData : IAuditLogData
 {
     private ScheduledEventCreateAuditLogData(ulong id, ScheduledEventInfoAuditLogModel model, IGuildScheduledEvent scheduledEvent)
     {
         Id = id;
         ChannelId = model.ChannelId;
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         Description = model.Description;
         ScheduledStartTime = model.StartTime;
         ScheduledEndTime = model.EndTime;
@@ -28,15 +28,15 @@ public class ScheduledEventCreateAuditLogData : IAuditLogData
         ScheduledEvent = scheduledEvent;
     }
 
-    internal static ScheduledEventCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ScheduledEventCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<ScheduledEventInfoAuditLogModel>(changes, discord);
 
-        var scheduledEvent = log.GuildScheduledEvents.FirstOrDefault(x => x.Id == entry.TargetId);
+        var scheduledEvent = log?.GuildScheduledEvents?.FirstOrDefault(x => x.Id == entry.TargetId);
 
-        return new ScheduledEventCreateAuditLogData(entry.TargetId!.Value, data, RestGuildEvent.Create(discord, null, scheduledEvent));
+        return new ScheduledEventCreateAuditLogData(entry.TargetId!.Value, data, RestGuildEvent.Create(discord, null, scheduledEvent!));
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public class ScheduledEventCreateAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the description of the event. null if none is set.
     /// </summary>
-    public string Description { get; }
+    public string? Description { get; }
     /// <summary>
     ///     Gets the time the event was scheduled for.
     /// </summary>
@@ -89,9 +89,9 @@ public class ScheduledEventCreateAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the metadata for the entity associated with the event.
     /// </summary>
-    public string Location { get; }
+    public string? Location { get; }
     /// <summary>
     ///     Gets the image hash of the image that was attached to the event. Null if not set.
     /// </summary>
-    public string Image { get; }
+    public string? Image { get; }
 }

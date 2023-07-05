@@ -11,8 +11,8 @@ namespace Discord.WebSocket
         public override bool IsBot { get; internal set; }
         public override string Username { get; internal set; }
         public override ushort DiscriminatorValue { get; internal set; }
-        public override string AvatarId { get; internal set; }
-        internal override SocketPresence Presence { get; set; }
+        public override string? AvatarId { get; internal set; }
+        internal override SocketPresence? Presence { get; set; }
 
         public override bool IsWebhook => false;
         internal override SocketGlobalUser GlobalUser { get => this; set => throw new NotImplementedException(); }
@@ -23,6 +23,7 @@ namespace Discord.WebSocket
         private SocketGlobalUser(DiscordSocketClient discord, ulong id)
             : base(discord, id)
         {
+            this.Username = string.Empty;
         }
         internal static SocketGlobalUser Create(DiscordSocketClient discord, ClientState state, Model model)
         {
@@ -52,6 +53,6 @@ namespace Discord.WebSocket
             ? $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Guild)"
             : $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Guild)";
 
-        internal new SocketGlobalUser Clone() => MemberwiseClone() as SocketGlobalUser;
+        internal new SocketGlobalUser Clone() => (SocketGlobalUser)MemberwiseClone();
     }
 }

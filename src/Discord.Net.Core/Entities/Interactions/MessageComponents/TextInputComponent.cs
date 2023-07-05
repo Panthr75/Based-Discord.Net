@@ -19,7 +19,7 @@ namespace Discord
         /// <summary>
         ///     Gets the placeholder of the component.
         /// </summary>
-        public string Placeholder { get; }
+        public string? Placeholder { get; }
 
         /// <summary>
         ///     Gets the minimum length of the inputted text.
@@ -44,10 +44,10 @@ namespace Discord
         /// <summary>
         ///     Gets the default value of the component.
         /// </summary>
-        public string Value { get; }
+        public string? Value { get; }
 
-        internal TextInputComponent(string customId, string label, string placeholder, int? minLength, int? maxLength,
-            TextInputStyle style, bool? required, string value)
+        internal TextInputComponent(string customId, string label, string? placeholder, int? minLength, int? maxLength,
+            TextInputStyle style, bool? required, string? value)
         {
             CustomId = customId;
             Label = label;

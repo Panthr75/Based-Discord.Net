@@ -9,9 +9,9 @@ namespace Discord.Commands
     {
         private static readonly TypeInfo ObjectTypeInfo = typeof(object).GetTypeInfo();
 
-        internal static T CreateObject<T>(TypeInfo typeInfo, CommandService commands, IServiceProvider services = null)
+        internal static T CreateObject<T>(TypeInfo typeInfo, CommandService commands, IServiceProvider? services = null)
             => CreateBuilder<T>(typeInfo, commands)(services);
-        internal static Func<IServiceProvider, T> CreateBuilder<T>(TypeInfo typeInfo, CommandService commands)
+        internal static Func<IServiceProvider?, T> CreateBuilder<T>(TypeInfo typeInfo, CommandService commands)
         {
             var constructor = GetConstructor(typeInfo);
             var parameters = constructor.GetParameters();
@@ -19,7 +19,7 @@ namespace Discord.Commands
 
             return (services) =>
             {
-                var args = new object[parameters.Length];
+                var args = new object?[parameters.Length];
                 for (int i = 0; i < parameters.Length; i++)
                     args[i] = GetMember(commands, services, parameters[i].ParameterType, typeInfo);
                 var obj = InvokeConstructor<T>(constructor, args, typeInfo);
@@ -29,7 +29,7 @@ namespace Discord.Commands
                 return obj;
             };
         }
-        private static T InvokeConstructor<T>(ConstructorInfo constructor, object[] args, TypeInfo ownerType)
+        private static T InvokeConstructor<T>(ConstructorInfo constructor, object?[] args, TypeInfo ownerType)
         {
             try
             {
@@ -60,17 +60,17 @@ namespace Discord.Commands
                     if (prop.SetMethod?.IsStatic == false && prop.SetMethod?.IsPublic == true && prop.GetCustomAttribute<DontInjectAttribute>() == null)
                         result.Add(prop);
                 }
-                ownerType = ownerType.BaseType.GetTypeInfo();
+                ownerType = ownerType.BaseType!.GetTypeInfo();
             }
             return result.ToArray();
         }
-        private static object GetMember(CommandService commands, IServiceProvider services, Type memberType, TypeInfo ownerType)
+        private static object? GetMember(CommandService commands, IServiceProvider? services, Type memberType, TypeInfo ownerType)
         {
             if (memberType == typeof(CommandService))
                 return commands;
-            if (memberType == typeof(IServiceProvider) || memberType == services.GetType())
+            if (memberType == typeof(IServiceProvider) || memberType == services?.GetType())
                 return services;
-            var service = services.GetService(memberType);
+            var service = services?.GetService(memberType);
             if (service != null)
                 return service;
             throw new InvalidOperationException($"Failed to create \"{ownerType.FullName}\", dependency \"{memberType.Name}\" was not found.");

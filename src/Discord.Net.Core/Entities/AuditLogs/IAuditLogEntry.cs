@@ -25,7 +25,7 @@ namespace Discord
         /// <returns>
         ///     An <see cref="IAuditLogData" /> for this audit log entry; <see langword="null" /> if no data is available.
         /// </returns>
-        IAuditLogData Data { get; }
+        IAuditLogData? Data { get; }
 
         /// <summary>
         ///     Gets the user responsible for causing the changes.
@@ -33,7 +33,7 @@ namespace Discord
         /// <returns>
         ///     A user object.
         /// </returns>
-        IUser User { get; }
+        IUser? User { get; }
 
         /// <summary>
         ///     Gets the reason behind the change.
@@ -41,6 +41,6 @@ namespace Discord
         /// <returns>
         ///     A string containing the reason for the change; <see langword="null" /> if none is provided.
         /// </returns>
-        string Reason { get; }
+        string? Reason { get; }
     }
 }

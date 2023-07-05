@@ -1,30 +1,30 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class AutoModRuleInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
     
-    [JsonField("event_type")]
-    public AutoModEventType EventType { get; set; }
+    [JsonPropertyName("event_type")]
+    public AutoModEventType? EventType { get; set; }
 
-    [JsonField("trigger_type")]
-    public AutoModTriggerType TriggerType { get; set; }
+    [JsonPropertyName("trigger_type")]
+    public AutoModTriggerType? TriggerType { get; set; }
 
-    [JsonField("trigger_metadata")]
-    public TriggerMetadata TriggerMetadata { get; set; }
+    [JsonPropertyName("trigger_metadata")]
+    public TriggerMetadata? TriggerMetadata { get; set; } = new();
 
-    [JsonField("actions")]
-    public AutoModAction[] Actions { get; set; }
+    [JsonPropertyName("actions")]
+    public AutoModAction[]? Actions { get; set; }
 
-    [JsonField("enabled")]
-    public bool Enabled { get; set; }
+    [JsonPropertyName("enabled")]
+    public bool? Enabled { get; set; }
 
-    [JsonField("exempt_roles")]
-    public ulong[] ExemptRoles { get; set; }
+    [JsonPropertyName("exempt_roles")]
+    public ulong[]? ExemptRoles { get; set; }
 
-    [JsonField("exempt_channels")]
-    public ulong[] ExemptChannels { get; set; }
+    [JsonPropertyName("exempt_channels")]
+    public ulong[]? ExemptChannels { get; set; }
 }

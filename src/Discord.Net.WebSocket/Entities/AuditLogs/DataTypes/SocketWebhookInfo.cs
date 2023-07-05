@@ -9,7 +9,7 @@ public struct SocketWebhookInfo
 {
     internal SocketWebhookInfo(Model model)
     {
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         ChannelId = model.ChannelId;
         Avatar = model.AvatarHash;
     }
@@ -35,5 +35,5 @@ public struct SocketWebhookInfo
     /// <returns>
     ///     A string containing the hash of this webhook's avatar.
     /// </returns>
-    public string Avatar { get; }
+    public string? Avatar { get; }
 }

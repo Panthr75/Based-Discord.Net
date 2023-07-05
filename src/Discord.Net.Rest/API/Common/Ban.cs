@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class Ban
     {
-        [JsonProperty("user")]
-        public User User { get; set; }
-        [JsonProperty("reason")]
-        public string Reason { get; set; }
+        [JsonPropertyName("user")]
+        public User User { get; set; } = null!;
+        [JsonPropertyName("reason")]
+        public string? Reason { get; set; }
     }
 }

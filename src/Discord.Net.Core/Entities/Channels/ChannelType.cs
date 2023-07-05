@@ -28,6 +28,8 @@ namespace Discord
         /// <summary> The channel is a guild directory used in hub servers. (Unreleased)</summary>
         GuildDirectory = 14,
         /// <summary> The channel is a forum channel containing multiple threads. </summary>
-        Forum = 15
+        Forum = 15,
+        /// <summary> The channel is a media channel. </summary>
+        Media = 16,
     }
 }

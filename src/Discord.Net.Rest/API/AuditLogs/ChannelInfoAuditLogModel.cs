@@ -1,57 +1,58 @@
 using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class ChannelInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-    [JsonField("type")]
+    [JsonPropertyName("type")]
     public ChannelType? Type { get; set; }
 
-    [JsonField("permission_overwrites")]
-    public Overwrite[] Overwrites { get; set; }
+    [JsonPropertyName("permission_overwrites")]
+    public Overwrite[]? Overwrites { get; set; }
 
-    [JsonField("flags")]
+    [JsonPropertyName("flags")]
     public ChannelFlags? Flags { get; set; }
 
-    [JsonField("default_thread_rate_limit_per_user")]
+    [JsonPropertyName("default_thread_rate_limit_per_user")]
     public int? DefaultThreadRateLimitPerUser { get; set; }
 
-    [JsonField("default_auto_archive_duration")]
+    [JsonPropertyName("default_auto_archive_duration")]
     public ThreadArchiveDuration? DefaultArchiveDuration { get; set; }
 
-    [JsonField("rate_limit_per_user")]
+    [JsonPropertyName("rate_limit_per_user")]
     public int? RateLimitPerUser { get; set; }
 
-    [JsonField("auto_archive_duration")]
+    [JsonPropertyName("auto_archive_duration")]
     public ThreadArchiveDuration? AutoArchiveDuration { get; set; }
 
-    [JsonField("nsfw")]
+    [JsonPropertyName("nsfw")]
     public bool? IsNsfw { get; set; }
 
-    [JsonField("topic")]
-    public string Topic { get; set; }
+    [JsonPropertyName("topic")]
+    public string? Topic { get; set; }
 
     // Forum channels
-    [JsonField("available_tags")]
-    public ForumTag[] AvailableTags { get; set; }
+    [JsonPropertyName("available_tags")]
+    public ForumTag[]? AvailableTags { get; set; }
 
-    [JsonField("default_reaction_emoji")]
-    public ForumReactionEmoji DefaultEmoji { get; set; }
+    [JsonPropertyName("default_reaction_emoji")]
+    public ForumReactionEmoji? DefaultEmoji { get; set; }
 
     // Voice channels
 
-    [JsonField("user_limit")]
+    [JsonPropertyName("user_limit")]
     public int? UserLimit { get; set; }
 
-    [JsonField("rtc_region")]
-    public string Region { get; set; }
+    [JsonPropertyName("rtc_region")]
+    public string? Region { get; set; }
 
-    [JsonField("video_quality_mode")]
+    [JsonPropertyName("video_quality_mode")]
     public VideoQualityMode? VideoQualityMode { get; set; }
 
-    [JsonField("bitrate")]
+    [JsonPropertyName("bitrate")]
     public int? Bitrate { get; set; }
 }

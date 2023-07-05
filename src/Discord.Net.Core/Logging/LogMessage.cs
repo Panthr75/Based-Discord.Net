@@ -28,14 +28,14 @@ namespace Discord
         /// <returns>
         ///     A string containing the message of this log entry.
         /// </returns>
-        public string Message { get; }
+        public string? Message { get; }
         /// <summary>
         ///     Gets the exception of this log entry.
         /// </summary>
         /// <returns>
         ///     An <see cref="Discord.LogMessage.Exception" /> object associated with an incident; otherwise <see langword="null" />.
         /// </returns>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
 
         /// <summary>
         ///     Initializes a new <see cref="LogMessage"/> struct with the severity, source, message of the event, and
@@ -45,7 +45,7 @@ namespace Discord
         /// <param name="source">The source of the event.</param>
         /// <param name="message">The message of the event.</param>
         /// <param name="exception">The exception of the event.</param>
-        public LogMessage(LogSeverity severity, string source, string message, Exception exception = null)
+        public LogMessage(LogSeverity severity, string source, string? message, Exception? exception = null)
         {
             Severity = severity;
             Source = source;
@@ -54,11 +54,11 @@ namespace Discord
         }
 
         public override string ToString() => ToString();
-        public string ToString(StringBuilder builder = null, bool fullException = true, bool prependTimestamp = true, DateTimeKind timestampKind = DateTimeKind.Local, int? padSource = 11)
+        public string ToString(StringBuilder? builder = null, bool fullException = true, bool prependTimestamp = true, DateTimeKind timestampKind = DateTimeKind.Local, int? padSource = 11)
         {
             string sourceName = Source;
-            string message = Message;
-            string exMessage = fullException ? Exception?.ToString() : Exception?.Message;
+            string? message = Message;
+            string exMessage = (fullException ? Exception?.ToString() : Exception?.Message) ?? string.Empty;
 
             int maxLength = 1 +
                 (prependTimestamp ? 8 : 0) + 1 +
@@ -103,7 +103,7 @@ namespace Discord
             }
             if (!string.IsNullOrEmpty(Message))
             {
-                for (int i = 0; i < message.Length; i++)
+                for (int i = 0; i < message!.Length; i++)
                 {
                     //Strip control chars
                     char c = message[i];

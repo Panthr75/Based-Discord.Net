@@ -1,5 +1,6 @@
 using Discord.Net;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,14 +17,14 @@ namespace Discord.Rest
     public abstract class RestInteraction : RestEntity<ulong>, IDiscordInteraction
     {
         // Added so channel & guild methods don't need a client reference
-        private Func<RequestOptions, ulong, Task<IRestMessageChannel>> _getChannel;
-        private Func<RequestOptions, ulong, Task<RestGuild>> _getGuild;
+        private Func<RequestOptions?, ulong, Task<IRestMessageChannel?>>? _getChannel;
+        private Func<RequestOptions?, ulong, Task<RestGuild?>>? _getGuild;
 
         /// <inheritdoc/>
         public InteractionType Type { get; private set; }
 
         /// <inheritdoc/>
-        public IDiscordInteractionData Data { get; private set; }
+        public IDiscordInteractionData? Data { get; internal set; }
 
         /// <inheritdoc/>
         public string Token { get; private set; }
@@ -41,10 +42,10 @@ namespace Discord.Rest
         public RestUser User { get; private set; }
 
         /// <inheritdoc/>
-        public string UserLocale { get; private set; }
+        public string? UserLocale { get; private set; }
 
         /// <inheritdoc/>
-        public string GuildLocale { get; private set; }
+        public string? GuildLocale { get; private set; }
 
         /// <inheritdoc/>
         public DateTimeOffset CreatedAt { get; private set; }
@@ -62,7 +63,7 @@ namespace Discord.Rest
         ///     This property will be <see langword="null"/> if <see cref="DiscordRestConfig.APIOnRestInteractionCreation"/> is set to false.
         ///     Call <see cref="GetChannelAsync"/> to set this property and get the interaction channel.
         /// </remarks>
-        public IRestMessageChannel Channel { get; private set; }
+        public IRestMessageChannel? Channel { get; private set; }
 
         /// <inheritdoc/>
         public ulong? ChannelId { get; private set; }
@@ -74,7 +75,7 @@ namespace Discord.Rest
         ///     This property will be <see langword="null"/> if <see cref="DiscordRestConfig.APIOnRestInteractionCreation"/> is set to false
         ///     or if the interaction was not executed in a guild.
         /// </remarks>
-        public RestGuild Guild { get; private set; }
+        public RestGuild? Guild { get; private set; }
 
         /// <inheritdoc/>
         public ulong? GuildId { get; private set; }
@@ -91,12 +92,14 @@ namespace Discord.Rest
         internal RestInteraction(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Token = string.Empty;
+            this.User = null!;
             CreatedAt = discord.UseInteractionSnowflakeDate
                 ? SnowflakeUtils.FromSnowflake(Id)
                 : DateTime.UtcNow;
         }
 
-        internal static async Task<RestInteraction> CreateAsync(DiscordRestClient client, Model model, bool doApiCall)
+        internal static async Task<RestInteraction?> CreateAsync(DiscordRestClient client, Model model, bool doApiCall)
         {
             if (model.Type == InteractionType.Ping)
             {
@@ -183,7 +186,7 @@ namespace Discord.Rest
                 try
                 {
                     if (doApiCall)
-                        Channel = (IRestMessageChannel)await discord.GetChannelAsync(ChannelId.Value);
+                        Channel = (IRestMessageChannel?)await discord.GetChannelAsync(ChannelId.Value);
                     else
                     {
                         if (model.Channel.IsSpecified)
@@ -206,10 +209,10 @@ namespace Discord.Rest
                         _getChannel = async (opt, ul) =>
                         {
                             if (Guild is null)
-                                return (IRestMessageChannel)await discord.GetChannelAsync(ul, opt);
+                                return (IRestMessageChannel?)await discord.GetChannelAsync(ul, opt);
 
                             // get a guild channel if the guild is set.
-                            return (IRestMessageChannel)await Guild.GetChannelAsync(ul, opt);
+                            return (IRestMessageChannel?)await Guild.GetChannelAsync(ul, opt);
                         };
                     }
                 }
@@ -227,12 +230,33 @@ namespace Discord.Rest
 
         internal string SerializePayload(object payload)
         {
-            var json = new StringBuilder();
-            using (var text = new StringWriter(json))
-            using (var writer = new JsonTextWriter(text))
-                DiscordRestClient.Serializer.Serialize(writer, payload);
+            return JsonSerializer.Serialize(payload, this.Discord.ApiClient.SerializerOptions);
+        }
 
-            return json.ToString();
+        /// <summary>
+        /// A try version of <see cref="GetChannelAsync(RequestOptions?)"/>, except
+        /// it won't throw an <see cref="InvalidOperationException"/> if the channel
+        /// could not be found, instead returning <see langword="null"/>.
+        /// </summary>
+        /// <param name="options">The request options for this <see langword="async"/> request.</param>
+        /// <returns>The rest message channel, or <see langword="null"/> if
+        /// it wasn't found.</returns>
+        public async Task<IRestMessageChannel?> TryGetChannelAsync(RequestOptions? options = null)
+        {
+            if (Channel is not null)
+                return Channel;
+
+            if (IsDMInteraction)
+            {
+                Channel = await User.CreateDMChannelAsync(options);
+            }
+            else if (ChannelId is not null && _getChannel != null)
+            {
+                Channel = await _getChannel(options, ChannelId.Value);
+                _getChannel = null; // get rid of it, we don't need it anymore.
+            }
+
+            return Channel;
         }
 
         /// <summary>
@@ -245,22 +269,10 @@ namespace Discord.Rest
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A Rest channel to send messages to.</returns>
         /// <exception cref="InvalidOperationException">Thrown if no channel can be received.</exception>
-        public async Task<IRestMessageChannel> GetChannelAsync(RequestOptions options = null)
+        public async Task<IRestMessageChannel> GetChannelAsync(RequestOptions? options = null)
         {
-            if (Channel is not null)
-                return Channel;
-
-            if (IsDMInteraction)
-            {
-                Channel = await User.CreateDMChannelAsync(options);
-            }
-            else if (ChannelId is not null)
-            {
-                Channel = await _getChannel(options, ChannelId.Value) ?? throw new InvalidOperationException("The interaction channel was not able to be retrieved.");
-                _getChannel = null; // get rid of it, we don't need it anymore.
-            }
-
-            return Channel;
+            IRestMessageChannel? channel = await this.TryGetChannelAsync(options).ConfigureAwait(false);
+            return channel ?? throw new InvalidOperationException("The interaction channel was not able to be retrieved.");
         }
 
         /// <summary>
@@ -272,10 +284,15 @@ namespace Discord.Rest
         /// </remarks>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>The guild this interaction was executed in. <see langword="null"/> if the interaction was executed inside DM.</returns>
-        public async Task<RestGuild> GetGuildAsync(RequestOptions options)
+        public async Task<RestGuild?> GetGuildAsync(RequestOptions? options = null)
         {
             if (GuildId is null)
                 return null;
+
+            if (this._getGuild == null)
+            {
+                return null;
+            }
 
             Guild ??= await _getGuild(options, GuildId.Value);
             _getGuild = null; // get rid of it, we don't need it anymore.
@@ -284,14 +301,16 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public abstract string Defer(bool ephemeral = false, RequestOptions options = null);
+        public abstract string Defer(bool ephemeral = false, RequestOptions? options = null);
         /// <summary>
         ///     Gets the original response for this interaction.
         /// </summary>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A <see cref="RestInteractionMessage"/> that represents the initial response.</returns>
-        public Task<RestInteractionMessage> GetOriginalResponseAsync(RequestOptions options = null)
-            => InteractionHelper.GetOriginalResponseAsync(Discord, Channel, this, options);
+        public async Task<RestInteractionMessage?> GetOriginalResponseAsync(RequestOptions? options = null)
+        {
+            return await InteractionHelper.GetOriginalResponseAsync(Discord, await this.GetChannelAsync(options).ConfigureAwait(false), this, options).ConfigureAwait(false);
+        }
 
         /// <summary>
         ///     Edits original response for this interaction.
@@ -302,16 +321,19 @@ namespace Discord.Rest
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public async Task<RestInteractionMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public async Task<RestInteractionMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
+            IMessageChannel channel = await this.GetChannelAsync(options).ConfigureAwait(false);
+
             var model = await InteractionHelper.ModifyInteractionResponseAsync(Discord, Token, func, options);
-            return RestInteractionMessage.Create(Discord, model, Token, Channel);
+
+            return RestInteractionMessage.Create(Discord, model, Token, channel);
         }
         /// <inheritdoc/>
-        public abstract string RespondWithModal(Modal modal, RequestOptions options = null);
+        public abstract string RespondWithModal(Modal modal, RequestOptions? options = null);
 
         /// <inheritdoc/>
-        public abstract string Respond(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract string Respond(string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -328,8 +350,8 @@ namespace Discord.Rest
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupAsync(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-             AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupAsync(string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+             AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -348,8 +370,8 @@ namespace Discord.Rest
         ///      A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(Stream fileStream, string fileName, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(Stream fileStream, string fileName, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -368,8 +390,8 @@ namespace Discord.Rest
         ///      A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(string filePath, string fileName = null, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(string filePath, string? fileName = null, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -387,8 +409,8 @@ namespace Discord.Rest
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(FileAttachment attachment, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupWithFileAsync(FileAttachment attachment, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -406,11 +428,11 @@ namespace Discord.Rest
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <inheritdoc/>
-        public Task DeleteOriginalResponseAsync(RequestOptions options = null)
+        public Task DeleteOriginalResponseAsync(RequestOptions? options = null)
             => InteractionHelper.DeleteInteractionResponseAsync(Discord, this, options);
 
         #region  IDiscordInteraction
@@ -418,47 +440,47 @@ namespace Discord.Rest
         IUser IDiscordInteraction.User => User;
 
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondAsync(string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        Task IDiscordInteraction.RespondAsync(string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => Task.FromResult(Respond(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options));
         /// <inheritdoc/>
-        Task IDiscordInteraction.DeferAsync(bool ephemeral, RequestOptions options)
+        Task IDiscordInteraction.DeferAsync(bool ephemeral, RequestOptions? options)
             => Task.FromResult(Defer(ephemeral, options));
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondWithModalAsync(Modal modal, RequestOptions options)
+        Task IDiscordInteraction.RespondWithModalAsync(Modal modal, RequestOptions? options)
             => Task.FromResult(RespondWithModal(modal, options));
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupAsync(string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions,
-            MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupAsync(string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions,
+            MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.GetOriginalResponseAsync(RequestOptions options)
+        async Task<IUserMessage?> IDiscordInteraction.GetOriginalResponseAsync(RequestOptions? options)
             => await GetOriginalResponseAsync(options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options)
             => await ModifyOriginalResponseAsync(func, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(Stream fileStream, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral,
-            AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(Stream fileStream, string fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral,
+            AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(fileStream, fileName, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(string filePath, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral,
-            AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(string filePath, string? fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral,
+            AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(filePath, text, fileName, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(FileAttachment attachment, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(FileAttachment attachment, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(attachment, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFilesAsync(attachments, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondWithFilesAsync(IEnumerable<FileAttachment> attachments, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options) => throw new NotSupportedException("REST-Based interactions don't support files.");
+        Task IDiscordInteraction.RespondWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options) => throw new NotSupportedException("REST-Based interactions don't support files.");
 #if NETCOREAPP3_0_OR_GREATER != true
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondWithFileAsync(Stream fileStream, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options) => throw new NotSupportedException("REST-Based interactions don't support files.");
+        Task IDiscordInteraction.RespondWithFileAsync(Stream fileStream, string fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options) => throw new NotSupportedException("REST-Based interactions don't support files.");
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondWithFileAsync(string filePath, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options) => throw new NotSupportedException("REST-Based interactions don't support files.");
+        Task IDiscordInteraction.RespondWithFileAsync(string filePath, string? fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options) => throw new NotSupportedException("REST-Based interactions don't support files.");
         /// <inheritdoc/>
-        Task IDiscordInteraction.RespondWithFileAsync(FileAttachment attachment, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options) => throw new NotSupportedException("REST-Based interactions don't support files.");
+        Task IDiscordInteraction.RespondWithFileAsync(FileAttachment attachment, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options) => throw new NotSupportedException("REST-Based interactions don't support files.");
 #endif
         #endregion
     }

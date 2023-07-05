@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Discord.Net
@@ -13,11 +14,11 @@ namespace Discord.Net
         /// <summary>
         ///     Gets the http method used to make the request if available.
         /// </summary>
-        public string HttpMethod { get; }
+        public string? HttpMethod { get; }
         /// <summary>
         ///     Gets the endpoint that is going to be requested if available.
         /// </summary>
-        public string Endpoint { get; }
+        public string? Endpoint { get; }
         /// <summary>
         ///     Gets the major parameters of the route.
         /// </summary>
@@ -28,13 +29,14 @@ namespace Discord.Net
         /// <remarks>
         ///     The hash is provided by Discord to group ratelimits.
         /// </remarks>
-        public string BucketHash { get; }
+        public string? BucketHash { get; }
         /// <summary>
         ///     Gets if this bucket is a hash type.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.BucketHash))]
         public bool IsHashBucket { get => BucketHash != null; }
 
-        private BucketId(string httpMethod, string endpoint, IEnumerable<KeyValuePair<string, string>> majorParameters, string bucketHash)
+        private BucketId(string? httpMethod, string? endpoint, IEnumerable<KeyValuePair<string, string>> majorParameters, string? bucketHash)
         {
             HttpMethod = httpMethod;
             Endpoint = endpoint;
@@ -53,7 +55,7 @@ namespace Discord.Net
         ///     A <see cref="BucketId"/> based on the <see cref="HttpMethod"/>
         ///     and the <see cref="Endpoint"/> with the provided data.
         /// </returns>
-        public static BucketId Create(string httpMethod, string endpoint, Dictionary<string, string> majorParams)
+        public static BucketId Create(string? httpMethod, string endpoint, Dictionary<string, string>? majorParams)
         {
             Preconditions.NotNullOrWhitespace(endpoint, nameof(endpoint));
             majorParams ??= new Dictionary<string, string>();
@@ -83,7 +85,7 @@ namespace Discord.Net
         /// <returns>
         ///     A <see cref="string"/> that defines this bucket as a hash based one.
         /// </returns>
-        public string GetBucketHash()
+        public string? GetBucketHash()
             => IsHashBucket ? $"{BucketHash}:{string.Join("/", MajorParameters.Select(x => x.Value))}" : null;
 
         /// <summary>
@@ -93,9 +95,9 @@ namespace Discord.Net
         ///     A <see cref="string"/> that defines this bucket as an endpoint based one.
         /// </returns>
         public string GetUniqueEndpoint()
-            => HttpMethod != null ? $"{HttpMethod} {Endpoint}" : Endpoint;
+            => HttpMethod != null ? $"{HttpMethod} {Endpoint}" : Endpoint!;
 
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => Equals(obj as BucketId);
 
         public override int GetHashCode()
@@ -104,7 +106,7 @@ namespace Discord.Net
         public override string ToString()
             => GetBucketHash() ?? GetUniqueEndpoint();
 
-        public bool Equals(BucketId other)
+        public bool Equals([NotNullWhen(true)] BucketId? other)
         {
             if (other is null)
                 return false;

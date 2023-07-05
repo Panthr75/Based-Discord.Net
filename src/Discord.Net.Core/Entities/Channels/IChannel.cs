@@ -36,7 +36,7 @@ namespace Discord
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a user in this channel.
@@ -48,6 +48,6 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a user object that
         ///     represents the found user; <see langword="null" /> if none is found.
         /// </returns>
-        Task<IUser> GetUserAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IUser?> GetUserAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
     }
 }

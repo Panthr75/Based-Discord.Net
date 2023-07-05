@@ -1,19 +1,20 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class ApplicationCommandInteractionDataOption
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandOptionType Type { get; set; }
 
-        [JsonProperty("value")]
-        public Optional<object> Value { get; set; }
+        [JsonPropertyName("value")]
+        public Optional<ApplicationCommandOptionValue> Value { get; set; }
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<ApplicationCommandInteractionDataOption[]> Options { get; set; }
     }
 }

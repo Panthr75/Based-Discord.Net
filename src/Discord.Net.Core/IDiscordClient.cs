@@ -17,6 +17,7 @@ namespace Discord
         /// <summary>
         ///     Gets the currently logged-in user.
         /// </summary>
+        /// <exception cref="InvalidOperationException">The client is not logged in</exception>
         ISelfUser CurrentUser { get; }
         /// <summary>
         ///     Gets the token type of the logged-in user.
@@ -57,7 +58,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the application
         ///     information.
         /// </returns>
-        Task<IApplication> GetApplicationInfoAsync(RequestOptions options = null);
+        Task<IApplication> GetApplicationInfoAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a generic channel.
@@ -78,7 +79,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the channel associated
         ///     with the snowflake identifier; <see langword="null" /> when the channel cannot be found.
         /// </returns>
-        Task<IChannel> GetChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IChannel?> GetChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Gets a collection of private channels opened in this session.
         /// </summary>
@@ -96,7 +97,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     of private channels that the user currently partakes in.
         /// </returns>
-        Task<IReadOnlyCollection<IPrivateChannel>> GetPrivateChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IReadOnlyCollection<IPrivateChannel>> GetPrivateChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Gets a collection of direct message channels opened in this session.
         /// </summary>
@@ -113,7 +114,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     of direct-message channels that the user currently partakes in.
         /// </returns>
-        Task<IReadOnlyCollection<IDMChannel>> GetDMChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IReadOnlyCollection<IDMChannel>> GetDMChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Gets a collection of group channels opened in this session.
         /// </summary>
@@ -130,7 +131,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     of group channels that the user currently partakes in.
         /// </returns>
-        Task<IReadOnlyCollection<IGroupChannel>> GetGroupChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IReadOnlyCollection<IGroupChannel>> GetGroupChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets the connections that the user has set up.
@@ -139,7 +140,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of connections.
         /// </returns>
-        Task<IReadOnlyCollection<IConnection>> GetConnectionsAsync(RequestOptions options = null);
+        Task<IReadOnlyCollection<IConnection>> GetConnectionsAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a global application command.
@@ -150,7 +151,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the application command if found, otherwise
         ///     <see langword="null"/>.
         /// </returns>
-        Task<IApplicationCommand> GetGlobalApplicationCommandAsync(ulong id, RequestOptions options = null);
+        Task<IApplicationCommand?> GetGlobalApplicationCommandAsync(ulong id, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of all global commands.
@@ -162,7 +163,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of global
         ///     application commands.
         /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, string locale = null, RequestOptions options = null);
+        Task<IReadOnlyCollection<IApplicationCommand>> GetGlobalApplicationCommandsAsync(bool withLocalizations = false, string? locale = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Creates a global application command.
@@ -172,7 +173,7 @@ namespace Discord
         /// <returns>
         ///      A task that represents the asynchronous creation operation. The task result contains the created application command.
         /// </returns>
-        Task<IApplicationCommand> CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions options = null);
+        Task<IApplicationCommand?> CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions? options = null);
 
         /// <summary>
         ///     Bulk overwrites all global application commands.
@@ -182,7 +183,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains a collection of application commands that were created.
         /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties, RequestOptions options = null);
+        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a guild.
@@ -194,7 +195,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the guild associated
         ///     with the snowflake identifier; <see langword="null" /> when the guild cannot be found.
         /// </returns>
-        Task<IGuild> GetGuildAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IGuild?> GetGuildAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Gets a collection of guilds that the user is currently in.
         /// </summary>
@@ -204,7 +205,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     of guilds that the current user is in.
         /// </returns>
-        Task<IReadOnlyCollection<IGuild>> GetGuildsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IReadOnlyCollection<IGuild>> GetGuildsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Creates a guild for the logged-in user who is in less than 10 active guilds.
         /// </summary>
@@ -221,7 +222,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains the created guild.
         /// </returns>
-        Task<IGuild> CreateGuildAsync(string name, IVoiceRegion region, Stream jpegIcon = null, RequestOptions options = null);
+        Task<IGuild> CreateGuildAsync(string name, IVoiceRegion region, Stream? jpegIcon = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets an invite.
@@ -231,7 +232,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains the invite information.
         /// </returns>
-        Task<IInvite> GetInviteAsync(string inviteId, RequestOptions options = null);
+        Task<IInvite?> GetInviteAsync(string inviteId, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a user.
@@ -250,7 +251,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the user associated with
         ///     the snowflake identifier; <see langword="null" /> if the user is not found.
         /// </returns>
-        Task<IUser> GetUserAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null);
+        Task<IUser?> GetUserAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
         /// <summary>
         ///     Gets a user.
         /// </summary>
@@ -268,7 +269,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the user associated with
         ///     the name and the discriminator; <see langword="null" /> if the user is not found.
         /// </returns>
-        Task<IUser> GetUserAsync(string username, string discriminator, RequestOptions options = null);
+        Task<IUser?> GetUserAsync(string username, string? discriminator, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of the available voice regions.
@@ -285,7 +286,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     with all of the available voice regions in this session.
         /// </returns>
-        Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions options = null);
+        Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null);
         /// <summary>
         ///     Gets a voice region.
         /// </summary>
@@ -295,7 +296,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the voice region
         ///     associated with the identifier; <see langword="null" /> if the voice region is not found.
         /// </returns>
-        Task<IVoiceRegion> GetVoiceRegionAsync(string id, RequestOptions options = null);
+        Task<IVoiceRegion?> GetVoiceRegionAsync(string id, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a webhook available.
@@ -306,7 +307,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a webhook associated
         ///     with the identifier; <see langword="null" /> if the webhook is not found.
         /// </returns>
-        Task<IWebhook> GetWebhookAsync(ulong id, RequestOptions options = null);
+        Task<IWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets the recommended shard count as suggested by Discord.
@@ -316,7 +317,7 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains an <see cref="int"/>
         ///     that represents the number of shards that should be used with this account.
         /// </returns>
-        Task<int> GetRecommendedShardCountAsync(RequestOptions options = null);
+        Task<int> GetRecommendedShardCountAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets the gateway information related to the bot.
@@ -326,6 +327,6 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains a <see cref="BotGateway"/>
         ///     that represents the gateway information related to the bot.
         /// </returns>
-        Task<BotGateway> GetBotGatewayAsync(RequestOptions options = null);
+        Task<BotGateway> GetBotGatewayAsync(RequestOptions? options = null);
     }
 }

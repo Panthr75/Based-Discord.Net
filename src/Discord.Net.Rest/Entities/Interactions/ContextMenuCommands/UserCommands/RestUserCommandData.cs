@@ -14,7 +14,7 @@ namespace Discord.Rest
         ///     Gets the user who this command targets.
         /// </summary>
         public RestUser Member
-            => (RestUser)ResolvableData.GuildMembers.Values.FirstOrDefault() ?? ResolvableData.Users.Values.FirstOrDefault();
+            => ((RestUser?)ResolvableData!.GuildMembers.Values.FirstOrDefault() ?? ResolvableData!.Users.Values.FirstOrDefault())!;
 
         /// <inheritdoc/>
         /// <remarks>
@@ -26,7 +26,7 @@ namespace Discord.Rest
         internal RestUserCommandData(DiscordRestClient client, Model model)
             : base(client, model) { }
 
-        internal new static async Task<RestUserCommandData> CreateAsync(DiscordRestClient client, Model model, RestGuild guild, IRestMessageChannel channel, bool doApiCall)
+        internal new static async Task<RestUserCommandData> CreateAsync(DiscordRestClient client, Model model, RestGuild? guild, IRestMessageChannel? channel, bool doApiCall)
         {
             var entity = new RestUserCommandData(client, model);
             await entity.UpdateAsync(client, model, guild, channel, doApiCall).ConfigureAwait(false);

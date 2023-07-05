@@ -14,7 +14,7 @@ public class SocketScheduledEventCreateAuditLogData : ISocketAuditLogData
     {
         Id = id;
         ChannelId = model.ChannelId;
-        Name = model.Name;
+        Name = model.Name!;
         Description = model.Description;
         ScheduledStartTime = model.StartTime;
         ScheduledEndTime = model.EndTime;
@@ -28,7 +28,7 @@ public class SocketScheduledEventCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketScheduledEventCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<ScheduledEventInfoAuditLogModel>(changes, discord);
 
@@ -52,7 +52,7 @@ public class SocketScheduledEventCreateAuditLogData : ISocketAuditLogData
     /// <summary>
     ///     Gets the description of the event. null if none is set.
     /// </summary>
-    public string Description { get; }
+    public string? Description { get; }
     /// <summary>
     ///     Gets the time the event was scheduled for.
     /// </summary>
@@ -80,9 +80,9 @@ public class SocketScheduledEventCreateAuditLogData : ISocketAuditLogData
     /// <summary>
     ///     Gets the metadata for the entity associated with the event.
     /// </summary>
-    public string Location { get; }
+    public string? Location { get; }
     /// <summary>
     ///     Gets the image hash of the image that was attached to the event. Null if not set.
     /// </summary>
-    public string Image { get; }
+    public string? Image { get; }
 }

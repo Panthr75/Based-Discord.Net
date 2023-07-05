@@ -6,7 +6,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to user getting in timeout by automod.
 /// </summary>
-public class AutoModTimeoutUserAuditLogData : IAuditLogData
+public partial class AutoModTimeoutUserAuditLogData : IAuditLogData
 {
     internal AutoModTimeoutUserAuditLogData(ulong channelId, string autoModRuleName, AutoModTriggerType autoModRuleTriggerType)
     {
@@ -15,9 +15,9 @@ public class AutoModTimeoutUserAuditLogData : IAuditLogData
         AutoModRuleTriggerType = autoModRuleTriggerType;
     }
 
-    internal static AutoModTimeoutUserAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static AutoModTimeoutUserAuditLogData Create(EntryModel entry)
     {
-        return new(entry.Options.ChannelId!.Value, entry.Options.AutoModRuleName,
+        return new(entry.Options!.ChannelId!.Value, entry.Options.AutoModRuleName!,
             entry.Options.AutoModRuleTriggerType!.Value);
     }
 

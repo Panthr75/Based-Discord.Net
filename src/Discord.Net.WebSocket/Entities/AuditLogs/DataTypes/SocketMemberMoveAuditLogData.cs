@@ -15,7 +15,7 @@ public class SocketMemberMoveAuditLogData : ISocketAuditLogData
 
     internal static SocketMemberMoveAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new SocketMemberMoveAuditLogData(entry.Options.ChannelId!.Value, entry.Options.Count!.Value);
+        return new SocketMemberMoveAuditLogData(entry.Options!.ChannelId!.Value, entry.Options!.Count!.Value);
     }
 
     /// <summary>

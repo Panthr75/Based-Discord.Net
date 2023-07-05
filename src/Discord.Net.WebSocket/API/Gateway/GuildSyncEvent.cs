@@ -1,17 +1,19 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class GuildSyncEvent
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("large")]
+        [JsonPropertyName("large")]
         public bool Large { get; set; }
 
-        [JsonProperty("presences")]
-        public Presence[] Presences { get; set; }
-        [JsonProperty("members")]
-        public GuildMember[] Members { get; set; }
+        [JsonPropertyName("presences")]
+        public Presence[] Presences { get; set; } = Array.Empty<Presence>();
+        [JsonPropertyName("members")]
+        public GuildMember[] Members { get; set; } = Array.Empty<GuildMember>();
     }
 }

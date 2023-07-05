@@ -30,9 +30,9 @@ namespace Discord.Rest
         /// <inheritdoc />
         public int? ExpireGracePeriod { get; private set; }
         /// <inheritdoc />
-        IUser IIntegration.User => User;
+        IUser? IIntegration.User => User;
         /// <inheritdoc />
-        public IIntegrationAccount Account { get; private set; }
+        public IIntegrationAccount? Account { get; private set; }
         /// <inheritdoc />
         public DateTimeOffset? SyncedAt => DateTimeUtils.FromTicks(_syncedAtTicks);
         /// <inheritdoc />
@@ -40,17 +40,19 @@ namespace Discord.Rest
         /// <inheritdoc />
         public bool? IsRevoked { get; private set; }
         /// <inheritdoc />
-        public IIntegrationApplication Application { get; private set; }
+        public IIntegrationApplication? Application { get; private set; }
 
-        internal IGuild Guild { get; private set; }
-        public RestUser User { get; private set; }
+        internal IGuild? Guild { get; private set; }
+        public RestUser? User { get; private set; }
 
-        internal RestIntegration(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestIntegration(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, id)
         {
+            this.Name = string.Empty;
+            this.Type = string.Empty;
             Guild = guild;
         }
-        internal static RestIntegration Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal static RestIntegration Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestIntegration(discord, guild, model.Id);
             entity.Update(model);

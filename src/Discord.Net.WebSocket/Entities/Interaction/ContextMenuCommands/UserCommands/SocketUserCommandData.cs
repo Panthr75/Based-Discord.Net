@@ -13,7 +13,7 @@ namespace Discord.WebSocket
         ///     Gets the user who this command targets.
         /// </summary>
         public SocketUser Member
-            => (SocketUser)ResolvableData.GuildMembers.Values.FirstOrDefault() ?? ResolvableData.Users.Values.FirstOrDefault();
+            => (SocketUser?)ResolvableData!.GuildMembers.Values.FirstOrDefault() ?? ResolvableData!.Users.Values.FirstOrDefault()!;
 
         /// <inheritdoc/>
         /// <remarks>

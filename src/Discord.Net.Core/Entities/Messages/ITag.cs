@@ -6,6 +6,6 @@ namespace Discord
         int Length { get; }
         TagType Type { get; }
         ulong Key { get; }
-        object Value { get; }
+        object? Value { get; }
     }
 }

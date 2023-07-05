@@ -25,12 +25,12 @@ public class IntegrationInfo
     /// <summary>
     ///     Gets the name of the integration. <see landword="null"/> if the property was not mentioned in this audit log.
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets the type of the integration. <see landword="null"/> if the property was not mentioned in this audit log.
     /// </summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     ///     Gets if the integration is enabled. <see landword="null"/> if the property was not mentioned in this audit log.
@@ -65,5 +65,5 @@ public class IntegrationInfo
     /// <summary>
     ///     Gets the scopes the application has been authorized for. <see landword="null"/> if the property was not mentioned in this audit log.
     /// </summary>
-    public IReadOnlyCollection<string> Scopes { get; set; }
+    public IReadOnlyCollection<string>? Scopes { get; set; }
 }

@@ -11,9 +11,9 @@ namespace Discord
     /// </summary>
     public class ApplicationCommandOptionChoiceProperties
     {
-        private string _name;
-        private object _value;
-        private IDictionary<string, string> _nameLocalizations = new Dictionary<string, string>();
+        private string _name = string.Empty;
+        private ApplicationCommandOptionValue _value;
+        private IDictionary<string, string>? _nameLocalizations;
 
         /// <summary>
         ///     Gets or sets the name of this choice.
@@ -25,7 +25,7 @@ namespace Discord
             {
                 > 100 => throw new ArgumentOutOfRangeException(nameof(value), "Name length must be less than or equal to 100."),
                 0 => throw new ArgumentOutOfRangeException(nameof(value), "Name length must at least 1."),
-                _ => value
+                _ => value!
             };
         }
 
@@ -35,14 +35,14 @@ namespace Discord
         ///         Discord only accepts int, double/floats, and string as the input.
         ///     </note>
         /// </summary>
-        public object Value
+        public ApplicationCommandOptionValue Value
         {
             get => _value;
             set
             {
-                if (value != null && value is not string && !value.IsNumericType())
+                if (!value.IsString && !value.IsNumber)
                     throw new ArgumentException("The value of a choice must be a string or a numeric type!");
-                _value = value;
+                _value = value!;
             }
         }
 
@@ -50,7 +50,7 @@ namespace Discord
         ///     Gets or sets the localization dictionary for the name field of this choice.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown when any of the dictionary keys is an invalid locale.</exception>
-        public IDictionary<string, string> NameLocalizations
+        public IDictionary<string, string>? NameLocalizations
         {
             get => _nameLocalizations;
             set

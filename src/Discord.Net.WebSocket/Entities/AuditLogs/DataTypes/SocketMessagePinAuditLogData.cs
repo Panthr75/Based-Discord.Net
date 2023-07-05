@@ -33,7 +33,7 @@ public class SocketMessagePinAuditLogData : ISocketAuditLogData
                 });
         }
 
-        return new SocketMessagePinAuditLogData(entry.Options.MessageId!.Value, entry.Options.ChannelId!.Value, cacheableUser);
+        return new SocketMessagePinAuditLogData(entry.Options!.MessageId!.Value, entry.Options!.ChannelId!.Value, cacheableUser);
     }
 
     /// <summary>

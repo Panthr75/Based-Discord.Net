@@ -22,7 +22,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A string containing the name of this guild.
     /// </returns>
-    public string Name { get; internal set; }
+    public string Name { get; internal set; } = string.Empty;
 
     /// <summary>
     ///     Gets the description for the guild.
@@ -30,7 +30,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     The description for the guild; <see langword="null" /> if none is set.
     /// </returns>
-    public string Description { get; internal set; }
+    public string? Description { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of this guild's splash image.
@@ -38,7 +38,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     An identifier for the splash image; <see langword="null" /> if none is set.
     /// </returns>
-    public string SplashId { get; internal set; }
+    public string? SplashId { get; internal set; }
 
     /// <summary>
     ///     Gets the URL of this guild's splash image.
@@ -46,7 +46,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A URL pointing to the guild's splash image; <see langword="null" /> if none is set.
     /// </returns>
-    public string SplashUrl => CDN.GetGuildSplashUrl(Id, SplashId);
+    public string? SplashUrl => CDN.GetGuildSplashUrl(Id, SplashId);
 
     /// <summary>
     ///     Gets the identifier for this guilds banner image.
@@ -54,7 +54,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     An identifier for the banner image; <see langword="null" /> if none is set.
     /// </returns>
-    public string BannerId { get; internal set; }
+    public string? BannerId { get; internal set; }
 
     /// <summary>
     ///     Gets the URL of this guild's banner image.
@@ -62,7 +62,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A URL pointing to the guild's banner image; <see langword="null" /> if none is set.
     /// </returns>
-    public string BannerUrl => CDN.GetGuildBannerUrl(Id, BannerId, ImageFormat.Auto);
+    public string? BannerUrl => CDN.GetGuildBannerUrl(Id, BannerId, ImageFormat.Auto);
 
     /// <summary>
     ///     Gets the features for this guild.
@@ -70,7 +70,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A flags enum containing all the features for the guild.
     /// </returns>
-    public GuildFeatures Features { get; internal set; }
+    public GuildFeatures? Features { get; internal set; }
 
     /// <summary>
     ///     Gets the ID of this guild's icon.
@@ -78,7 +78,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     An identifier for the splash image; <see langword="null" /> if none is set.
     /// </returns>
-    public string IconId { get; internal set; }
+    public string? IconId { get; internal set; }
 
     /// <summary>
     ///     Gets the URL of this guild's icon.
@@ -86,7 +86,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A URL pointing to the guild's icon; <see langword="null" /> if none is set.
     /// </returns>
-    public string IconUrl => CDN.GetGuildIconUrl(Id, IconId);
+    public string? IconUrl => CDN.GetGuildIconUrl(Id, IconId);
 
     /// <summary>
     /// 
@@ -103,7 +103,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     A string containing the vanity invite code for this guild; <see langword="null" /> if none is set.
     /// </returns>
-    public string VanityURLCode { get; internal set; }
+    public string? VanityURLCode { get; internal set; }
 
     /// <summary>
     ///     Gets the number of premium subscribers of this guild.
@@ -130,7 +130,7 @@ public class PartialGuild : ISnowflakeEntity
     /// <returns>
     ///     The welcome screen of this guild. <see langword="null" /> if none is set.
     /// </returns>
-    public WelcomeScreen WelcomeScreen { get; internal set; }
+    public WelcomeScreen? WelcomeScreen { get; internal set; }
 
     /// <summary>
     ///     Gets the approximate member count in the guild. <see langword="null" /> if none was returned.

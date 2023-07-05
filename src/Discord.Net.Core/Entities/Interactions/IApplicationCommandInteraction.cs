@@ -15,5 +15,8 @@ namespace Discord
         ///     Gets the data of the application command interaction
         /// </summary>
         new IApplicationCommandInteractionData Data { get; }
+
+        /// <inheritdoc cref="IDiscordInteraction.UserLocale"/>
+        new string UserLocale { get; }
     }
 }

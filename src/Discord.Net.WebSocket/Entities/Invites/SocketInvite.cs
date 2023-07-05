@@ -10,7 +10,7 @@ namespace Discord.WebSocket
     ///     Represents a WebSocket-based invite to a guild.
     /// </summary>
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
-    public class SocketInvite : SocketEntity<string>, IInviteMetadata
+    public class SocketInvite : SocketEntity<string, SocketInvite>, IInviteMetadata
     {
         private long _createdAtTicks;
 
@@ -74,7 +74,7 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the user that created this invite if available.
         /// </summary>
-        public SocketGuildUser Inviter { get; private set; }
+        public SocketGuildUser? Inviter { get; private set; }
         /// <inheritdoc />
         DateTimeOffset? IInviteMetadata.CreatedAt => DateTimeUtils.FromTicks(_createdAtTicks);
         /// <summary>
@@ -84,14 +84,14 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the user targeted by this invite if available.
         /// </summary>
-        public SocketUser TargetUser { get; private set; }
+        public SocketUser? TargetUser { get; private set; }
         /// <summary>
         ///     Gets the type of the user targeted by this invite.
         /// </summary>
         public TargetUserType TargetUserType { get; private set; }
 
         /// <inheritdoc cref="IInvite.Application" />
-        public RestApplication Application { get; private set; }
+        public RestApplication? Application { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset? ExpiresAt { get; private set; }
@@ -101,7 +101,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public string Url => $"{DiscordConfig.InviteUrl}{Code}";
 
-        internal SocketInvite(DiscordSocketClient discord, SocketGuild guild, SocketGuildChannel channel, SocketGuildUser inviter, SocketUser target, string id)
+        internal SocketInvite(DiscordSocketClient discord, SocketGuild guild, SocketGuildChannel channel, SocketGuildUser? inviter, SocketUser? target, string id)
             : base(discord, id)
         {
             Guild = guild;
@@ -109,7 +109,7 @@ namespace Discord.WebSocket
             Inviter = inviter;
             TargetUser = target;
         }
-        internal static SocketInvite Create(DiscordSocketClient discord, SocketGuild guild, SocketGuildChannel channel, SocketGuildUser inviter, SocketUser target, Model model)
+        internal static SocketInvite Create(DiscordSocketClient discord, SocketGuild guild, SocketGuildChannel channel, SocketGuildUser? inviter, SocketUser? target, Model model)
         {
             var entity = new SocketInvite(discord, guild, channel, inviter, target, model.Code);
             entity.Update(model);
@@ -130,7 +130,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => InviteHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>
@@ -149,12 +149,12 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         IChannel IInvite.Channel => Channel;
         /// <inheritdoc />
-        IUser IInvite.Inviter => Inviter;
+        IUser? IInvite.Inviter => Inviter;
         /// <inheritdoc />
-        IUser IInvite.TargetUser => TargetUser;
+        IUser? IInvite.TargetUser => TargetUser;
 
         /// <inheritdoc />
-        IApplication IInvite.Application => Application;
+        IApplication? IInvite.Application => Application;
         
         #endregion
     }

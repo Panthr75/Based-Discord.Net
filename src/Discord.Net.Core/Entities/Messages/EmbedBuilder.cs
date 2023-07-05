@@ -1,19 +1,20 @@
 using Discord.Utils;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json;
 
 namespace Discord
 {
     /// <summary>
     ///     Represents a builder class for creating a <see cref="EmbedType.Rich"/> <see cref="Embed"/>.
     /// </summary>
-    public class EmbedBuilder
+    public class EmbedBuilder : IEquatable<EmbedBuilder>
     {
-        private string _title;
-        private string _description;
+        private string? _title;
+        private string? _description;
         private EmbedImage? _image;
         private EmbedThumbnail? _thumbnail;
         private List<EmbedFieldBuilder> _fields;
@@ -38,14 +39,14 @@ namespace Discord
         /// <summary> Initializes a new <see cref="EmbedBuilder"/> class. </summary>
         public EmbedBuilder()
         {
-            Fields = new List<EmbedFieldBuilder>();
+            _fields = new();
         }
 
         /// <summary> Gets or sets the title of an <see cref="Embed"/>. </summary>
         /// <exception cref="ArgumentException" accessor="set">Title length exceeds <see cref="MaxTitleLength"/>.
         /// </exception>
         /// <returns> The title of the embed.</returns>
-        public string Title
+        public string? Title
         {
             get => _title;
             set
@@ -59,7 +60,7 @@ namespace Discord
         /// <summary> Gets or sets the description of an <see cref="Embed"/>. </summary>
         /// <exception cref="ArgumentException" accessor="set">Description length exceeds <see cref="MaxDescriptionLength"/>.</exception>
         /// <returns> The description of the embed.</returns>
-        public string Description
+        public string? Description
         {
             get => _description;
             set
@@ -73,22 +74,22 @@ namespace Discord
         /// <summary> Gets or sets the URL of an <see cref="Embed"/>. </summary>
         /// <exception cref="ArgumentException" accessor="set">Url is not a well-formed <see cref="Uri"/>.</exception>
         /// <returns> The URL of the embed.</returns>
-        public string Url { get; set; }
+        public string? Url { get; set; }
         /// <summary> Gets or sets the thumbnail URL of an <see cref="Embed"/>. </summary>
         /// <exception cref="ArgumentException" accessor="set">Url is not a well-formed <see cref="Uri"/>.</exception>
         /// <returns> The thumbnail URL of the embed.</returns>
-        public string ThumbnailUrl
+        public string? ThumbnailUrl
         {
             get => _thumbnail?.Url;
-            set => _thumbnail = new EmbedThumbnail(value, null, null, null);
+            set => _thumbnail = value is null ? null : new EmbedThumbnail(value, null, null, null);
         }
         /// <summary> Gets or sets the image URL of an <see cref="Embed"/>. </summary>
         /// <exception cref="ArgumentException" accessor="set">Url is not a well-formed <see cref="Uri"/>.</exception>
         /// <returns> The image URL of the embed.</returns>
-        public string ImageUrl
+        public string? ImageUrl
         {
             get => _image?.Url;
-            set => _image = new EmbedImage(value, null, null, null);
+            set => _image = value is null ? null : new EmbedImage(value, null, null, null);
         }
 
         /// <summary> Gets or sets the list of <see cref="EmbedFieldBuilder"/> of an <see cref="Embed"/>. </summary>
@@ -130,14 +131,14 @@ namespace Discord
         /// <returns>
         ///     The author field builder of the embed, or <see langword="null" /> if none is set.
         /// </returns>
-        public EmbedAuthorBuilder Author { get; set; }
+        public EmbedAuthorBuilder? Author { get; set; }
         /// <summary>
         ///     Gets or sets the <see cref="EmbedFooterBuilder" /> of an <see cref="Embed"/>.
         /// </summary>
         /// <returns>
         ///     The footer field builder of the embed, or <see langword="null" /> if none is set.
         /// </returns>
-        public EmbedFooterBuilder Footer { get; set; }
+        public EmbedFooterBuilder? Footer { get; set; }
 
         /// <summary>
         ///     Gets the total length of all embed properties.
@@ -171,7 +172,7 @@ namespace Discord
             builder = new EmbedBuilder();
             try
             {
-                var model = JsonConvert.DeserializeObject<Embed>(json);
+                var model = JsonSerializer.Deserialize<Embed>(json);
 
                 if (model is not null)
                 {
@@ -196,7 +197,7 @@ namespace Discord
         {
             try
             {
-                var model = JsonConvert.DeserializeObject<Embed>(json);
+                var model = JsonSerializer.Deserialize<Embed>(json);
 
                 if (model is not null)
                     return model.ToEmbedBuilder();
@@ -216,7 +217,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithTitle(string title)
+        public EmbedBuilder WithTitle(string? title)
         {
             Title = title;
             return this;
@@ -228,7 +229,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithDescription(string description)
+        public EmbedBuilder WithDescription(string? description)
         {
             Description = description;
             return this;
@@ -240,7 +241,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithUrl(string url)
+        public EmbedBuilder WithUrl(string? url)
         {
             Url = url;
             return this;
@@ -252,7 +253,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithThumbnailUrl(string thumbnailUrl)
+        public EmbedBuilder WithThumbnailUrl(string? thumbnailUrl)
         {
             ThumbnailUrl = thumbnailUrl;
             return this;
@@ -264,7 +265,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithImageUrl(string imageUrl)
+        public EmbedBuilder WithImageUrl(string? imageUrl)
         {
             ImageUrl = imageUrl;
             return this;
@@ -312,7 +313,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithAuthor(EmbedAuthorBuilder author)
+        public EmbedBuilder WithAuthor(EmbedAuthorBuilder? author)
         {
             Author = author;
             return this;
@@ -340,7 +341,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithAuthor(string name, string iconUrl = null, string url = null)
+        public EmbedBuilder WithAuthor(string name, string? iconUrl = null, string? url = null)
         {
             var author = new EmbedAuthorBuilder
             {
@@ -358,7 +359,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithFooter(EmbedFooterBuilder footer)
+        public EmbedBuilder WithFooter(EmbedFooterBuilder? footer)
         {
             Footer = footer;
             return this;
@@ -385,7 +386,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedBuilder WithFooter(string text, string iconUrl = null)
+        public EmbedBuilder WithFooter(string text, string? iconUrl = null)
         {
             var footer = new EmbedFooterBuilder
             {
@@ -431,6 +432,11 @@ namespace Discord
                 throw new ArgumentException(message: $"Field count must be less than or equal to {MaxFieldCount}.", paramName: nameof(field));
             }
 
+            if (field is null)
+            {
+                throw new ArgumentNullException(nameof(field));
+            }
+
             Fields.Add(field);
             return this;
         }
@@ -462,22 +468,22 @@ namespace Discord
             if (Length > MaxEmbedLength)
                 throw new InvalidOperationException($"Total embed length must be less than or equal to {MaxEmbedLength}.");
             if (!string.IsNullOrEmpty(Url))
-                UrlValidation.Validate(Url, true);
+                UrlValidation.Validate(Url!, true);
             if (!string.IsNullOrEmpty(ThumbnailUrl))
-                UrlValidation.Validate(ThumbnailUrl, true);
+                UrlValidation.Validate(ThumbnailUrl!, true);
             if (!string.IsNullOrEmpty(ImageUrl))
-                UrlValidation.Validate(ImageUrl, true);
+                UrlValidation.Validate(ImageUrl!, true);
             if (Author != null)
             {
                 if (!string.IsNullOrEmpty(Author.Url))
-                    UrlValidation.Validate(Author.Url, true);
+                    UrlValidation.Validate(Author.Url!, true);
                 if (!string.IsNullOrEmpty(Author.IconUrl))
-                    UrlValidation.Validate(Author.IconUrl, true);
+                    UrlValidation.Validate(Author.IconUrl!, true);
             }
             if (Footer != null)
             {
                 if (!string.IsNullOrEmpty(Footer.IconUrl))
-                    UrlValidation.Validate(Footer.IconUrl, true);
+                    UrlValidation.Validate(Footer.IconUrl!, true);
             }
             var fields = ImmutableArray.CreateBuilder<EmbedField>(Fields.Count);
             for (int i = 0; i < Fields.Count; i++)
@@ -486,11 +492,11 @@ namespace Discord
             return new Embed(EmbedType.Rich, Title, Description, Url, Timestamp, Color, _image, null, Author?.Build(), Footer?.Build(), null, _thumbnail, fields.ToImmutable());
         }
 
-        public static bool operator ==(EmbedBuilder left, EmbedBuilder right)
+        public static bool operator ==(EmbedBuilder? left, EmbedBuilder? right)
         => left is null ? right is null
                 : left.Equals(right);
 
-        public static bool operator !=(EmbedBuilder left, EmbedBuilder right)
+        public static bool operator !=(EmbedBuilder? left, EmbedBuilder? right)
             => !(left == right);
 
         /// <summary>
@@ -501,7 +507,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedBuilder"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedBuilder embedBuilder && Equals(embedBuilder);
 
         /// <summary>
@@ -509,7 +515,7 @@ namespace Discord
         /// </summary>
         /// <param name="embedBuilder">The <see cref="EmbedBuilder"/> to compare with the current <see cref="EmbedBuilder"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedBuilder embedBuilder)
+        public bool Equals([NotNullWhen(true)] EmbedBuilder? embedBuilder)
         {
             if (embedBuilder is null)
                 return false;
@@ -541,8 +547,8 @@ namespace Discord
     /// </summary>
     public class EmbedFieldBuilder
     {
-        private string _name;
-        private string _value;
+        private string _name = string.Empty;
+        private string _value = string.Empty;
         /// <summary>
         ///     Gets the maximum field length for name allowed by Discord.
         /// </summary>
@@ -595,7 +601,7 @@ namespace Discord
                 var stringValue = value?.ToString();
                 if (string.IsNullOrWhiteSpace(stringValue))
                     throw new ArgumentException(message: "Field value must not be null or empty.", paramName: nameof(Value));
-                if (stringValue.Length > MaxFieldValueLength)
+                if (stringValue!.Length > MaxFieldValueLength)
                     throw new ArgumentException(message: $"Field value length must be less than or equal to {MaxFieldValueLength}.", paramName: nameof(Value));
                 _value = stringValue;
             }
@@ -653,13 +659,13 @@ namespace Discord
         /// <para><see cref="Name"/> or <see cref="Value"/> exceeds the maximum length allowed by Discord.</para>
         /// </exception>
         public EmbedField Build()
-            => new EmbedField(Name, Value.ToString(), IsInline);
+            => new(Name, Value.ToString()!, IsInline);
 
-        public static bool operator ==(EmbedFieldBuilder left, EmbedFieldBuilder right)
+        public static bool operator ==(EmbedFieldBuilder? left, EmbedFieldBuilder? right)
             => left is null ? right is null
                 : left.Equals(right);
 
-        public static bool operator !=(EmbedFieldBuilder left, EmbedFieldBuilder right)
+        public static bool operator !=(EmbedFieldBuilder? left, EmbedFieldBuilder? right)
             => !(left == right);
 
         /// <summary>
@@ -670,7 +676,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedFieldBuilder"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedFieldBuilder embedFieldBuilder && Equals(embedFieldBuilder);
 
         /// <summary>
@@ -678,13 +684,16 @@ namespace Discord
         /// </summary>
         /// <param name="embedFieldBuilder">The <see cref="EmbedFieldBuilder"/> to compare with the current <see cref="EmbedFieldBuilder"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedFieldBuilder embedFieldBuilder)
+        public bool Equals([NotNullWhen(true)] EmbedFieldBuilder? embedFieldBuilder)
             => _name == embedFieldBuilder?._name
             && _value == embedFieldBuilder?._value
             && IsInline == embedFieldBuilder?.IsInline;
 
         /// <inheritdoc />
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this._name ?? string.Empty, this._value ?? string.Empty, this.IsInline);
+        }
     }
 
     /// <summary>
@@ -692,7 +701,7 @@ namespace Discord
     /// </summary>
     public class EmbedAuthorBuilder
     {
-        private string _name;
+        private string _name = string.Empty;
         /// <summary>
         ///     Gets the maximum author name length allowed by Discord.
         /// </summary>
@@ -714,7 +723,7 @@ namespace Discord
             {
                 if (value?.Length > MaxAuthorNameLength)
                     throw new ArgumentException(message: $"Author name length must be less than or equal to {MaxAuthorNameLength}.", paramName: nameof(Name));
-                _name = value;
+                _name = value ?? string.Empty;
             }
         }
         /// <summary>
@@ -724,7 +733,7 @@ namespace Discord
         /// <returns>
         ///     The URL of the author field.
         /// </returns>
-        public string Url { get; set; }
+        public string? Url { get; set; }
         /// <summary>
         ///     Gets or sets the icon URL of the author field.
         /// </summary>
@@ -732,7 +741,7 @@ namespace Discord
         /// <returns>
         ///     The icon URL of the author field.
         /// </returns>
-        public string IconUrl { get; set; }
+        public string? IconUrl { get; set; }
 
         /// <summary>
         ///     Sets the name of the author field.
@@ -753,7 +762,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedAuthorBuilder WithUrl(string url)
+        public EmbedAuthorBuilder WithUrl(string? url)
         {
             Url = url;
             return this;
@@ -765,7 +774,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedAuthorBuilder WithIconUrl(string iconUrl)
+        public EmbedAuthorBuilder WithIconUrl(string? iconUrl)
         {
             IconUrl = iconUrl;
             return this;
@@ -787,11 +796,11 @@ namespace Discord
         public EmbedAuthor Build()
             => new EmbedAuthor(Name, Url, IconUrl, null);
 
-        public static bool operator ==(EmbedAuthorBuilder left, EmbedAuthorBuilder right)
+        public static bool operator ==(EmbedAuthorBuilder? left, EmbedAuthorBuilder? right)
             => left is null ? right is null
                 : left.Equals(right);
 
-        public static bool operator !=(EmbedAuthorBuilder left, EmbedAuthorBuilder right)
+        public static bool operator !=(EmbedAuthorBuilder? left, EmbedAuthorBuilder? right)
             => !(left == right);
 
         /// <summary>
@@ -802,7 +811,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedAuthorBuilder"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedAuthorBuilder embedAuthorBuilder && Equals(embedAuthorBuilder);
 
         /// <summary>
@@ -810,13 +819,16 @@ namespace Discord
         /// </summary>
         /// <param name="embedAuthorBuilder">The <see cref="EmbedAuthorBuilder"/> to compare with the current <see cref="EmbedAuthorBuilder"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedAuthorBuilder embedAuthorBuilder)
+        public bool Equals([NotNullWhen(true)] EmbedAuthorBuilder? embedAuthorBuilder)
             => _name == embedAuthorBuilder?._name
             && Url == embedAuthorBuilder?.Url
             && IconUrl == embedAuthorBuilder?.IconUrl;
 
         /// <inheritdoc />
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this._name, this.Url ?? string.Empty, this.IconUrl ?? string.Empty);
+        }
     }
 
     /// <summary>
@@ -824,7 +836,7 @@ namespace Discord
     /// </summary>
     public class EmbedFooterBuilder
     {
-        private string _text;
+        private string _text = string.Empty;
 
         /// <summary>
         ///     Gets the maximum footer length allowed by Discord.
@@ -847,7 +859,7 @@ namespace Discord
             {
                 if (value?.Length > MaxFooterTextLength)
                     throw new ArgumentException(message: $"Footer text length must be less than or equal to {MaxFooterTextLength}.", paramName: nameof(Text));
-                _text = value;
+                _text = value ?? string.Empty;
             }
         }
         /// <summary>
@@ -857,7 +869,7 @@ namespace Discord
         /// <returns>
         ///     The icon URL of the footer field.
         /// </returns>
-        public string IconUrl { get; set; }
+        public string? IconUrl { get; set; }
 
         /// <summary>
         ///     Sets the name of the footer field.
@@ -878,7 +890,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public EmbedFooterBuilder WithIconUrl(string iconUrl)
+        public EmbedFooterBuilder WithIconUrl(string? iconUrl)
         {
             IconUrl = iconUrl;
             return this;
@@ -897,13 +909,13 @@ namespace Discord
         ///     A built footer field.
         /// </returns>
         public EmbedFooter Build()
-            => new EmbedFooter(Text, IconUrl, null);
+            => new(Text, IconUrl, null);
 
-        public static bool operator ==(EmbedFooterBuilder left, EmbedFooterBuilder right)
+        public static bool operator ==(EmbedFooterBuilder? left, EmbedFooterBuilder? right)
             => left is null ? right is null
                 : left.Equals(right);
 
-        public static bool operator !=(EmbedFooterBuilder left, EmbedFooterBuilder right)
+        public static bool operator !=(EmbedFooterBuilder? left, EmbedFooterBuilder? right)
             => !(left == right);
 
         /// <summary>
@@ -914,7 +926,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedFooterBuilder"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedFooterBuilder embedFooterBuilder && Equals(embedFooterBuilder);
 
         /// <summary>
@@ -922,11 +934,14 @@ namespace Discord
         /// </summary>
         /// <param name="embedFooterBuilder">The <see cref="EmbedFooterBuilder"/> to compare with the current <see cref="EmbedFooterBuilder"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedFooterBuilder embedFooterBuilder)
+        public bool Equals([NotNullWhen(true)] EmbedFooterBuilder? embedFooterBuilder)
             => _text == embedFooterBuilder?._text
             && IconUrl == embedFooterBuilder?.IconUrl;
 
         /// <inheritdoc />
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.Text, this.IconUrl ?? string.Empty);
+        }
     }
 }

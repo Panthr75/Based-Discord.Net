@@ -1,32 +1,33 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class Attachment
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("filename")]
-        public string Filename { get; set; }
-        [JsonProperty("description")]
+        [JsonPropertyName("filename")]
+        public string Filename { get; set; } = string.Empty;
+        [JsonPropertyName("description")]
         public Optional<string> Description { get; set; }
-        [JsonProperty("content_type")]
+        [JsonPropertyName("content_type")]
         public Optional<string> ContentType { get; set; }
-        [JsonProperty("size")]
+        [JsonPropertyName("size")]
         public int Size { get; set; }
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("proxy_url")]
-        public string ProxyUrl { get; set; }
-        [JsonProperty("height")]
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
+        [JsonPropertyName("proxy_url")]
+        public string ProxyUrl { get; set; } = string.Empty;
+        [JsonPropertyName("height")]
         public Optional<int> Height { get; set; }
-        [JsonProperty("width")]
+        [JsonPropertyName("width")]
         public Optional<int> Width { get; set; }
-        [JsonProperty("ephemeral")]
+        [JsonPropertyName("ephemeral")]
         public Optional<bool> Ephemeral { get; set; }
-        [JsonProperty("duration_secs")]
+        [JsonPropertyName("duration_secs")]
         public Optional<double> DurationSeconds { get; set; }
-        [JsonProperty("waveform")]
+        [JsonPropertyName("waveform")]
         public Optional<string> Waveform { get; set; }
     }
 }

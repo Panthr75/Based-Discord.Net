@@ -18,7 +18,7 @@ public class SocketOnboardingUpdatedAuditLogData : ISocketAuditLogData
 
     internal static SocketOnboardingUpdatedAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<OnboardingAuditLogModel>(changes, discord);
 

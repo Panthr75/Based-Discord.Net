@@ -1,15 +1,13 @@
 using Discord.API.AuditLogs;
 
-using System.Linq;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data relating to an invite update.
 /// </summary>
-public class InviteUpdateAuditLogData : IAuditLogData
+public partial class InviteUpdateAuditLogData : IAuditLogData
 {
     private InviteUpdateAuditLogData(InviteInfo before, InviteInfo after)
     {
@@ -17,9 +15,9 @@ public class InviteUpdateAuditLogData : IAuditLogData
         After = after;
     }
 
-    internal static InviteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static InviteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<InviteInfoAuditLogModel>(changes, discord);
 

@@ -1,6 +1,7 @@
 using Discord.Net.Converters;
 using Discord.Net.Rest;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +13,6 @@ namespace Discord.API.Rest
 {
     internal class UploadInteractionFileParams
     {
-        private static JsonSerializer _serializer = new JsonSerializer { ContractResolver = new DiscordContractResolver() };
-
         public FileAttachment[] Files { get; }
 
         public InteractionResponseType Type { get; set; }
@@ -38,7 +37,7 @@ namespace Discord.API.Rest
             Files = files;
         }
 
-        public IReadOnlyDictionary<string, object> ToDictionary()
+        public IReadOnlyDictionary<string, object> ToDictionary(JsonSerializerOptions? options)
         {
             var d = new Dictionary<string, object>();
 
@@ -86,11 +85,7 @@ namespace Discord.API.Rest
 
             if (data.Any())
             {
-                var json = new StringBuilder();
-                using (var text = new StringWriter(json))
-                using (var writer = new JsonTextWriter(text))
-                    _serializer.Serialize(writer, payload);
-                d["payload_json"] = json.ToString();
+                d["payload_json"] = JsonSerializer.Serialize(payload, options);
             }
 
             return d;

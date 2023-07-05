@@ -39,13 +39,13 @@ namespace Discord
         ///     A task that represents the asynchronous send operation. The task result contains the sent message.
         /// </returns>
         public static async Task<IUserMessage> SendMessageAsync(this IUser user,
-            string text = null,
+            string? text = null,
             bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed[] embeds = null)
+            Embed? embed = null,
+            RequestOptions? options = null,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed[]? embeds = null)
         {
             return await (await user.CreateDMChannelAsync().ConfigureAwait(false)).SendMessageAsync(text, isTTS, embed, options, allowedMentions, components: components, embeds: embeds).ConfigureAwait(false);
         }
@@ -95,12 +95,12 @@ namespace Discord
         public static async Task<IUserMessage> SendFileAsync(this IUser user,
             Stream stream,
             string filename,
-            string text = null,
+            string? text = null,
             bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null,
-            MessageComponent components = null,
-            Embed[] embeds = null)
+            Embed? embed = null,
+            RequestOptions? options = null,
+            MessageComponent? components = null,
+            Embed[]? embeds = null)
         {
             return await (await user.CreateDMChannelAsync().ConfigureAwait(false)).SendFileAsync(stream, filename, text, isTTS, embed, options, components: components, embeds: embeds).ConfigureAwait(false);
         }
@@ -154,12 +154,12 @@ namespace Discord
         /// </returns>
         public static async Task<IUserMessage> SendFileAsync(this IUser user,
             string filePath,
-            string text = null,
+            string? text = null,
             bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null,
-            MessageComponent components = null,
-            Embed[] embeds = null)
+            Embed? embed = null,
+            RequestOptions? options = null,
+            MessageComponent? components = null,
+            Embed[]? embeds = null)
         {
             return await (await user.CreateDMChannelAsync().ConfigureAwait(false)).SendFileAsync(filePath, text, isTTS, embed, options, components: components, embeds: embeds).ConfigureAwait(false);
         }
@@ -199,12 +199,12 @@ namespace Discord
         /// </returns>
         public static async Task<IUserMessage> SendFileAsync(this IUser user,
             FileAttachment attachment,
-            string text = null,
+            string? text = null,
             bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null,
-            MessageComponent components = null,
-            Embed[] embeds = null)
+            Embed? embed = null,
+            RequestOptions? options = null,
+            MessageComponent? components = null,
+            Embed[]? embeds = null)
         {
             return await (await user.CreateDMChannelAsync().ConfigureAwait(false)).SendFileAsync(attachment, text, isTTS, embed, options, components: components, embeds: embeds).ConfigureAwait(false);
         }
@@ -244,12 +244,12 @@ namespace Discord
         /// </returns>
         public static async Task<IUserMessage> SendFilesAsync(this IUser user,
             IEnumerable<FileAttachment> attachments,
-            string text = null,
+            string? text = null,
             bool isTTS = false,
-            Embed embed = null,
-            RequestOptions options = null,
-            MessageComponent components = null,
-            Embed[] embeds = null)
+            Embed? embed = null,
+            RequestOptions? options = null,
+            MessageComponent? components = null,
+            Embed[]? embeds = null)
         {
             return await (await user.CreateDMChannelAsync().ConfigureAwait(false)).SendFilesAsync(attachments, text, isTTS, embed, options, components: components, embeds: embeds).ConfigureAwait(false);
         }
@@ -265,7 +265,18 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous operation for banning a user.
         /// </returns>
-        public static Task BanAsync(this IGuildUser user, int pruneDays = 0, string reason = null, RequestOptions options = null)
+        public static Task BanAsync(this IGuildUser user, int pruneDays = 0, string? reason = null, RequestOptions? options = null)
             => user.Guild.AddBanAsync(user, pruneDays, reason, options);
+
+        /// <summary>
+        /// Returns the display name of the user, in the order of
+        /// nickname, global name, username
+        /// </summary>
+        /// <param name="user">The user</param>
+        /// <returns>The displayed name of the user</returns>
+        public static string GetDisplayName(this IUser user)
+        {
+            return Format.DisplayName(user);
+        }
     }
 }

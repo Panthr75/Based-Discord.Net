@@ -11,9 +11,22 @@ namespace Discord.Rest
 {
     internal static class ThreadHelper
     {
-        public static async Task<Model> CreateThreadAsync(BaseDiscordClient client, ITextChannel channel, string name, ThreadType type = ThreadType.PublicThread,
-            ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage message = null, bool? invitable = null, int? slowmode = null, RequestOptions options = null)
+        public static async Task<Model> CreateThreadAsync(BaseDiscordClient client,
+            ITextChannel channel,
+            string name,
+            ThreadType type = ThreadType.PublicThread,
+            ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay,
+            IMessage? message = null,
+            bool? invitable = null,
+            int? slowmode = null,
+            RequestOptions? options = null)
         {
+            Preconditions.NotNull(name, nameof(name));
+            name = name.Trim();
+
+            Preconditions.AtLeast(name.Length, 1, nameof(name), "The name of a thread cannot be empty.");
+            Preconditions.AtMost(name.Length, 100, nameof(name), "The name of a thread cannot exceed 100 characters.");
+
             if (channel is INewsChannel && type != ThreadType.NewsThread)
                 throw new ArgumentException($"{nameof(type)} must be a {ThreadType.NewsThread} in News channels");
 
@@ -22,8 +35,8 @@ namespace Discord.Rest
                 Name = name,
                 Duration = autoArchiveDuration,
                 Type = type,
-                Invitable = invitable.HasValue ? invitable.Value : Optional<bool>.Unspecified,
-                Ratelimit = slowmode.HasValue ? slowmode.Value : Optional<int?>.Unspecified,
+                Invitable = Optional.CreateFromNullable(invitable),
+                Ratelimit = slowmode,
             };
 
             Model model;
@@ -38,12 +51,21 @@ namespace Discord.Rest
 
         public static async Task<Model> ModifyAsync(IThreadChannel channel, BaseDiscordClient client,
             Action<ThreadChannelProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new ThreadChannelProperties();
             func(args);
+            args.Name = args.Name.Map(name =>
+            {
+                name = name.Trim();
 
-            Preconditions.AtMost(args.AppliedTags.IsSpecified ? args.AppliedTags.Value.Count() : 0, 5, nameof(args.AppliedTags), "Forum post can have max 5 applied tags.");
+                Preconditions.AtLeast(name.Length, 1, nameof(args.Name), "The name of a thread cannot be empty.");
+                Preconditions.AtMost(name.Length, 100, nameof(args.Name), "The name of a thread cannot exceed 100 characters.");
+
+                return name;
+            });
+
+            Preconditions.AtMost(args.AppliedTags.Map(tags => tags.Count()).GetValueOrDefault(0), 5, nameof(args.AppliedTags), "Forum post can have max 5 applied tags.");
 
             var apiArgs = new ModifyThreadParams
             {
@@ -58,34 +80,34 @@ namespace Discord.Rest
             return await client.ApiClient.ModifyThreadAsync(channel.Id, apiArgs, options).ConfigureAwait(false);
         }
 
-        public static async Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(IGuild guild, ulong channelId, BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(IGuild guild, ulong channelId, BaseDiscordClient client, RequestOptions? options = null)
         {
             var result = await client.ApiClient.GetActiveThreadsAsync(guild.Id, options).ConfigureAwait(false);
             return result.Threads.Where(x => x.CategoryId == channelId).Select(x => RestThreadChannel.Create(client, guild, x)).ToImmutableArray();
         }
 
         public static async Task<IReadOnlyCollection<RestThreadChannel>> GetPublicArchivedThreadsAsync(IGuildChannel channel, BaseDiscordClient client, int? limit = null,
-            DateTimeOffset? before = null, RequestOptions options = null)
+            DateTimeOffset? before = null, RequestOptions? options = null)
         {
             var result = await client.ApiClient.GetPublicArchivedThreadsAsync(channel.Id, before, limit, options);
             return result.Threads.Select(x => RestThreadChannel.Create(client, channel.Guild, x)).ToImmutableArray();
         }
 
         public static async Task<IReadOnlyCollection<RestThreadChannel>> GetPrivateArchivedThreadsAsync(IGuildChannel channel, BaseDiscordClient client, int? limit = null,
-            DateTimeOffset? before = null, RequestOptions options = null)
+            DateTimeOffset? before = null, RequestOptions? options = null)
         {
             var result = await client.ApiClient.GetPrivateArchivedThreadsAsync(channel.Id, before, limit, options);
             return result.Threads.Select(x => RestThreadChannel.Create(client, channel.Guild, x)).ToImmutableArray();
         }
 
         public static async Task<IReadOnlyCollection<RestThreadChannel>> GetJoinedPrivateArchivedThreadsAsync(IGuildChannel channel, BaseDiscordClient client, int? limit = null,
-            DateTimeOffset? before = null, RequestOptions options = null)
+            DateTimeOffset? before = null, RequestOptions? options = null)
         {
             var result = await client.ApiClient.GetJoinedPrivateArchivedThreadsAsync(channel.Id, before, limit, options);
             return result.Threads.Select(x => RestThreadChannel.Create(client, channel.Guild, x)).ToImmutableArray();
         }
 
-        public static IAsyncEnumerable<IReadOnlyCollection<RestThreadUser>> GetUsersAsync(IThreadChannel channel, BaseDiscordClient client, int limit = DiscordConfig.MaxThreadMembersPerBatch, ulong? afterId = null, RequestOptions options = null)
+        public static IAsyncEnumerable<IReadOnlyCollection<RestThreadUser>> GetUsersAsync(IThreadChannel channel, BaseDiscordClient client, int limit = DiscordConfig.MaxThreadMembersPerBatch, ulong? afterId = null, RequestOptions? options = null)
         {
             return new PagedAsyncEnumerable<RestThreadUser>(
                 limit,
@@ -108,18 +130,38 @@ namespace Discord.Rest
             );
         }
 
-        public static async Task<RestThreadUser> GetUserAsync(ulong userId, IThreadChannel channel, BaseDiscordClient client, RequestOptions options = null)
+        public static async Task<RestThreadUser?> GetUserAsync(ulong userId, IThreadChannel channel, BaseDiscordClient client, RequestOptions? options = null)
         {
             var model = await client.ApiClient.GetThreadMemberAsync(channel.Id, userId, options).ConfigureAwait(false);
+            if (model is null)
+            {
+                return null;
+            }
 
             return RestThreadUser.Create(client, channel.Guild, model, channel);
         }
 
-        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel, BaseDiscordClient client, string title,
-            ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay, int? slowmode = null, string text = null, Embed embed = null,
-            RequestOptions options = null, AllowedMentions allowedMentions = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None, ulong[] tagIds = null)
+        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel,
+            BaseDiscordClient client,
+            string title,
+            ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
+            int? slowmode = null,
+            string? text = null,
+            Embed? embed = null,
+            RequestOptions? options = null,
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            ISticker[]? stickers = null,
+            Embed[]? embeds = null,
+            MessageFlags flags = MessageFlags.None,
+            ulong[]? tagIds = null)
         {
+            Preconditions.NotNull(title, nameof(title));
+            title = title.Trim();
+
+            Preconditions.AtLeast(title.Length, 1, nameof(title), "The title of a forum post cannot be empty.");
+            Preconditions.AtMost(title.Length, 100, nameof(title), "The title of a forum post cannot exceed 100 characters.");
+
             embeds ??= Array.Empty<Embed>();
             if (embed != null)
                 embeds = new[] { embed }.Concat(embeds).ToArray();
@@ -163,14 +205,14 @@ namespace Discord.Rest
                 Slowmode = slowmode,
                 Message = new()
                 {
-                    AllowedMentions = allowedMentions.ToModel(),
-                    Content = text,
+                    AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
+                    Content = Optional.CreateFromNullable(text),
                     Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
                     Flags = flags,
                     Components = components?.Components?.Any() ?? false ? components.Components.Select(x => new API.ActionRowComponent(x)).ToArray() : Optional<API.ActionRowComponent[]>.Unspecified,
                     Stickers = stickers?.Any() ?? false ? stickers.Select(x => x.Id).ToArray() : Optional<ulong[]>.Unspecified,
                 },
-                Tags = tagIds
+                Tags = Optional.CreateFromNullable(tagIds)
             };
 
             var model = await client.ApiClient.CreatePostAsync(channel.Id, args, options).ConfigureAwait(false);
@@ -178,10 +220,28 @@ namespace Discord.Rest
             return RestThreadChannel.Create(client, channel.Guild, model);
         }
 
-        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel, BaseDiscordClient client, string title, IEnumerable<FileAttachment> attachments,
-            ThreadArchiveDuration archiveDuration, int? slowmode, string text, Embed embed, RequestOptions options, AllowedMentions allowedMentions, MessageComponent components,
-            ISticker[] stickers, Embed[] embeds, MessageFlags flags, ulong[] tagIds = null)
+        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel,
+            BaseDiscordClient client,
+            string title,
+            IEnumerable<FileAttachment> attachments,
+            ThreadArchiveDuration archiveDuration,
+            int? slowmode,
+            string? text,
+            Embed? embed,
+            RequestOptions? options,
+            AllowedMentions? allowedMentions,
+            MessageComponent? components,
+            ISticker[]? stickers,
+            Embed[]? embeds,
+            MessageFlags flags,
+            ulong[]? tagIds = null)
         {
+            Preconditions.NotNull(title, nameof(title));
+            title = title.Trim();
+
+            Preconditions.AtLeast(title.Length, 1, nameof(title), "The title of a forum post cannot be empty.");
+            Preconditions.AtMost(title.Length, 100, nameof(title), "The title of a forum post cannot exceed 100 characters.");
+
             embeds ??= Array.Empty<Embed>();
             if (embed != null)
                 embeds = new[] { embed }.Concat(embeds).ToArray();
@@ -221,15 +281,16 @@ namespace Discord.Rest
 
             var args = new CreateMultipartPostAsync(attachments.ToArray())
             {
-                AllowedMentions = allowedMentions.ToModel(),
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
                 ArchiveDuration = archiveDuration,
-                Content = text,
+                Content = Optional.CreateFromNullable(text),
                 Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
                 Flags = flags,
                 MessageComponent = components?.Components?.Any() ?? false ? components.Components.Select(x => new API.ActionRowComponent(x)).ToArray() : Optional<API.ActionRowComponent[]>.Unspecified,
                 Slowmode = slowmode,
                 Stickers = stickers?.Any() ?? false ? stickers.Select(x => x.Id).ToArray() : Optional<ulong[]>.Unspecified,
-                Title = title
+                Title = title,
+                TagIds = Optional.CreateFromNullable(tagIds)
             };
 
             var model = await client.ApiClient.CreatePostAsync(channel.Id, args, options);

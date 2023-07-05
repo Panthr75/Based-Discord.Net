@@ -11,19 +11,19 @@ namespace Discord.Rest
     internal static class ClientHelper
     {
         #region Applications
-        public static async Task<RestApplication> GetApplicationInfoAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<RestApplication> GetApplicationInfoAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var model = await client.ApiClient.GetMyApplicationAsync(options).ConfigureAwait(false);
             return RestApplication.Create(client, model);
         }
 
-        public static async Task<RestApplication> GetCurrentBotApplicationAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<RestApplication> GetCurrentBotApplicationAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var model = await client.ApiClient.GetCurrentBotApplicationAsync(options).ConfigureAwait(false);
             return RestApplication.Create(client, model);
         }
 
-        public static async Task<API.Application> ModifyCurrentBotApplicationAsync(BaseDiscordClient client, Action<ModifyApplicationProperties> func, RequestOptions options)
+        public static async Task<API.Application> ModifyCurrentBotApplicationAsync(BaseDiscordClient client, Action<ModifyApplicationProperties> func, RequestOptions? options)
         {
             var args = new ModifyApplicationProperties();
             func(args);
@@ -45,8 +45,8 @@ namespace Discord.Rest
             }, options);
         }
 
-        public static async Task<RestChannel> GetChannelAsync(BaseDiscordClient client,
-            ulong id, RequestOptions options)
+        public static async Task<RestChannel?> GetChannelAsync(BaseDiscordClient client,
+            ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetChannelAsync(id, options).ConfigureAwait(false);
             if (model != null)
@@ -54,19 +54,19 @@ namespace Discord.Rest
             return null;
         }
         /// <exception cref="InvalidOperationException">Unexpected channel type.</exception>
-        public static async Task<IReadOnlyCollection<IRestPrivateChannel>> GetPrivateChannelsAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<IRestPrivateChannel>> GetPrivateChannelsAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetMyPrivateChannelsAsync(options).ConfigureAwait(false);
             return models.Select(x => RestChannel.CreatePrivate(client, x)).ToImmutableArray();
         }
-        public static async Task<IReadOnlyCollection<RestDMChannel>> GetDMChannelsAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestDMChannel>> GetDMChannelsAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetMyPrivateChannelsAsync(options).ConfigureAwait(false);
             return models
                 .Where(x => x.Type == ChannelType.DM)
                 .Select(x => RestDMChannel.Create(client, x)).ToImmutableArray();
         }
-        public static async Task<IReadOnlyCollection<RestGroupChannel>> GetGroupChannelsAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestGroupChannel>> GetGroupChannelsAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetMyPrivateChannelsAsync(options).ConfigureAwait(false);
             return models
@@ -74,13 +74,13 @@ namespace Discord.Rest
                 .Select(x => RestGroupChannel.Create(client, x)).ToImmutableArray();
         }
 
-        public static async Task<IReadOnlyCollection<RestConnection>> GetConnectionsAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestConnection>> GetConnectionsAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetMyConnectionsAsync(options).ConfigureAwait(false);
             return models.Select(model => RestConnection.Create(client, model)).ToImmutableArray();
         }
 
-        public static async Task<RestInviteMetadata> GetInviteAsync(BaseDiscordClient client, string inviteId, RequestOptions options, ulong? scheduledEventId = null)
+        public static async Task<RestInviteMetadata?> GetInviteAsync(BaseDiscordClient client, string inviteId, RequestOptions? options, ulong? scheduledEventId = null)
         {
             var model = await client.ApiClient.GetInviteAsync(inviteId, options, scheduledEventId).ConfigureAwait(false);
             if (model != null)
@@ -88,8 +88,8 @@ namespace Discord.Rest
             return null;
         }
 
-        public static async Task<RestGuild> GetGuildAsync(BaseDiscordClient client,
-            ulong id, bool withCounts, RequestOptions options)
+        public static async Task<RestGuild?> GetGuildAsync(BaseDiscordClient client,
+            ulong id, bool withCounts, RequestOptions? options)
         {
             var model = await client.ApiClient.GetGuildAsync(id, withCounts, options).ConfigureAwait(false);
             if (model != null)
@@ -97,7 +97,7 @@ namespace Discord.Rest
             return null;
         }
         public static async Task<RestGuildWidget?> GetGuildWidgetAsync(BaseDiscordClient client,
-            ulong id, RequestOptions options)
+            ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetGuildWidgetAsync(id, options).ConfigureAwait(false);
             if (model != null)
@@ -105,7 +105,7 @@ namespace Discord.Rest
             return null;
         }
         public static IAsyncEnumerable<IReadOnlyCollection<RestUserGuild>> GetGuildSummariesAsync(BaseDiscordClient client,
-            ulong? fromGuildId, int? limit, RequestOptions options)
+            ulong? fromGuildId, int? limit, RequestOptions? options)
         {
             return new PagedAsyncEnumerable<RestUserGuild>(
                 DiscordConfig.MaxGuildsPerBatch,
@@ -133,7 +133,7 @@ namespace Discord.Rest
                 count: limit
             );
         }
-        public static async Task<IReadOnlyCollection<RestGuild>> GetGuildsAsync(BaseDiscordClient client, bool withCounts, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestGuild>> GetGuildsAsync(BaseDiscordClient client, bool withCounts, RequestOptions? options)
         {
             var summaryModels = await GetGuildSummariesAsync(client, null, null, options).FlattenAsync().ConfigureAwait(false);
             var guilds = ImmutableArray.CreateBuilder<RestGuild>();
@@ -146,9 +146,9 @@ namespace Discord.Rest
             return guilds.ToImmutable();
         }
         public static async Task<RestGuild> CreateGuildAsync(BaseDiscordClient client,
-            string name, IVoiceRegion region, Stream jpegIcon, RequestOptions options)
+            string name, IVoiceRegion? region, Stream? jpegIcon, RequestOptions? options)
         {
-            var args = new CreateGuildParams(name, region.Id);
+            var args = new CreateGuildParams(name, region?.Id ?? "en-US");
             if (jpegIcon != null)
                 args.Icon = new API.Image(jpegIcon);
 
@@ -156,16 +156,16 @@ namespace Discord.Rest
             return RestGuild.Create(client, model);
         }
 
-        public static async Task<RestUser> GetUserAsync(BaseDiscordClient client,
-            ulong id, RequestOptions options)
+        public static async Task<RestUser?> GetUserAsync(BaseDiscordClient client,
+            ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetUserAsync(id, options).ConfigureAwait(false);
             if (model != null)
                 return RestUser.Create(client, model);
             return null;
         }
-        public static async Task<RestGuildUser> GetGuildUserAsync(BaseDiscordClient client,
-            ulong guildId, ulong id, RequestOptions options)
+        public static async Task<RestGuildUser?> GetGuildUserAsync(BaseDiscordClient client,
+            ulong guildId, ulong id, RequestOptions? options)
         {
             var guild = await GetGuildAsync(client, guildId, false, options).ConfigureAwait(false);
             if (guild == null)
@@ -178,33 +178,33 @@ namespace Discord.Rest
             return null;
         }
 
-        public static async Task<RestWebhook> GetWebhookAsync(BaseDiscordClient client, ulong id, RequestOptions options)
+        public static async Task<RestWebhook?> GetWebhookAsync(BaseDiscordClient client, ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetWebhookAsync(id).ConfigureAwait(false);
             if (model != null)
-                return RestWebhook.Create(client, (IGuild)null, model);
+                return RestWebhook.Create(client, (IGuild?)null, model);
             return null;
         }
 
-        public static async Task<IReadOnlyCollection<RestVoiceRegion>> GetVoiceRegionsAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestVoiceRegion>> GetVoiceRegionsAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetVoiceRegionsAsync(options).ConfigureAwait(false);
             return models.Select(x => RestVoiceRegion.Create(client, x)).ToImmutableArray();
         }
-        public static async Task<RestVoiceRegion> GetVoiceRegionAsync(BaseDiscordClient client,
-            string id, RequestOptions options)
+        public static async Task<RestVoiceRegion?> GetVoiceRegionAsync(BaseDiscordClient client,
+            string id, RequestOptions? options)
         {
             var models = await client.ApiClient.GetVoiceRegionsAsync(options).ConfigureAwait(false);
             return models.Select(x => RestVoiceRegion.Create(client, x)).FirstOrDefault(x => x.Id == id);
         }
 
-        public static async Task<int> GetRecommendShardCountAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<int> GetRecommendShardCountAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var response = await client.ApiClient.GetBotGatewayAsync(options).ConfigureAwait(false);
             return response.Shards;
         }
 
-        public static async Task<BotGateway> GetBotGatewayAsync(BaseDiscordClient client, RequestOptions options)
+        public static async Task<BotGateway> GetBotGatewayAsync(BaseDiscordClient client, RequestOptions? options)
         {
             var response = await client.ApiClient.GetBotGatewayAsync(options).ConfigureAwait(false);
             return new BotGateway
@@ -222,7 +222,7 @@ namespace Discord.Rest
         }
 
         public static async Task<IReadOnlyCollection<RestGlobalCommand>> GetGlobalApplicationCommandsAsync(BaseDiscordClient client, bool withLocalizations = false,
-            string locale = null, RequestOptions options = null)
+            string? locale = null, RequestOptions? options = null)
         {
             var response = await client.ApiClient.GetGlobalApplicationCommandsAsync(withLocalizations, locale, options).ConfigureAwait(false);
 
@@ -231,8 +231,8 @@ namespace Discord.Rest
 
             return response.Select(x => RestGlobalCommand.Create(client, x)).ToArray();
         }
-        public static async Task<RestGlobalCommand> GetGlobalApplicationCommandAsync(BaseDiscordClient client, ulong id,
-            RequestOptions options = null)
+        public static async Task<RestGlobalCommand?> GetGlobalApplicationCommandAsync(BaseDiscordClient client, ulong id,
+            RequestOptions? options = null)
         {
             var model = await client.ApiClient.GetGlobalApplicationCommandAsync(id, options);
 
@@ -240,61 +240,61 @@ namespace Discord.Rest
         }
 
         public static async Task<IReadOnlyCollection<RestGuildCommand>> GetGuildApplicationCommandsAsync(BaseDiscordClient client, ulong guildId, bool withLocalizations = false,
-            string locale = null, RequestOptions options = null)
+            string? locale = null, RequestOptions? options = null)
         {
             var response = await client.ApiClient.GetGuildApplicationCommandsAsync(guildId, withLocalizations, locale, options).ConfigureAwait(false);
 
             if (!response.Any())
-                return ImmutableArray.Create<RestGuildCommand>();
+                return ImmutableArray<RestGuildCommand>.Empty;
 
             return response.Select(x => RestGuildCommand.Create(client, x, guildId)).ToImmutableArray();
         }
-        public static async Task<RestGuildCommand> GetGuildApplicationCommandAsync(BaseDiscordClient client, ulong id, ulong guildId,
-            RequestOptions options = null)
+        public static async Task<RestGuildCommand?> GetGuildApplicationCommandAsync(BaseDiscordClient client, ulong id, ulong guildId,
+            RequestOptions? options = null)
         {
             var model = await client.ApiClient.GetGuildApplicationCommandAsync(guildId, id, options);
 
             return model != null ? RestGuildCommand.Create(client, model, guildId) : null;
         }
         public static async Task<RestGuildCommand> CreateGuildApplicationCommandAsync(BaseDiscordClient client, ulong guildId, ApplicationCommandProperties properties,
-            RequestOptions options = null)
+            RequestOptions? options = null)
         {
             var model = await InteractionHelper.CreateGuildCommandAsync(client, guildId, properties, options);
 
             return RestGuildCommand.Create(client, model, guildId);
         }
         public static async Task<RestGlobalCommand> CreateGlobalApplicationCommandAsync(BaseDiscordClient client, ApplicationCommandProperties properties,
-            RequestOptions options = null)
+            RequestOptions? options = null)
         {
             var model = await InteractionHelper.CreateGlobalCommandAsync(client, properties, options);
 
             return RestGlobalCommand.Create(client, model);
         }
         public static async Task<IReadOnlyCollection<RestGlobalCommand>> BulkOverwriteGlobalApplicationCommandAsync(BaseDiscordClient client, ApplicationCommandProperties[] properties,
-            RequestOptions options = null)
+            RequestOptions? options = null)
         {
             var models = await InteractionHelper.BulkOverwriteGlobalCommandsAsync(client, properties, options);
 
             return models.Select(x => RestGlobalCommand.Create(client, x)).ToImmutableArray();
         }
         public static async Task<IReadOnlyCollection<RestGuildCommand>> BulkOverwriteGuildApplicationCommandAsync(BaseDiscordClient client, ulong guildId,
-            ApplicationCommandProperties[] properties, RequestOptions options = null)
+            ApplicationCommandProperties[] properties, RequestOptions? options = null)
         {
             var models = await InteractionHelper.BulkOverwriteGuildCommandsAsync(client, guildId, properties, options);
 
             return models.Select(x => RestGuildCommand.Create(client, x, guildId)).ToImmutableArray();
         }
 
-        public static Task AddRoleAsync(BaseDiscordClient client, ulong guildId, ulong userId, ulong roleId, RequestOptions options = null)
+        public static Task AddRoleAsync(BaseDiscordClient client, ulong guildId, ulong userId, ulong roleId, RequestOptions? options = null)
             => client.ApiClient.AddRoleAsync(guildId, userId, roleId, options);
 
-        public static Task RemoveRoleAsync(BaseDiscordClient client, ulong guildId, ulong userId, ulong roleId, RequestOptions options = null)
+        public static Task RemoveRoleAsync(BaseDiscordClient client, ulong guildId, ulong userId, ulong roleId, RequestOptions? options = null)
             => client.ApiClient.RemoveRoleAsync(guildId, userId, roleId, options);
         #endregion
 
         #region Role Connection Metadata
 
-        public static async Task<IReadOnlyCollection<RoleConnectionMetadata>> GetRoleConnectionMetadataRecordsAsync(BaseDiscordClient client, RequestOptions options = null)
+        public static async Task<IReadOnlyCollection<RoleConnectionMetadata>> GetRoleConnectionMetadataRecordsAsync(BaseDiscordClient client, RequestOptions? options = null)
             => (await client.ApiClient.GetApplicationRoleConnectionMetadataRecordsAsync(options))
                 .Select(model
                     => new RoleConnectionMetadata(
@@ -310,7 +310,7 @@ namespace Discord.Rest
                             : null))
                 .ToImmutableArray();
 
-        public static async Task<IReadOnlyCollection<RoleConnectionMetadata>> ModifyRoleConnectionMetadataRecordsAsync(ICollection<RoleConnectionMetadataProperties> metadata, BaseDiscordClient client, RequestOptions options = null)
+        public static async Task<IReadOnlyCollection<RoleConnectionMetadata>> ModifyRoleConnectionMetadataRecordsAsync(ICollection<RoleConnectionMetadataProperties> metadata, BaseDiscordClient client, RequestOptions? options = null)
             => (await client.ApiClient.UpdateApplicationRoleConnectionMetadataRecordsAsync(metadata
                 .Select(x => new API.RoleConnectionMetadata
                 {
@@ -318,8 +318,8 @@ namespace Discord.Rest
                     Description = x.Description,
                     Key = x.Key,
                     Type = x.Type,
-                    NameLocalizations = x.NameLocalizations?.ToDictionary(),
-                    DescriptionLocalizations = x.DescriptionLocalizations?.ToDictionary()
+                    NameLocalizations = Optional.CreateFromNullable(x.NameLocalizations?.ToDictionary()),
+                    DescriptionLocalizations = Optional.CreateFromNullable(x.DescriptionLocalizations?.ToDictionary())
                 }).ToArray()))
                 .Select(model
                     => new RoleConnectionMetadata(
@@ -335,29 +335,29 @@ namespace Discord.Rest
                             : null))
                 .ToImmutableArray();
 
-        public static async Task<RoleConnection> GetUserRoleConnectionAsync(ulong applicationId, BaseDiscordClient client, RequestOptions options = null)
+        public static async Task<RoleConnection> GetUserRoleConnectionAsync(ulong applicationId, BaseDiscordClient client, RequestOptions? options = null)
         {
             var roleConnection = await client.ApiClient.GetUserApplicationRoleConnectionAsync(applicationId, options);
 
             return new RoleConnection(roleConnection.PlatformName.GetValueOrDefault(null),
                 roleConnection.PlatformUsername.GetValueOrDefault(null),
-                roleConnection.Metadata.GetValueOrDefault());
+                roleConnection.Metadata.GetValueOrDefault(new Dictionary<string, string>()));
         }
 
-        public static async Task<RoleConnection> ModifyUserRoleConnectionAsync(ulong applicationId, RoleConnectionProperties roleConnection, BaseDiscordClient client, RequestOptions options = null)
+        public static async Task<RoleConnection> ModifyUserRoleConnectionAsync(ulong applicationId, RoleConnectionProperties roleConnection, BaseDiscordClient client, RequestOptions? options = null)
         {
             var updatedConnection = await client.ApiClient.ModifyUserApplicationRoleConnectionAsync(applicationId,
                 new API.RoleConnection
                 {
-                    PlatformName = roleConnection.PlatformName,
-                    PlatformUsername = roleConnection.PlatformUsername,
-                    Metadata = roleConnection.Metadata
+                    PlatformName = Optional.CreateFromNullable(roleConnection.PlatformName),
+                    PlatformUsername = Optional.CreateFromNullable(roleConnection.PlatformUsername),
+                    Metadata = Optional.CreateFromNullable(roleConnection.Metadata)
                 }, options);
 
             return new RoleConnection(
                 updatedConnection.PlatformName.GetValueOrDefault(null),
                 updatedConnection.PlatformUsername.GetValueOrDefault(null),
-                updatedConnection.Metadata.GetValueOrDefault()?.ToImmutableDictionary()
+                updatedConnection.Metadata.GetValueOrDefault()?.ToImmutableDictionary() ?? ImmutableDictionary.Create<string, string>()
                 );
         }
 

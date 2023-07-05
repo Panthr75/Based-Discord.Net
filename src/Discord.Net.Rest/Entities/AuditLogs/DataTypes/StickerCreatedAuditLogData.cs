@@ -1,22 +1,21 @@
 using Discord.API.AuditLogs;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a sticker creation.
 /// </summary>
-public class StickerCreatedAuditLogData : IAuditLogData
+public partial class StickerCreatedAuditLogData : IAuditLogData
 {
     internal StickerCreatedAuditLogData(StickerInfo data)
     {
         Data = data;
     }
 
-    internal static StickerCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static StickerCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<StickerInfoAuditLogModel>(changes, discord);
 
         return new StickerCreatedAuditLogData(new(data));

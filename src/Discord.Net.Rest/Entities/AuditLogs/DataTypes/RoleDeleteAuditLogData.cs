@@ -1,14 +1,13 @@
 using Discord.API.AuditLogs;
 
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data relating to a role deletion.
 /// </summary>
-public class RoleDeleteAuditLogData : IAuditLogData
+public partial class RoleDeleteAuditLogData : IAuditLogData
 {
     private RoleDeleteAuditLogData(ulong id, RoleEditInfo props)
     {
@@ -16,9 +15,9 @@ public class RoleDeleteAuditLogData : IAuditLogData
         Properties = props;
     }
 
-    internal static RoleDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static RoleDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<RoleInfoAuditLogModel>(changes, discord);
 

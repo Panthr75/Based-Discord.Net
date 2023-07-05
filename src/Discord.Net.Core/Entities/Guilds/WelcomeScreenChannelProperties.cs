@@ -13,7 +13,7 @@ public class WelcomeScreenChannelProperties : ISnowflakeEntity
     /// <summary>
     /// 	Gets or sets the description shown for the channel.
     /// </summary>
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     /// <summary>
     ///     Gets or sets the emoji for this channel. <see cref="Emoji"/> if it is unicode emoji, <see cref="Emote"/> if it is a custom one and <see langword="null"/> if none is set.
@@ -22,7 +22,7 @@ public class WelcomeScreenChannelProperties : ISnowflakeEntity
     ///     If the emoji is <see cref="Emote"/> only the <see cref="Emote.Id"/> will be populated.
     ///     Use <see cref="IGuild.GetEmoteAsync"/> to get the emoji.
     /// </remarks>
-    public IEmote Emoji { get; set; }
+    public IEmote? Emoji { get; set; }
 
     /// <inheritdoc/>
     public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -33,7 +33,7 @@ public class WelcomeScreenChannelProperties : ISnowflakeEntity
     /// <param name="id">Id if a channel.</param>
     /// <param name="description">Description for the channel in the welcome screen.</param>
     /// <param name="emoji">The emoji for the channel in the welcome screen.</param>
-    public WelcomeScreenChannelProperties(ulong id, string description, IEmote emoji = null)
+    public WelcomeScreenChannelProperties(ulong id, string description, IEmote? emoji = null)
     {
         Id = id;
         Description = description;

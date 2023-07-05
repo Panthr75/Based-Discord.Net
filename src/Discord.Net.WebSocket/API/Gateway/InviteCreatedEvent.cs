@@ -1,32 +1,33 @@
 using Discord.API;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class InviteCreatedEvent
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelID { get; set; }
-        [JsonProperty("code")]
-        public string InviteCode { get; set; }
-        [JsonProperty("timestamp")]
+        [JsonPropertyName("code")]
+        public string InviteCode { get; set; } = string.Empty;
+        [JsonPropertyName("timestamp")]
         public Optional<DateTimeOffset> RawTimestamp { get; set; }
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong? GuildID { get; set; }
-        [JsonProperty("inviter")]
+        [JsonPropertyName("inviter")]
         public Optional<User> Inviter { get; set; }
-        [JsonProperty("max_age")]
+        [JsonPropertyName("max_age")]
         public int RawAge { get; set; }
-        [JsonProperty("max_uses")]
+        [JsonPropertyName("max_uses")]
         public int MaxUsers { get; set; }
-        [JsonProperty("temporary")]
+        [JsonPropertyName("temporary")]
         public bool TempInvite { get; set; }
-        [JsonProperty("uses")]
+        [JsonPropertyName("uses")]
         public int Uses { get; set; }
     }
 }

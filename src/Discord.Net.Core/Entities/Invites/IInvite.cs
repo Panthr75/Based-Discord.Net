@@ -28,7 +28,7 @@ namespace Discord
         /// <returns>
         ///     A user that created this invite.
         /// </returns>
-        IUser Inviter { get; }
+        IUser? Inviter { get; }
         /// <summary>
         ///     Gets the channel this invite is linked to.
         /// </summary>
@@ -76,7 +76,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the name of the guild that the invite points to.
         /// </returns>
-        string GuildName { get; }
+        string? GuildName { get; }
         /// <summary>
         ///     Gets the approximated count of online members in the guild.
         /// </summary>
@@ -99,7 +99,7 @@ namespace Discord
         /// <returns>
         ///     A user that is linked to this invite.
         /// </returns>
-        IUser TargetUser { get; }
+        IUser? TargetUser { get; }
         /// <summary>
         ///     Gets the type of the linked <see cref="TargetUser"/> for this invite.
         /// </summary>
@@ -115,7 +115,7 @@ namespace Discord
         ///     A partial <see cref="IApplication"/> object. <see langword="null" /> if <see cref="TargetUserType"/>
         ///     is not <see cref="TargetUserType.EmbeddedApplication"/>.
         /// </returns>
-        IApplication Application { get; }
+        IApplication? Application { get; }
 
         /// <summary>
         ///     Gets the expiration date of this invite. <see langword="null" /> if the invite never expires.

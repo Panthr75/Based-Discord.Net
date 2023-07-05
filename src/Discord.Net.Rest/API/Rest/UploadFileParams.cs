@@ -1,6 +1,7 @@
 using Discord.Net.Converters;
 using Discord.Net.Rest;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,6 @@ namespace Discord.API.Rest
 {
     internal class UploadFileParams
     {
-        private static JsonSerializer _serializer = new JsonSerializer { ContractResolver = new DiscordContractResolver() };
 
         public FileAttachment[] Files { get; }
 
@@ -29,7 +29,7 @@ namespace Discord.API.Rest
             Files = attachments;
         }
 
-        public IReadOnlyDictionary<string, object> ToDictionary()
+        public IReadOnlyDictionary<string, object> ToDictionary(JsonSerializerOptions? options)
         {
             var d = new Dictionary<string, object>();
 
@@ -50,7 +50,7 @@ namespace Discord.API.Rest
                 payload["message_reference"] = MessageReference.Value;
             if (Stickers.IsSpecified)
                 payload["sticker_ids"] = Stickers.Value;
-            if (Flags.IsSpecified)
+            if (Flags.IsSpecified && Flags.Value.HasValue)
                 payload["flags"] = Flags.Value;
 
             List<object> attachments = new();
@@ -74,12 +74,7 @@ namespace Discord.API.Rest
 
             payload["attachments"] = attachments;
 
-            var json = new StringBuilder();
-            using (var text = new StringWriter(json))
-            using (var writer = new JsonTextWriter(text))
-                _serializer.Serialize(writer, payload);
-
-            d["payload_json"] = json.ToString();
+            d["payload_json"] = JsonSerializer.Serialize(payload, options);
 
             return d;
         }

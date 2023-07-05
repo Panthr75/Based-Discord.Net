@@ -1,19 +1,19 @@
-using Discord.Rest;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class MemberInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("nick")]
-    public string Nickname { get; set; }
+    [JsonPropertyName("nick")]
+    public string? Nickname { get; set; }
 
-    [JsonField("mute")]
+    [JsonPropertyName("mute")]
     public bool? IsMuted { get; set; }
 
-    [JsonField("deaf")]
+    [JsonPropertyName("deaf")]
     public bool? IsDeafened { get; set; }
 
-    [JsonField("communication_disabled_until")]
+    [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
 }

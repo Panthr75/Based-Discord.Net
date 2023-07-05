@@ -22,7 +22,7 @@ namespace Discord
         /// <summary>
         ///     Gets the party ID of this activity, if any.
         /// </summary>
-        public string PartyId { get; internal set; }
+        public string? PartyId { get; internal set; }
 
         private string DebuggerDisplay
             => $"{Type}{(string.IsNullOrWhiteSpace(PartyId) ? "" : $" {PartyId}")}";

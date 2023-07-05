@@ -30,7 +30,7 @@ public struct SocketChannelInfo
         if (model.DefaultEmoji is not null)
         {
             if (model.DefaultEmoji.EmojiId.HasValue && model.DefaultEmoji.EmojiId.Value != 0)
-                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null, false);
+                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null!, false);
             else if (model.DefaultEmoji.EmojiName.IsSpecified)
                 DefaultReactionEmoji = new Emoji(model.DefaultEmoji.EmojiName.Value);
             else
@@ -51,13 +51,13 @@ public struct SocketChannelInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string Name { get; }
+    public string? Name { get; }
 
     /// <inheritdoc cref="ITextChannel.Topic"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string Topic { get; }
+    public string? Topic { get; }
 
     /// <inheritdoc cref="ITextChannel.SlowModeInterval"/>
     /// <remarks>
@@ -95,13 +95,13 @@ public struct SocketChannelInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public IReadOnlyCollection<ForumTag> ForumTags { get; }
+    public IReadOnlyCollection<ForumTag>? ForumTags { get; }
 
     /// <inheritdoc cref="IForumChannel.DefaultReactionEmoji"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public IEmote DefaultReactionEmoji { get; }
+    public IEmote? DefaultReactionEmoji { get; }
 
     /// <inheritdoc cref="IVoiceChannel.UserLimit"/>
     /// <remarks>
@@ -119,7 +119,7 @@ public struct SocketChannelInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string RTCRegion { get; }
+    public string? RTCRegion { get; }
 
     /// <inheritdoc cref="IGuildChannel.Flags"/>
     /// <remarks>

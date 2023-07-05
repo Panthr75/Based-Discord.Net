@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -26,7 +27,7 @@ namespace Discord
         public static string EscapeUrl(string url) => $"<{url}>";
 
         /// <summary> Returns a markdown-formatted string with codeblock formatting. </summary>
-        public static string Code(string text, string language = null)
+        public static string Code(string text, string? language = null)
         {
             if (language != null || text.Contains("\n"))
                 return $"```{language ?? ""}\n{text}\n```";
@@ -35,11 +36,14 @@ namespace Discord
         }
 
         /// <summary> Sanitizes the string, safely escaping any Markdown sequences. </summary>
-        public static string Sanitize(string text)
+
+        [return: NotNullIfNotNull(nameof(text))]
+        public static string? Sanitize(string? text)
         {
             if (text != null)
                 foreach (string unsafeChar in SensitiveCharacters)
                     text = text.Replace(unsafeChar, $"\\{unsafeChar}");
+
             return text;
         }
 
@@ -48,7 +52,8 @@ namespace Discord
         /// </summary>
         /// <param name="text">The text to format.</param>
         /// <returns>Gets the formatted quote text.</returns>
-        public static string Quote(string text)
+        [return: NotNullIfNotNull(nameof(text))]
+        public static string? Quote(string? text)
         {
             // do not modify null or whitespace text
             // whitespace does not get quoted properly
@@ -61,7 +66,7 @@ namespace Discord
             int newLineIndex;
             do
             {
-                newLineIndex = text.IndexOf('\n', startIndex);
+                newLineIndex = text!.IndexOf('\n', startIndex);
                 if (newLineIndex == -1)
                 {
                     // read the rest of the string
@@ -86,7 +91,8 @@ namespace Discord
         /// </summary>
         /// <param name="text">The text to format.</param>
         /// <returns>Gets the formatted block quote text.</returns>
-        public static string BlockQuote(string text)
+        [return: NotNullIfNotNull(nameof(text))]
+        public static string? BlockQuote(string? text)
         {
             // do not modify null or whitespace
             if (string.IsNullOrWhiteSpace(text))
@@ -120,6 +126,26 @@ namespace Discord
                     ? $"\u2066{user.Username}\u2069#{user.Discriminator}"
                     : $"{user.Username}#{user.Discriminator}";
             return user.Username;
+        }
+
+        /// <summary>
+        /// Gets a user's nick name, global name, or user name (in that order). 
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The user's nick name, global name, or user name.</returns>
+        public static string DisplayName(IUser user)
+        {
+            if (user is IGuildUser guildUser)
+            {
+                return guildUser.DisplayName;
+            }
+
+            if (user.GlobalName != null)
+            {
+                return user.GlobalName;
+            }
+
+            return Format.UsernameAndDiscriminator(user, false);
         }
     }
 }

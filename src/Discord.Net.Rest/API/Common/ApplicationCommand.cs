@@ -1,54 +1,55 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API
 {
     internal class ApplicationCommand
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandType Type { get; set; } = ApplicationCommandType.Slash; // defaults to 1 which is slash.
 
-        [JsonProperty("application_id")]
+        [JsonPropertyName("application_id")]
         public ulong ApplicationId { get; set; }
 
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public Optional<ulong> GuildId { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("description")]
-        public string Description { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<ApplicationCommandOption[]> Options { get; set; }
 
-        [JsonProperty("default_permission")]
+        [JsonPropertyName("default_permission")]
         public Optional<bool> DefaultPermissions { get; set; }
 
-        [JsonProperty("name_localizations")]
+        [JsonPropertyName("name_localizations")]
         public Optional<Dictionary<string, string>> NameLocalizations { get; set; }
 
-        [JsonProperty("description_localizations")]
+        [JsonPropertyName("description_localizations")]
         public Optional<Dictionary<string, string>> DescriptionLocalizations { get; set; }
 
-        [JsonProperty("name_localized")]
+        [JsonPropertyName("name_localized")]
         public Optional<string> NameLocalized { get; set; }
 
-        [JsonProperty("description_localized")]
+        [JsonPropertyName("description_localized")]
         public Optional<string> DescriptionLocalized { get; set; }
 
         // V2 Permissions
-        [JsonProperty("dm_permission")]
+        [JsonPropertyName("dm_permission")]
         public Optional<bool?> DmPermission { get; set; }
 
-        [JsonProperty("default_member_permissions")]
+        [JsonPropertyName("default_member_permissions")]
         public Optional<GuildPermission?> DefaultMemberPermission { get; set; }
 
-        [JsonProperty("nsfw")]
+        [JsonPropertyName("nsfw")]
         public Optional<bool?> Nsfw { get; set; }
     }
 }

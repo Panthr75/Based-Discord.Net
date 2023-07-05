@@ -1,7 +1,5 @@
 using Discord.API;
 
-using Newtonsoft.Json.Linq;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -50,10 +48,10 @@ namespace Discord.Rest
         public virtual bool MentionedEveryone => false;
 
         /// <inheritdoc cref="IMessage.Thread"/>
-        public RestThreadChannel Thread { get; private set; }
+        public RestThreadChannel? Thread { get; private set; }
 
         /// <inheritdoc />
-        IThreadChannel IMessage.Thread => Thread;
+        IThreadChannel? IMessage.Thread => Thread;
 
         /// <summary>
         ///     Gets a collection of the <see cref="Attachment"/>'s on the message.
@@ -75,23 +73,23 @@ namespace Discord.Rest
         /// <inheritdoc />
         public DateTimeOffset Timestamp => DateTimeUtils.FromTicks(_timestampTicks);
         /// <inheritdoc />
-        public MessageActivity Activity { get; private set; }
+        public MessageActivity? Activity { get; private set; }
         /// <inheritdoc />
-        public MessageApplication Application { get; private set; }
+        public MessageApplication? Application { get; private set; }
         /// <inheritdoc />
-        public MessageReference Reference { get; private set; }
+        public MessageReference? Reference { get; private set; }
 
         /// <summary>
         ///     Gets the interaction this message is a response to.
         /// </summary>
-        public MessageInteraction<RestUser> Interaction { get; private set; }
+        public MessageInteraction<RestUser>? Interaction { get; private set; }
         /// <inheritdoc />
         public MessageFlags? Flags { get; private set; }
         /// <inheritdoc/>
         public MessageType Type { get; private set; }
 
         /// <inheritdoc />
-        public MessageRoleSubscriptionData RoleSubscriptionData { get; private set; }
+        public MessageRoleSubscriptionData? RoleSubscriptionData { get; private set; }
 
         /// <inheritdoc cref="IMessage.Components"/>
         public IReadOnlyCollection<ActionRowComponent> Components { get; private set; }
@@ -103,6 +101,8 @@ namespace Discord.Rest
         internal RestMessage(BaseDiscordClient discord, ulong id, IMessageChannel channel, IUser author, MessageSource source)
             : base(discord, id)
         {
+            Components = ImmutableArray<ActionRowComponent>.Empty;
+            Content = string.Empty;
             Channel = channel;
             Author = author;
             Source = source;
@@ -176,8 +176,8 @@ namespace Discord.Rest
                                     parsed.Label.GetValueOrDefault(),
                                     parsed.Emote.IsSpecified
                                         ? parsed.Emote.Value.Id.HasValue
-                                            ? new Emote(parsed.Emote.Value.Id.Value, parsed.Emote.Value.Name, parsed.Emote.Value.Animated.GetValueOrDefault())
-                                            : new Emoji(parsed.Emote.Value.Name)
+                                            ? new Emote(parsed.Emote.Value.Id.Value, parsed.Emote.Value.Name!, parsed.Emote.Value.Animated.GetValueOrDefault())
+                                            : new Emoji(parsed.Emote.Value.Name!)
                                         : null,
                                     parsed.CustomId.GetValueOrDefault(),
                                     parsed.Url.GetValueOrDefault(),
@@ -188,16 +188,16 @@ namespace Discord.Rest
                                 var parsed = (API.SelectMenuComponent)y;
                                 return new SelectMenuComponent(
                                     parsed.CustomId,
-                                    parsed.Options?.Select(z => new SelectMenuOption(
+                                    parsed.Options.Map(op => op.Select(z => new SelectMenuOption(
                                         z.Label,
                                         z.Value,
                                         z.Description.GetValueOrDefault(),
                                         z.Emoji.IsSpecified
                                             ? z.Emoji.Value.Id.HasValue
-                                                ? new Emote(z.Emoji.Value.Id.Value, z.Emoji.Value.Name, z.Emoji.Value.Animated.GetValueOrDefault())
-                                                : new Emoji(z.Emoji.Value.Name)
+                                                ? new Emote(z.Emoji.Value.Id.Value, z.Emoji.Value.Name!, z.Emoji.Value.Animated.GetValueOrDefault())
+                                                : new Emoji(z.Emoji.Value.Name!)
                                             : null,
-                                        z.Default.ToNullable())).ToList(),
+                                        z.Default.ToNullable())).ToList()).GetValueOrDefault(),
                                     parsed.Placeholder.GetValueOrDefault(),
                                     parsed.MinValues,
                                     parsed.MaxValues,
@@ -207,9 +207,9 @@ namespace Discord.Rest
                                 );
                             }
                         default:
-                            return null;
+                            return null!;
                     }
-                }).ToList())).ToImmutableArray();
+                }).Where(c => c is not null).ToList())).ToImmutableArray();
             }
             else
                 Components = new List<ActionRowComponent>();
@@ -270,13 +270,17 @@ namespace Discord.Rest
                 Thread = RestThreadChannel.Create(Discord, new RestGuild(Discord, model.Thread.Value.GuildId.Value), model.Thread.Value);
         }
         /// <inheritdoc />
-        public async Task UpdateAsync(RequestOptions options = null)
+        public async virtual Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetChannelMessageAsync(Channel.Id, Id, options).ConfigureAwait(false);
+            if (model is null)
+            {
+                return;
+            }
             Update(model);
         }
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public virtual Task DeleteAsync(RequestOptions? options = null)
             => MessageHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>
@@ -305,7 +309,7 @@ namespace Discord.Rest
         IReadOnlyCollection<IMessageComponent> IMessage.Components => Components;
 
         /// <inheritdoc/>
-        IMessageInteraction IMessage.Interaction => Interaction;
+        IMessageInteraction? IMessage.Interaction => Interaction;
 
         /// <inheritdoc />
         IReadOnlyCollection<IStickerItem> IMessage.Stickers => Stickers;
@@ -316,22 +320,22 @@ namespace Discord.Rest
         public IReadOnlyDictionary<IEmote, ReactionMetadata> Reactions => _reactions.ToDictionary(x => x.Emote, x => new ReactionMetadata { ReactionCount = x.Count, IsMe = x.Me });
 
         /// <inheritdoc />
-        public Task AddReactionAsync(IEmote emote, RequestOptions options = null)
+        public Task AddReactionAsync(IEmote emote, RequestOptions? options = null)
             => MessageHelper.AddReactionAsync(this, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions options = null)
+        public Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions? options = null)
             => MessageHelper.RemoveReactionAsync(this, user.Id, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions options = null)
+        public Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions? options = null)
             => MessageHelper.RemoveReactionAsync(this, userId, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveAllReactionsAsync(RequestOptions options = null)
+        public Task RemoveAllReactionsAsync(RequestOptions? options = null)
             => MessageHelper.RemoveAllReactionsAsync(this, Discord, options);
         /// <inheritdoc />
-        public Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions options = null)
+        public Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions? options = null)
             => MessageHelper.RemoveAllReactionsForEmoteAsync(this, emote, Discord, options);
         /// <inheritdoc />
-        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emote, int limit, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emote, int limit, RequestOptions? options = null)
             => MessageHelper.GetReactionUsersAsync(this, emote, limit, Discord, options);
     }
 }

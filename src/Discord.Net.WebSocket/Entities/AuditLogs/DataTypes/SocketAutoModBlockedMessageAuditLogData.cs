@@ -16,8 +16,8 @@ public class SocketAutoModBlockedMessageAuditLogData : ISocketAuditLogData
 
     internal static SocketAutoModBlockedMessageAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new(entry.Options.ChannelId!.Value, entry.Options.AutoModRuleName,
-            entry.Options.AutoModRuleTriggerType!.Value);
+        return new(entry.Options!.ChannelId!.Value, entry.Options!.AutoModRuleName!,
+            entry.Options!.AutoModRuleTriggerType!.Value);
     }
 
     /// <summary>

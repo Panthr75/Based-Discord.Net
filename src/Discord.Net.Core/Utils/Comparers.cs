@@ -33,7 +33,7 @@ namespace Discord
             where TEntity : IEntity<TId>
             where TId : IEquatable<TId>
         {
-            public override bool Equals(TEntity x, TEntity y)
+            public override bool Equals(TEntity? x, TEntity? y)
             {
                 return (x, y) switch
                 {

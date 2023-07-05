@@ -40,7 +40,7 @@ namespace Discord.Net.ED25519
             if (publicKey.Count != PublicKeySize)
                 throw new ArgumentException($"Sizeof public key doesnt match defined size of {PublicKeySize}");
 
-            return Ed25519Operations.crypto_sign_verify(signature.Array, signature.Offset, message.Array, message.Offset, message.Count, publicKey.Array, publicKey.Offset);
+            return Ed25519Operations.crypto_sign_verify(signature.Array!, signature.Offset, message.Array!, message.Offset, message.Count, publicKey.Array!, publicKey.Offset);
         }
 
         /// <summary>

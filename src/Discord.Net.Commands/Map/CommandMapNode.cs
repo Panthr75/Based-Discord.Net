@@ -85,7 +85,7 @@ namespace Discord.Commands
             if (visitChildren)
             {
                 string name;
-                CommandMapNode nextNode;
+                CommandMapNode? nextNode;
 
                 //Search for next segment
                 int nextSegment = NextSegment(text, index, service._separatorChar);

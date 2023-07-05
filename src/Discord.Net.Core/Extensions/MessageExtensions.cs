@@ -18,7 +18,7 @@ namespace Discord
         public static string GetJumpUrl(this IMessage msg)
         {
             var channel = msg.Channel;
-            return $"https://discord.com/channels/{(channel is IDMChannel ? "@me" : $"{(channel as ITextChannel).GuildId}")}/{channel.Id}/{msg.Id}";
+            return $"https://discord.com/channels/{(channel is IDMChannel ? "@me" : $"{((ITextChannel)channel).GuildId}")}/{channel.Id}/{msg.Id}";
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace Discord
         /// </returns>
         /// <seealso cref="IMessage.AddReactionAsync(IEmote, RequestOptions)"/>
         /// <seealso cref="IEmote"/>
-        public static async Task AddReactionsAsync(this IUserMessage msg, IEnumerable<IEmote> reactions, RequestOptions options = null)
+        public static async Task AddReactionsAsync(this IUserMessage msg, IEnumerable<IEmote> reactions, RequestOptions? options = null)
         {
             foreach (var rxn in reactions)
                 await msg.AddReactionAsync(rxn, options).ConfigureAwait(false);
@@ -68,7 +68,7 @@ namespace Discord
         /// </returns>
         /// <seealso cref="IMessage.RemoveReactionAsync(IEmote, IUser, RequestOptions)"/>
         /// <seealso cref="IEmote"/>
-        public static async Task RemoveReactionsAsync(this IUserMessage msg, IUser user, IEnumerable<IEmote> reactions, RequestOptions options = null)
+        public static async Task RemoveReactionsAsync(this IUserMessage msg, IUser user, IEnumerable<IEmote> reactions, RequestOptions? options = null)
         {
             foreach (var rxn in reactions)
                 await msg.RemoveReactionAsync(rxn, user, options).ConfigureAwait(false);
@@ -93,7 +93,7 @@ namespace Discord
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public static async Task<IUserMessage> ReplyAsync(this IUserMessage msg, string text = null, bool isTTS = false, Embed embed = null, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null)
+        public static async Task<IUserMessage> ReplyAsync(this IUserMessage msg, string? text = null, bool isTTS = false, Embed? embed = null, AllowedMentions? allowedMentions = null, RequestOptions? options = null, MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null)
         {
             return await msg.Channel.SendMessageAsync(text, isTTS, embed, options, allowedMentions, new MessageReference(messageId: msg.Id), components, stickers, embeds).ConfigureAwait(false);
         }

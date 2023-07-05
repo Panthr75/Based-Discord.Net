@@ -14,7 +14,7 @@ public class SocketMemberDisconnectAuditLogData : ISocketAuditLogData
 
     internal static SocketMemberDisconnectAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new SocketMemberDisconnectAuditLogData(entry.Options.Count!.Value);
+        return new SocketMemberDisconnectAuditLogData(entry.Options!.Count!.Value);
     }
 
     /// <summary>

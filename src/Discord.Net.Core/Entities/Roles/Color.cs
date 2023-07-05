@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using StandardColor = System.Drawing.Color;
 
 namespace Discord
@@ -200,7 +201,7 @@ namespace Discord
         public static implicit operator uint(Color color)
             => color.RawValue;
 
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is Color c && RawValue == c.RawValue;
 
         public override int GetHashCode() => RawValue.GetHashCode();

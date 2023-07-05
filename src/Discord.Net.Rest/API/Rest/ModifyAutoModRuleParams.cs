@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +10,28 @@ namespace Discord.API.Rest
 {
     internal class ModifyAutoModRuleParams
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public Optional<string> Name { get; set; }
 
-        [JsonProperty("event_type")]
+        [JsonPropertyName("event_type")]
         public Optional<AutoModEventType> EventType { get; set; }
 
-        [JsonProperty("trigger_type")]
+        [JsonPropertyName("trigger_type")]
         public Optional<AutoModTriggerType> TriggerType { get; set; }
 
-        [JsonProperty("trigger_metadata")]
+        [JsonPropertyName("trigger_metadata")]
         public Optional<TriggerMetadata> TriggerMetadata { get; set; }
 
-        [JsonProperty("actions")]
+        [JsonPropertyName("actions")]
         public Optional<AutoModAction[]> Actions { get; set; }
 
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
         public Optional<bool> Enabled { get; set; }
 
-        [JsonProperty("exempt_roles")]
+        [JsonPropertyName("exempt_roles")]
         public Optional<ulong[]> ExemptRoles { get; set; }
 
-        [JsonProperty("exempt_channels")]
+        [JsonPropertyName("exempt_channels")]
         public Optional<ulong[]> ExemptChannels { get; set; }
     }
 }

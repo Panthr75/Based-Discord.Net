@@ -38,25 +38,32 @@ namespace Discord
 
             var builder = new EmbedBuilder
             {
-                Author = new EmbedAuthorBuilder
-                {
-                    Name = embed.Author?.Name,
-                    IconUrl = embed.Author?.IconUrl,
-                    Url = embed.Author?.Url
-                },
                 Color = embed.Color,
                 Description = embed.Description,
-                Footer = new EmbedFooterBuilder
-                {
-                    Text = embed.Footer?.Text,
-                    IconUrl = embed.Footer?.IconUrl
-                },
                 ImageUrl = embed.Image?.Url,
                 ThumbnailUrl = embed.Thumbnail?.Url,
                 Timestamp = embed.Timestamp,
                 Title = embed.Title,
                 Url = embed.Url
             };
+
+            if (embed.Author.HasValue)
+            {
+                builder.Author = new EmbedAuthorBuilder()
+                {
+                    Name = embed.Author.Value.Name,
+                    IconUrl = embed.Author.Value.IconUrl,
+                    Url = embed.Author.Value.Url,
+                };
+            }
+            if (embed.Footer.HasValue)
+            {
+                builder.Footer = new EmbedFooterBuilder()
+                {
+                    Text = embed.Footer.Value.Text,
+                    IconUrl = embed.Footer.Value.IconUrl
+                };
+            }
 
             foreach (var field in embed.Fields)
                 builder.AddField(field.Name, field.Value, field.Inline);

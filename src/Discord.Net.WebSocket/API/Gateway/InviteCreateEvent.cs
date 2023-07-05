@@ -1,37 +1,38 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class InviteCreateEvent
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelId { get; set; }
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("created_at")]
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = string.Empty;
+        [JsonPropertyName("created_at")]
         public DateTimeOffset CreatedAt { get; set; }
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public Optional<ulong> GuildId { get; set; }
-        [JsonProperty("inviter")]
+        [JsonPropertyName("inviter")]
         public Optional<User> Inviter { get; set; }
-        [JsonProperty("max_age")]
+        [JsonPropertyName("max_age")]
         public int MaxAge { get; set; }
-        [JsonProperty("max_uses")]
+        [JsonPropertyName("max_uses")]
         public int MaxUses { get; set; }
-        [JsonProperty("target_user")]
+        [JsonPropertyName("target_user")]
         public Optional<User> TargetUser { get; set; }
-        [JsonProperty("target_type")]
+        [JsonPropertyName("target_type")]
         public Optional<TargetUserType> TargetUserType { get; set; }
-        [JsonProperty("temporary")]
+        [JsonPropertyName("temporary")]
         public bool Temporary { get; set; }
-        [JsonProperty("uses")]
+        [JsonPropertyName("uses")]
         public int Uses { get; set; }
 
-        [JsonProperty("target_application")]
+        [JsonPropertyName("target_application")]
         public Optional<Application> Application { get; set; }
 
-        [JsonProperty("expires_at")]
+        [JsonPropertyName("expires_at")]
         public Optional<DateTimeOffset?> ExpiresAt { get; set; }
     }
 }

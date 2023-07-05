@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -32,15 +33,15 @@ public class SocketStageInstanceUpdatedAuditLogData : ISocketAuditLogData
 
     internal static SocketStageInstanceUpdatedAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var channelId = entry.Options.ChannelId.Value;
+        var channelId = entry.Options!.ChannelId!.Value;
 
-        var topic = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "topic");
-        var privacy = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "privacy");
+        var topic = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "topic");
+        var privacy = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "privacy");
         
-        var oldTopic = topic?.OldValue.ToObject<string>();
-        var newTopic = topic?.NewValue.ToObject<string>();
-        var oldPrivacy = privacy?.OldValue.ToObject<StagePrivacyLevel>();
-        var newPrivacy = privacy?.NewValue.ToObject<StagePrivacyLevel>();
+        var oldTopic = topic?.OldValue?.Deserialize<string>();
+        var newTopic = topic?.NewValue?.Deserialize<string>();
+        var oldPrivacy = privacy?.OldValue?.Deserialize<StagePrivacyLevel>();
+        var newPrivacy = privacy?.NewValue?.Deserialize<StagePrivacyLevel>();
 
         return new SocketStageInstanceUpdatedAuditLogData(channelId, new SocketStageInfo(oldPrivacy, oldTopic), new SocketStageInfo(newPrivacy, newTopic));
     }

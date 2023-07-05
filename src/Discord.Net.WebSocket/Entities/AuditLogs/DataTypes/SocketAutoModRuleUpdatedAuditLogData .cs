@@ -17,7 +17,7 @@ public class AutoModRuleUpdatedAuditLogData : ISocketAuditLogData
 
     internal static AutoModRuleUpdatedAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<AutoModRuleInfoAuditLogModel>(changes, discord);
 

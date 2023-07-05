@@ -3,7 +3,7 @@ using Discord.Net.Queue;
 using Discord.Net.Rest;
 using Discord.Net.WebSockets;
 using Discord.WebSocket;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,27 +12,28 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using GameModel = Discord.API.Game;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.API
 {
     internal class DiscordSocketApiClient : DiscordRestApiClient
     {
         public event Func<GatewayOpCode, Task> SentGatewayMessage { add { _sentGatewayMessageEvent.Add(value); } remove { _sentGatewayMessageEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<GatewayOpCode, Task>> _sentGatewayMessageEvent = new AsyncEvent<Func<GatewayOpCode, Task>>();
-        public event Func<GatewayOpCode, int?, string, object, Task> ReceivedGatewayEvent { add { _receivedGatewayEvent.Add(value); } remove { _receivedGatewayEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<GatewayOpCode, int?, string, object, Task>> _receivedGatewayEvent = new AsyncEvent<Func<GatewayOpCode, int?, string, object, Task>>();
+        private readonly AsyncEvent<Func<GatewayOpCode, Task>> _sentGatewayMessageEvent = new();
+        public event Func<GatewayOpCode, int?, string, object?, Task> ReceivedGatewayEvent { add { _receivedGatewayEvent.Add(value); } remove { _receivedGatewayEvent.Remove(value); } }
+        private readonly AsyncEvent<Func<GatewayOpCode, int?, string, object?, Task>> _receivedGatewayEvent = new();
 
         public event Func<Exception, Task> Disconnected { add { _disconnectedEvent.Add(value); } remove { _disconnectedEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<Exception, Task>> _disconnectedEvent = new AsyncEvent<Func<Exception, Task>>();
+        private readonly AsyncEvent<Func<Exception, Task>> _disconnectedEvent = new();
 
         private readonly bool _isExplicitUrl;
-        private CancellationTokenSource _connectCancelToken;
-        private string _gatewayUrl;
-        private string _resumeGatewayUrl;
+        private CancellationTokenSource? _connectCancelToken;
+        private string? _gatewayUrl;
+        private string? _resumeGatewayUrl;
 
         //Store our decompression streams for zlib shared state
-        private MemoryStream _compressed;
-        private DeflateStream _decompressor;
+        private MemoryStream? _compressed;
+        private DeflateStream? _decompressor;
 
         internal IWebSocketClient WebSocketClient { get; }
 
@@ -44,7 +45,7 @@ namespace Discord.API
         /// <remarks>
         ///     If a custom URL is set, setting this property does nothing.
         /// </remarks>
-        public string GatewayUrl
+        public string? GatewayUrl
         {
             set
             {
@@ -59,15 +60,15 @@ namespace Discord.API
         /// <summary>
         ///     Sets the gateway URL used for resumes.
         /// </summary>
-        public string ResumeGatewayUrl
+        public string? ResumeGatewayUrl
         {
             set => _resumeGatewayUrl = FormatGatewayUrl(value);
         }
 
         public DiscordSocketApiClient(RestClientProvider restClientProvider, WebSocketProvider webSocketProvider, string userAgent,
-            string url = null, RetryMode defaultRetryMode = RetryMode.AlwaysRetry, JsonSerializer serializer = null,
-            bool useSystemClock = true, Func<IRateLimitInfo, Task> defaultRatelimitCallback = null)
-            : base(restClientProvider, userAgent, defaultRetryMode, serializer, useSystemClock, defaultRatelimitCallback)
+            string? url = null, RetryMode defaultRetryMode = RetryMode.AlwaysRetry, JsonSerializerOptions? serializerOptions = null,
+            bool useSystemClock = true, Func<IRateLimitInfo, Task>? defaultRatelimitCallback = null)
+            : base(restClientProvider, userAgent, defaultRetryMode, serializerOptions, useSystemClock, defaultRatelimitCallback)
         {
             _gatewayUrl = url;
             if (url != null)
@@ -77,6 +78,11 @@ namespace Discord.API
 
             WebSocketClient.BinaryMessage += async (data, index, count) =>
             {
+                if (_compressed is null || _decompressor is null)
+                {
+                    return;
+                }
+
                 using (var decompressed = new MemoryStream())
                 {
                     if (data[0] == 0x78)
@@ -97,36 +103,28 @@ namespace Discord.API
                     _compressed.Position = 0;
                     decompressed.Position = 0;
 
-                    using (var reader = new StreamReader(decompressed))
-                    using (var jsonReader = new JsonTextReader(reader))
-                    {
-                        var msg = _serializer.Deserialize<SocketFrame>(jsonReader);
+                    var msg = JsonSerializer.Deserialize<SocketFrame>(decompressed, _serializerOptions)!;
 
-                        if (msg != null)
-                        {
+                    if (msg != null)
+                    {
 #if DEBUG_PACKETS
-                            Console.WriteLine($"<- {(GatewayOpCode)msg.Operation} [{msg.Type ?? "none"}] : {(msg.Payload as Newtonsoft.Json.Linq.JToken)}");
+                            Console.WriteLine($"<- {(GatewayOpCode)msg.Operation} [{msg.Type ?? "none"}] : {msg.Payload}");
 #endif
 
-                            await _receivedGatewayEvent.InvokeAsync((GatewayOpCode)msg.Operation, msg.Sequence, msg.Type, msg.Payload).ConfigureAwait(false);
-                        }
+                        await _receivedGatewayEvent.InvokeAsync((GatewayOpCode)msg.Operation, msg.Sequence, msg.Type!, msg.Payload).ConfigureAwait(false);
                     }
                 }
             };
             WebSocketClient.TextMessage += async text =>
             {
-                using (var reader = new StringReader(text))
-                using (var jsonReader = new JsonTextReader(reader))
+                var msg = JsonSerializer.Deserialize<SocketFrame>(text, _serializerOptions);
+                if (msg != null)
                 {
-                    var msg = _serializer.Deserialize<SocketFrame>(jsonReader);
-                    if (msg != null)
-                    {
 #if DEBUG_PACKETS
-                        Console.WriteLine($"<- {(GatewayOpCode)msg.Operation} [{msg.Type ?? "none"}] : {(msg.Payload as Newtonsoft.Json.Linq.JToken)}");
+                        Console.WriteLine($"<- {(GatewayOpCode)msg.Operation} [{msg.Type ?? "none"}] : {msg.Payload}");
 #endif
 
-                        await _receivedGatewayEvent.InvokeAsync((GatewayOpCode)msg.Operation, msg.Sequence, msg.Type, msg.Payload).ConfigureAwait(false);
-                    }
+                    await _receivedGatewayEvent.InvokeAsync((GatewayOpCode)msg.Operation, msg.Sequence, msg.Type!, msg.Payload).ConfigureAwait(false);
                 }
             };
             WebSocketClient.Closed += async ex =>
@@ -187,7 +185,8 @@ namespace Discord.API
         /// <summary>
         ///     Appends necessary query parameters to the specified gateway URL.
         /// </summary>
-        private static string FormatGatewayUrl(string gatewayUrl)
+        [return: NotNullIfNotNull(nameof(gatewayUrl))]
+        private static string? FormatGatewayUrl(string? gatewayUrl)
         {
             if (gatewayUrl == null)
                 return null;
@@ -229,7 +228,7 @@ namespace Discord.API
                 if (WebSocketClient != null)
                     WebSocketClient.SetCancelToken(_connectCancelToken.Token);
 
-                string gatewayUrl;
+                string? gatewayUrl;
                 if (_resumeGatewayUrl == null)
                 {
                     if (!_isExplicitUrl && _gatewayUrl == null)
@@ -249,6 +248,11 @@ namespace Discord.API
                 Console.WriteLine("Connecting to gateway: " + gatewayUrl);
 #endif
 
+                if (WebSocketClient is null || gatewayUrl is null)
+                {
+                    throw new InvalidOperationException();
+                }
+
                 await WebSocketClient.ConnectAsync(gatewayUrl).ConfigureAwait(false);
 
                 ConnectionState = ConnectionState.Connected;
@@ -260,7 +264,7 @@ namespace Discord.API
             }
         }
 
-        public async Task DisconnectAsync(Exception ex = null)
+        public async Task DisconnectAsync(Exception? ex = null)
         {
             await _stateLock.WaitAsync().ConfigureAwait(false);
             try
@@ -270,7 +274,7 @@ namespace Discord.API
             finally { _stateLock.Release(); }
         }
         /// <exception cref="NotSupportedException">This client is not configured with WebSocket support.</exception>
-        internal override async Task DisconnectInternalAsync(Exception ex = null)
+        internal override async Task DisconnectInternalAsync(Exception? ex = null)
         {
             if (WebSocketClient == null)
                 throw new NotSupportedException("This client is not configured with WebSocket support.");
@@ -292,14 +296,16 @@ namespace Discord.API
         }
 
         #region Core
-        public Task SendGatewayAsync(GatewayOpCode opCode, object payload, RequestOptions options = null)
+        public Task SendGatewayAsync(GatewayOpCode opCode, object payload, RequestOptions? options = null)
             => SendGatewayInternalAsync(opCode, payload, options);
-        private async Task SendGatewayInternalAsync(GatewayOpCode opCode, object payload, RequestOptions options)
+        private async Task SendGatewayInternalAsync(GatewayOpCode opCode, object payload, RequestOptions? options)
         {
             CheckState();
 
+            options = RequestOptions.CreateOrClone(options);
+
             //TODO: Add ETF
-            byte[] bytes = null;
+            byte[]? bytes = null;
             payload = new SocketFrame { Operation = (int)opCode, Payload = payload };
             if (payload != null)
                 bytes = Encoding.UTF8.GetBytes(SerializeJson(payload));
@@ -315,8 +321,13 @@ namespace Discord.API
 #endif
         }
 
-        public async Task SendIdentifyAsync(int largeThreshold = 100, int shardID = 0, int totalShards = 1, GatewayIntents gatewayIntents = GatewayIntents.AllUnprivileged, (UserStatus, bool, long?, GameModel)? presence = null, RequestOptions options = null)
+        public async Task SendIdentifyAsync(int largeThreshold = 100, int shardID = 0, int totalShards = 1, GatewayIntents gatewayIntents = GatewayIntents.AllUnprivileged, (UserStatus, bool, long?, GameModel?)? presence = null, RequestOptions? options = null)
         {
+            if (AuthToken is null)
+            {
+                throw new InvalidOperationException("Cannot send identify with null auth token");
+            }
+
             options = RequestOptions.CreateOrClone(options);
             var props = new Dictionary<string, string>
             {
@@ -344,14 +355,19 @@ namespace Discord.API
                     Status = presence.Value.Item1,
                     IsAFK = presence.Value.Item2,
                     IdleSince = presence.Value.Item3,
-                    Activities = new object[] { presence.Value.Item4 }
+                    Activities = presence.Value.Item4 is not null ? new object[] { presence.Value.Item4 } : null
                 };
             }
 
             await SendGatewayAsync(GatewayOpCode.Identify, msg, options: options).ConfigureAwait(false);
         }
-        public async Task SendResumeAsync(string sessionId, int lastSeq, RequestOptions options = null)
+        public async Task SendResumeAsync(string sessionId, int lastSeq, RequestOptions? options = null)
         {
+            if (AuthToken is null)
+            {
+                throw new InvalidOperationException("Cannot send identify with null auth token");
+            }
+
             options = RequestOptions.CreateOrClone(options);
             var msg = new ResumeParams()
             {
@@ -361,12 +377,12 @@ namespace Discord.API
             };
             await SendGatewayAsync(GatewayOpCode.Resume, msg, options: options).ConfigureAwait(false);
         }
-        public async Task SendHeartbeatAsync(int lastSeq, RequestOptions options = null)
+        public async Task SendHeartbeatAsync(int lastSeq, RequestOptions? options = null)
         {
             options = RequestOptions.CreateOrClone(options);
             await SendGatewayAsync(GatewayOpCode.Heartbeat, lastSeq, options: options).ConfigureAwait(false);
         }
-        public async Task SendPresenceUpdateAsync(UserStatus status, bool isAFK, long? since, GameModel game, RequestOptions options = null)
+        public async Task SendPresenceUpdateAsync(UserStatus status, bool isAFK, long? since, GameModel? game, RequestOptions? options = null)
         {
             options = RequestOptions.CreateOrClone(options);
             var args = new PresenceUpdateParams
@@ -374,17 +390,17 @@ namespace Discord.API
                 Status = status,
                 IdleSince = since,
                 IsAFK = isAFK,
-                Activities = new object[] { game }
+                Activities = game is not null ? new object[] { game } : null
             };
             options.BucketId = GatewayBucket.Get(GatewayBucketType.PresenceUpdate).Id;
             await SendGatewayAsync(GatewayOpCode.PresenceUpdate, args, options: options).ConfigureAwait(false);
         }
-        public async Task SendRequestMembersAsync(IEnumerable<ulong> guildIds, RequestOptions options = null)
+        public async Task SendRequestMembersAsync(IEnumerable<ulong> guildIds, RequestOptions? options = null)
         {
             options = RequestOptions.CreateOrClone(options);
             await SendGatewayAsync(GatewayOpCode.RequestGuildMembers, new RequestMembersParams { GuildIds = guildIds, Query = "", Limit = 0 }, options: options).ConfigureAwait(false);
         }
-        public async Task SendVoiceStateUpdateAsync(ulong guildId, ulong? channelId, bool selfDeaf, bool selfMute, RequestOptions options = null)
+        public async Task SendVoiceStateUpdateAsync(ulong guildId, ulong? channelId, bool selfDeaf, bool selfMute, RequestOptions? options = null)
         {
             var payload = new VoiceStateUpdateParams
             {
@@ -396,12 +412,12 @@ namespace Discord.API
             options = RequestOptions.CreateOrClone(options);
             await SendGatewayAsync(GatewayOpCode.VoiceStateUpdate, payload, options: options).ConfigureAwait(false);
         }
-        public async Task SendVoiceStateUpdateAsync(VoiceStateUpdateParams payload, RequestOptions options = null)
+        public async Task SendVoiceStateUpdateAsync(VoiceStateUpdateParams payload, RequestOptions? options = null)
         {
             options = RequestOptions.CreateOrClone(options);
             await SendGatewayAsync(GatewayOpCode.VoiceStateUpdate, payload, options: options).ConfigureAwait(false);
         }
-        public async Task SendGuildSyncAsync(IEnumerable<ulong> guildIds, RequestOptions options = null)
+        public async Task SendGuildSyncAsync(IEnumerable<ulong> guildIds, RequestOptions? options = null)
         {
             options = RequestOptions.CreateOrClone(options);
             await SendGatewayAsync(GatewayOpCode.GuildSync, guildIds, options: options).ConfigureAwait(false);

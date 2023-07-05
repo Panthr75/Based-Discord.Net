@@ -13,6 +13,6 @@ namespace Discord
         /// <returns>
         ///     The Id of the created webhook.
         /// </returns>
-        Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions options);
+        Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions? options);
     }
 }

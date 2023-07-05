@@ -8,17 +8,17 @@ namespace Discord
         /// <summary>
         ///     Gets the secret for a specific instanced match.
         /// </summary>
-        public string Match { get; }
+        public string? Match { get; }
         /// <summary>
         ///     Gets the secret for joining a party.
         /// </summary>
-        public string Join { get; }
+        public string? Join { get; }
         /// <summary>
         /// 	Gets the secret for spectating a game.
         /// </summary>
-        public string Spectate { get; }
+        public string? Spectate { get; }
 
-        internal GameSecrets(string match, string join, string spectate)
+        internal GameSecrets(string? match, string? join, string? spectate)
         {
             Match = match;
             Join = join;

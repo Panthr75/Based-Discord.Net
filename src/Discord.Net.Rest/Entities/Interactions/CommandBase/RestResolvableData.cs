@@ -22,7 +22,7 @@ namespace Discord.Rest
         internal readonly Dictionary<ulong, Attachment> Attachments
             = new Dictionary<ulong, Attachment>();
 
-        internal async Task PopulateAsync(DiscordRestClient discord, RestGuild guild, IRestMessageChannel channel, T model, bool doApiCall)
+        internal async Task PopulateAsync(DiscordRestClient discord, RestGuild? guild, IRestMessageChannel? channel, T model, bool doApiCall)
         {
             var resolved = model.Resolved.Value;
 
@@ -36,7 +36,7 @@ namespace Discord.Rest
                 }
             }
 
-            if (resolved.Channels.IsSpecified)
+            if (resolved.Channels.IsSpecified && guild is not null)
             {
                 var channels = doApiCall ? await guild.GetChannelsAsync().ConfigureAwait(false) : null;
 
@@ -46,9 +46,12 @@ namespace Discord.Rest
                     {
                         var guildChannel = channels.FirstOrDefault(x => x.Id == channelModel.Value.Id);
 
-                        guildChannel.Update(channelModel.Value);
+                        if (guildChannel is not null)
+                        {
+                            guildChannel.Update(channelModel.Value);
 
-                        Channels.Add(ulong.Parse(channelModel.Key), guildChannel);
+                            Channels.Add(ulong.Parse(channelModel.Key), guildChannel);
+                        }
                     }
                     else
                     {
@@ -87,7 +90,7 @@ namespace Discord.Rest
             {
                 foreach (var msg in resolved.Messages.Value)
                 {
-                    channel ??= (IRestMessageChannel)(Channels.FirstOrDefault(x => x.Key == msg.Value.ChannelId).Value
+                    channel ??= (IRestMessageChannel?)(Channels.FirstOrDefault(x => x.Key == msg.Value.ChannelId).Value
                         ?? (doApiCall
                         ? await discord.GetChannelAsync(msg.Value.ChannelId).ConfigureAwait(false)
                         : null));
@@ -103,7 +106,7 @@ namespace Discord.Rest
                         author = RestGuildUser.Create(discord, guild, msg.Value.Member.Value);
                     }
 
-                    var message = RestMessage.Create(discord, channel, author, msg.Value);
+                    var message = RestMessage.Create(discord, channel!, author, msg.Value);
 
                     Messages.Add(message.Id, message);
                 }

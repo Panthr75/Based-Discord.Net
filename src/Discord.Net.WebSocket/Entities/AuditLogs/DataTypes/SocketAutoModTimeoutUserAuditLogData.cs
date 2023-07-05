@@ -16,7 +16,7 @@ public class SocketAutoModTimeoutUserAuditLogData : ISocketAuditLogData
 
     internal static SocketAutoModTimeoutUserAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new(entry.Options.ChannelId!.Value, entry.Options.AutoModRuleName,
+        return new(entry.Options!.ChannelId!.Value, entry.Options!.AutoModRuleName!,
             entry.Options.AutoModRuleTriggerType!.Value);
     }
 

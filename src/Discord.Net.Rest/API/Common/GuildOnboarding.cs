@@ -1,18 +1,20 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API;
 
 internal class GuildOnboarding
 {
-    [JsonProperty("guild_id")]
+    [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
 
-    [JsonProperty("prompts")]
-    public GuildOnboardingPrompt[] Prompts { get; set; }
+    [JsonPropertyName("prompts")]
+    public GuildOnboardingPrompt[] Prompts { get; set; } = Array.Empty<GuildOnboardingPrompt>();
 
-    [JsonProperty("default_channel_ids")]
-    public ulong[] DefaultChannelIds { get; set; }
+    [JsonPropertyName("default_channel_ids")]
+    public ulong[] DefaultChannelIds { get; set; } = Array.Empty<ulong>();
 
-    [JsonProperty("enabled")]
+    [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }
 }

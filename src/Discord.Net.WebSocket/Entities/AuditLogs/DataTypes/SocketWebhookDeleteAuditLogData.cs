@@ -21,7 +21,7 @@ public class SocketWebhookDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketWebhookDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<Model>(changes, discord);
 
@@ -59,7 +59,7 @@ public class SocketWebhookDeleteAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the name of the webhook that was deleted.
     /// </returns>
-    public string Name { get; }
+    public string? Name { get; }
 
     /// <summary>
     ///     Gets the hash value of the webhook's avatar.
@@ -67,5 +67,5 @@ public class SocketWebhookDeleteAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the hash of the webhook's avatar.
     /// </returns>
-    public string Avatar { get; }
+    public string? Avatar { get; }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -40,7 +41,7 @@ namespace Discord.Net.ED25519
         {
             if (x.Count != y.Count)
                 return false;
-            return InternalConstantTimeEquals(x.Array, x.Offset, y.Array, y.Offset, x.Count) != 0;
+            return InternalConstantTimeEquals(x.Array!, x.Offset, y.Array!, y.Offset, x.Count) != 0;
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace Discord.Net.ED25519
         /// <param name="data">Byte array segment</param>
         public static void Wipe(ArraySegment<byte> data)
         {
-            InternalWipe(data.Array, data.Offset, data.Count);
+            InternalWipe(data.Array!, data.Offset, data.Count);
         }
 
         // Secure wiping is hard
@@ -127,7 +128,8 @@ namespace Discord.Net.ED25519
         /// </summary>
         /// <param name="data">Byte array</param>
         /// <returns>Hex representation of byte array</returns>
-        public static string ToHexStringUpper(byte[] data)
+        [return: NotNullIfNotNull(nameof(data))]
+        public static string? ToHexStringUpper(byte[] data)
         {
             if (data == null)
                 return null;
@@ -138,7 +140,7 @@ namespace Discord.Net.ED25519
                 b = data[i] >> 4;
                 c[i * 2] = (char)(55 + b + (((b - 10) >> 31) & -7));
                 b = data[i] & 0xF;
-                c[i * 2 + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
+                c[(i * 2) + 1] = (char)(55 + b + (((b - 10) >> 31) & -7));
             }
             return new string(c);
         }
@@ -149,7 +151,8 @@ namespace Discord.Net.ED25519
         /// </summary>
         /// <param name="data">Byte array</param>
         /// <returns>Hex representation of byte array</returns>
-        public static string ToHexStringLower(byte[] data)
+        [return: NotNullIfNotNull(nameof(data))]
+        public static string? ToHexStringLower(byte[] data)
         {
             if (data == null)
                 return null;
@@ -160,7 +163,7 @@ namespace Discord.Net.ED25519
                 b = data[i] >> 4;
                 c[i * 2] = (char)(87 + b + (((b - 10) >> 31) & -39));
                 b = data[i] & 0xF;
-                c[i * 2 + 1] = (char)(87 + b + (((b - 10) >> 31) & -39));
+                c[(i * 2) + 1] = (char)(87 + b + (((b - 10) >> 31) & -39));
             }
             return new string(c);
         }
@@ -170,7 +173,8 @@ namespace Discord.Net.ED25519
         /// </summary>
         /// <param name="hexString">Hex encoded byte sequence</param>
         /// <returns>Byte array</returns>
-        public static byte[] FromHexString(string hexString)
+        [return: NotNullIfNotNull(nameof(hexString))]
+        public static byte[]? FromHexString(string hexString)
         {
             if (hexString == null)
                 return null;
@@ -188,7 +192,8 @@ namespace Discord.Net.ED25519
         /// </summary>
         /// <param name="data">Byte array</param>
         /// <returns>Base 64 encoded data</returns>
-        public static string ToBase64String(byte[] data)
+        [return: NotNullIfNotNull(nameof(data))]
+        public static string? ToBase64String(byte[] data)
         {
             if (data == null)
                 return null;
@@ -200,7 +205,8 @@ namespace Discord.Net.ED25519
         /// </summary>
         /// <param name="base64String">Base 64 encoded data</param>
         /// <returns>Byte array</returns>
-        public static byte[] FromBase64String(string base64String)
+        [return: NotNullIfNotNull(nameof(base64String))]
+        public static byte[]? FromBase64String(string base64String)
         {
             if (base64String == null)
                 return null;
@@ -220,7 +226,7 @@ namespace Discord.Net.ED25519
             BigInteger intData = 0;
             for (int i = 0; i < input.Length; i++)
             {
-                intData = intData * 256 + input[i];
+                intData = (intData * 256) + input[i];
             }
 
             // Encode BigInteger to Base58 string
@@ -254,7 +260,7 @@ namespace Discord.Net.ED25519
                 int digit = strDigits.IndexOf(input[i]); //Slow
                 if (digit < 0)
                     throw new FormatException(string.Format("Invalid Base58 character `{0}` at position {1}", input[i], i));
-                intData = intData * 58 + digit;
+                intData = (intData * 58) + digit;
             }
 
             // Encode BigInteger to byte[]

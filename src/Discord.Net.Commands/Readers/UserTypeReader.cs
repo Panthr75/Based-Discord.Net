@@ -85,7 +85,7 @@ namespace Discord.Commands
             {
                 await channelUsers
                     .Where(x => string.Equals(input, (x as IGuildUser)?.Nickname, StringComparison.OrdinalIgnoreCase))
-                    .ForEachAsync(channelUser => AddResult(results, channelUser as T, (channelUser as IGuildUser).Nickname == input ? 0.65f : 0.55f))
+                    .ForEachAsync(channelUser => AddResult(results, channelUser as T, ((IGuildUser)channelUser).Nickname == input ? 0.65f : 0.55f))
                     .ConfigureAwait(false);
 
                 foreach (var guildUser in guildUsers.Where(x => string.Equals(input, x.Nickname, StringComparison.OrdinalIgnoreCase)))
@@ -97,7 +97,7 @@ namespace Discord.Commands
             return TypeReaderResult.FromError(CommandError.ObjectNotFound, "User not found.");
         }
 
-        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T user, float score)
+        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T? user, float score)
         {
             if (user != null && !results.ContainsKey(user.Id))
                 results.Add(user.Id, new TypeReaderValue(user, score));

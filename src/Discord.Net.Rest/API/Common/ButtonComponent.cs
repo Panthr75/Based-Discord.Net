@@ -1,28 +1,29 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class ButtonComponent : IMessageComponent
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ComponentType Type { get; set; }
 
-        [JsonProperty("style")]
+        [JsonPropertyName("style")]
         public ButtonStyle Style { get; set; }
 
-        [JsonProperty("label")]
+        [JsonPropertyName("label")]
         public Optional<string> Label { get; set; }
 
-        [JsonProperty("emoji")]
+        [JsonPropertyName("emoji")]
         public Optional<Emoji> Emote { get; set; }
 
-        [JsonProperty("custom_id")]
+        [JsonPropertyName("custom_id")]
         public Optional<string> CustomId { get; set; }
 
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public Optional<string> Url { get; set; }
 
-        [JsonProperty("disabled")]
+        [JsonPropertyName("disabled")]
         public Optional<bool> Disabled { get; set; }
 
         public ButtonComponent() { }
@@ -31,9 +32,9 @@ namespace Discord.API
         {
             Type = c.Type;
             Style = c.Style;
-            Label = c.Label;
-            CustomId = c.CustomId;
-            Url = c.Url;
+            Label = Optional.CreateFromNullable(c.Label);
+            CustomId = Optional.CreateFromNullable(c.CustomId);
+            Url = Optional.CreateFromNullable(c.Url);
             Disabled = c.IsDisabled;
 
             if (c.Emote != null)
@@ -58,6 +59,6 @@ namespace Discord.API
         }
 
         [JsonIgnore]
-        string IMessageComponent.CustomId => CustomId.GetValueOrDefault();
+        string? IMessageComponent.CustomId => CustomId.GetValueOrDefault();
     }
 }

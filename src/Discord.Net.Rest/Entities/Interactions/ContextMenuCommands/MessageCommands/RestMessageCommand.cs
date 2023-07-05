@@ -12,12 +12,16 @@ namespace Discord.Rest
         /// <summary>
         ///     Gets the data associated with this interaction.
         /// </summary>
-        public new RestMessageCommandData Data { get; private set; }
+        public new RestMessageCommandData Data
+        {
+            get => (RestMessageCommandData)base.Data;
+            private set => base.Data = value;
+        }
 
         internal RestMessageCommand(DiscordRestClient client, Model model)
             : base(client, model)
         {
-
+            this.Data = null!;
         }
 
         internal new static async Task<RestMessageCommand> CreateAsync(DiscordRestClient client, Model model, bool doApiCall)
@@ -31,9 +35,12 @@ namespace Discord.Rest
         {
             await base.UpdateAsync(client, model, doApiCall).ConfigureAwait(false);
 
-            var dataModel = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
+            if (!model.Data.IsSpecified)
+            {
+                return;
+            }
+
+            var dataModel = (DataModel)model.Data.Value;
 
             Data = await RestMessageCommandData.CreateAsync(client, dataModel, Guild, Channel, doApiCall).ConfigureAwait(false);
         }

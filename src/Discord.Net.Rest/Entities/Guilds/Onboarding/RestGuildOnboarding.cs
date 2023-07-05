@@ -24,7 +24,7 @@ public class RestGuildOnboarding : IGuildOnboarding
     /// <inheritdoc cref="IGuildOnboarding.Prompts"/>
     public IReadOnlyCollection<RestGuildOnboardingPrompt> Prompts { get; private set; }
 
-    internal RestGuildOnboarding(BaseDiscordClient discord, Model model, RestGuild guild = null)
+    internal RestGuildOnboarding(BaseDiscordClient discord, Model model, RestGuild guild)
     {
         GuildId = model.GuildId;
         DefaultChannelIds = model.DefaultChannelIds.ToImmutableArray();

@@ -1,20 +1,19 @@
 using Discord.API.AuditLogs;
 using System.Collections.Generic;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a thread deletion.
 /// </summary>
-public class ThreadDeleteAuditLogData : IAuditLogData
+public partial class ThreadDeleteAuditLogData : IAuditLogData
 {
     private ThreadDeleteAuditLogData(ulong id, ThreadInfoAuditLogModel model)
     {
         ThreadId = id;
 
-        ThreadName = model.Name;
+        ThreadName = model.Name ?? string.Empty;
         IsArchived = model.IsArchived!.Value;
         AutoArchiveDuration = model.ArchiveDuration!.Value;
         IsLocked = model.IsLocked!.Value;
@@ -24,9 +23,9 @@ public class ThreadDeleteAuditLogData : IAuditLogData
         ThreadType = model.Type;
     }
 
-    internal static ThreadDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static ThreadDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<ThreadInfoAuditLogModel>(changes, discord);
 
@@ -99,7 +98,7 @@ public class ThreadDeleteAuditLogData : IAuditLogData
     /// <remarks>
     ///     <see langword="null"/> if this is not mentioned in this entry.
     /// </remarks>
-    public IReadOnlyCollection<ulong> AppliedTags { get; }
+    public IReadOnlyCollection<ulong>? AppliedTags { get; }
 
     /// <summary>
     ///     Gets the flags of the thread channel.

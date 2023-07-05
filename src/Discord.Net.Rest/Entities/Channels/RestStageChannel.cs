@@ -28,20 +28,20 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public bool IsLive { get; private set; }
-        internal RestStageChannel(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestStageChannel(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, guild, id) { }
 
-        internal new static RestStageChannel Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal new static RestStageChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestStageChannel(discord, guild, model.Id);
             entity.Update(model);
             return entity;
         }
 
-        internal void Update(StageInstance model, bool isLive = false)
+        internal void Update(StageInstance? model, bool isLive = false)
         {
             IsLive = isLive;
-            if (isLive)
+            if (isLive && model != null)
             {
                 PrivacyLevel = model.PrivacyLevel;
                 IsDiscoverableDisabled = model.DiscoverableDisabled;
@@ -54,7 +54,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public async Task ModifyInstanceAsync(Action<StageInstanceProperties> func, RequestOptions options = null)
+        public async Task ModifyInstanceAsync(Action<StageInstanceProperties> func, RequestOptions? options = null)
         {
             var model = await ChannelHelper.ModifyAsync(this, Discord, func, options);
 
@@ -62,8 +62,13 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public async Task StartStageAsync(string topic, StagePrivacyLevel privacyLevel = StagePrivacyLevel.GuildOnly, RequestOptions options = null)
+        public async Task StartStageAsync(string topic, StagePrivacyLevel privacyLevel = StagePrivacyLevel.GuildOnly, RequestOptions? options = null)
         {
+            Preconditions.NotNull(topic, nameof(topic));
+            topic = topic.Trim();
+            Preconditions.AtLeast(topic.Length, 1, nameof(topic), "A stage topic cannot be empty.");
+            Preconditions.AtMost(topic.Length, 120, nameof(topic), "A stage topic cannot exceed 120 characters");
+
             var args = new CreateStageInstanceParams
             {
                 ChannelId = Id,
@@ -77,7 +82,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public async Task StopStageAsync(RequestOptions options = null)
+        public async Task StopStageAsync(RequestOptions? options = null)
         {
             await Discord.ApiClient.DeleteStageInstanceAsync(Id, options);
 
@@ -85,7 +90,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public override async Task UpdateAsync(RequestOptions options = null)
+        public override async Task UpdateAsync(RequestOptions? options = null)
         {
             await base.UpdateAsync(options);
 
@@ -95,40 +100,43 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public Task RequestToSpeakAsync(RequestOptions options = null)
+        public Task RequestToSpeakAsync(RequestOptions? options = null)
         {
             var args = new ModifyVoiceStateParams
             {
                 ChannelId = Id,
                 RequestToSpeakTimestamp = DateTimeOffset.UtcNow
             };
+            this.ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
         /// <inheritdoc/>
-        public Task BecomeSpeakerAsync(RequestOptions options = null)
+        public Task BecomeSpeakerAsync(RequestOptions? options = null)
         {
             var args = new ModifyVoiceStateParams
             {
                 ChannelId = Id,
                 Suppressed = false
             };
+            this.ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
         /// <inheritdoc/>
-        public Task StopSpeakingAsync(RequestOptions options = null)
+        public Task StopSpeakingAsync(RequestOptions? options = null)
         {
             var args = new ModifyVoiceStateParams
             {
                 ChannelId = Id,
                 Suppressed = true
             };
+            this.ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
         /// <inheritdoc/>
-        public Task MoveToSpeakerAsync(IGuildUser user, RequestOptions options = null)
+        public Task MoveToSpeakerAsync(IGuildUser user, RequestOptions? options = null)
         {
             var args = new ModifyVoiceStateParams
             {
@@ -136,11 +144,12 @@ namespace Discord.Rest
                 Suppressed = false
             };
 
+            this.ValidateGuildExists();
             return Discord.ApiClient.ModifyUserVoiceState(Guild.Id, user.Id, args);
         }
 
         /// <inheritdoc/>
-        public Task RemoveFromSpeakerAsync(IGuildUser user, RequestOptions options = null)
+        public Task RemoveFromSpeakerAsync(IGuildUser user, RequestOptions? options = null)
         {
             var args = new ModifyVoiceStateParams
             {
@@ -148,6 +157,7 @@ namespace Discord.Rest
                 Suppressed = true
             };
 
+            this.ValidateGuildExists();
             return Discord.ApiClient.ModifyUserVoiceState(Guild.Id, user.Id, args);
         }
     }

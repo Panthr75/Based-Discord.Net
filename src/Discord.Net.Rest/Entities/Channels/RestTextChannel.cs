@@ -16,7 +16,7 @@ namespace Discord.Rest
     {
         #region RestTextChannel
         /// <inheritdoc />
-        public string Topic { get; private set; }
+        public string? Topic { get; private set; }
         /// <inheritdoc />
         public virtual int SlowModeInterval { get; private set; }
         /// <inheritdoc />
@@ -30,11 +30,11 @@ namespace Discord.Rest
         /// <inheritdoc />
         public int DefaultSlowModeInterval { get; private set; }
 
-        internal RestTextChannel(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestTextChannel(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, guild, id)
         {
         }
-        internal new static RestTextChannel Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal new static RestTextChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestTextChannel(discord, guild, model.Id);
             entity.Update(model);
@@ -60,7 +60,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public virtual async Task ModifyAsync(Action<TextChannelProperties> func, RequestOptions options = null)
+        public virtual async Task ModifyAsync(Action<TextChannelProperties> func, RequestOptions? options = null)
         {
             var model = await ChannelHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             Update(model);
@@ -78,8 +78,11 @@ namespace Discord.Rest
         ///     A task representing the asynchronous get operation. The task result contains a guild user object that
         ///     represents the user; <see langword="null" /> if none is found.
         /// </returns>
-        public Task<RestGuildUser> GetUserAsync(ulong id, RequestOptions options = null)
-            => ChannelHelper.GetUserAsync(this, Guild, Discord, id, options);
+        public Task<RestGuildUser?> GetUserAsync(ulong id, RequestOptions? options = null)
+        {
+            this.ValidateGuildExists();
+            return ChannelHelper.GetUserAsync(this, Guild, Discord, id, options);
+        }
 
         /// <summary>
         ///     Gets a collection of users that are able to view the channel.
@@ -93,31 +96,34 @@ namespace Discord.Rest
         ///     paginated response into a collection of users with
         ///     <see cref="AsyncEnumerableExtensions.FlattenAsync{T}"/> is required if you wish to access the users.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<RestGuildUser>> GetUsersAsync(RequestOptions options = null)
-            => ChannelHelper.GetUsersAsync(this, Guild, Discord, null, null, options);
+        public IAsyncEnumerable<IReadOnlyCollection<RestGuildUser>> GetUsersAsync(RequestOptions? options = null)
+        {
+            this.ValidateGuildExists();
+            return ChannelHelper.GetUsersAsync(this, Guild, Discord, null, null, options);
+        }
 
         /// <inheritdoc />
-        public virtual Task<RestMessage> GetMessageAsync(ulong id, RequestOptions options = null)
+        public virtual Task<RestMessage?> GetMessageAsync(ulong id, RequestOptions? options = null)
             => ChannelHelper.GetMessageAsync(this, Discord, id, options);
         /// <inheritdoc />
-        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, null, Direction.Before, limit, options);
         /// <inheritdoc />
-        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, fromMessageId, dir, limit, options);
         /// <inheritdoc />
-        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions options = null)
+        public virtual IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = DiscordConfig.MaxMessagesPerBatch, RequestOptions? options = null)
             => ChannelHelper.GetMessagesAsync(this, Discord, fromMessage.Id, dir, limit, options);
         /// <inheritdoc />
-        public virtual Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions options = null)
+        public virtual Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(RequestOptions? options = null)
             => ChannelHelper.GetPinnedMessagesAsync(this, Discord, options);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
-        public virtual Task<RestUserMessage> SendMessageAsync(string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, AllowedMentions allowedMentions = null, MessageReference messageReference = null,
-            MessageComponent components = null, ISticker[] stickers = null, Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public virtual Task<RestUserMessage> SendMessageAsync(string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageReference? messageReference = null,
+            MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendMessageAsync(this, Discord, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, embeds, flags);
 
@@ -147,65 +153,65 @@ namespace Discord.Rest
         /// <exception cref="IOException">An I/O error occurred while opening the file.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
-        public virtual Task<RestUserMessage> SendFileAsync(string filePath, string text = null, bool isTTS = false, Embed embed = null,
-            RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public virtual Task<RestUserMessage> SendFileAsync(string filePath, string? text = null, bool isTTS = false, Embed? embed = null,
+            RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, filePath, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, isSpoiler, embeds, flags);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
-        public virtual Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, bool isSpoiler = false, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public virtual Task<RestUserMessage> SendFileAsync(Stream stream, string filename, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, bool isSpoiler = false, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, stream, filename, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, isSpoiler, embeds, flags);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
-        public virtual Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public virtual Task<RestUserMessage> SendFileAsync(FileAttachment attachment, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFileAsync(this, Discord, attachment, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, embeds, flags);
 
         /// <inheritdoc />
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
-        public virtual Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, bool isTTS = false,
-            Embed embed = null, RequestOptions options = null, AllowedMentions allowedMentions = null,
-            MessageReference messageReference = null, MessageComponent components = null, ISticker[] stickers = null,
-            Embed[] embeds = null, MessageFlags flags = MessageFlags.None)
+        public virtual Task<RestUserMessage> SendFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null, bool isTTS = false,
+            Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null,
+            MessageReference? messageReference = null, MessageComponent? components = null, ISticker[]? stickers = null,
+            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None)
             => ChannelHelper.SendFilesAsync(this, Discord, attachments, text, isTTS, embed, allowedMentions, messageReference, components, stickers, options, embeds, flags);
 
         /// <inheritdoc />
-        public virtual Task DeleteMessageAsync(ulong messageId, RequestOptions options = null)
+        public virtual Task DeleteMessageAsync(ulong messageId, RequestOptions? options = null)
             => ChannelHelper.DeleteMessageAsync(this, messageId, Discord, options);
         /// <inheritdoc />
-        public virtual Task DeleteMessageAsync(IMessage message, RequestOptions options = null)
+        public virtual Task DeleteMessageAsync(IMessage message, RequestOptions? options = null)
             => ChannelHelper.DeleteMessageAsync(this, message.Id, Discord, options);
 
         /// <inheritdoc />
-        public virtual Task DeleteMessagesAsync(IEnumerable<IMessage> messages, RequestOptions options = null)
+        public virtual Task DeleteMessagesAsync(IEnumerable<IMessage> messages, RequestOptions? options = null)
             => ChannelHelper.DeleteMessagesAsync(this, Discord, messages.Select(x => x.Id), options);
         /// <inheritdoc />
-        public virtual Task DeleteMessagesAsync(IEnumerable<ulong> messageIds, RequestOptions options = null)
+        public virtual Task DeleteMessagesAsync(IEnumerable<ulong> messageIds, RequestOptions? options = null)
             => ChannelHelper.DeleteMessagesAsync(this, Discord, messageIds, options);
 
         /// <inheritdoc />
-        public virtual async Task<IUserMessage> ModifyMessageAsync(ulong messageId, Action<MessageProperties> func, RequestOptions options = null)
+        public virtual async Task<IUserMessage> ModifyMessageAsync(ulong messageId, Action<MessageProperties> func, RequestOptions? options = null)
             => await ChannelHelper.ModifyMessageAsync(this, messageId, func, Discord, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public virtual Task TriggerTypingAsync(RequestOptions options = null)
+        public virtual Task TriggerTypingAsync(RequestOptions? options = null)
             => ChannelHelper.TriggerTypingAsync(this, Discord, options);
         /// <inheritdoc />
-        public virtual IDisposable EnterTypingState(RequestOptions options = null)
+        public virtual IDisposable EnterTypingState(RequestOptions? options = null)
             => ChannelHelper.EnterTypingState(this, Discord, options);
 
         /// <summary>
@@ -218,7 +224,7 @@ namespace Discord.Rest
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     webhook.
         /// </returns>
-        public virtual Task<RestWebhook> CreateWebhookAsync(string name, Stream avatar = null, RequestOptions options = null)
+        public virtual Task<RestWebhook> CreateWebhookAsync(string name, Stream? avatar = null, RequestOptions? options = null)
             => ChannelHelper.CreateWebhookAsync(this, Discord, name, avatar, options);
         /// <summary>
         ///     Gets a webhook available in this text channel.
@@ -229,7 +235,7 @@ namespace Discord.Rest
         ///     A task that represents the asynchronous get operation. The task result contains a webhook associated
         ///     with the identifier; <see langword="null" /> if the webhook is not found.
         /// </returns>
-        public virtual Task<RestWebhook> GetWebhookAsync(ulong id, RequestOptions options = null)
+        public virtual Task<RestWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null)
             => ChannelHelper.GetWebhookAsync(this, Discord, id, options);
         /// <summary>
         ///     Gets the webhooks available in this text channel.
@@ -239,7 +245,7 @@ namespace Discord.Rest
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
         ///     of webhooks that is available in this channel.
         /// </returns>
-        public virtual Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(RequestOptions options = null)
+        public virtual Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(RequestOptions? options = null)
             => ChannelHelper.GetWebhooksAsync(this, Discord, options);
 
         /// <summary>
@@ -264,11 +270,16 @@ namespace Discord.Rest
         /// </param>
         /// <param name="message">The message which to start the thread from.</param>
         /// <param name="options">The options to be used when sending the request.</param>
+        /// <param name="invitable">
+        /// Whether or not non-moderators can add other non-moderators to a thread.
+        /// Only available when creating a private thread.
+        /// </param>
+        /// <param name="slowmode">The amount of seconds a user has to wait before sending another message (0-21600)</param>
         /// <returns>
         ///     A task that represents the asynchronous create operation. The task result contains a <see cref="IThreadChannel"/>
         /// </returns>
         public virtual async Task<RestThreadChannel> CreateThreadAsync(string name, ThreadType type = ThreadType.PublicThread,
-            ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage message = null, bool? invitable = null, int? slowmode = null, RequestOptions options = null)
+            ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage? message = null, bool? invitable = null, int? slowmode = null, RequestOptions? options = null)
         {
             var model = await ThreadHelper.CreateThreadAsync(Discord, this, name, type, autoArchiveDuration, message, invitable, slowmode, options);
             return RestThreadChannel.Create(Discord, Guild, model);
@@ -282,30 +293,33 @@ namespace Discord.Rest
         ///     A task that represents the asynchronous get operation. The task result contains the category channel
         ///     representing the parent of this channel; <see langword="null" /> if none is set.
         /// </returns>
-        public virtual Task<ICategoryChannel> GetCategoryAsync(RequestOptions options = null)
+        public virtual Task<ICategoryChannel?> GetCategoryAsync(RequestOptions? options = null)
             => ChannelHelper.GetCategoryAsync(this, Discord, options);
         /// <inheritdoc />
-        public Task SyncPermissionsAsync(RequestOptions options = null)
+        public Task SyncPermissionsAsync(RequestOptions? options = null)
             => ChannelHelper.SyncPermissionsAsync(this, Discord, options);
 
         /// <inheritdoc cref="ITextChannel.GetActiveThreadsAsync(RequestOptions)"/>
-        public virtual Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions options = null)
-            => ThreadHelper.GetActiveThreadsAsync(Guild, Id, Discord, options);
+        public virtual Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null)
+        {
+            this.ValidateGuildExists();
+            return ThreadHelper.GetActiveThreadsAsync(Guild, Id, Discord, options);
+        }
         #endregion
 
         #region Invites
         /// <inheritdoc />
-        public virtual async Task<IInviteMetadata> CreateInviteAsync(int? maxAge = 86400, int? maxUses = null, bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+        public virtual async Task<IInviteMetadata> CreateInviteAsync(int? maxAge = 86400, int? maxUses = null, bool isTemporary = false, bool isUnique = false, RequestOptions? options = null)
             => await ChannelHelper.CreateInviteAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, options).ConfigureAwait(false);
-        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(ulong applicationId, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(ulong applicationId, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions? options = null)
             => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, applicationId, options);
         /// <inheritdoc />
-        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(DefaultApplications application, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+        public virtual async Task<IInviteMetadata> CreateInviteToApplicationAsync(DefaultApplications application, int? maxAge = 86400, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions? options = null)
             => await ChannelHelper.CreateInviteToApplicationAsync(this, Discord, maxAge, maxUses, isTemporary, isUnique, (ulong)application, options);
-        public virtual Task<IInviteMetadata> CreateInviteToStreamAsync(IUser user, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions options = null)
+        public virtual Task<IInviteMetadata> CreateInviteToStreamAsync(IUser user, int? maxAge, int? maxUses = default(int?), bool isTemporary = false, bool isUnique = false, RequestOptions? options = null)
             => throw new NotImplementedException();
         /// <inheritdoc />
-        public virtual async Task<IReadOnlyCollection<IInviteMetadata>> GetInvitesAsync(RequestOptions options = null)
+        public virtual async Task<IReadOnlyCollection<IInviteMetadata>> GetInvitesAsync(RequestOptions? options = null)
             => await ChannelHelper.GetInvitesAsync(this, Discord, options).ConfigureAwait(false);
 
         private string DebuggerDisplay => $"{Name} ({Id}, Text)";
@@ -314,30 +328,30 @@ namespace Discord.Rest
         #region IIntegrationChannel
 
         /// <inheritdoc />
-        async Task<IWebhook> IIntegrationChannel.CreateWebhookAsync(string name, Stream avatar, RequestOptions options)
+        async Task<IWebhook> IIntegrationChannel.CreateWebhookAsync(string name, Stream? avatar, RequestOptions? options)
             => await CreateWebhookAsync(name, avatar, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task<IWebhook> IIntegrationChannel.GetWebhookAsync(ulong id, RequestOptions options)
+        async Task<IWebhook?> IIntegrationChannel.GetWebhookAsync(ulong id, RequestOptions? options)
             => await GetWebhookAsync(id, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IWebhook>> IIntegrationChannel.GetWebhooksAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IWebhook>> IIntegrationChannel.GetWebhooksAsync(RequestOptions? options)
             => await GetWebhooksAsync(options).ConfigureAwait(false);
 
         #endregion
 
         #region ITextChannel
 
-        async Task<IThreadChannel> ITextChannel.CreateThreadAsync(string name, ThreadType type, ThreadArchiveDuration autoArchiveDuration, IMessage message, bool? invitable, int? slowmode, RequestOptions options)
+        async Task<IThreadChannel> ITextChannel.CreateThreadAsync(string name, ThreadType type, ThreadArchiveDuration autoArchiveDuration, IMessage? message, bool? invitable, int? slowmode, RequestOptions? options)
             => await CreateThreadAsync(name, type, autoArchiveDuration, message, invitable, slowmode, options);
 
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IThreadChannel>> ITextChannel.GetActiveThreadsAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IThreadChannel>> ITextChannel.GetActiveThreadsAsync(RequestOptions? options)
             => await GetActiveThreadsAsync(options);
         #endregion
 
         #region IMessageChannel
         /// <inheritdoc />
-        async Task<IMessage> IMessageChannel.GetMessageAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IMessage?> IMessageChannel.GetMessageAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return await GetMessageAsync(id, options).ConfigureAwait(false);
@@ -345,7 +359,7 @@ namespace Discord.Rest
                 return null;
         }
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(int limit, CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(int limit, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return GetMessagesAsync(limit, options);
@@ -354,7 +368,7 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(ulong fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(ulong fromMessageId, Direction dir, int limit, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return GetMessagesAsync(fromMessageId, dir, limit, options);
@@ -362,7 +376,7 @@ namespace Discord.Rest
                 return AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>();
         }
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(IMessage fromMessage, Direction dir, int limit, CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IMessage>> IMessageChannel.GetMessagesAsync(IMessage fromMessage, Direction dir, int limit, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return GetMessagesAsync(fromMessage, dir, limit, options);
@@ -370,46 +384,46 @@ namespace Discord.Rest
                 return AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>();
         }
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IMessage>> IMessageChannel.GetPinnedMessagesAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IMessage>> IMessageChannel.GetPinnedMessagesAsync(RequestOptions? options)
             => await GetPinnedMessagesAsync(options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(string filePath, string text, bool isTTS, Embed embed,
-            RequestOptions options, bool isSpoiler, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(string filePath, string? text, bool isTTS, Embed? embed,
+            RequestOptions? options, bool isSpoiler, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(filePath, text, isTTS, embed, options, isSpoiler, allowedMentions, messageReference,
             components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(Stream stream, string filename, string text, bool isTTS,
-            Embed embed, RequestOptions options, bool isSpoiler, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(Stream stream, string filename, string? text, bool isTTS,
+            Embed? embed, RequestOptions? options, bool isSpoiler, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(stream, filename, text, isTTS, embed, options, isSpoiler, allowedMentions, messageReference,
                 components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFileAsync(FileAttachment attachment, string text, bool isTTS,
-            Embed embed, RequestOptions options, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFileAsync(FileAttachment attachment, string? text, bool isTTS,
+            Embed? embed, RequestOptions? options, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFileAsync(attachment, text, isTTS, embed, options, allowedMentions, messageReference, components,
                 stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendFilesAsync(IEnumerable<FileAttachment> attachments, string text,
-            bool isTTS, Embed embed, RequestOptions options, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendFilesAsync(IEnumerable<FileAttachment> attachments, string? text,
+            bool isTTS, Embed? embed, RequestOptions? options, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendFilesAsync(attachments, text, isTTS, embed, options, allowedMentions, messageReference, components, stickers, embeds, flags).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUserMessage> IMessageChannel.SendMessageAsync(string text, bool isTTS, Embed embed, RequestOptions options,
-            AllowedMentions allowedMentions, MessageReference messageReference, MessageComponent components,
-            ISticker[] stickers, Embed[] embeds, MessageFlags flags)
+        async Task<IUserMessage> IMessageChannel.SendMessageAsync(string? text, bool isTTS, Embed? embed, RequestOptions? options,
+            AllowedMentions? allowedMentions, MessageReference? messageReference, MessageComponent? components,
+            ISticker[]? stickers, Embed[]? embeds, MessageFlags flags)
             => await SendMessageAsync(text, isTTS, embed, options, allowedMentions, messageReference, components, stickers, embeds, flags).ConfigureAwait(false);
         #endregion
 
         #region IGuildChannel
         /// <inheritdoc />
-        async Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IGuildUser?> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return await GetUserAsync(id, options).ConfigureAwait(false);
@@ -417,7 +431,7 @@ namespace Discord.Rest
                 return null;
         }
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
         {
             return mode == CacheMode.AllowDownload
                 ? GetUsersAsync(options)
@@ -427,7 +441,7 @@ namespace Discord.Rest
 
         #region IChannel
         /// <inheritdoc />
-        async Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return await GetUserAsync(id, options).ConfigureAwait(false);
@@ -435,7 +449,7 @@ namespace Discord.Rest
                 return null;
         }
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
         {
             if (mode == CacheMode.AllowDownload)
                 return GetUsersAsync(options);
@@ -446,10 +460,13 @@ namespace Discord.Rest
 
         #region INestedChannel
         /// <inheritdoc />
-        async Task<ICategoryChannel> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions options)
+        async Task<ICategoryChannel?> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions? options)
         {
             if (CategoryId.HasValue && mode == CacheMode.AllowDownload)
+            {
+                this.ValidateGuildExists();
                 return (await Guild.GetChannelAsync(CategoryId.Value, mode, options).ConfigureAwait(false)) as ICategoryChannel;
+            }
             return null;
         }
         #endregion

@@ -1,23 +1,24 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API
 {
     internal class MessageComponentInteractionData : IDiscordInteractionData
     {
-        [JsonProperty("custom_id")]
-        public string CustomId { get; set; }
+        [JsonPropertyName("custom_id")]
+        public string CustomId { get; set; } = string.Empty;
 
-        [JsonProperty("component_type")]
+        [JsonPropertyName("component_type")]
         public ComponentType ComponentType { get; set; }
 
-        [JsonProperty("values")]
+        [JsonPropertyName("values")]
         public Optional<string[]> Values { get; set; }
 
-        [JsonProperty("value")]
+        [JsonPropertyName("value")]
         public Optional<string> Value { get; set; }
 
-        [JsonProperty("resolved")]
+        [JsonPropertyName("resolved")]
         public Optional<MessageComponentInteractionDataResolved> Resolved { get; set; }
     }
 }

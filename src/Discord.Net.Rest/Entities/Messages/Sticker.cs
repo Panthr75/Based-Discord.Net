@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Model = Discord.API.Sticker;
@@ -32,7 +33,12 @@ namespace Discord.Rest
             => CDN.GetStickerUrl(Id, Format);
 
         internal Sticker(BaseDiscordClient client, ulong id)
-            : base(client, id) { }
+            : base(client, id)
+        {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.Tags = ImmutableArray<string>.Empty;
+        }
         internal static Sticker Create(BaseDiscordClient client, Model model)
         {
             var entity = new Sticker(client, model.Id);

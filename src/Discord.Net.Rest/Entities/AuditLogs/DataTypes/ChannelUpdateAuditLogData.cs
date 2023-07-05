@@ -1,14 +1,13 @@
 using Discord.API.AuditLogs;
 using System.Linq;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest
 {
     /// <summary>
     ///     Contains a piece of audit log data related to a channel update.
     /// </summary>
-    public class ChannelUpdateAuditLogData : IAuditLogData
+    public partial class ChannelUpdateAuditLogData : IAuditLogData
     {
         private ChannelUpdateAuditLogData(ulong id, ChannelInfo before, ChannelInfo after)
         {
@@ -17,11 +16,11 @@ namespace Discord.Rest
             After = after;
         }
 
-        internal static ChannelUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+        internal static ChannelUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
         {
             var changes = entry.Changes;
 
-            var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes, discord);
+            var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes!, discord);
 
             return new ChannelUpdateAuditLogData(entry.TargetId!.Value, new ChannelInfo(before), new ChannelInfo(after));
         }

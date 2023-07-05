@@ -95,7 +95,7 @@ namespace Discord
         /// <returns>
         ///    An <see cref="IThreadChannel"/> object if this message has thread attached; otherwise <see langword="null"/>.
         /// </returns>
-        IThreadChannel Thread { get; }
+        IThreadChannel? Thread { get; }
 
         /// <summary>
         ///     Gets all attachments included in this message.
@@ -156,7 +156,7 @@ namespace Discord
         /// <returns>
         ///     A message's activity, if any is associated.
         /// </returns>
-        MessageActivity Activity { get; }
+        MessageActivity? Activity { get; }
         /// <summary>
         ///     Gets the application associated with a message.
         /// </summary>
@@ -166,7 +166,7 @@ namespace Discord
         /// <returns>
         ///     A message's application, if any is associated.
         /// </returns>
-        MessageApplication Application { get; }
+        MessageApplication? Application { get; }
 
         /// <summary>
         ///     Gets the reference to the original message if it is a crosspost, channel follow add, pin, or reply message.
@@ -178,7 +178,7 @@ namespace Discord
         /// <returns>
         ///     A message's reference, if any is associated.
         /// </returns>
-        MessageReference Reference { get; }
+        MessageReference? Reference { get; }
 
         /// <summary>
         ///     Gets all reactions included in this message.
@@ -215,7 +215,7 @@ namespace Discord
         /// <returns>
         ///     A <see cref="IMessageInteraction"/> if the message is a response to an interaction; otherwise <see langword="null"/>.
         /// </returns>
-        IMessageInteraction Interaction { get; }
+        IMessageInteraction? Interaction { get; }
 
         /// <summary>
         ///     Gets the data of the role subscription purchase or renewal that prompted this <see cref="MessageType.RoleSubscriptionPurchase"/> message.
@@ -223,7 +223,7 @@ namespace Discord
         /// <returns>
         ///     A <see cref="MessageRoleSubscriptionData"/> if the message is a role subscription purchase message; otherwise <see langword="null"/>.
         /// </returns>
-        MessageRoleSubscriptionData RoleSubscriptionData { get; }
+        MessageRoleSubscriptionData? RoleSubscriptionData { get; }
 
         /// <summary>
         ///     Adds a reaction to this message.
@@ -240,7 +240,7 @@ namespace Discord
         ///     A task that represents the asynchronous operation for adding a reaction to this message.
         /// </returns>
         /// <seealso cref="IEmote"/>
-        Task AddReactionAsync(IEmote emote, RequestOptions options = null);
+        Task AddReactionAsync(IEmote emote, RequestOptions? options = null);
         /// <summary>
         ///     Removes a reaction from message.
         /// </summary>
@@ -257,7 +257,7 @@ namespace Discord
         ///     A task that represents the asynchronous operation for removing a reaction to this message.
         /// </returns>
         /// <seealso cref="IEmote"/>
-        Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions options = null);
+        Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions? options = null);
         /// <summary>
         ///     Removes a reaction from message.
         /// </summary>
@@ -274,7 +274,7 @@ namespace Discord
         ///     A task that represents the asynchronous operation for removing a reaction to this message.
         /// </returns>
         /// <seealso cref="IEmote"/>
-        Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions options = null);
+        Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions? options = null);
         /// <summary>
         ///     Removes all reactions from this message.
         /// </summary>
@@ -282,7 +282,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
-        Task RemoveAllReactionsAsync(RequestOptions options = null);
+        Task RemoveAllReactionsAsync(RequestOptions? options = null);
         /// <summary>
         ///     Removes all reactions with a specific emoji from this message.
         /// </summary>
@@ -291,7 +291,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
-        Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions options = null);
+        Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets all users that reacted to a message with a given emote.
@@ -326,6 +326,6 @@ namespace Discord
         /// <returns>
         ///      Paged collection of users.
         /// </returns>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions options = null);
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions? options = null);
     }
 }

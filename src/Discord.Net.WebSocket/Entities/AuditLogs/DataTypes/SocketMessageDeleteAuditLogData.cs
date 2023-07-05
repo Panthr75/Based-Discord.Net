@@ -29,7 +29,7 @@ public class SocketMessageDeleteAuditLogData : ISocketAuditLogData
                 return user is not null ? RestUser.Create(discord, user) : null;
             });
 
-        return new SocketMessageDeleteAuditLogData(entry.Options.ChannelId!.Value, entry.Options.Count!.Value, cacheableUser);
+        return new SocketMessageDeleteAuditLogData(entry.Options!.ChannelId!.Value, entry.Options!.Count!.Value, cacheableUser);
     }
 
     /// <summary>

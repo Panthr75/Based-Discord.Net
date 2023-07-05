@@ -38,7 +38,7 @@ namespace Discord
             }
         }
 
-        private List<ActionRowBuilder> _actionRows;
+        private List<ActionRowBuilder> _actionRows = new();
 
         /// <summary>
         ///     Creates a new builder from a message.
@@ -95,8 +95,8 @@ namespace Discord
         /// <param name="type">The type of the select menu.</param>
         /// <param name="channelTypes">Menus valid channel types (only for <see cref="ComponentType.ChannelSelect"/>)</param>
         /// <returns></returns>
-        public ComponentBuilder WithSelectMenu(string customId, List<SelectMenuOptionBuilder> options = null,
-            string placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false, int row = 0, ComponentType type = ComponentType.SelectMenu, ChannelType[] channelTypes = null)
+        public ComponentBuilder WithSelectMenu(string customId, List<SelectMenuOptionBuilder>? options = null,
+            string? placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false, int row = 0, ComponentType type = ComponentType.SelectMenu, ChannelType[]? channelTypes = null)
         {
             return WithSelectMenu(new SelectMenuBuilder()
                 .WithCustomId(customId)
@@ -174,11 +174,11 @@ namespace Discord
         /// <param name="row">The row the button should be placed on.</param>
         /// <returns>The current builder.</returns>
         public ComponentBuilder WithButton(
-            string label = null,
-            string customId = null,
+            string? label = null,
+            string? customId = null,
             ButtonStyle style = ButtonStyle.Primary,
-            IEmote emote = null,
-            string url = null,
+            IEmote? emote = null,
+            string? url = null,
             bool disabled = false,
             int row = 0)
         {
@@ -362,9 +362,9 @@ namespace Discord
         /// <param name="type">The type of the select menu.</param>
         /// <param name="channelTypes">Menus valid channel types (only for <see cref="ComponentType.ChannelSelect"/>)</param>
         /// <returns>The current builder.</returns>
-        public ActionRowBuilder WithSelectMenu(string customId, List<SelectMenuOptionBuilder> options = null,
-            string placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false,
-            ComponentType type = ComponentType.SelectMenu, ChannelType[] channelTypes = null)
+        public ActionRowBuilder WithSelectMenu(string customId, List<SelectMenuOptionBuilder>? options = null,
+            string? placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false,
+            ComponentType type = ComponentType.SelectMenu, ChannelType[]? channelTypes = null)
         {
             return WithSelectMenu(new SelectMenuBuilder()
                 .WithCustomId(customId)
@@ -409,11 +409,11 @@ namespace Discord
         /// <param name="disabled">Whether or not the newly created button is disabled.</param>
         /// <returns>The current builder.</returns>
         public ActionRowBuilder WithButton(
-            string label = null,
-            string customId = null,
+            string? label = null,
+            string? customId = null,
             ButtonStyle style = ButtonStyle.Primary,
-            IEmote emote = null,
-            string url = null,
+            IEmote? emote = null,
+            string? url = null,
             bool disabled = false)
         {
             var button = new ButtonBuilder()
@@ -496,7 +496,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Label"/> length exceeds <see cref="MaxButtonLabelLength"/>.</exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Label"/> length exceeds <see cref="MaxButtonLabelLength"/>.</exception>
-        public string Label
+        public string? Label
         {
             get => _label;
             set => _label = value?.Length switch
@@ -512,7 +512,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="CustomId"/> length exceeds <see cref="ComponentBuilder.MaxCustomIdLength"/></exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="CustomId"/> length subceeds 1.</exception>
-        public string CustomId
+        public string? CustomId
         {
             get => _customId;
             set => _customId = value?.Length switch
@@ -531,20 +531,20 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the <see cref="IEmote"/> of the current button.
         /// </summary>
-        public IEmote Emote { get; set; }
+        public IEmote? Emote { get; set; }
 
         /// <summary>
         ///     Gets or sets the url of the current button.
         /// </summary>
-        public string Url { get; set; }
+        public string? Url { get; set; }
 
         /// <summary>
         ///     Gets or sets whether the current button is disabled.
         /// </summary>
         public bool IsDisabled { get; set; }
 
-        private string _label;
-        private string _customId;
+        private string? _label;
+        private string? _customId;
 
         /// <summary>
         ///     Creates a new instance of a <see cref="ButtonBuilder"/>.
@@ -560,7 +560,7 @@ namespace Discord
         /// <param name="style">The custom ID of this button.</param>
         /// <param name="emote">The emote of this button.</param>
         /// <param name="isDisabled">Disabled this button or not.</param>
-        public ButtonBuilder(string label = null, string customId = null, ButtonStyle style = ButtonStyle.Primary, string url = null, IEmote emote = null, bool isDisabled = false)
+        public ButtonBuilder(string? label = null, string? customId = null, ButtonStyle style = ButtonStyle.Primary, string? url = null, IEmote? emote = null, bool isDisabled = false)
         {
             CustomId = customId;
             Style = style;
@@ -590,7 +590,7 @@ namespace Discord
         /// <param name="url">The url for this link button to go to.</param>
         /// <param name="emote">The emote for this link button.</param>
         /// <returns>A builder with the newly created button.</returns>
-        public static ButtonBuilder CreateLinkButton(string label, string url, IEmote emote = null)
+        public static ButtonBuilder CreateLinkButton(string? label, string? url, IEmote? emote = null)
             => new ButtonBuilder(label, null, ButtonStyle.Link, url, emote: emote);
 
         /// <summary>
@@ -600,7 +600,7 @@ namespace Discord
         /// <param name="customId">The custom id for this danger button.</param>
         /// <param name="emote">The emote for this danger button.</param>
         /// <returns>A builder with the newly created button.</returns>
-        public static ButtonBuilder CreateDangerButton(string label, string customId, IEmote emote = null)
+        public static ButtonBuilder CreateDangerButton(string? label, string? customId, IEmote? emote = null)
             => new ButtonBuilder(label, customId, ButtonStyle.Danger, emote: emote);
 
         /// <summary>
@@ -610,7 +610,7 @@ namespace Discord
         /// <param name="customId">The custom id for this primary button.</param>
         /// <param name="emote">The emote for this primary button.</param>
         /// <returns>A builder with the newly created button.</returns>
-        public static ButtonBuilder CreatePrimaryButton(string label, string customId, IEmote emote = null)
+        public static ButtonBuilder CreatePrimaryButton(string? label, string? customId, IEmote? emote = null)
             => new ButtonBuilder(label, customId, emote: emote);
 
         /// <summary>
@@ -620,7 +620,7 @@ namespace Discord
         /// <param name="customId">The custom id for this secondary button.</param>
         /// <param name="emote">The emote for this secondary button.</param>
         /// <returns>A builder with the newly created button.</returns>
-        public static ButtonBuilder CreateSecondaryButton(string label, string customId, IEmote emote = null)
+        public static ButtonBuilder CreateSecondaryButton(string? label, string? customId, IEmote? emote = null)
             => new ButtonBuilder(label, customId, ButtonStyle.Secondary, emote: emote);
 
         /// <summary>
@@ -630,7 +630,7 @@ namespace Discord
         /// <param name="customId">The custom id for this success button.</param>
         /// <param name="emote">The emote for this success button.</param>
         /// <returns>A builder with the newly created button.</returns>
-        public static ButtonBuilder CreateSuccessButton(string label, string customId, IEmote emote = null)
+        public static ButtonBuilder CreateSuccessButton(string? label, string? customId, IEmote? emote = null)
             => new ButtonBuilder(label, customId, ButtonStyle.Success, emote: emote);
 
         /// <summary>
@@ -639,7 +639,7 @@ namespace Discord
         /// <param name="label">The text for the label.</param>
         /// <inheritdoc cref="Label"/>
         /// <returns>The current builder.</returns>
-        public ButtonBuilder WithLabel(string label)
+        public ButtonBuilder WithLabel(string? label)
         {
             Label = label;
             return this;
@@ -661,7 +661,7 @@ namespace Discord
         /// </summary>
         /// <param name="emote">The emote to use for the current button.</param>
         /// <returns>The current builder.</returns>
-        public ButtonBuilder WithEmote(IEmote emote)
+        public ButtonBuilder WithEmote(IEmote? emote)
         {
             Emote = emote;
             return this;
@@ -672,7 +672,7 @@ namespace Discord
         /// </summary>
         /// <param name="url">The url to use for the current button.</param>
         /// <returns>The current builder.</returns>
-        public ButtonBuilder WithUrl(string url)
+        public ButtonBuilder WithUrl(string? url)
         {
             Url = url;
             return this;
@@ -684,7 +684,7 @@ namespace Discord
         /// <param name="id">The id to use for the current button.</param>
         /// <inheritdoc cref="CustomId"/>
         /// <returns>The current builder.</returns>
-        public ButtonBuilder WithCustomId(string id)
+        public ButtonBuilder WithCustomId(string? id)
         {
             CustomId = id;
             return this;
@@ -725,12 +725,12 @@ namespace Discord
             {
                 if (string.IsNullOrEmpty(Url))
                     throw new InvalidOperationException("Link buttons must have a link associated with them");
-                UrlValidation.ValidateButton(Url);
+                UrlValidation.ValidateButton(Url!);
             }
             else if (string.IsNullOrEmpty(CustomId))
                 throw new InvalidOperationException("Non-link buttons must have a custom id associated with them");
 
-            return new ButtonComponent(Style, Label, Emote, CustomId, Url, IsDisabled);
+            return new ButtonComponent(Style, Label, Emote, CustomId!, Url, IsDisabled);
         }
     }
 
@@ -766,7 +766,7 @@ namespace Discord
             {
                 > ComponentBuilder.MaxCustomIdLength => throw new ArgumentOutOfRangeException(nameof(value), $"Custom Id length must be less or equal to {ComponentBuilder.MaxCustomIdLength}."),
                 0 => throw new ArgumentOutOfRangeException(nameof(value), "Custom Id length must be at least 1."),
-                _ => value
+                _ => value!
             };
         }
 
@@ -787,7 +787,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Placeholder"/> length exceeds <see cref="MaxPlaceholderLength"/>.</exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Placeholder"/> length subceeds 1.</exception>
-        public string Placeholder
+        public string? Placeholder
         {
             get => _placeholder;
             set => _placeholder = value?.Length switch
@@ -831,7 +831,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Options"/> count exceeds <see cref="MaxOptionCount"/>.</exception>
         /// <exception cref="ArgumentNullException" accessor="set"><see cref="Options"/> is null.</exception>
-        public List<SelectMenuOptionBuilder> Options
+        public List<SelectMenuOptionBuilder>? Options
         {
             get => _options;
             set
@@ -851,13 +851,13 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the menu's channel types (only valid on <see cref="ComponentType.ChannelSelect"/>s).
         /// </summary>
-        public List<ChannelType> ChannelTypes { get; set; }
+        public List<ChannelType>? ChannelTypes { get; set; }
 
-        private List<SelectMenuOptionBuilder> _options = new List<SelectMenuOptionBuilder>();
+        private List<SelectMenuOptionBuilder>? _options = new List<SelectMenuOptionBuilder>();
         private int _minValues = 1;
         private int _maxValues = 1;
-        private string _placeholder;
-        private string _customId;
+        private string? _placeholder;
+        private string _customId = string.Empty;
         private ComponentType _type = ComponentType.SelectMenu;
 
         /// <summary>
@@ -871,7 +871,7 @@ namespace Discord
         public SelectMenuBuilder(SelectMenuComponent selectMenu)
         {
             Placeholder = selectMenu.Placeholder;
-            CustomId = selectMenu.Placeholder;
+            CustomId = selectMenu.CustomId;
             MaxValues = selectMenu.MaxValues;
             MinValues = selectMenu.MinValues;
             IsDisabled = selectMenu.IsDisabled;
@@ -891,7 +891,7 @@ namespace Discord
         /// <param name="isDisabled">Disabled this select menu or not.</param>
         /// <param name="type">The <see cref="ComponentType"/> of this select menu.</param>
         /// <param name="channelTypes">The types of channels this menu can select (only valid on <see cref="ComponentType.ChannelSelect"/>s)</param>
-        public SelectMenuBuilder(string customId, List<SelectMenuOptionBuilder> options = null, string placeholder = null, int maxValues = 1, int minValues = 1, bool isDisabled = false, ComponentType type = ComponentType.SelectMenu, List<ChannelType> channelTypes = null)
+        public SelectMenuBuilder(string customId, List<SelectMenuOptionBuilder>? options = null, string? placeholder = null, int maxValues = 1, int minValues = 1, bool isDisabled = false, ComponentType type = ComponentType.SelectMenu, List<ChannelType>? channelTypes = null)
         {
             CustomId = customId;
             Options = options;
@@ -925,7 +925,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder WithPlaceholder(string placeholder)
+        public SelectMenuBuilder WithPlaceholder(string? placeholder)
         {
             Placeholder = placeholder;
             return this;
@@ -967,7 +967,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder WithOptions(List<SelectMenuOptionBuilder> options)
+        public SelectMenuBuilder WithOptions(List<SelectMenuOptionBuilder>? options)
         {
             Options = options;
             return this;
@@ -983,6 +983,7 @@ namespace Discord
         /// </returns>
         public SelectMenuBuilder AddOption(SelectMenuOptionBuilder option)
         {
+            Options ??= new();
             if (Options.Count >= MaxOptionCount)
                 throw new InvalidOperationException($"Options count reached {MaxOptionCount}.");
 
@@ -1002,7 +1003,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder AddOption(string label, string value, string description = null, IEmote emote = null, bool? isDefault = null)
+        public SelectMenuBuilder AddOption(string label, string value, string? description = null, IEmote? emote = null, bool? isDefault = null)
         {
             AddOption(new SelectMenuOptionBuilder(label, value, description, emote, isDefault));
             return this;
@@ -1041,7 +1042,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder WithChannelTypes(List<ChannelType> channelTypes)
+        public SelectMenuBuilder WithChannelTypes(List<ChannelType>? channelTypes)
         {
             ChannelTypes = channelTypes;
             return this;
@@ -1054,7 +1055,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder WithChannelTypes(params ChannelType[] channelTypes)
+        public SelectMenuBuilder WithChannelTypes(params ChannelType[]? channelTypes)
         {
             ChannelTypes = channelTypes is null
                 ? ChannelTypeUtils.AllChannelTypes()
@@ -1070,7 +1071,7 @@ namespace Discord
         {
             var options = Options?.Select(x => x.Build()).ToList();
 
-            return new SelectMenuComponent(CustomId, options, Placeholder, MinValues, MaxValues, IsDisabled, Type, ChannelTypes);
+            return new SelectMenuComponent(CustomId, options ?? new List<SelectMenuOption>(), Placeholder, MinValues, MaxValues, IsDisabled, Type, ChannelTypes);
         }
     }
 
@@ -1099,7 +1100,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Label"/> length exceeds <see cref="MaxSelectLabelLength"/></exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Label"/> length subceeds 1.</exception>
-        public string Label
+        public string? Label
         {
             get => _label;
             set => _label = value?.Length switch
@@ -1115,7 +1116,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Value"/> length exceeds <see cref="MaxSelectValueLength"/>.</exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Value"/> length subceeds 1.</exception>
-        public string Value
+        public string? Value
         {
             get => _value;
             set => _value = value?.Length switch
@@ -1131,7 +1132,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Description"/> length exceeds <see cref="MaxDescriptionLength"/>.</exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="Description"/> length subceeds 1.</exception>
-        public string Description
+        public string? Description
         {
             get => _description;
             set => _description = value?.Length switch
@@ -1145,16 +1146,16 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the emote of this option.
         /// </summary>
-        public IEmote Emote { get; set; }
+        public IEmote? Emote { get; set; }
 
         /// <summary>
         ///     Gets or sets the whether or not this option will render selected by default.
         /// </summary>
         public bool? IsDefault { get; set; }
 
-        private string _label;
-        private string _value;
-        private string _description;
+        private string? _label;
+        private string? _value;
+        private string? _description;
 
         /// <summary>
         ///     Creates a new instance of a <see cref="SelectMenuOptionBuilder"/>.
@@ -1169,7 +1170,7 @@ namespace Discord
         /// <param name="description">The description of this option.</param>
         /// <param name="emote">The emote of this option.</param>
         /// <param name="isDefault">Render this option as selected by default or not.</param>
-        public SelectMenuOptionBuilder(string label, string value, string description = null, IEmote emote = null, bool? isDefault = null)
+        public SelectMenuOptionBuilder(string label, string value, string? description = null, IEmote? emote = null, bool? isDefault = null)
         {
             Label = label;
             Value = value;
@@ -1239,7 +1240,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuOptionBuilder WithEmote(IEmote emote)
+        public SelectMenuOptionBuilder WithEmote(IEmote? emote)
         {
             Emote = emote;
             return this;
@@ -1264,7 +1265,7 @@ namespace Discord
         /// <returns>The newly built <see cref="SelectMenuOption"/>.</returns>
         public SelectMenuOption Build()
         {
-            return new SelectMenuOption(Label, Value, Description, Emote, IsDefault);
+            return new SelectMenuOption(Label ?? string.Empty, Value ?? string.Empty, Description, Emote, IsDefault);
         }
     }
 
@@ -1281,7 +1282,7 @@ namespace Discord
         /// </summary>
         /// <exception cref="ArgumentException" accessor="set"><see cref="CustomId"/> length exceeds <see cref="ComponentBuilder.MaxCustomIdLength"/></exception>
         /// <exception cref="ArgumentException" accessor="set"><see cref="CustomId"/> length subceeds 1.</exception>
-        public string CustomId
+        public string? CustomId
         {
             get => _customId;
             set => _customId = value?.Length switch
@@ -1300,13 +1301,13 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the label of the current text input.
         /// </summary>
-        public string Label { get; set; }
+        public string? Label { get; set; }
 
         /// <summary>
         ///     Gets or sets the placeholder of the current text input.
         /// </summary>
         /// <exception cref="ArgumentException"><see cref="Placeholder"/> is longer than <see cref="MaxPlaceholderLength"/> characters</exception>
-        public string Placeholder
+        public string? Placeholder
         {
             get => _placeholder;
             set => _placeholder = (value?.Length ?? 0) <= MaxPlaceholderLength
@@ -1368,7 +1369,7 @@ namespace Discord
         /// <exception cref="ArgumentOutOfRangeException">
         ///     <see cref="Value"/>.Length is greater than <see cref="LargestMaxLength"/> or <see cref="MaxLength"/>.
         /// </exception>
-        public string Value
+        public string? Value
         {
             get => _value;
             set
@@ -1381,11 +1382,11 @@ namespace Discord
             }
         }
 
-        private string _customId;
+        private string? _customId;
         private int? _maxLength;
         private int? _minLength;
-        private string _placeholder;
-        private string _value;
+        private string? _placeholder;
+        private string? _value;
 
         /// <summary>
         ///     Creates a new instance of a <see cref="TextInputBuilder"/>.
@@ -1397,8 +1398,15 @@ namespace Discord
         /// <param name="minLength">The text input's minimum length.</param>
         /// <param name="maxLength">The text input's maximum length.</param>
         /// <param name="required">The text input's required value.</param>
-        public TextInputBuilder(string label, string customId, TextInputStyle style = TextInputStyle.Short, string placeholder = null,
-            int? minLength = null, int? maxLength = null, bool? required = null, string value = null)
+        /// <param name="value">The text input's default value (if any).</param>
+        public TextInputBuilder(string? label,
+            string? customId,
+            TextInputStyle style = TextInputStyle.Short,
+            string? placeholder = null,
+            int? minLength = null,
+            int? maxLength = null,
+            bool? required = null,
+            string? value = null)
         {
             Label = label;
             Style = style;
@@ -1423,7 +1431,7 @@ namespace Discord
         /// </summary>
         /// <param name="label">The value to set.</param>
         /// <returns>The current builder. </returns>
-        public TextInputBuilder WithLabel(string label)
+        public TextInputBuilder WithLabel(string? label)
         {
             Label = label;
             return this;
@@ -1445,7 +1453,7 @@ namespace Discord
         /// </summary>
         /// <param name="customId">The value to set.</param>
         /// <returns>The current builder. </returns>
-        public TextInputBuilder WithCustomId(string customId)
+        public TextInputBuilder WithCustomId(string? customId)
         {
             CustomId = customId;
             return this;
@@ -1456,7 +1464,7 @@ namespace Discord
         /// </summary>
         /// <param name="placeholder">The value to set.</param>
         /// <returns>The current builder. </returns>
-        public TextInputBuilder WithPlaceholder(string placeholder)
+        public TextInputBuilder WithPlaceholder(string? placeholder)
         {
             Placeholder = placeholder;
             return this;
@@ -1467,7 +1475,7 @@ namespace Discord
         /// </summary>
         /// <param name="value">The value to set</param>
         /// <returns>The current builder.</returns>
-        public TextInputBuilder WithValue(string value)
+        public TextInputBuilder WithValue(string? value)
         {
             Value = value;
             return this;
@@ -1512,7 +1520,7 @@ namespace Discord
                 throw new ArgumentException("TextInputComponents must have a custom id.", nameof(CustomId));
             if (string.IsNullOrWhiteSpace(Label))
                 throw new ArgumentException("TextInputComponents must have a label.", nameof(Label));
-            return new TextInputComponent(CustomId, Label, Placeholder, MinLength, MaxLength, Style, Required, Value);
+            return new TextInputComponent(CustomId!, Label!, Placeholder, MinLength, MaxLength, Style, Required, Value);
         }
     }
 }

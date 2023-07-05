@@ -19,12 +19,12 @@ namespace Discord.Interactions
         /// <param name="client">The underlying client.</param>
         /// <param name="interaction">The underlying interaction.</param>
         public ShardedInteractionContext(DiscordShardedClient client, TInteraction interaction)
-            : base(client.GetShard(GetShardId(client, (interaction.User as SocketGuildUser)?.Guild)), interaction)
+            : base(client.GetShard(GetShardId(client, (interaction.User as SocketGuildUser)?.Guild))!, interaction)
         {
             Client = client;
         }
 
-        private static int GetShardId(DiscordShardedClient client, IGuild guild)
+        private static int GetShardId(DiscordShardedClient client, IGuild? guild)
             => guild == null ? 0 : client.GetShardIdFor(guild);
     }
 

@@ -1,18 +1,19 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class PartialApplication
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("flags")]
+        [JsonPropertyName("flags")]
         public ApplicationFlags Flags { get; set; }
     }
 }

@@ -10,8 +10,10 @@ internal static class ForumHelper
 {
     public static async Task<Model> ModifyAsync(IForumChannel channel, BaseDiscordClient client,
         Action<ForumChannelProperties> func,
-        RequestOptions options)
+        RequestOptions? options)
     {
+        Preconditions.NotNull(func, nameof(func));
+
         var args = new ForumChannelProperties();
         func(args);
 

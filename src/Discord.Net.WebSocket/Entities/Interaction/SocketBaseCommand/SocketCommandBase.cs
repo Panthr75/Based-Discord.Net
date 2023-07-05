@@ -31,17 +31,18 @@ namespace Discord.WebSocket
         /// </summary>
         internal new SocketCommandBaseData Data { get; }
 
+        /// <inheritdoc cref="SocketInteraction.UserLocale"/>
+        public new string UserLocale => base.UserLocale ?? "en-US";
+
         /// <inheritdoc/>
         public override bool HasResponded { get; internal set; }
 
         private object _lock = new object();
 
-        internal SocketCommandBase(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        internal SocketCommandBase(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
             : base(client, model.Id, channel, user)
         {
-            var dataModel = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
+            var dataModel = (DataModel)model.Data.Value!;
 
             ulong? guildId = model.GuildId.ToNullable();
 
@@ -57,9 +58,7 @@ namespace Discord.WebSocket
 
         internal override void Update(Model model)
         {
-            var data = model.Data.IsSpecified
-                ? (DataModel)model.Data.Value
-                : null;
+            var data = (DataModel)model.Data.Value!;
 
             Data.Update(data);
 
@@ -68,14 +67,14 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task RespondAsync(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -134,7 +133,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public override async Task RespondWithModalAsync(Modal modal, RequestOptions options = null)
+        public override async Task RespondWithModalAsync(Modal modal, RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -171,14 +170,14 @@ namespace Discord.WebSocket
 
         public override async Task RespondWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -210,11 +209,11 @@ namespace Discord.WebSocket
                 }
             }
 
-            var response = new API.Rest.UploadInteractionFileParams(attachments?.ToArray())
+            var response = new API.Rest.UploadInteractionFileParams(attachments?.ToArray() ?? Array.Empty<FileAttachment>())
             {
                 Type = InteractionResponseType.ChannelMessageWithSource,
                 Content = text ?? Optional<string>.Unspecified,
-                AllowedMentions = allowedMentions != null ? allowedMentions?.ToModel() : Optional<API.AllowedMentions>.Unspecified,
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
                 Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
                 IsTTS = isTTS,
                 Flags = ephemeral ? MessageFlags.Ephemeral : Optional<MessageFlags>.Unspecified,
@@ -235,14 +234,14 @@ namespace Discord.WebSocket
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupAsync(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -267,20 +266,20 @@ namespace Discord.WebSocket
             if (ephemeral)
                 args.Flags = MessageFlags.Ephemeral;
 
-            return await InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel, options);
+            return await InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel!, options);
         }
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -319,8 +318,8 @@ namespace Discord.WebSocket
             if (ephemeral)
                 flags |= MessageFlags.Ephemeral;
 
-            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray()) { Flags = flags, Content = text, IsTTS = isTTS, Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified, AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified, MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified };
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel, options).ConfigureAwait(false);
+            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray()) { Flags = flags, Content = Optional.CreateFromNullable(text), IsTTS = isTTS, Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified, AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified, MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified };
+            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel!, options).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -329,7 +328,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task that represents the asynchronous operation of acknowledging the interaction.
         /// </returns>
-        public override async Task DeferAsync(bool ephemeral = false, RequestOptions options = null)
+        public override async Task DeferAsync(bool ephemeral = false, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds!");

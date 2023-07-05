@@ -1,16 +1,13 @@
 using Discord.API.AuditLogs;
 
-using System.Linq;
-
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a role creation.
 /// </summary>
-public class RoleCreateAuditLogData : IAuditLogData
+public partial class RoleCreateAuditLogData : IAuditLogData
 {
     private RoleCreateAuditLogData(ulong id, RoleEditInfo props)
     {
@@ -18,9 +15,9 @@ public class RoleCreateAuditLogData : IAuditLogData
         Properties = props;
     }
 
-    internal static RoleCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static RoleCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<RoleInfoAuditLogModel>(changes, discord);
 

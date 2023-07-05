@@ -11,7 +11,7 @@ namespace Discord.Rest
     public class RestGuildEvent : RestEntity<ulong>, IGuildScheduledEvent
     {
         /// <inheritdoc/>
-        public IGuild Guild { get; private set; }
+        public IGuild? Guild { get; private set; }
 
         /// <inheritdoc/>
         public ulong GuildId { get; private set; }
@@ -29,10 +29,10 @@ namespace Discord.Rest
         public string Name { get; private set; }
 
         /// <inheritdoc/>
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         /// <inheritdoc/>
-        public string CoverImageId { get; private set; }
+        public string? CoverImageId { get; private set; }
 
         /// <inheritdoc/>
         public DateTimeOffset StartTime { get; private set; }
@@ -53,25 +53,30 @@ namespace Discord.Rest
         public ulong? EntityId { get; private set; }
 
         /// <inheritdoc/>
-        public string Location { get; private set; }
+        public string? Location { get; private set; }
 
         /// <inheritdoc/>
         public int? UserCount { get; private set; }
 
-        internal RestGuildEvent(BaseDiscordClient client, IGuild guild, ulong id)
+        /// <inheritdoc/>
+        public bool IsExternal => this.Type == GuildScheduledEventType.External;
+
+        internal RestGuildEvent(BaseDiscordClient client, IGuild? guild, ulong id)
             : base(client, id)
         {
+            this.Creator = null!;
+            this.Name = string.Empty;
             Guild = guild;
         }
 
-        internal static RestGuildEvent Create(BaseDiscordClient client, IGuild guild, Model model)
+        internal static RestGuildEvent Create(BaseDiscordClient client, IGuild? guild, Model model)
         {
             var entity = new RestGuildEvent(client, guild, model.Id);
             entity.Update(model);
             return entity;
         }
 
-        internal static RestGuildEvent Create(BaseDiscordClient client, IGuild guild, IUser creator, Model model)
+        internal static RestGuildEvent Create(BaseDiscordClient client, IGuild? guild, IUser creator, Model model)
         {
             var entity = new RestGuildEvent(client, guild, model.Id);
             entity.Update(model, creator);
@@ -109,25 +114,25 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public string GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024)
-            => CDN.GetEventCoverImageUrl(Guild.Id, Id, CoverImageId, format, size);
+        public string? GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024)
+            => CDN.GetEventCoverImageUrl(Guild?.Id ?? this.GuildId, Id, CoverImageId, format, size);
 
         /// <inheritdoc/>
-        public Task StartAsync(RequestOptions options = null)
+        public Task StartAsync(RequestOptions? options = null)
             => ModifyAsync(x => x.Status = GuildScheduledEventStatus.Active);
 
         /// <inheritdoc/>
-        public Task EndAsync(RequestOptions options = null)
+        public Task EndAsync(RequestOptions? options = null)
             => ModifyAsync(x => x.Status = Status == GuildScheduledEventStatus.Scheduled
                 ? GuildScheduledEventStatus.Cancelled
                 : GuildScheduledEventStatus.Completed);
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => GuildHelper.DeleteEventAsync(Discord, this, options);
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions? options = null)
         {
             var model = await GuildHelper.ModifyGuildEventAsync(Discord, func, this, options).ConfigureAwait(false);
             Update(model);
@@ -152,7 +157,7 @@ namespace Discord.Rest
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(RequestOptions? options = null)
             => GuildHelper.GetEventUsersAsync(Discord, this, null, null, options);
 
         /// <summary>
@@ -183,16 +188,30 @@ namespace Discord.Rest
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions? options = null)
             => GuildHelper.GetEventUsersAsync(Discord, this, fromUserId, dir, limit, options);
+
+        /// <inheritdoc/>
+        public async Task<IGuild?> GetGuildAsync(bool withCounts = false, RequestOptions? options = null)
+        {
+            if (this.Guild is not null)
+            {
+                return this.Guild;
+            }
+
+            RestGuild? guild = await ClientHelper.GetGuildAsync(this.Discord, this.Id, withCounts, options);
+            this.Guild = guild;
+            return guild;
+        }
 
         #region IGuildScheduledEvent
 
+
         /// <inheritdoc/>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(RequestOptions? options)
             => GetUsersAsync(options);
         /// <inheritdoc/>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(ulong fromUserId, Direction dir, int limit, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(ulong fromUserId, Direction dir, int limit, RequestOptions? options)
             => GetUsersAsync(fromUserId, dir, limit, options);
 
         #endregion

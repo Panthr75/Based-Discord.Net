@@ -23,7 +23,7 @@ namespace Discord.WebSocket
         public ulong Version { get; }
 
         /// <inheritdoc/>
-        public AutocompleteOption Current { get; }
+        public AutocompleteOption? Current { get; }
 
         /// <inheritdoc/>
         public IReadOnlyCollection<AutocompleteOption> Options { get; }
@@ -48,7 +48,7 @@ namespace Discord.WebSocket
         {
             var options = new List<AutocompleteOption>();
 
-            options.Add(new AutocompleteOption(model.Type, model.Name, model.Value.GetValueOrDefault(null), model.Focused.GetValueOrDefault(false)));
+            options.Add(new AutocompleteOption(model.Type, model.Name, model.Value.GetValueOrDefault(ApplicationCommandOptionValue.None), model.Focused.GetValueOrDefault(false)));
 
             if (model.Options.IsSpecified)
             {

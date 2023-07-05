@@ -23,6 +23,9 @@ namespace Discord.Rest
         /// <inheritdoc cref="IComponentInteraction.Message"/>
         public RestUserMessage Message { get; private set; }
 
+        /// <inheritdoc cref="RestInteraction.UserLocale"/>
+        public new string UserLocale => base.UserLocale!;
+
         private object _lock = new object();
 
         internal RestMessageComponent(BaseDiscordClient client, Model model)
@@ -33,6 +36,7 @@ namespace Discord.Rest
                 : null;
 
             Data = new RestMessageComponentData(dataModel, client, Guild);
+            this.Message = null!;
         }
 
         internal new static async Task<RestMessageComponent> CreateAsync(DiscordRestClient client, Model model, bool doApiCall)
@@ -49,7 +53,7 @@ namespace Discord.Rest
             {
                 if (Message == null)
                 {
-                    Message = RestUserMessage.Create(Discord, Channel, User, model.Message.Value);
+                    Message = RestUserMessage.Create(Discord, Channel!, User, model.Message.Value);
                 }
             }
         }
@@ -68,14 +72,14 @@ namespace Discord.Rest
         ///     A string that contains json to write back to the incoming http request.
         /// </returns>
         public override string Respond(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -113,7 +117,7 @@ namespace Discord.Rest
                 Data = new API.InteractionCallbackData
                 {
                     Content = text ?? Optional<string>.Unspecified,
-                    AllowedMentions = allowedMentions?.ToModel(),
+                    AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
                     Embeds = embeds.Select(x => x.ToModel()).ToArray(),
                     TTS = isTTS,
                     Components = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified
@@ -142,7 +146,7 @@ namespace Discord.Rest
         /// <param name="func">A delegate containing the properties to modify the message with.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A string that contains json to write back to the incoming http request.</returns>
-        public string Update(Action<MessageProperties> func, RequestOptions options = null)
+        public string Update(Action<MessageProperties> func, RequestOptions? options = null)
         {
             var args = new MessageProperties();
             func(args);
@@ -164,7 +168,7 @@ namespace Discord.Rest
             var embeds = args.Embeds;
 
             bool hasText = args.Content.IsSpecified ? !string.IsNullOrEmpty(args.Content.Value) : !string.IsNullOrEmpty(Message.Content);
-            bool hasEmbeds = embed.IsSpecified && embed.Value != null || embeds.IsSpecified && embeds.Value?.Length > 0 || Message.Embeds.Any();
+            bool hasEmbeds = (embed.IsSpecified && embed.Value != null) || (embeds.IsSpecified && embeds.Value?.Length > 0) || Message.Embeds.Any();
 
             if (!hasText && !hasEmbeds)
                 Preconditions.NotNullOrEmpty(args.Content.IsSpecified ? args.Content.Value : string.Empty, nameof(args.Content));
@@ -173,12 +177,12 @@ namespace Discord.Rest
 
             if (embed.IsSpecified && embed.Value != null)
             {
-                apiEmbeds.Add(embed.Value.ToModel());
+                apiEmbeds!.Add(embed.Value.ToModel());
             }
 
             if (embeds.IsSpecified && embeds.Value != null)
             {
-                apiEmbeds.AddRange(embeds.Value.Select(x => x.ToModel()));
+                apiEmbeds!.AddRange(embeds.Value.Select(x => x.ToModel()));
             }
 
             Preconditions.AtMost(apiEmbeds?.Count ?? 0, 10, nameof(args.Embeds), "A max of 10 embeds are allowed.");
@@ -206,7 +210,7 @@ namespace Discord.Rest
                 Data = new API.InteractionCallbackData
                 {
                     Content = args.Content,
-                    AllowedMentions = args.AllowedMentions.IsSpecified ? args.AllowedMentions.Value?.ToModel() : Optional<API.AllowedMentions>.Unspecified,
+                    AllowedMentions = args.AllowedMentions.Map(v => v.ToModel()),
                     Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
                     Components = args.Components.IsSpecified
                         ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
@@ -230,14 +234,14 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupAsync(
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -252,7 +256,7 @@ namespace Discord.Rest
 
             var args = new API.Rest.CreateWebhookMessageParams
             {
-                Content = text,
+                Content = Optional.CreateFromNullable(text),
                 AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified,
                 IsTTS = isTTS,
                 Embeds = embeds.Select(x => x.ToModel()).ToArray(),
@@ -262,21 +266,21 @@ namespace Discord.Rest
             if (ephemeral)
                 args.Flags = MessageFlags.Ephemeral;
 
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel, options);
+            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, await this.GetChannelAsync(options).ConfigureAwait(false), options);
         }
 
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFileAsync(
             Stream fileStream,
             string fileName,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -291,15 +295,15 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFileAsync(
             string filePath,
-            string fileName = null,
-            string text = null,
-            Embed[] embeds = null,
+            string? fileName = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             Preconditions.NotNullOrEmpty(filePath, nameof(filePath), "Path must exist");
 
@@ -313,14 +317,14 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public override Task<RestFollowupMessage> FollowupWithFileAsync(
             FileAttachment attachment,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             return FollowupWithFilesAsync(new FileAttachment[] { attachment }, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
         }
@@ -328,14 +332,14 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public override async Task<RestFollowupMessage> FollowupWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
-            string text = null,
-            Embed[] embeds = null,
+            string? text = null,
+            Embed[]? embeds = null,
             bool isTTS = false,
             bool ephemeral = false,
-            AllowedMentions allowedMentions = null,
-            MessageComponent components = null,
-            Embed embed = null,
-            RequestOptions options = null)
+            AllowedMentions? allowedMentions = null,
+            MessageComponent? components = null,
+            Embed? embed = null,
+            RequestOptions? options = null)
         {
             if (!IsValidToken)
                 throw new InvalidOperationException("Interaction token is no longer valid");
@@ -374,8 +378,8 @@ namespace Discord.Rest
             if (ephemeral)
                 flags |= MessageFlags.Ephemeral;
 
-            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray()) { Flags = flags, Content = text, IsTTS = isTTS, Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified, AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified, MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified };
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel, options).ConfigureAwait(false);
+            var args = new API.Rest.UploadWebhookFileParams(attachments.ToArray()) { Flags = flags, Content = Optional.CreateFromNullable(text), IsTTS = isTTS, Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified, AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified, MessageComponents = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified };
+            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, await this.GetChannelAsync(options).ConfigureAwait(false), options).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -386,7 +390,7 @@ namespace Discord.Rest
         /// <returns>
         ///     A string that contains json to write back to the incoming http request.
         /// </returns>
-        public string DeferLoading(bool ephemeral = false, RequestOptions options = null)
+        public string DeferLoading(bool ephemeral = false, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds of no response/acknowledgement");
@@ -420,7 +424,7 @@ namespace Discord.Rest
         /// </returns>
         /// <exception cref="TimeoutException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override string Defer(bool ephemeral = false, RequestOptions options = null)
+        public override string Defer(bool ephemeral = false, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds of no response/acknowledgement");
@@ -452,7 +456,7 @@ namespace Discord.Rest
         /// <returns>A string that contains json to write back to the incoming http request.</returns>
         /// <exception cref="TimeoutException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public override string RespondWithModal(Modal modal, RequestOptions options = null)
+        public override string RespondWithModal(Modal modal, RequestOptions? options = null)
         {
             if (!InteractionHelper.CanSendResponse(this))
                 throw new TimeoutException($"Cannot defer an interaction after {InteractionHelper.ResponseTimeLimit} seconds of no response/acknowledgement");
@@ -492,11 +496,11 @@ namespace Discord.Rest
         IUserMessage IComponentInteraction.Message => Message;
 
         /// <inheritdoc />
-        Task IComponentInteraction.UpdateAsync(Action<MessageProperties> func, RequestOptions options)
+        Task IComponentInteraction.UpdateAsync(Action<MessageProperties> func, RequestOptions? options)
             => Task.FromResult(Update(func, options));
 
         /// <inheritdoc />
-        Task IComponentInteraction.DeferLoadingAsync(bool ephemeral, RequestOptions options)
+        Task IComponentInteraction.DeferLoadingAsync(bool ephemeral, RequestOptions? options)
             => Task.FromResult(DeferLoading(ephemeral, options));
     }
 }

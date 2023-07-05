@@ -15,7 +15,7 @@ public class SocketPruneAuditLogData : ISocketAuditLogData
             
     internal static SocketPruneAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new SocketPruneAuditLogData(entry.Options.PruneDeleteMemberDays!.Value, entry.Options.PruneMembersRemoved!.Value);
+        return new SocketPruneAuditLogData(entry.Options!.PruneDeleteMemberDays!.Value, entry.Options!.PruneMembersRemoved!.Value);
     }
 
     /// <summary>

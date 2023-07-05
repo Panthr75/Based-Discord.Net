@@ -22,9 +22,9 @@ namespace Discord.WebSocket
             : base(discord, id, guild)
         {
         }
-        internal new static SocketNewsChannel Create(SocketGuild guild, ClientState state, Model model)
+        internal new static SocketNewsChannel Create(SocketGuild? guild, ClientState state, Model model)
         {
-            var entity = new SocketNewsChannel(guild?.Discord, model.Id, guild);
+            var entity = new SocketNewsChannel(guild?.Discord!, model.Id, guild!);
             entity.Update(state, model);
             return entity;
         }
@@ -40,11 +40,11 @@ namespace Discord.WebSocket
         private string DebuggerDisplay => $"{Name} ({Id}, News)";
 
         /// <inheritdoc cref="INewsChannel.FollowAnnouncementChannelAsync"/>
-        public Task<ulong> FollowAnnouncementChannelAsync(ITextChannel channel, RequestOptions options = null)
+        public Task<ulong> FollowAnnouncementChannelAsync(ITextChannel channel, RequestOptions? options = null)
             => FollowAnnouncementChannelAsync(channel.Id, options);
 
         /// <inheritdoc />
-        public Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions options = null)
+        public Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions? options = null)
             => ChannelHelper.FollowAnnouncementChannelAsync(this, channelId, Discord, options);
 
     }

@@ -1,27 +1,24 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 
 namespace Discord.Net.Converters
 {
-    internal class StringEntityConverter : JsonConverter
+    internal sealed class StringEntityConverter : JsonConverter<IEntity<string>>
     {
-        public static readonly StringEntityConverter Instance = new StringEntityConverter();
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeof(IEntity<string>).IsAssignableFrom(typeToConvert);
+        }
 
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => false;
-        public override bool CanWrite => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override IEntity<string>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new InvalidOperationException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, IEntity<string> value, JsonSerializerOptions options)
         {
-            if (value != null)
-                writer.WriteValue((value as IEntity<string>).Id);
-            else
-                writer.WriteNull();
+            writer.WriteStringValue(value.Id);
         }
     }
 }

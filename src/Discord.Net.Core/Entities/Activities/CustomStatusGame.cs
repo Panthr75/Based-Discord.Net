@@ -17,7 +17,7 @@ namespace Discord
         /// <returns>
         ///     An <see cref="IEmote"/> containing the <see cref="Emoji"/> or <see cref="GuildEmote"/> set by the user.
         /// </returns>
-        public IEmote Emote { get; internal set; }
+        public IEmote? Emote { get; internal set; }
 
         /// <summary>
         ///     Gets the timestamp of when this status was created.
@@ -30,7 +30,7 @@ namespace Discord
         /// <summary>
         ///     Gets the state of the status.
         /// </summary>
-        public string State { get; internal set; }
+        public string? State { get; internal set; }
 
         public override string ToString()
             => $"{Emote} {State}";

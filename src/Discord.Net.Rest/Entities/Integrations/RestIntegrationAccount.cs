@@ -7,7 +7,11 @@ namespace Discord.Rest
     /// </summary>
     public class RestIntegrationAccount : IIntegrationAccount
     {
-        internal RestIntegrationAccount() { }
+        internal RestIntegrationAccount()
+        {
+            this.Id = string.Empty;
+            this.Name = string.Empty;
+        }
 
         public string Id { get; private set; }
 

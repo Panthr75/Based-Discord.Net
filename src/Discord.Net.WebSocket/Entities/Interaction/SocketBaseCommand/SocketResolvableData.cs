@@ -6,19 +6,19 @@ namespace Discord.WebSocket
     internal class SocketResolvableData<T> where T : API.IResolvable
     {
         internal readonly Dictionary<ulong, SocketGuildUser> GuildMembers
-           = new Dictionary<ulong, SocketGuildUser>();
+           = new();
         internal readonly Dictionary<ulong, SocketGlobalUser> Users
-            = new Dictionary<ulong, SocketGlobalUser>();
+            = new();
         internal readonly Dictionary<ulong, SocketChannel> Channels
-            = new Dictionary<ulong, SocketChannel>();
+            = new();
         internal readonly Dictionary<ulong, SocketRole> Roles
-            = new Dictionary<ulong, SocketRole>();
+            = new();
 
         internal readonly Dictionary<ulong, SocketMessage> Messages
-            = new Dictionary<ulong, SocketMessage>();
+            = new();
 
         internal readonly Dictionary<ulong, Attachment> Attachments
-            = new Dictionary<ulong, Attachment>();
+            = new();
 
         internal SocketResolvableData(DiscordSocketClient discord, ulong? guildId, T model)
         {
@@ -55,13 +55,13 @@ namespace Discord.WebSocket
                                     .GetAwaiter().GetResult();
 
                             socketChannel = guild != null
-                                ? SocketGuildChannel.Create(guild, discord.State, channelModel)
-                                : (SocketChannel)SocketChannel.CreatePrivate(discord, discord.State, channelModel);
+                                ? SocketGuildChannel.Create(guild, discord.State, channelModel!)
+                                : (SocketChannel)SocketChannel.CreatePrivate(discord, discord.State, channelModel!);
                         }
                         catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.MissingPermissions)
                         {
                             socketChannel = guildId != null
-                                ? SocketGuildChannel.Create(guild, discord.State, channel.Value)
+                                ? SocketGuildChannel.Create(guild!, discord.State, channel.Value)
                                 : (SocketChannel)SocketChannel.CreatePrivate(discord, discord.State, channel.Value);
                         }
                     }
@@ -99,7 +99,7 @@ namespace Discord.WebSocket
                 {
                     var channel = discord.GetChannel(msg.Value.ChannelId) as ISocketMessageChannel;
 
-                    SocketUser author;
+                    SocketUser? author;
                     if (guild != null)
                     {
                         if (msg.Value.WebhookId.IsSpecified)
@@ -121,7 +121,7 @@ namespace Discord.WebSocket
 
                     author ??= discord.State.GetOrAddUser(msg.Value.Author.Value.Id, _ => SocketGlobalUser.Create(discord, discord.State, msg.Value.Author.Value));
 
-                    var message = SocketMessage.Create(discord, discord.State, author, channel, msg.Value);
+                    var message = SocketMessage.Create(discord, discord.State, author, channel!, msg.Value);
                     Messages.Add(message.Id, message);
                 }
             }

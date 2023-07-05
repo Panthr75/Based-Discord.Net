@@ -1,7 +1,9 @@
+using Discord.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
@@ -55,7 +57,7 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the options for this command.
         /// </summary>
-        public List<SlashCommandOptionBuilder> Options
+        public List<SlashCommandOptionBuilder>? Options
         {
             get => _options;
             set
@@ -68,12 +70,12 @@ namespace Discord
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command.
         /// </summary>
-        public IReadOnlyDictionary<string, string> NameLocalizations => _nameLocalizations;
+        public IReadOnlyDictionary<string, string> NameLocalizations => _nameLocalizations ??= new Dictionary<string, string>();
 
         /// <summary>
         ///     Gets the localization dictionary for the description field of this command.
         /// </summary>
-        public IReadOnlyDictionary<string, string> DescriptionLocalizations => _descriptionLocalizations;
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations => _descriptionLocalizations ??= new Dictionary<string, string>();
 
         /// <summary>
         ///     Gets or sets whether the command is enabled by default when the app is added to a guild
@@ -95,11 +97,11 @@ namespace Discord
         /// </summary>
         public GuildPermission? DefaultMemberPermissions { get; set; }
 
-        private string _name;
-        private string _description;
-        private Dictionary<string, string> _nameLocalizations;
-        private Dictionary<string, string> _descriptionLocalizations;
-        private List<SlashCommandOptionBuilder> _options;
+        private string _name = string.Empty;
+        private string _description = string.Empty;
+        private Dictionary<string, string>? _nameLocalizations;
+        private Dictionary<string, string>? _descriptionLocalizations;
+        private List<SlashCommandOptionBuilder>? _options;
 
         /// <summary>
         ///     Build the current builder into a <see cref="SlashCommandProperties"/> class.
@@ -215,12 +217,24 @@ namespace Discord
         /// <param name="choices">The choices of this option.</param>
         /// <param name="minValue">The smallest number value the user can input.</param>
         /// <param name="maxValue">The largest number value the user can input.</param>
+        /// <param name="minLength">The minimum length of the value the user can input.</param>
+        /// <param name="maxLength">The maximum length of the value the user can input.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandBuilder AddOption(string name, ApplicationCommandOptionType type,
-           string description, bool? isRequired = null, bool? isDefault = null, bool isAutocomplete = false, double? minValue = null, double? maxValue = null,
-           List<SlashCommandOptionBuilder> options = null, List<ChannelType> channelTypes = null, IDictionary<string, string> nameLocalizations = null,
-           IDictionary<string, string> descriptionLocalizations = null,
-           int? minLength = null, int? maxLength = null, params ApplicationCommandOptionChoiceProperties[] choices)
+        public SlashCommandBuilder AddOption(string name,
+            ApplicationCommandOptionType type,
+            string description,
+            bool? isRequired = null,
+            bool? isDefault = null,
+            bool isAutocomplete = false,
+            NumericValue? minValue = null,
+            NumericValue? maxValue = null,
+            List<SlashCommandOptionBuilder>? options = null,
+            List<ChannelType>? channelTypes = null,
+            IDictionary<string, string>? nameLocalizations = null,
+            IDictionary<string, string>? descriptionLocalizations = null,
+            int? minLength = null,
+            int? maxLength = null,
+            params ApplicationCommandOptionChoiceProperties[] choices)
         {
             Preconditions.Options(name, description);
 
@@ -423,10 +437,10 @@ namespace Discord
         /// </summary>
         public const int MaxChoiceCount = 25;
 
-        private string _name;
-        private string _description;
-        private Dictionary<string, string> _nameLocalizations;
-        private Dictionary<string, string> _descriptionLocalizations;
+        private string _name = string.Empty;
+        private string _description = string.Empty;
+        private Dictionary<string, string>? _nameLocalizations;
+        private Dictionary<string, string>? _descriptionLocalizations;
 
         /// <summary>
         ///     Gets or sets the name of this option.
@@ -439,6 +453,10 @@ namespace Discord
                 if (value != null)
                 {
                     EnsureValidCommandOptionName(value);
+                }
+                else
+                {
+                    return;
                 }
 
                 _name = value;
@@ -456,6 +474,10 @@ namespace Discord
                 if (value != null)
                 {
                     EnsureValidCommandOptionDescription(value);
+                }
+                else
+                {
+                    return;
                 }
 
                 _description = value;
@@ -485,12 +507,12 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the smallest number value the user can input.
         /// </summary>
-        public double? MinValue { get; set; }
+        public NumericValue? MinValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the largest number value the user can input.
         /// </summary>
-        public double? MaxValue { get; set; }
+        public NumericValue? MaxValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the minimum allowed length for a string input.
@@ -505,27 +527,27 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the choices for string and int types for the user to pick from.
         /// </summary>
-        public List<ApplicationCommandOptionChoiceProperties> Choices { get; set; }
+        public List<ApplicationCommandOptionChoiceProperties>? Choices { get; set; }
 
         /// <summary>
         ///     Gets or sets if this option is a subcommand or subcommand group type, these nested options will be the parameters.
         /// </summary>
-        public List<SlashCommandOptionBuilder> Options { get; set; }
+        public List<SlashCommandOptionBuilder>? Options { get; set; }
 
         /// <summary>
         ///     Gets or sets the allowed channel types for this option.
         /// </summary>
-        public List<ChannelType> ChannelTypes { get; set; }
+        public List<ChannelType>? ChannelTypes { get; set; }
 
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command.
         /// </summary>
-        public IReadOnlyDictionary<string, string> NameLocalizations => _nameLocalizations;
+        public IReadOnlyDictionary<string, string>? NameLocalizations => _nameLocalizations ??= new();
 
         /// <summary>
         ///     Gets the localization dictionary for the description field of this command.
         /// </summary>
-        public IReadOnlyDictionary<string, string> DescriptionLocalizations => _descriptionLocalizations;
+        public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _descriptionLocalizations ??= new();
 
         /// <summary>
         ///     Builds the current option.
@@ -593,12 +615,24 @@ namespace Discord
         /// <param name="choices">The choices of this option.</param>
         /// <param name="minValue">The smallest number value the user can input.</param>
         /// <param name="maxValue">The largest number value the user can input.</param>
+        /// <param name="minLength">The minimum length of the value the user can input.</param>
+        /// <param name="maxLength">The maximum length of the value the user can input.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddOption(string name, ApplicationCommandOptionType type,
-           string description, bool? isRequired = null, bool isDefault = false, bool isAutocomplete = false, double? minValue = null, double? maxValue = null,
-           List<SlashCommandOptionBuilder> options = null, List<ChannelType> channelTypes = null, IDictionary<string, string> nameLocalizations = null,
-           IDictionary<string, string> descriptionLocalizations = null,
-           int? minLength = null, int? maxLength = null, params ApplicationCommandOptionChoiceProperties[] choices)
+        public SlashCommandOptionBuilder AddOption(string name,
+            ApplicationCommandOptionType type,
+            string description,
+            bool? isRequired = null,
+            bool isDefault = false,
+            bool isAutocomplete = false,
+            NumericValue? minValue = null,
+            NumericValue? maxValue = null,
+            List<SlashCommandOptionBuilder>? options = null,
+            List<ChannelType>? channelTypes = null,
+            IDictionary<string, string>? nameLocalizations = null,
+            IDictionary<string, string>? descriptionLocalizations = null,
+            int? minLength = null,
+            int? maxLength = null,
+            params ApplicationCommandOptionChoiceProperties[] choices)
         {
             Preconditions.Options(name, description);
 
@@ -683,31 +717,7 @@ namespace Discord
         /// <param name="value">The value of the choice.</param>
         /// <param name="nameLocalizations">The localization dictionary for to use the name field of this command option choice.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddChoice(string name, int value, IDictionary<string, string> nameLocalizations = null)
-        {
-            return AddChoiceInternal(name, value, nameLocalizations);
-        }
-
-        /// <summary>
-        ///     Adds a choice to the current option.
-        /// </summary>
-        /// <param name="name">The name of the choice.</param>
-        /// <param name="value">The value of the choice.</param>
-        /// <param name="nameLocalizations">The localization dictionary for to use the name field of this command option choice.</param>
-        /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddChoice(string name, string value, IDictionary<string, string> nameLocalizations = null)
-        {
-            return AddChoiceInternal(name, value, nameLocalizations);
-        }
-
-        /// <summary>
-        ///     Adds a choice to the current option.
-        /// </summary>
-        /// <param name="name">The name of the choice.</param>
-        /// <param name="value">The value of the choice.</param>
-        /// <param name="nameLocalizations">Localization dictionary for the description field of this command.</param>
-        /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddChoice(string name, double value, IDictionary<string, string> nameLocalizations = null)
+        public SlashCommandOptionBuilder AddChoice(string name, string value, IDictionary<string, string>? nameLocalizations = null)
         {
             return AddChoiceInternal(name, value, nameLocalizations);
         }
@@ -719,24 +729,12 @@ namespace Discord
         /// <param name="value">The value of the choice.</param>
         /// <param name="nameLocalizations">The localization dictionary to use for the name field of this command option choice.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddChoice(string name, float value, IDictionary<string, string> nameLocalizations = null)
+        public SlashCommandOptionBuilder AddChoice(string name, NumericValue value, IDictionary<string, string>? nameLocalizations = null)
         {
             return AddChoiceInternal(name, value, nameLocalizations);
         }
 
-        /// <summary>
-        ///     Adds a choice to the current option.
-        /// </summary>
-        /// <param name="name">The name of the choice.</param>
-        /// <param name="value">The value of the choice.</param>
-        /// <param name="nameLocalizations">The localization dictionary to use for the name field of this command option choice.</param>
-        /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder AddChoice(string name, long value, IDictionary<string, string> nameLocalizations = null)
-        {
-            return AddChoiceInternal(name, value, nameLocalizations);
-        }
-
-        private SlashCommandOptionBuilder AddChoiceInternal(string name, object value, IDictionary<string, string> nameLocalizations = null)
+        private SlashCommandOptionBuilder AddChoiceInternal(string name, ApplicationCommandOptionValue value, IDictionary<string, string>? nameLocalizations = null)
         {
             Choices ??= new List<ApplicationCommandOptionChoiceProperties>();
 
@@ -744,13 +742,13 @@ namespace Discord
                 throw new InvalidOperationException($"Cannot add more than {MaxChoiceCount} choices!");
 
             Preconditions.NotNull(name, nameof(name));
-            Preconditions.NotNull(value, nameof(value));
 
             Preconditions.AtLeast(name.Length, 1, nameof(name));
             Preconditions.AtMost(name.Length, 100, nameof(name));
 
-            if (value is string str)
+            if (value.IsString)
             {
+                string str = value.ToString();
                 Preconditions.AtLeast(str.Length, 1, nameof(value));
                 Preconditions.AtMost(str.Length, 100, nameof(value));
             }
@@ -840,7 +838,7 @@ namespace Discord
         /// </summary>
         /// <param name="value">The value to set.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder WithMinValue(double value)
+        public SlashCommandOptionBuilder WithMinValue(NumericValue value)
         {
             MinValue = value;
             return this;
@@ -851,7 +849,7 @@ namespace Discord
         /// </summary>
         /// <param name="value">The value to set.</param>
         /// <returns>The current builder.</returns>
-        public SlashCommandOptionBuilder WithMaxValue(double value)
+        public SlashCommandOptionBuilder WithMaxValue(NumericValue value)
         {
             MaxValue = value;
             return this;

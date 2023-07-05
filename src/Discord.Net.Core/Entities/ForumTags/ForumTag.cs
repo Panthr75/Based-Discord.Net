@@ -11,7 +11,7 @@ namespace Discord
     /// <summary>
     ///     A struct representing a forum channel tag.
     /// </summary>
-    public struct ForumTag : ISnowflakeEntity, IForumTag
+    public struct ForumTag : ISnowflakeEntity, IForumTag, IEquatable<ForumTag>
     {
         /// <summary>
         ///     Gets the Id of the tag.
@@ -33,7 +33,7 @@ namespace Discord
         internal ForumTag(ulong id, string name, ulong? emojiId = null, string? emojiName = null, bool moderated = false)
         {
             if (emojiId.HasValue && emojiId.Value != 0)
-                Emoji = new Emote(emojiId.Value, null, false);
+                Emoji = new Emote(emojiId.Value, string.Empty, false);
             else if (emojiName != null)
                 Emoji = new Emoji(emojiName);
             else
@@ -55,8 +55,8 @@ namespace Discord
         public bool Equals(ForumTag tag)
             => Id == tag.Id &&
                Name == tag.Name &&
-               (Emoji is Emoji emoji && tag.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji) ||
-                Emoji is Emote emote && tag.Emoji is Emote otherEmote && emote.Equals(otherEmote)) &&
+               ((Emoji is Emoji emoji && tag.Emoji is Emoji otherEmoji && emoji.Equals(otherEmoji)) ||
+                (Emoji is Emote emote && tag.Emoji is Emote otherEmote && emote.Equals(otherEmote))) &&
                IsModerated == tag.IsModerated;
 
         public static bool operator ==(ForumTag? left, ForumTag? right)

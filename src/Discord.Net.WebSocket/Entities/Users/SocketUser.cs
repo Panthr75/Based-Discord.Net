@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Discord.WebSocket
     ///     Represents a WebSocket-based user.
     /// </summary>
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
-    public abstract class SocketUser : SocketEntity<ulong>, IUser
+    public abstract class SocketUser : SocketEntity<ulong, SocketUser>, IUser
     {
         /// <inheritdoc />
         public abstract bool IsBot { get; internal set; }
@@ -24,16 +25,18 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public abstract ushort DiscriminatorValue { get; internal set; }
         /// <inheritdoc />
-        public abstract string AvatarId { get; internal set; }
+        public abstract string? AvatarId { get; internal set; }
         /// <inheritdoc />
         public abstract bool IsWebhook { get; }
         /// <inheritdoc />
         public UserProperties? PublicFlags { get; private set; }
         internal abstract SocketGlobalUser GlobalUser { get; set; }
-        internal abstract SocketPresence Presence { get; set; }
+        internal abstract SocketPresence? Presence { get; set; }
 
         /// <inheritdoc />
-        public string GlobalName { get; internal set; }
+        public string? GlobalName { get; internal set; }
+        /// <inheritdoc />
+        public string? Pronouns { get; internal set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -42,11 +45,11 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public string Mention => MentionUtils.MentionUser(Id);
         /// <inheritdoc />
-        public UserStatus Status => Presence.Status;
+        public UserStatus Status => Presence?.Status ?? UserStatus.Offline;
         /// <inheritdoc />
-        public IReadOnlyCollection<ClientType> ActiveClients => Presence.ActiveClients ?? ImmutableHashSet<ClientType>.Empty;
+        public IReadOnlyCollection<ClientType> ActiveClients => Presence?.ActiveClients ?? ImmutableHashSet<ClientType>.Empty;
         /// <inheritdoc />
-        public IReadOnlyCollection<IActivity> Activities => Presence.Activities ?? ImmutableList<IActivity>.Empty;
+        public IReadOnlyCollection<IActivity> Activities => Presence?.Activities ?? ImmutableList<IActivity>.Empty;
         /// <summary>
         ///     Gets mutual guilds shared with this user.
         /// </summary>
@@ -98,9 +101,15 @@ namespace Discord.WebSocket
                 GlobalName = model.GlobalName.Value;
                 hasChanges = true;
             }
+            if (model.Pronouns.IsSpecified)
+            {
+                Pronouns = model.Pronouns.Value;
+                hasChanges = true;
+            }
             return hasChanges;
         }
 
+        [MemberNotNull(nameof(Presence))]
         internal virtual void Update(PresenceModel model)
         {
             Presence ??= new SocketPresence();
@@ -108,11 +117,11 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public async Task<IDMChannel> CreateDMChannelAsync(RequestOptions options = null)
+        public async Task<IDMChannel> CreateDMChannelAsync(RequestOptions? options = null)
             => await UserHelper.CreateDMChannelAsync(this, Discord, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => CDN.GetUserAvatarUrl(Id, AvatarId, size, format);
 
         /// <inheritdoc />
@@ -129,6 +138,6 @@ namespace Discord.WebSocket
         /// </returns>
         public override string ToString() => Format.UsernameAndDiscriminator(this, Discord.FormatUsersInBidirectionalUnicode);
         private string DebuggerDisplay => $"{Format.UsernameAndDiscriminator(this, Discord.FormatUsersInBidirectionalUnicode)} ({Id}{(IsBot ? ", Bot" : "")})";
-        internal SocketUser Clone() => MemberwiseClone() as SocketUser;
+        internal SocketUser Clone() => (SocketUser)MemberwiseClone();
     }
 }

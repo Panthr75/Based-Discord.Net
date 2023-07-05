@@ -1,22 +1,23 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     /// <summary>
     /// Represents a vanity invite.
     /// </summary>
-    internal class InviteVanity
+    public class InviteVanity
     {
         /// <summary>
         /// The unique code for the invite link.
         /// </summary>
-        [JsonProperty("code")]
-        public string Code { get; set; }
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = string.Empty;
 
         /// <summary>
         /// The total amount of vanity invite uses.
         /// </summary>
-        [JsonProperty("uses")]
+        [JsonPropertyName("uses")]
         public int Uses { get; set; }
     }
 }

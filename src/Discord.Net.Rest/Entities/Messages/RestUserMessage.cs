@@ -15,7 +15,7 @@ namespace Discord.Rest
     {
         private bool _isMentioningEveryone, _isTTS, _isPinned;
         private long? _editedTimestampTicks;
-        private IUserMessage _referencedMessage;
+        private IUserMessage? _referencedMessage;
         private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
         private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
         private ImmutableArray<ITag> _tags = ImmutableArray.Create<ITag>();
@@ -45,7 +45,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         public override IReadOnlyCollection<StickerItem> Stickers => _stickers;
         /// <inheritdoc />
-        public IUserMessage ReferencedMessage => _referencedMessage;
+        public IUserMessage? ReferencedMessage => _referencedMessage;
 
         internal RestUserMessage(BaseDiscordClient discord, ulong id, IMessageChannel channel, IUser author, MessageSource source)
             : base(discord, id, channel, author, source)
@@ -133,17 +133,17 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public async virtual Task ModifyAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
             var model = await MessageHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             Update(model);
         }
 
         /// <inheritdoc />
-        public Task PinAsync(RequestOptions options = null)
+        public Task PinAsync(RequestOptions? options = null)
             => MessageHelper.PinAsync(this, Discord, options);
         /// <inheritdoc />
-        public Task UnpinAsync(RequestOptions options = null)
+        public Task UnpinAsync(RequestOptions? options = null)
             => MessageHelper.UnpinAsync(this, Discord, options);
 
         public string Resolve(int startIndex, TagHandling userHandling = TagHandling.Name, TagHandling channelHandling = TagHandling.Name,
@@ -156,9 +156,9 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException">This operation may only be called on a <see cref="INewsChannel"/> channel.</exception>
-        public async Task CrosspostAsync(RequestOptions options = null)
+        public async Task CrosspostAsync(RequestOptions? options = null)
         {
-            if (!(Channel is INewsChannel))
+            if (Channel is not INewsChannel)
             {
                 throw new InvalidOperationException("Publishing (crossposting) is only valid in news channels.");
             }

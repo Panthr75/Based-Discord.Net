@@ -1,22 +1,23 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class SelectMenuOption
     {
-        [JsonProperty("label")]
-        public string Label { get; set; }
+        [JsonPropertyName("label")]
+        public string Label { get; set; } = string.Empty;
 
-        [JsonProperty("value")]
-        public string Value { get; set; }
+        [JsonPropertyName("value")]
+        public string Value { get; set; } = string.Empty;
 
-        [JsonProperty("description")]
+        [JsonPropertyName("description")]
         public Optional<string> Description { get; set; }
 
-        [JsonProperty("emoji")]
+        [JsonPropertyName("emoji")]
         public Optional<Emoji> Emoji { get; set; }
 
-        [JsonProperty("default")]
+        [JsonPropertyName("default")]
         public Optional<bool> Default { get; set; }
 
         public SelectMenuOption() { }
@@ -25,7 +26,7 @@ namespace Discord.API
         {
             Label = option.Label;
             Value = option.Value;
-            Description = option.Description;
+            Description = Optional.CreateFromNullable(option.Description);
 
             if (option.Emote != null)
             {

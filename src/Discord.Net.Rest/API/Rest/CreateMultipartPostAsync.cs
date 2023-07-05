@@ -1,6 +1,7 @@
 using Discord.Net.Converters;
 using Discord.Net.Rest;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,11 +13,9 @@ namespace Discord.API.Rest
 {
     internal class CreateMultipartPostAsync
     {
-        private static JsonSerializer _serializer = new JsonSerializer { ContractResolver = new DiscordContractResolver() };
-
         public FileAttachment[] Files { get; }
 
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public ThreadArchiveDuration ArchiveDuration { get; set; }
         public Optional<int?> Slowmode { get; set; }
 
@@ -34,12 +33,12 @@ namespace Discord.API.Rest
             Files = attachments;
         }
 
-        public IReadOnlyDictionary<string, object> ToDictionary()
+        public IReadOnlyDictionary<string, object> ToDictionary(JsonSerializerOptions? options)
         {
             var d = new Dictionary<string, object>();
 
-            var payload = new Dictionary<string, object>();
-            var message = new Dictionary<string, object>();
+            var payload = new Dictionary<string, object?>();
+            var message = new Dictionary<string, object?>();
 
             payload["name"] = Title;
             payload["auto_archive_duration"] = ArchiveDuration;
@@ -86,12 +85,7 @@ namespace Discord.API.Rest
 
             payload["message"] = message;
 
-            var json = new StringBuilder();
-            using (var text = new StringWriter(json))
-            using (var writer = new JsonTextWriter(text))
-                _serializer.Serialize(writer, payload);
-
-            d["payload_json"] = json.ToString();
+            d["payload_json"] = JsonSerializer.Serialize(payload, options);
 
             return d;
         }

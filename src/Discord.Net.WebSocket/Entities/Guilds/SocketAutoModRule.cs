@@ -21,7 +21,7 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the creator of this rule.
         /// </summary>
-        public SocketGuildUser Creator { get; private set; }
+        public SocketGuildUser? Creator { get; private set; }
 
         /// <inheritdoc/>
         public AutoModEventType EventType { get; private set; }
@@ -69,6 +69,14 @@ namespace Discord.WebSocket
         internal SocketAutoModRule(DiscordSocketClient discord, ulong id, SocketGuild guild)
             : base(discord, id)
         {
+            this.Name = string.Empty;
+            this.KeywordFilter = ImmutableArray<string>.Empty;
+            this.RegexPatterns = ImmutableArray<string>.Empty;
+            this.AllowList = ImmutableArray<string>.Empty;
+            this.Actions = ImmutableArray<AutoModRuleAction>.Empty;
+            this.Presets = ImmutableArray<KeywordPresetTypes>.Empty;
+            this.ExemptChannels = ImmutableArray<SocketGuildChannel>.Empty;
+            this.ExemptRoles = ImmutableArray<SocketRole>.Empty;
             Guild = guild;
         }
 
@@ -109,17 +117,17 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<AutoModRuleProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<AutoModRuleProperties> func, RequestOptions? options = null)
         {
             var model = await GuildHelper.ModifyRuleAsync(Discord, this, func, options);
             Guild.AddOrUpdateAutoModRule(model);
         }
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => GuildHelper.DeleteRuleAsync(Discord, this, options);
 
-        internal SocketAutoModRule Clone() => MemberwiseClone() as SocketAutoModRule;
+        internal SocketAutoModRule Clone() => (SocketAutoModRule)MemberwiseClone();
 
         #region IAutoModRule
         IReadOnlyCollection<ulong> IAutoModRule.ExemptRoles => ExemptRoles.Select(x => x.Id).ToImmutableArray();

@@ -24,7 +24,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override ushort DiscriminatorValue { get; internal set; }
         /// <inheritdoc />
-        public override string AvatarId { get; internal set; }
+        public override string? AvatarId { get; internal set; }
 
 
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override bool IsWebhook => true;
         /// <inheritdoc />
-        internal override SocketPresence Presence { get { return new SocketPresence(UserStatus.Offline, null, null); } set { } }
+        internal override SocketPresence? Presence { get { return new SocketPresence(); } set { } }
         internal override SocketGlobalUser GlobalUser { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         internal SocketWebhookUser(SocketGuild guild, ulong id, ulong webhookId)
@@ -41,6 +41,7 @@ namespace Discord.WebSocket
         {
             Guild = guild;
             WebhookId = webhookId;
+            Username = string.Empty;
         }
         internal static SocketWebhookUser Create(SocketGuild guild, ClientState state, Model model, ulong webhookId)
         {
@@ -53,7 +54,7 @@ namespace Discord.WebSocket
             ? $"{Username}#{Discriminator} ({Id}{(IsBot ? ", Bot" : "")}, Webhook)"
             : $"{Username} ({Id}{(IsBot ? ", Bot" : "")}, Webhook)";
 
-        internal new SocketWebhookUser Clone() => MemberwiseClone() as SocketWebhookUser;
+        internal new SocketWebhookUser Clone() => (SocketWebhookUser)MemberwiseClone();
         #endregion
 
         #region IGuildUser
@@ -66,17 +67,17 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         DateTimeOffset? IGuildUser.JoinedAt => null;
         /// <inheritdoc />
-        string IGuildUser.DisplayName => null;
+        string IGuildUser.DisplayName => string.Empty;
         /// <inheritdoc />
-        string IGuildUser.Nickname => null;
+        string? IGuildUser.Nickname => null;
         /// <inheritdoc />
-        string IGuildUser.DisplayAvatarId => null;
+        string? IGuildUser.DisplayAvatarId => null;
         /// <inheritdoc />
-        string IGuildUser.GuildAvatarId => null;
+        string? IGuildUser.GuildAvatarId => null;
         /// <inheritdoc />
-        string IGuildUser.GetDisplayAvatarUrl(ImageFormat format, ushort size) => null;
+        string? IGuildUser.GetDisplayAvatarUrl(ImageFormat format, ushort size) => null;
         /// <inheritdoc />
-        string IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => null;
+        string? IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => null;
         /// <inheritdoc />
         DateTimeOffset? IGuildUser.PremiumSince => null;
         /// <inheritdoc />
@@ -94,60 +95,60 @@ namespace Discord.WebSocket
         ChannelPermissions IGuildUser.GetPermissions(IGuildChannel channel) => Permissions.ToChannelPerms(channel, GuildPermissions.Webhook.RawValue);
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Webhook users cannot be kicked.</exception>
-        Task IGuildUser.KickAsync(string reason, RequestOptions options) =>
+        Task IGuildUser.KickAsync(string? reason, RequestOptions? options) =>
             throw new NotSupportedException("Webhook users cannot be kicked.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Webhook users cannot be modified.</exception>
-        Task IGuildUser.ModifyAsync(Action<GuildUserProperties> func, RequestOptions options) =>
+        Task IGuildUser.ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options) =>
             throw new NotSupportedException("Webhook users cannot be modified.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.AddRoleAsync(ulong roleId, RequestOptions options) =>
+        Task IGuildUser.AddRoleAsync(ulong roleId, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.AddRoleAsync(IRole role, RequestOptions options) =>
+        Task IGuildUser.AddRoleAsync(IRole role, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options) =>
+        Task IGuildUser.AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.AddRolesAsync(IEnumerable<IRole> roles, RequestOptions options) =>
+        Task IGuildUser.AddRolesAsync(IEnumerable<IRole> roles, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.RemoveRoleAsync(ulong roleId, RequestOptions options) =>
+        Task IGuildUser.RemoveRoleAsync(ulong roleId, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.RemoveRoleAsync(IRole role, RequestOptions options) =>
+        Task IGuildUser.RemoveRoleAsync(IRole role, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.RemoveRolesAsync(IEnumerable<ulong> roles, RequestOptions options) =>
+        Task IGuildUser.RemoveRolesAsync(IEnumerable<ulong> roles, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
 
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Roles are not supported on webhook users.</exception>
-        Task IGuildUser.RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions options) =>
+        Task IGuildUser.RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions? options) =>
             throw new NotSupportedException("Roles are not supported on webhook users.");
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Timeouts are not supported on webhook users.</exception>
-        Task IGuildUser.SetTimeOutAsync(TimeSpan span, RequestOptions options) =>
+        Task IGuildUser.SetTimeOutAsync(TimeSpan span, RequestOptions? options) =>
             throw new NotSupportedException("Timeouts are not supported on webhook users.");
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">Timeouts are not supported on webhook users.</exception>
-        Task IGuildUser.RemoveTimeOutAsync(RequestOptions options) =>
+        Task IGuildUser.RemoveTimeOutAsync(RequestOptions? options) =>
             throw new NotSupportedException("Timeouts are not supported on webhook users.");
         #endregion
 
@@ -163,9 +164,9 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         bool IVoiceState.IsSuppressed => false;
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => null;
+        IVoiceChannel? IVoiceState.VoiceChannel => null;
         /// <inheritdoc />
-        string IVoiceState.VoiceSessionId => null;
+        string? IVoiceState.VoiceSessionId => null;
         /// <inheritdoc />
         bool IVoiceState.IsStreaming => false;
         /// <inheritdoc />

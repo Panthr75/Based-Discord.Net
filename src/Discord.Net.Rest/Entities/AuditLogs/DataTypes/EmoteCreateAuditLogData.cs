@@ -1,14 +1,13 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to an emoji creation.
 /// </summary>
-public class EmoteCreateAuditLogData : IAuditLogData
+public partial class EmoteCreateAuditLogData : IAuditLogData
 {
     private EmoteCreateAuditLogData(ulong id, string name)
     {
@@ -16,12 +15,12 @@ public class EmoteCreateAuditLogData : IAuditLogData
         Name = name;
     }
 
-    internal static EmoteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static EmoteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
+        var change = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "name");
 
-        var emoteName = change.NewValue?.ToObject<string>(discord.ApiClient.Serializer);
-        return new EmoteCreateAuditLogData(entry.TargetId.Value, emoteName);
+        var emoteName = change?.NewValue?.Deserialize<string>(discord.ApiClient.SerializerOptions);
+        return new EmoteCreateAuditLogData(entry.TargetId!.Value, emoteName!);
     }
 
     /// <summary>

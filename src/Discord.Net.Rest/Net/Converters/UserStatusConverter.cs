@@ -1,52 +1,35 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 
 namespace Discord.Net.Converters
 {
-    internal class UserStatusConverter : JsonConverter
+    internal class UserStatusConverter : JsonConverter<UserStatus>
     {
-        public static readonly UserStatusConverter Instance = new UserStatusConverter();
-
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => true;
-        public override bool CanWrite => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override UserStatus Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return (string)reader.Value switch
+            return reader.GetString() switch
             {
                 "online" => UserStatus.Online,
                 "idle" => UserStatus.Idle,
                 "dnd" => UserStatus.DoNotDisturb,
                 "invisible" => UserStatus.Invisible,//Should never happen
                 "offline" => UserStatus.Offline,
-                _ => throw new JsonSerializationException("Unknown user status"),
+                _ => throw new JsonException("Unknown user status"),
             };
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, UserStatus value, JsonSerializerOptions options)
         {
-            switch ((UserStatus)value)
+            writer.WriteStringValue(value switch
             {
-                case UserStatus.Online:
-                    writer.WriteValue("online");
-                    break;
-                case UserStatus.Idle:
-                case UserStatus.AFK:
-                    writer.WriteValue("idle");
-                    break;
-                case UserStatus.DoNotDisturb:
-                    writer.WriteValue("dnd");
-                    break;
-                case UserStatus.Invisible:
-                    writer.WriteValue("invisible");
-                    break;
-                case UserStatus.Offline:
-                    writer.WriteValue("offline");
-                    break;
-                default:
-                    throw new JsonSerializationException("Invalid user status");
-            }
+                UserStatus.Online => "online",
+                UserStatus.Idle or UserStatus.AFK => "idle",
+                UserStatus.DoNotDisturb => "dnd",
+                UserStatus.Invisible => "invisible",
+                UserStatus.Offline => "offline",
+                _ => throw new JsonException("Invalid user status")
+            });
         }
     }
 }

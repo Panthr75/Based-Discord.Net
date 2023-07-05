@@ -15,7 +15,7 @@ namespace Discord
         /// <remarks>
         ///     This property can be <see langword="null"/>.
         /// </remarks>
-        string RTCRegion { get; }
+        string? RTCRegion { get; }
 
         /// <summary>
         ///     Connects to this audio channel.
@@ -25,9 +25,10 @@ namespace Discord
         /// <param name="external">Determines whether the audio client is an external one or not.</param>
         /// <returns>
         ///     A task representing the asynchronous connection operation. The task result contains the
-        ///     <see cref="IAudioClient"/> responsible for the connection.
+        ///     <see cref="IAudioClient"/> responsible for the connection, or <see langword="null"/>
+        ///     if it failed to connect.
         /// </returns>
-        Task<IAudioClient> ConnectAsync(bool selfDeaf = false, bool selfMute = false, bool external = false);
+        Task<IAudioClient?> ConnectAsync(bool selfDeaf = false, bool selfMute = false, bool external = false);
 
         /// <summary>
         ///     Disconnects from this audio channel.
@@ -46,6 +47,6 @@ namespace Discord
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
         /// <seealso cref="AudioChannelProperties"/>
-        Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions? options = null);
     }
 }

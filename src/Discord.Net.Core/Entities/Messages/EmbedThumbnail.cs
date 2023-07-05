@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
     /// <summary> A thumbnail featured in an <see cref="Embed"/>. </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedThumbnail
+    public struct EmbedThumbnail : IEquatable<EmbedThumbnail>
     {
         /// <summary>
         ///     Gets the URL of the thumbnail.
@@ -20,7 +23,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the proxied URL of this thumbnail.
         /// </returns>
-        public string ProxyUrl { get; }
+        public string? ProxyUrl { get; }
         /// <summary>
         ///     Gets the height of this thumbnail.
         /// </summary>
@@ -38,9 +41,9 @@ namespace Discord
         /// </returns>
         public int? Width { get; }
 
-        internal EmbedThumbnail(string url, string proxyUrl, int? height, int? width)
+        internal EmbedThumbnail(string url, string? proxyUrl, int? height, int? width)
         {
-            Url = url;
+            Url = url ?? throw new ArgumentNullException(nameof(url));
             ProxyUrl = proxyUrl;
             Height = height;
             Width = width;
@@ -70,7 +73,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedThumbnail"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedThumbnail embedThumbnail && Equals(embedThumbnail);
 
         /// <summary>
@@ -78,11 +81,26 @@ namespace Discord
         /// </summary>
         /// <param name="embedThumbnail">The <see cref="EmbedThumbnail"/> to compare with the current <see cref="EmbedThumbnail"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedThumbnail? embedThumbnail)
-            => GetHashCode() == embedThumbnail?.GetHashCode();
+        public bool Equals(EmbedThumbnail embedThumbnail)
+        {
+            return this.Url == embedThumbnail.Url &&
+                this.ProxyUrl == embedThumbnail.ProxyUrl &&
+                this.Width == embedThumbnail.Width &&
+                this.Height == embedThumbnail.Height;
+        }
+
+        /// <inheritdoc cref="EmbedThumbnail.Equals(EmbedThumbnail)"/>
+        public bool Equals([NotNullWhen(true)] EmbedThumbnail? embedThumbnail)
+        {
+            if (!embedThumbnail.HasValue)
+            {
+                return false;
+            }
+            return this.Equals(embedThumbnail.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => (Width, Height, Url, ProxyUrl).GetHashCode();
+            => HashCode.Combine(Width, Height, Url, ProxyUrl);
     }
 }

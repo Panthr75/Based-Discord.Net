@@ -1,23 +1,22 @@
 using Discord.API.AuditLogs;
 
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to an onboarding prompt creation.
 /// </summary>
-public class OnboardingPromptCreatedAuditLogData : IAuditLogData
+public partial class OnboardingPromptCreatedAuditLogData : IAuditLogData
 {
     internal OnboardingPromptCreatedAuditLogData(OnboardingPromptInfo data)
     {
         Data = data;
     }
 
-    internal static OnboardingPromptCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static OnboardingPromptCreatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<OnboardingPromptAuditLogModel>(changes, discord);
 
@@ -27,5 +26,5 @@ public class OnboardingPromptCreatedAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the onboarding prompt information after the changes.
     /// </summary>
-    OnboardingPromptInfo Data { get; set; }
+    public OnboardingPromptInfo Data { get; set; }
 }

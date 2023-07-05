@@ -2,7 +2,7 @@ using Discord.API;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
 
@@ -11,7 +11,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an application command permission update.
 /// </summary>
-public class CommandPermissionUpdateAuditLogData : IAuditLogData
+public partial class CommandPermissionUpdateAuditLogData : IAuditLogData
 {
     internal CommandPermissionUpdateAuditLogData(IReadOnlyCollection<ApplicationCommandPermission> before, IReadOnlyCollection<ApplicationCommandPermission> after,
         IApplicationCommand command, ulong appId)
@@ -22,17 +22,17 @@ public class CommandPermissionUpdateAuditLogData : IAuditLogData
         ApplicationId = appId;
     }
 
-    internal static CommandPermissionUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static CommandPermissionUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var before = new List<ApplicationCommandPermission>();
         var after = new List<ApplicationCommandPermission>();
 
         foreach (var change in changes)
         {
-            var oldValue = change.OldValue?.ToObject<API.ApplicationCommandPermissions>();
-            var newValue = change.NewValue?.ToObject<API.ApplicationCommandPermissions>();
+            var oldValue = change.OldValue?.Deserialize<API.ApplicationCommandPermissions>(discord.ApiClient.SerializerOptions);
+            var newValue = change.NewValue?.Deserialize<API.ApplicationCommandPermissions>(discord.ApiClient.SerializerOptions);
 
             if (oldValue is not null)
                 before.Add(new ApplicationCommandPermission(oldValue.Id, oldValue.Type, oldValue.Permission));
@@ -41,10 +41,10 @@ public class CommandPermissionUpdateAuditLogData : IAuditLogData
                 after.Add(new ApplicationCommandPermission(newValue.Id, newValue.Type, newValue.Permission));
         }
 
-        var command = log.Commands.FirstOrDefault(x => x.Id == entry.TargetId);
-        var appCommand = RestApplicationCommand.Create(discord, command, command?.GuildId.IsSpecified ?? false ? command.GuildId.Value : null);
+        var command = log?.Commands?.FirstOrDefault(x => x.Id == entry.TargetId);
+        var appCommand = RestApplicationCommand.Create(discord, command!, command?.GuildId.IsSpecified ?? false ? command.GuildId.Value : null);
 
-        return new(before.ToImmutableArray(), after.ToImmutableArray(), appCommand, entry.Options.ApplicationId!.Value);
+        return new(before.ToImmutableArray(), after.ToImmutableArray(), appCommand, entry.Options!.ApplicationId!.Value);
     }
 
     /// <summary>

@@ -1,52 +1,51 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class CreateGuildChannelParams
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; }
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ChannelType Type { get; }
-        [JsonProperty("parent_id")]
+        [JsonPropertyName("parent_id")]
         public Optional<ulong?> CategoryId { get; set; }
-        [JsonProperty("position")]
+        [JsonPropertyName("position")]
         public Optional<int> Position { get; set; }
-        [JsonProperty("permission_overwrites")]
+        [JsonPropertyName("permission_overwrites")]
         public Optional<Overwrite[]> Overwrites { get; set; }
 
         //Text channels
-        [JsonProperty("topic")]
+        [JsonPropertyName("topic")]
         public Optional<string> Topic { get; set; }
-        [JsonProperty("nsfw")]
+        [JsonPropertyName("nsfw")]
         public Optional<bool> IsNsfw { get; set; }
-        [JsonProperty("rate_limit_per_user")]
+        [JsonPropertyName("rate_limit_per_user")]
         public Optional<int> SlowModeInterval { get; set; }
-        [JsonProperty("default_auto_archive_duration")]
+        [JsonPropertyName("default_auto_archive_duration")]
         public Optional<ThreadArchiveDuration> DefaultAutoArchiveDuration { get; set; }
 
         //Voice channels
-        [JsonProperty("bitrate")]
+        [JsonPropertyName("bitrate")]
         public Optional<int> Bitrate { get; set; }
-        [JsonProperty("user_limit")]
+        [JsonPropertyName("user_limit")]
         public Optional<int?> UserLimit { get; set; }
-        [JsonProperty("video_quality_mode")]
+        [JsonPropertyName("video_quality_mode")]
         public Optional<VideoQualityMode> VideoQuality { get; set; }
-        [JsonProperty("rtc_region")]
+        [JsonPropertyName("rtc_region")]
         public Optional<string> RtcRegion { get; set; }
 
         //Forum channels
-        [JsonProperty("default_reaction_emoji")]
+        [JsonPropertyName("default_reaction_emoji")]
         public Optional<ModifyForumReactionEmojiParams> DefaultReactionEmoji { get; set; }
-        [JsonProperty("default_thread_rate_limit_per_user")]
+        [JsonPropertyName("default_thread_rate_limit_per_user")]
         public Optional<int> ThreadRateLimitPerUser { get; set; }
-        [JsonProperty("available_tags")]
+        [JsonPropertyName("available_tags")]
         public Optional<ModifyForumTagParams[]> AvailableTags { get; set; }
-        [JsonProperty("default_sort_order")]
+        [JsonPropertyName("default_sort_order")]
         public Optional<ForumSortOrder?> DefaultSortOrder { get; set; }
 
-        [JsonProperty("default_forum_layout")]
+        [JsonPropertyName("default_forum_layout ")]
         public Optional<ForumLayout> DefaultLayout { get; set; }
 
         public CreateGuildChannelParams(string name, ChannelType type)

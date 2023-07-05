@@ -13,6 +13,6 @@ namespace Discord
         /// <summary>
         ///     Gets the custom id of the component if possible; otherwise <see langword="null"/>.
         /// </summary>
-        string CustomId { get; }
+        string? CustomId { get; }
     }
 }

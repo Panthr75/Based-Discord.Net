@@ -16,7 +16,7 @@ namespace Discord.Rest
         ///     Gets the message associated with this message command.
         /// </summary>
         public RestMessage Message
-            => ResolvableData?.Messages.FirstOrDefault().Value;
+            => ResolvableData!.Messages.FirstOrDefault().Value;
 
         /// <inheritdoc/>
         /// <remarks>
@@ -28,7 +28,7 @@ namespace Discord.Rest
         internal RestMessageCommandData(DiscordRestClient client, Model model)
             : base(client, model) { }
 
-        internal new static async Task<RestMessageCommandData> CreateAsync(DiscordRestClient client, Model model, RestGuild guild, IRestMessageChannel channel, bool doApiCall)
+        internal new static async Task<RestMessageCommandData> CreateAsync(DiscordRestClient client, Model model, RestGuild? guild, IRestMessageChannel? channel, bool doApiCall)
         {
             var entity = new RestMessageCommandData(client, model);
             await entity.UpdateAsync(client, model, guild, channel, doApiCall).ConfigureAwait(false);

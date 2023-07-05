@@ -13,7 +13,7 @@ namespace Discord
         /// <summary>
         ///     Gets the user's current party status.
         /// </summary>
-        public string State { get; internal set; }
+        public string? State { get; internal set; }
         /// <summary>
         ///     Gets the application ID for the game.
         /// </summary>
@@ -21,23 +21,23 @@ namespace Discord
         /// <summary>
         ///     Gets the small image for the presence and their hover texts.
         /// </summary>
-        public GameAsset SmallAsset { get; internal set; }
+        public GameAsset? SmallAsset { get; internal set; }
         /// <summary>
         ///     Gets the large image for the presence and their hover texts.
         /// </summary>
-        public GameAsset LargeAsset { get; internal set; }
+        public GameAsset? LargeAsset { get; internal set; }
         /// <summary>
         ///     Gets the information for the current party of the player.
         /// </summary>
-        public GameParty Party { get; internal set; }
+        public GameParty? Party { get; internal set; }
         /// <summary>
         ///     Gets the secrets for Rich Presence joining and spectating.
         /// </summary>
-        public GameSecrets Secrets { get; internal set; }
+        public GameSecrets? Secrets { get; internal set; }
         /// <summary>
         ///     Gets the timestamps for start and/or end of the game.
         /// </summary>
-        public GameTimestamps Timestamps { get; internal set; }
+        public GameTimestamps? Timestamps { get; internal set; }
 
         /// <summary>
         ///     Returns the name of the Rich Presence.

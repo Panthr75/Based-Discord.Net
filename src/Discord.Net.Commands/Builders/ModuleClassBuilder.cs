@@ -198,7 +198,7 @@ namespace Discord.Commands
 
             var createInstance = ReflectionUtils.CreateBuilder<IModuleBase>(typeInfo, service);
 
-            async Task<IResult> ExecuteCallback(ICommandContext context, object[] args, IServiceProvider services, CommandInfo cmd)
+            async Task<IResult> ExecuteCallback(ICommandContext context, object?[] args, IServiceProvider services, CommandInfo cmd)
             {
                 var instance = createInstance(services);
                 instance.SetContext(context);
@@ -233,7 +233,7 @@ namespace Discord.Commands
         private static void BuildParameter(ParameterBuilder builder, System.Reflection.ParameterInfo paramInfo, int position, int count, CommandService service, IServiceProvider services)
         {
             var attributes = paramInfo.GetCustomAttributes();
-            var paramType = paramInfo.ParameterType;
+            Type paramType = paramInfo.ParameterType;
 
             builder.Name = paramInfo.Name;
 
@@ -252,7 +252,7 @@ namespace Discord.Commands
                         break;
                     case ParamArrayAttribute _:
                         builder.IsMultiple = true;
-                        paramType = paramType.GetElementType();
+                        paramType = paramType.GetElementType()!;
                         break;
                     case ParameterPreconditionAttribute precon:
                         builder.AddPrecondition(precon);
@@ -262,7 +262,7 @@ namespace Discord.Commands
                         break;
                     case RemainderAttribute _:
                         if (position != count - 1)
-                            throw new InvalidOperationException($"Remainder parameters must be the last parameter in a command. Parameter: {paramInfo.Name} in {paramInfo.Member.DeclaringType.Name}.{paramInfo.Member.Name}");
+                            throw new InvalidOperationException($"Remainder parameters must be the last parameter in a command. Parameter: {paramInfo.Name} in {paramInfo.Member.DeclaringType!.Name}.{paramInfo.Member.Name}");
 
                         builder.IsRemainder = true;
                         break;
@@ -284,7 +284,7 @@ namespace Discord.Commands
         internal static TypeReader GetTypeReader(CommandService service, Type paramType, Type typeReaderType, IServiceProvider services)
         {
             var readers = service.GetTypeReaders(paramType);
-            TypeReader reader = null;
+            TypeReader? reader = null;
             if (readers != null)
             {
                 if (readers.TryGetValue(typeReaderType, out reader))

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Discord
@@ -10,7 +11,7 @@ namespace Discord
         /// <summary>
         ///     Gets the identifier of this user's avatar.
         /// </summary>
-        string AvatarId { get; }
+        string? AvatarId { get; }
         /// <summary>
         ///     Gets the avatar URL for this user.
         /// </summary>
@@ -33,7 +34,7 @@ namespace Discord
         /// <returns>
         ///     A string representing the user's avatar URL; <see langword="null" /> if the user does not have an avatar in place.
         /// </returns>
-        string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
+        string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
         /// <summary>
         ///     Gets the default avatar URL for this user.
         /// </summary>
@@ -93,7 +94,15 @@ namespace Discord
         /// <remarks>
         ///     This property will be <see langword="null"/> if user has no display name set.
         /// </remarks>
-        string GlobalName { get; }
+        string? GlobalName { get; }
+
+        /// <summary>
+        /// A list of pronouns the user should go by.
+        /// </summary>
+        /// <remarks>
+        /// This property will be <see langword="null"/> if the user has no pronouns set.
+        /// </remarks>
+        string? Pronouns { get; }
 
         /// <summary>
         ///     Creates the direct message channel of this user.
@@ -119,6 +128,6 @@ namespace Discord
         ///     A task that represents the asynchronous operation for getting or creating a DM channel. The task result
         ///     contains the DM channel associated with this user.
         /// </returns>
-        Task<IDMChannel> CreateDMChannelAsync(RequestOptions options = null);
+        Task<IDMChannel> CreateDMChannelAsync(RequestOptions? options = null);
     }
 }

@@ -1,25 +1,26 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API;
 
-internal class RoleConnectionMetadata
+public class RoleConnectionMetadata
 {
-    [JsonProperty("type")]
+    [JsonPropertyName("type")]
     public RoleConnectionMetadataType Type { get; set; }
 
-    [JsonProperty("key")]
-    public string Key { get; set; }
+    [JsonPropertyName("key")]
+    public string Key { get; set; } = string.Empty;
 
-    [JsonProperty("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
 
-    [JsonProperty("description")]
-    public string Description { get; set; }
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
 
-    [JsonProperty("name_localizations")]
+    [JsonPropertyName("name_localizations")]
     public Optional<Dictionary<string, string>> NameLocalizations { get; set; }
 
-    [JsonProperty("description_localizations")]
+    [JsonPropertyName("description_localizations")]
     public Optional<Dictionary<string, string>> DescriptionLocalizations { get; set; }
 }

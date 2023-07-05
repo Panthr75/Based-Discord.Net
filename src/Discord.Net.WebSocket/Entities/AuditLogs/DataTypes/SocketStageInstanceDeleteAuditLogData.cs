@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -32,9 +33,9 @@ public class SocketStageInstanceDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketStageInstanceDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var topic = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "topic").OldValue.ToObject<string>(discord.ApiClient.Serializer);
-        var privacyLevel = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "privacy_level").OldValue.ToObject<StagePrivacyLevel>(discord.ApiClient.Serializer);
-        var channelId = entry.Options.ChannelId;
+        var topic = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "topic")!.OldValue.Deserialize<string>(discord.ApiClient.SerializerOptions)!;
+        var privacyLevel = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "privacy_level")!.OldValue.Deserialize<StagePrivacyLevel>(discord.ApiClient.SerializerOptions)!;
+        var channelId = entry.Options?.ChannelId;
 
         return new SocketStageInstanceDeleteAuditLogData(topic, privacyLevel, channelId ?? 0);
     }

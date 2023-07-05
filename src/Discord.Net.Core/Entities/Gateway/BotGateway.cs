@@ -18,5 +18,12 @@ namespace Discord
         ///     about the current session start limit.
         /// </summary>
         public SessionStartLimit SessionStartLimit { get; internal set; }
+
+        internal BotGateway()
+        {
+            this.Url = string.Empty;
+            this.Shards = 0;
+            this.SessionStartLimit = new SessionStartLimit();
+        }
     }
 }

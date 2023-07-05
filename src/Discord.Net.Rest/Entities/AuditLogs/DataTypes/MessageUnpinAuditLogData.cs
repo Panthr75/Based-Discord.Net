@@ -7,25 +7,25 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an unpinned message.
 /// </summary>
-public class MessageUnpinAuditLogData : IAuditLogData
+public partial class MessageUnpinAuditLogData : IAuditLogData
 {
-    private MessageUnpinAuditLogData(ulong messageId, ulong channelId, IUser user)
+    private MessageUnpinAuditLogData(ulong messageId, ulong channelId, IUser? user)
     {
         MessageId = messageId;
         ChannelId = channelId;
         Target = user;
     }
 
-    internal static MessageUnpinAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static MessageUnpinAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        RestUser user = null;
+        RestUser? user = null;
         if (entry.TargetId.HasValue)
         {
-            var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
+            var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
             user = (userInfo != null) ? RestUser.Create(discord, userInfo) : null;
         }
 
-        return new MessageUnpinAuditLogData(entry.Options.MessageId.Value, entry.Options.ChannelId.Value, user);
+        return new MessageUnpinAuditLogData(entry.Options!.MessageId!.Value, entry.Options!.ChannelId!.Value, user);
     }
 
     /// <summary>
@@ -51,5 +51,5 @@ public class MessageUnpinAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user that created the unpinned message or <see langword="null"/>.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

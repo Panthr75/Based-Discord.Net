@@ -57,14 +57,14 @@ namespace Discord
         /// <returns>
         ///     A string containing the hash of this role's icon.
         /// </returns>
-        string Icon { get; }
+        string? Icon { get; }
         /// <summary>
         ///     Gets the unicode emoji of this role.
         /// </summary>
         /// <remarks>
         ///     This field is mutually exclusive with <see cref="Icon"/>, either icon is set or emoji is set.
         /// </remarks>
-        Emoji Emoji { get; }
+        Emoji? Emoji { get; }
         /// <summary>
         ///     Gets the permissions granted to members of this role.
         /// </summary>
@@ -85,7 +85,7 @@ namespace Discord
         /// <returns>
         ///     A <see cref="RoleTags"/> object containing all tags related to this role.
         /// </returns>
-        RoleTags Tags { get; }
+        RoleTags? Tags { get; }
 
         /// <summary>
         ///     Modifies this role.
@@ -99,7 +99,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
-        Task ModifyAsync(Action<RoleProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets the image url of the icon role.
@@ -107,6 +107,6 @@ namespace Discord
         /// <returns>
         ///     An image url of the icon role.
         /// </returns>
-        string GetIconUrl();
+        string? GetIconUrl();
     }
 }

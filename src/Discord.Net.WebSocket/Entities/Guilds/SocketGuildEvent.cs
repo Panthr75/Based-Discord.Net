@@ -2,6 +2,7 @@ using Discord.Rest;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace Discord.WebSocket
     /// <summary>
     ///     Represents a WebSocket-based guild event.
     /// </summary>
-    public class SocketGuildEvent : SocketEntity<ulong>, IGuildScheduledEvent
+    public class SocketGuildEvent : SocketEntity<ulong, SocketGuildEvent>, IGuildScheduledEvent
     {
         /// <summary>
         ///     Gets the guild of the event.
@@ -25,7 +26,7 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the channel of the event.
         /// </summary>
-        public SocketGuildChannel Channel { get; private set; }
+        public SocketGuildChannel? Channel { get; private set; }
 
         /// <summary>
         ///     Gets the user who created the event.
@@ -36,10 +37,10 @@ namespace Discord.WebSocket
         public string Name { get; private set; }
 
         /// <inheritdoc/>
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         /// <inheritdoc/>
-        public string CoverImageId { get; private set; }
+        public string? CoverImageId { get; private set; }
 
         /// <inheritdoc/>
         public DateTimeOffset StartTime { get; private set; }
@@ -60,15 +61,21 @@ namespace Discord.WebSocket
         public ulong? EntityId { get; private set; }
 
         /// <inheritdoc/>
-        public string Location { get; private set; }
+        public string? Location { get; private set; }
 
         /// <inheritdoc/>
         public int? UserCount { get; private set; }
+
+        /// <inheritdoc/>
+        [MemberNotNullWhen(true, nameof(Location))]
+        public bool IsExternal => this.Type == GuildScheduledEventType.External;
 
         internal SocketGuildEvent(DiscordSocketClient client, SocketGuild guild, ulong id)
             : base(client, id)
         {
             Guild = guild;
+            Creator = null!;
+            Name = string.Empty;
         }
 
         internal static SocketGuildEvent Create(DiscordSocketClient client, SocketGuild guild, Model model)
@@ -120,25 +127,25 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public string GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024)
+        public string? GetCoverImageUrl(ImageFormat format = ImageFormat.Auto, ushort size = 1024)
             => CDN.GetEventCoverImageUrl(Guild.Id, Id, CoverImageId, format, size);
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => GuildHelper.DeleteEventAsync(Discord, this, options);
 
         /// <inheritdoc/>
-        public Task StartAsync(RequestOptions options = null)
+        public Task StartAsync(RequestOptions? options = null)
             => ModifyAsync(x => x.Status = GuildScheduledEventStatus.Active);
 
         /// <inheritdoc/>
-        public Task EndAsync(RequestOptions options = null)
+        public Task EndAsync(RequestOptions? options = null)
             => ModifyAsync(x => x.Status = Status == GuildScheduledEventStatus.Scheduled
                 ? GuildScheduledEventStatus.Cancelled
                 : GuildScheduledEventStatus.Completed);
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions? options = null)
         {
             var model = await GuildHelper.ModifyGuildEventAsync(Discord, func, this, options).ConfigureAwait(false);
             Update(model);
@@ -152,7 +159,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A read-only collection of users.
         /// </returns>
-        public Task<IReadOnlyCollection<RestUser>> GetUsersAsync(int limit = 100, RequestOptions options = null)
+        public Task<IReadOnlyCollection<RestUser>> GetUsersAsync(int limit = 100, RequestOptions? options = null)
             => GuildHelper.GetEventUsersAsync(Discord, this, limit, options);
 
         /// <summary>
@@ -174,7 +181,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(RequestOptions? options = null)
             => GuildHelper.GetEventUsersAsync(Discord, this, null, null, options);
 
         /// <summary>
@@ -205,18 +212,18 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Paged collection of users.
         /// </returns>
-        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<RestUser>> GetUsersAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxGuildEventUsersPerBatch, RequestOptions? options = null)
             => GuildHelper.GetEventUsersAsync(Discord, this, fromUserId, dir, limit, options);
 
-        internal SocketGuildEvent Clone() => MemberwiseClone() as SocketGuildEvent;
+        internal SocketGuildEvent Clone() => (SocketGuildEvent)MemberwiseClone();
 
         #region IGuildScheduledEvent
 
         /// <inheritdoc/>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(RequestOptions? options)
             => GetUsersAsync(options);
         /// <inheritdoc/>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(ulong fromUserId, Direction dir, int limit, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IGuildScheduledEvent.GetUsersAsync(ulong fromUserId, Direction dir, int limit, RequestOptions? options)
             => GetUsersAsync(fromUserId, dir, limit, options);
         /// <inheritdoc/>
         IGuild IGuildScheduledEvent.Guild => Guild;
@@ -224,6 +231,11 @@ namespace Discord.WebSocket
         IUser IGuildScheduledEvent.Creator => Creator;
         /// <inheritdoc/>
         ulong? IGuildScheduledEvent.ChannelId => Channel?.Id;
+
+        Task<IGuild?> IGuildScheduledEvent.GetGuildAsync(bool withCounts, Discord.RequestOptions? options)
+        {
+            return Task.FromResult<IGuild?>(this.Guild);
+        }
 
         #endregion
     }

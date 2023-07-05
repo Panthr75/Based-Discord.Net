@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Commands
 {
@@ -12,9 +13,10 @@ namespace Discord.Commands
         /// <inheritdoc/>
         public CommandError? Error { get; }
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
         /// <summary>
@@ -23,7 +25,7 @@ namespace Discord.Commands
         /// </summary>
         /// <param name="error">The type of failure.</param>
         /// <param name="errorReason">The reason of failure.</param>
-        protected PreconditionResult(CommandError? error, string errorReason)
+        protected PreconditionResult(CommandError? error, string? errorReason)
         {
             Error = error;
             ErrorReason = errorReason;

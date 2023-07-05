@@ -1,5 +1,5 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 using Model = Discord.API.AuditLog;
 
@@ -8,7 +8,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an emoji update.
 /// </summary>
-public class EmoteUpdateAuditLogData : IAuditLogData
+public partial class EmoteUpdateAuditLogData : IAuditLogData
 {
     private EmoteUpdateAuditLogData(ulong id, string oldName, string newName)
     {
@@ -17,14 +17,14 @@ public class EmoteUpdateAuditLogData : IAuditLogData
         NewName = newName;
     }
 
-    internal static EmoteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static EmoteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
+        var change = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "name");
 
-        var newName = change.NewValue?.ToObject<string>(discord.ApiClient.Serializer);
-        var oldName = change.OldValue?.ToObject<string>(discord.ApiClient.Serializer);
+        var newName = change?.NewValue?.Deserialize<string>(discord.ApiClient.SerializerOptions);
+        var oldName = change?.OldValue?.Deserialize<string>(discord.ApiClient.SerializerOptions);
 
-        return new EmoteUpdateAuditLogData(entry.TargetId.Value, oldName, newName);
+        return new EmoteUpdateAuditLogData(entry.TargetId!.Value, oldName!, newName!);
     }
 
     /// <summary>

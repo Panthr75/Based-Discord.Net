@@ -7,16 +7,16 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a kick.
 /// </summary>
-public class KickAuditLogData : IAuditLogData
+public partial class KickAuditLogData : IAuditLogData
 {
-    private KickAuditLogData(RestUser user)
+    private KickAuditLogData(RestUser? user)
     {
         Target = user;
     }
 
-    internal static KickAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static KickAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
+        var userInfo = log!.Users.FirstOrDefault(x => x.Id == entry.TargetId);
         return new KickAuditLogData((userInfo != null) ? RestUser.Create(discord, userInfo) : null);
     }
 
@@ -29,5 +29,5 @@ public class KickAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the kicked user.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

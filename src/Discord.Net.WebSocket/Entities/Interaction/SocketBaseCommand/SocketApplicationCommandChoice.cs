@@ -13,7 +13,7 @@ namespace Discord.WebSocket
         public string Name { get; private set; }
 
         /// <inheritdoc/>
-        public object Value { get; private set; }
+        public ApplicationCommandOptionValue Value { get; private set; }
 
         /// <summary>
         ///     Gets the localization dictionary for the name field of this command option choice.
@@ -26,9 +26,14 @@ namespace Discord.WebSocket
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string NameLocalized { get; private set; }
+        public string? NameLocalized { get; private set; }
 
-        internal SocketApplicationCommandChoice() { }
+        internal SocketApplicationCommandChoice()
+        {
+            this.Name = string.Empty;
+            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            this.Value = ApplicationCommandOptionValue.None;
+        }
         internal static SocketApplicationCommandChoice Create(Model model)
         {
             var entity = new SocketApplicationCommandChoice();
@@ -39,7 +44,7 @@ namespace Discord.WebSocket
         {
             Name = model.Name;
             Value = model.Value;
-            NameLocalizations = model.NameLocalizations.GetValueOrDefault(null)?.ToImmutableDictionary();
+            NameLocalizations = model.NameLocalizations.GetValueOrDefault(null)?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
             NameLocalized = model.NameLocalized.GetValueOrDefault(null);
         }
     }

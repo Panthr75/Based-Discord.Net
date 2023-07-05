@@ -12,7 +12,7 @@ namespace Discord.WebSocket
     ///     Represents a WebSocket-based role to be given to a guild user.
     /// </summary>
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
-    public class SocketRole : SocketEntity<ulong>, IRole
+    public class SocketRole : SocketEntity<ulong, SocketRole>, IRole
     {
         #region SocketRole
         /// <summary>
@@ -34,15 +34,15 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public string Name { get; private set; }
         /// <inheritdoc/>
-        public Emoji Emoji { get; private set; }
+        public Emoji? Emoji { get; private set; }
         /// <inheritdoc />
-        public string Icon { get; private set; }
+        public string? Icon { get; private set; }
         /// <inheritdoc />
         public GuildPermissions Permissions { get; private set; }
         /// <inheritdoc />
         public int Position { get; private set; }
         /// <inheritdoc />
-        public RoleTags Tags { get; private set; }
+        public RoleTags? Tags { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -62,12 +62,13 @@ namespace Discord.WebSocket
         public IEnumerable<SocketGuildUser> Members
             => Guild.Users.Where(x => x.Roles.Any(r => r.Id == Id));
 
-        internal SocketRole(SocketGuild guild, ulong id)
-            : base(guild?.Discord, id)
+        internal SocketRole(SocketGuild? guild, ulong id)
+            : base(guild?.Discord!, id)
         {
-            Guild = guild;
+            Name = string.Empty;
+            Guild = guild!;
         }
-        internal static SocketRole Create(SocketGuild guild, ClientState state, Model model)
+        internal static SocketRole Create(SocketGuild? guild, ClientState state, Model model)
         {
             var entity = new SocketRole(guild, model.Id);
             entity.Update(state, model);
@@ -97,14 +98,14 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<RoleProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null)
             => RoleHelper.ModifyAsync(this, Discord, func, options);
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => RoleHelper.DeleteAsync(this, Discord, options);
 
         /// <inheritdoc />
-        public string GetIconUrl()
+        public string? GetIconUrl()
             => CDN.GetGuildRoleIconUrl(Id, Icon);
 
         /// <summary>
@@ -115,10 +116,10 @@ namespace Discord.WebSocket
         /// </returns>
         public override string ToString() => Name;
         private string DebuggerDisplay => $"{Name} ({Id})";
-        internal SocketRole Clone() => MemberwiseClone() as SocketRole;
+        internal SocketRole Clone() => (SocketRole)MemberwiseClone();
 
         /// <inheritdoc />
-        public int CompareTo(IRole role) => RoleUtils.Compare(this, role);
+        public int CompareTo(IRole? role) => RoleUtils.Compare(this, role);
         #endregion
 
         #region IRole

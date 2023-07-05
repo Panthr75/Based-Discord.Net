@@ -35,7 +35,7 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
         if (model.DefaultEmoji is not null)
         {
             if (model.DefaultEmoji.EmojiId.HasValue && model.DefaultEmoji.EmojiId.Value != 0)
-                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null, false);
+                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null!, false);
             else if (model.DefaultEmoji.EmojiName.IsSpecified)
                 DefaultReactionEmoji = new Emoji(model.DefaultEmoji.EmojiName.Value);
             else
@@ -54,12 +54,12 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
         Overwrites = model.Overwrites?.Select(x
             => new Overwrite(x.TargetId,
                 x.TargetType,
-                new OverwritePermissions(x.Allow, x.Deny))).ToImmutableArray();
+                new OverwritePermissions(x.Allow, x.Deny)))?.ToImmutableArray();
     }
 
     internal static SocketChannelDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<Model>(changes, discord);
 
@@ -80,7 +80,7 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A string containing the name of the deleted channel.
     /// </returns>
-    public string ChannelName { get; }
+    public string? ChannelName { get; }
 
     /// <summary>
     ///     Gets the type of the deleted channel.
@@ -124,7 +124,7 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
     /// <returns>
     ///     A collection of permission <see cref="Overwrite"/>.
     /// </returns>
-    public IReadOnlyCollection<Overwrite> Overwrites { get; }
+    public IReadOnlyCollection<Overwrite>? Overwrites { get; }
 
     /// <summary>
     ///     Gets the user limit configured in the created voice channel.
@@ -139,7 +139,7 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
     /// <summary>
     ///     Gets the region configured in the created voice channel.
     /// </summary>
-    public string RtcRegion { get; }
+    public string? RtcRegion { get; }
 
     /// <summary>
     ///     Gets channel flags configured for the created channel.
@@ -166,17 +166,17 @@ public class SocketChannelDeleteAuditLogData : ISocketAuditLogData
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public IReadOnlyCollection<ForumTag> ForumTags { get; }
+    public IReadOnlyCollection<ForumTag>? ForumTags { get; }
 
     /// <inheritdoc cref="ITextChannel.Topic"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public string Topic { get; }
+    public string? Topic { get; }
 
     /// <inheritdoc cref="IForumChannel.DefaultReactionEmoji"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public IEmote DefaultReactionEmoji { get; }
+    public IEmote? DefaultReactionEmoji { get; }
 }

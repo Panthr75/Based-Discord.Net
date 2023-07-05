@@ -19,7 +19,7 @@ namespace Discord.WebSocket
 
         internal static SocketChannelUpdateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
         {
-            var changes = entry.Changes;
+            var changes = entry.Changes!;
 
             var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes, discord);
 

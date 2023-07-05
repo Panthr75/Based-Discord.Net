@@ -1,30 +1,30 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class ThreadInfoAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("name")]
-    public string Name { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-    [JsonField("type")]
+    [JsonPropertyName("type")]
     public ThreadType Type { get; set; }
 
-    [JsonField("archived")]
+    [JsonPropertyName("archived")]
     public bool? IsArchived { get; set; }
 
-    [JsonField("locked")]
+    [JsonPropertyName("locked")]
     public bool? IsLocked { get; set;}
 
-    [JsonField("auto_archive_duration")]
+    [JsonPropertyName("auto_archive_duration")]
     public ThreadArchiveDuration? ArchiveDuration { get; set; }
 
-    [JsonField("rate_limit_per_user")]
+    [JsonPropertyName("rate_limit_per_user")]
     public int? SlowModeInterval { get; set; }
 
-    [JsonField("flags")]
+    [JsonPropertyName("flags")]
     public ChannelFlags? ChannelFlags { get; set; }
 
-    [JsonField("applied_tags")]
-    public ulong[] AppliedTags { get; set; }
+    [JsonPropertyName("applied_tags")]
+    public ulong[]? AppliedTags { get; set; }
 }

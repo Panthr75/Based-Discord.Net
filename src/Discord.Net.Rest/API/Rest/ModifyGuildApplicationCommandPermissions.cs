@@ -1,13 +1,15 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class ModifyGuildApplicationCommandPermissions
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("permissions")]
-        public ApplicationCommandPermissions[] Permissions { get; set; }
+        [JsonPropertyName("permissions")]
+        public ApplicationCommandPermissions[] Permissions { get; set; } = Array.Empty<ApplicationCommandPermissions>();
     }
 }

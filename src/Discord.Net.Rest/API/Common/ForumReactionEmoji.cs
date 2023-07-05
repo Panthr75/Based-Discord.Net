@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API;
 
-internal class ForumReactionEmoji
+public class ForumReactionEmoji
 {
-    [JsonProperty("emoji_id")]
+    [JsonPropertyName("emoji_id")]
     public ulong? EmojiId { get; set; }
 
-    [JsonProperty("emoji_name")]
+    [JsonPropertyName("emoji_name")]
     public Optional<string> EmojiName { get; set; }
 }

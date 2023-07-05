@@ -1,14 +1,13 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to the update of a permission overwrite.
 /// </summary>
-public class OverwriteUpdateAuditLogData : IAuditLogData
+public partial class OverwriteUpdateAuditLogData : IAuditLogData
 {
     private OverwriteUpdateAuditLogData(ulong channelId, OverwritePermissions before, OverwritePermissions after, ulong targetId, PermissionTarget targetType)
     {
@@ -19,24 +18,24 @@ public class OverwriteUpdateAuditLogData : IAuditLogData
         OverwriteType = targetType;
     }
 
-    internal static OverwriteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static OverwriteUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
-        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny");
-        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow");
+        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny")!;
+        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow")!;
 
-        var beforeAllow = allowModel?.OldValue?.ToObject<ulong>(discord.ApiClient.Serializer);
-        var afterAllow = allowModel?.NewValue?.ToObject<ulong>(discord.ApiClient.Serializer);
-        var beforeDeny = denyModel?.OldValue?.ToObject<ulong>(discord.ApiClient.Serializer);
-        var afterDeny = denyModel?.NewValue?.ToObject<ulong>(discord.ApiClient.Serializer);
+        var beforeAllow = allowModel?.OldValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
+        var afterAllow = allowModel?.NewValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
+        var beforeDeny = denyModel?.OldValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
+        var afterDeny = denyModel?.NewValue?.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
 
         var beforePermissions = new OverwritePermissions(beforeAllow ?? 0, beforeDeny ?? 0);
         var afterPermissions = new OverwritePermissions(afterAllow ?? 0, afterDeny ?? 0);
 
-        var type = entry.Options.OverwriteType;
+        var type = entry.Options!.OverwriteType;
 
-        return new OverwriteUpdateAuditLogData(entry.TargetId.Value, beforePermissions, afterPermissions, entry.Options.OverwriteTargetId.Value, type);
+        return new OverwriteUpdateAuditLogData(entry.TargetId!.Value, beforePermissions, afterPermissions, entry.Options!.OverwriteTargetId!.Value, type);
     }
 
     /// <summary>

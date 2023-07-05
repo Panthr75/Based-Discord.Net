@@ -26,11 +26,11 @@ namespace Discord.Rest
         /// <exception cref="InvalidOperationException">Only the author of a message may modify the message.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         public static Task<Model> ModifyAsync(IMessage msg, BaseDiscordClient client, Action<MessageProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
             => ModifyAsync(msg.Channel.Id, msg.Id, client, func, options);
 
         public static async Task<Model> ModifyAsync(ulong channelId, ulong msgId, BaseDiscordClient client, Action<MessageProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new MessageProperties();
             func(args);
@@ -39,13 +39,13 @@ namespace Discord.Rest
             var embeds = args.Embeds;
 
             bool hasText = args.Content.IsSpecified && string.IsNullOrEmpty(args.Content.Value);
-            bool hasEmbeds = embed.IsSpecified && embed.Value != null || embeds.IsSpecified && embeds.Value?.Length > 0;
+            bool hasEmbeds = (embed.IsSpecified && embed.Value != null) || (embeds.IsSpecified && embeds.Value?.Length > 0);
             bool hasComponents = args.Components.IsSpecified && args.Components.Value != null;
             bool hasAttachments = args.Attachments.IsSpecified;
             bool hasFlags = args.Flags.IsSpecified;
 
             // No content needed if modifying flags
-            if ((!hasComponents && !hasText && !hasEmbeds && !hasAttachments) && !hasFlags)
+            if (!hasComponents && !hasText && !hasEmbeds && !hasAttachments && !hasFlags)
                 Preconditions.NotNullOrEmpty(args.Content.IsSpecified ? args.Content.Value : string.Empty, nameof(args.Content));
 
             if (args.AllowedMentions.IsSpecified)
@@ -75,12 +75,12 @@ namespace Discord.Rest
 
             if (embed.IsSpecified && embed.Value != null)
             {
-                apiEmbeds.Add(embed.Value.ToModel());
+                apiEmbeds!.Add(embed.Value.ToModel());
             }
 
             if (embeds.IsSpecified && embeds.Value != null)
             {
-                apiEmbeds.AddRange(embeds.Value.Select(x => x.ToModel()));
+                apiEmbeds!.AddRange(embeds.Value.Select(x => x.ToModel()));
             }
 
             Preconditions.AtMost(apiEmbeds?.Count ?? 0, 10, nameof(args.Embeds), "A max of 10 embeds are allowed.");
@@ -112,60 +112,60 @@ namespace Discord.Rest
             }
         }
 
-        public static Task DeleteAsync(IMessage msg, BaseDiscordClient client, RequestOptions options)
+        public static Task DeleteAsync(IMessage msg, BaseDiscordClient client, RequestOptions? options = null)
             => DeleteAsync(msg.Channel.Id, msg.Id, client, options);
 
         public static async Task DeleteAsync(ulong channelId, ulong msgId, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             await client.ApiClient.DeleteMessageAsync(channelId, msgId, options).ConfigureAwait(false);
         }
 
-        public static async Task AddReactionAsync(ulong channelId, ulong messageId, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task AddReactionAsync(ulong channelId, ulong messageId, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.AddReactionAsync(channelId, messageId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.AddReactionAsync(channelId, messageId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
-        public static async Task AddReactionAsync(IMessage msg, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task AddReactionAsync(IMessage msg, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.AddReactionAsync(msg.Channel.Id, msg.Id, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.AddReactionAsync(msg.Channel.Id, msg.Id, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveReactionAsync(ulong channelId, ulong messageId, ulong userId, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveReactionAsync(ulong channelId, ulong messageId, ulong userId, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.RemoveReactionAsync(channelId, messageId, userId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.RemoveReactionAsync(channelId, messageId, userId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveReactionAsync(IMessage msg, ulong userId, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveReactionAsync(IMessage msg, ulong userId, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.RemoveReactionAsync(msg.Channel.Id, msg.Id, userId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.RemoveReactionAsync(msg.Channel.Id, msg.Id, userId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveAllReactionsAsync(ulong channelId, ulong messageId, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveAllReactionsAsync(ulong channelId, ulong messageId, BaseDiscordClient client, RequestOptions? options = null)
         {
             await client.ApiClient.RemoveAllReactionsAsync(channelId, messageId, options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveAllReactionsAsync(IMessage msg, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveAllReactionsAsync(IMessage msg, BaseDiscordClient client, RequestOptions? options = null)
         {
             await client.ApiClient.RemoveAllReactionsAsync(msg.Channel.Id, msg.Id, options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveAllReactionsForEmoteAsync(ulong channelId, ulong messageId, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveAllReactionsForEmoteAsync(ulong channelId, ulong messageId, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.RemoveAllReactionsForEmoteAsync(channelId, messageId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.RemoveAllReactionsForEmoteAsync(channelId, messageId, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveAllReactionsForEmoteAsync(IMessage msg, IEmote emote, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveAllReactionsForEmoteAsync(IMessage msg, IEmote emote, BaseDiscordClient client, RequestOptions? options = null)
         {
-            await client.ApiClient.RemoveAllReactionsForEmoteAsync(msg.Channel.Id, msg.Id, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name), options).ConfigureAwait(false);
+            await client.ApiClient.RemoveAllReactionsForEmoteAsync(msg.Channel.Id, msg.Id, emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!), options).ConfigureAwait(false);
         }
 
         public static IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IMessage msg, IEmote emote,
-            int? limit, BaseDiscordClient client, RequestOptions options)
+            int? limit, BaseDiscordClient client, RequestOptions? options = null)
         {
             Preconditions.NotNull(emote, nameof(emote));
-            var emoji = (emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name));
+            var emoji = (emote is Emote e ? $"{e.Name}:{e.Id}" : UrlEncode(emote.Name!));
 
             return new PagedAsyncEnumerable<IUser>(
                 DiscordConfig.MaxUserReactionsPerBatch,
@@ -210,7 +210,7 @@ namespace Discord.Rest
         }
 
         public static async Task PinAsync(IMessage msg, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             if (msg.Channel is IVoiceChannel)
                 throw new NotSupportedException("Pinned messages are not supported in text-in-voice channels.");
@@ -218,12 +218,12 @@ namespace Discord.Rest
         }
 
         public static async Task UnpinAsync(IMessage msg, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             await client.ApiClient.RemovePinAsync(msg.Channel.Id, msg.Id, options).ConfigureAwait(false);
         }
 
-        public static ImmutableArray<ITag> ParseTags(string text, IMessageChannel channel, IGuild guild, IReadOnlyCollection<IUser> userMentions)
+        public static ImmutableArray<ITag> ParseTags(string text, IMessageChannel? channel, IGuild? guild, IReadOnlyCollection<IUser> userMentions)
         {
             var tags = ImmutableArray.CreateBuilder<ITag>();
             int index = 0;
@@ -280,7 +280,7 @@ namespace Discord.Rest
 
                 if (MentionUtils.TryParseUser(content, out ulong id))
                 {
-                    IUser mentionedUser = null;
+                    IUser? mentionedUser = null;
                     foreach (var mention in userMentions)
                     {
                         if (mention.Id == id)
@@ -295,14 +295,14 @@ namespace Discord.Rest
                 }
                 else if (MentionUtils.TryParseChannel(content, out id))
                 {
-                    IChannel mentionedChannel = null;
+                    IChannel? mentionedChannel = null;
                     if (guild != null)
                         mentionedChannel = guild.GetChannelAsync(id, CacheMode.CacheOnly).GetAwaiter().GetResult();
                     tags.Add(new Tag<IChannel>(TagType.ChannelMention, index, content.Length, id, mentionedChannel));
                 }
                 else if (MentionUtils.TryParseRole(content, out id))
                 {
-                    IRole mentionedRole = null;
+                    IRole? mentionedRole = null;
                     if (guild != null)
                         mentionedRole = guild.GetRole(id);
                     tags.Add(new Tag<IRole>(TagType.RoleMention, index, content.Length, id, mentionedRole));
@@ -376,7 +376,7 @@ namespace Discord.Rest
         {
             return tags
                 .Where(x => x.Type == type)
-                .Select(x => (T)x.Value)
+                .Select(x => (T)x.Value!) // null supress due to null check
                 .Where(x => x != null)
                 .ToImmutableArray();
         }
@@ -392,18 +392,18 @@ namespace Discord.Rest
             return MessageSource.User;
         }
 
-        public static Task CrosspostAsync(IMessage msg, BaseDiscordClient client, RequestOptions options)
+        public static Task CrosspostAsync(IMessage msg, BaseDiscordClient client, RequestOptions? options = null)
             => CrosspostAsync(msg.Channel.Id, msg.Id, client, options);
 
         public static async Task CrosspostAsync(ulong channelId, ulong msgId, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             await client.ApiClient.CrosspostAsync(channelId, msgId, options).ConfigureAwait(false);
         }
 
-        public static IUser GetAuthor(BaseDiscordClient client, IGuild guild, UserModel model, ulong? webhookId)
+        public static IUser GetAuthor(BaseDiscordClient client, IGuild? guild, UserModel model, ulong? webhookId)
         {
-            IUser author = null;
+            IUser? author = null;
             if (guild != null)
                 author = guild.GetUserAsync(model.Id, CacheMode.CacheOnly).Result;
             if (author == null)

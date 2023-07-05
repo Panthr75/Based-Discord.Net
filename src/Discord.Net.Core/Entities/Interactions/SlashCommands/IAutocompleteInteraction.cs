@@ -9,5 +9,8 @@ namespace Discord
         ///     Gets the autocomplete data of this interaction.
         /// </summary>
         new IAutocompleteInteractionData Data { get; }
+
+        /// <inheritdoc cref="IDiscordInteraction.UserLocale"/>
+        new string UserLocale { get; }
     }
 }

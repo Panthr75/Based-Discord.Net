@@ -8,7 +8,7 @@ namespace Discord.Rest
     public class RestTeam : RestEntity<ulong>, ITeam
     {
         /// <inheritdoc />
-        public string IconUrl => _iconId != null ? CDN.GetTeamIconUrl(Id, _iconId) : null;
+        public string? IconUrl => _iconId != null ? CDN.GetTeamIconUrl(Id, _iconId) : null;
         /// <inheritdoc />
         public IReadOnlyList<ITeamMember> TeamMembers { get; private set; }
         /// <inheritdoc />
@@ -16,11 +16,13 @@ namespace Discord.Rest
         /// <inheritdoc />
         public ulong OwnerUserId { get; private set; }
 
-        private string _iconId;
+        private string? _iconId;
 
         internal RestTeam(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Name = string.Empty;
+            this.TeamMembers = ImmutableArray<ITeamMember>.Empty;
         }
         internal static RestTeam Create(BaseDiscordClient discord, Model model)
         {

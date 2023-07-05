@@ -18,7 +18,7 @@ namespace Discord
         ///         This objects type can be any one of the option types in <see cref="ApplicationCommandOptionType"/>.
         ///     </note>
         /// </summary>
-        object Value { get; }
+        ApplicationCommandOptionValue Value { get; }
 
         /// <summary>
         ///     Gets the type of this data's option.

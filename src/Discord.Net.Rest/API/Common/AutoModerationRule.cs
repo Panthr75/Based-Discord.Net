@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,37 +10,37 @@ namespace Discord.API
 {
     internal class AutoModerationRule
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
 
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("creator_id")]
+        [JsonPropertyName("creator_id")]
         public ulong CreatorId { get; set; }
 
-        [JsonProperty("event_type")]
+        [JsonPropertyName("event_type")]
         public AutoModEventType EventType { get; set; }
 
-        [JsonProperty("trigger_type")]
+        [JsonPropertyName("trigger_type")]
         public AutoModTriggerType TriggerType { get; set; }
 
-        [JsonProperty("trigger_metadata")]
-        public TriggerMetadata TriggerMetadata { get; set; }
+        [JsonPropertyName("trigger_metadata")]
+        public TriggerMetadata TriggerMetadata { get; set; } = null!;
 
-        [JsonProperty("actions")]
-        public AutoModAction[] Actions { get; set; }
+        [JsonPropertyName("actions")]
+        public AutoModAction[] Actions { get; set; } = Array.Empty<AutoModAction>();
 
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
 
-        [JsonProperty("exempt_roles")]
-        public ulong[] ExemptRoles { get; set; }
+        [JsonPropertyName("exempt_roles")]
+        public ulong[] ExemptRoles { get; set; } = Array.Empty<ulong>();
 
-        [JsonProperty("exempt_channels")]
-        public ulong[] ExemptChannels { get; set; }
+        [JsonPropertyName("exempt_channels")]
+        public ulong[] ExemptChannels { get; set; } = Array.Empty<ulong>();
     }
 }

@@ -34,6 +34,10 @@ namespace Discord.Rest
         internal RestConnection(BaseDiscordClient discord)
         {
             Discord = discord;
+            this.Id = string.Empty;
+            this.Name = string.Empty;
+            this.Type = string.Empty;
+            this.Integrations = ImmutableArray<IIntegration>.Empty;
         }
 
         internal static RestConnection Create(BaseDiscordClient discord, Model model)
@@ -49,8 +53,15 @@ namespace Discord.Rest
             Name = model.Name;
             Type = model.Type;
             IsRevoked = model.Revoked.IsSpecified ? model.Revoked.Value : null;
-            Integrations = model.Integrations.IsSpecified ? model.Integrations.Value
-                .Select(intergration => RestIntegration.Create(Discord, null, intergration)).ToImmutableArray() : null;
+            if (model.Integrations.IsSpecified)
+            {
+                this.Integrations = model.Integrations.Value
+                .Select(intergration => RestIntegration.Create(Discord, null, intergration)).ToImmutableArray();
+            }
+            else
+            {
+                this.Integrations = ImmutableArray<RestIntegration>.Empty;
+            }
             Verified = model.Verified;
             FriendSync = model.FriendSync;
             ShowActivity = model.ShowActivity;

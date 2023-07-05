@@ -11,7 +11,7 @@ public struct GuildInfo
     {
         Owner = owner;
 
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         AfkTimeout = model.AfkTimeout.GetValueOrDefault();
         IsEmbeddable = model.IsEmbeddable;
         DefaultMessageNotifications = model.DefaultMessageNotifications;
@@ -42,13 +42,13 @@ public struct GuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string DiscoverySplashId { get; }
+    public string? DiscoverySplashId { get; }
 
     /// <inheritdoc cref="IGuild.SplashId"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string SplashId { get; }
+    public string? SplashId { get; }
 
     /// <inheritdoc cref="IGuild.RulesChannelId"/>
     /// <remarks>
@@ -78,13 +78,13 @@ public struct GuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string BannerId { get; }
+    public string? BannerId { get; }
 
     /// <inheritdoc cref="IGuild.VanityURLCode"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string VanityURLCode { get; }
+    public string? VanityURLCode { get; }
 
     /// <inheritdoc cref="IGuild.SystemChannelFlags"/>
     /// <remarks>
@@ -96,13 +96,13 @@ public struct GuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string Description { get; }
+    public string? Description { get; }
 
     /// <inheritdoc cref="IGuild.PreferredLocale"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string PreferredLocale { get; }
+    public string? PreferredLocale { get; }
 
     /// <inheritdoc cref="IGuild.NsfwLevel"/>
     /// <remarks>
@@ -152,14 +152,14 @@ public struct GuildInfo
     /// <summary>
     ///     Gets the ID of the region hosting this guild's voice channels.
     /// </summary>
-    public string RegionId { get; }
+    public string? RegionId { get; }
     /// <summary>
     ///     Gets the ID of this guild's icon.
     /// </summary>
     /// <returns>
     ///     A string containing the identifier for the splash image; <see langword="null" /> if none is set.
     /// </returns>
-    public string IconHash { get; }
+    public string? IconHash { get; }
     /// <summary>
     ///     Gets the level of requirements a user must fulfill before being allowed to post messages in this guild.
     /// </summary>

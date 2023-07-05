@@ -36,7 +36,7 @@ namespace Discord
         /// </returns>
         public static string Version { get; } =
             typeof(DiscordConfig).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
-            typeof(DiscordConfig).GetTypeInfo().Assembly.GetName().Version.ToString(3) ??
+            typeof(DiscordConfig).GetTypeInfo().Assembly.GetName().Version!.ToString(3) ??
             "Unknown";
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace Discord
         /// <remarks>
         ///     This property is mutually exclusive with <see cref="RequestOptions.RatelimitCallback"/>.
         /// </remarks>
-        public Func<IRateLimitInfo, Task> DefaultRatelimitCallback { get; set; }
+        public Func<IRateLimitInfo, Task>? DefaultRatelimitCallback { get; set; }
 
         /// <summary>
         ///     Gets or sets the minimum log level severity that will be sent to the Log event.

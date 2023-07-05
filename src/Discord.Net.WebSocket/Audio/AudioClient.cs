@@ -3,8 +3,7 @@ using Discord.Audio.Streams;
 using Discord.Logging;
 using Discord.Net.Converters;
 using Discord.WebSocket;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,6 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization.Metadata;
+using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.Audio
 {
@@ -31,7 +33,7 @@ namespace Discord.Audio
         }
 
         private readonly Logger _audioLogger;
-        private readonly JsonSerializer _serializer;
+        private readonly JsonSerializerOptions _serializerOptions;
         private readonly ConnectionManager _connection;
         private readonly SemaphoreSlim _stateLock;
         private readonly ConcurrentQueue<long> _heartbeatTimes;
@@ -39,9 +41,9 @@ namespace Discord.Audio
         private readonly ConcurrentDictionary<uint, ulong> _ssrcMap;
         private readonly ConcurrentDictionary<ulong, StreamPair> _streams;
 
-        private Task _heartbeatTask, _keepaliveTask;
+        private Task? _heartbeatTask, _keepaliveTask;
         private long _lastMessageTime;
-        private string _url, _sessionId, _token;
+        private string? _url, _sessionId, _token;
         private ulong _userId;
         private uint _ssrc;
         private bool _isSpeaking;
@@ -51,7 +53,7 @@ namespace Discord.Audio
         public int Latency { get; private set; }
         public int UdpLatency { get; private set; }
         public ulong ChannelId { get; internal set; }
-        internal byte[] SecretKey { get; private set; }
+        internal byte[]? SecretKey { get; private set; }
 
         private DiscordSocketClient Discord => Guild.Discord;
         public ConnectionState ConnectionState => _connection.State;
@@ -80,12 +82,31 @@ namespace Discord.Audio
             _ssrcMap = new ConcurrentDictionary<uint, ulong>();
             _streams = new ConcurrentDictionary<ulong, StreamPair>();
 
-            _serializer = new JsonSerializer { ContractResolver = new DiscordContractResolver() };
-            _serializer.Error += (s, e) =>
+            _serializerOptions = new JsonSerializerOptions()
             {
-                _audioLogger.WarningAsync(e.ErrorContext.Error).GetAwaiter().GetResult();
-                e.ErrorContext.Handled = true;
+                AllowTrailingCommas = true,
+                IncludeFields = true,
+                NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+                {
+                    Modifiers = { Optional.OptionalModifier }
+                }
             };
+            _serializerOptions.AddConverter<EmbedTypeConverter>();
+            _serializerOptions.AddConverter<UInt64Converter>();
+            _serializerOptions.AddConverter<GuildFeaturesConverter>();
+            _serializerOptions.AddConverter<ApplicationCommandOptionValueConverter>();
+            _serializerOptions.AddConverter<EnumStringValueConverter<GuildPermission>>();
+            _serializerOptions.AddConverter<OptionalConverterFactory>();
+            _serializerOptions.AddConverter<ImageConverter>();
+            _serializerOptions.AddConverter<InteractionConverter>();
+            _serializerOptions.AddConverter<NumericValueConverter>();
+            _serializerOptions.AddConverter<JsonNodeConverter>();
+            _serializerOptions.AddConverter<MessageComponentConverter>();
+            _serializerOptions.AddConverter<StringEntityConverter>();
+            _serializerOptions.AddConverter<UInt64EntityConverter>();
+            _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
+            _serializerOptions.AddConverter<UserStatusConverter>();
 
             LatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"Latency = {val} ms").ConfigureAwait(false);
             UdpLatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"UDP Latency = {val} ms").ConfigureAwait(false);
@@ -116,7 +137,7 @@ namespace Discord.Audio
             await ApiClient.ConnectAsync("wss://" + _url + "?v=" + DiscordConfig.VoiceAPIVersion).ConfigureAwait(false);
             await _audioLogger.DebugAsync("Listening on port " + ApiClient.UdpPort).ConfigureAwait(false);
             await _audioLogger.DebugAsync("Sending Identity").ConfigureAwait(false);
-            await ApiClient.SendIdentityAsync(_userId, _sessionId, _token).ConfigureAwait(false);
+            await ApiClient.SendIdentityAsync(_userId, _sessionId!, _token!).ConfigureAwait(false);
 
             //Wait for READY
             await _connection.WaitAsync().ConfigureAwait(false);
@@ -190,7 +211,7 @@ namespace Discord.Audio
                 await _streamCreatedEvent.InvokeAsync(userId, readerStream);
             }
         }
-        internal AudioInStream GetInputStream(ulong id)
+        internal AudioInStream? GetInputStream(ulong id)
         {
             if (_streams.TryGetValue(id, out StreamPair streamPair))
                 return streamPair.Reader;
@@ -215,7 +236,7 @@ namespace Discord.Audio
             _streams.Clear();
         }
 
-        private async Task ProcessMessageAsync(VoiceOpCode opCode, object payload)
+        private async Task ProcessMessageAsync(VoiceOpCode opCode, object? payload)
         {
             _lastMessageTime = Environment.TickCount;
 
@@ -226,7 +247,7 @@ namespace Discord.Audio
                     case VoiceOpCode.Ready:
                         {
                             await _audioLogger.DebugAsync("Received Ready").ConfigureAwait(false);
-                            var data = (payload as JToken).ToObject<ReadyEvent>(_serializer);
+                            var data = ((JsonElement)payload!).Deserialize<ReadyEvent>(_serializerOptions)!;
 
                             _ssrc = data.SSRC;
 
@@ -243,7 +264,7 @@ namespace Discord.Audio
                     case VoiceOpCode.SessionDescription:
                         {
                             await _audioLogger.DebugAsync("Received SessionDescription").ConfigureAwait(false);
-                            var data = (payload as JToken).ToObject<SessionDescriptionEvent>(_serializer);
+                            var data = ((JsonElement)payload!).Deserialize<SessionDescriptionEvent>(_serializerOptions)!;
 
                             if (data.Mode != DiscordVoiceAPIClient.Mode)
                                 throw new InvalidOperationException($"Discord selected an unexpected mode: {data.Mode}");
@@ -274,7 +295,7 @@ namespace Discord.Audio
                         {
                             await _audioLogger.DebugAsync("Received Speaking").ConfigureAwait(false);
 
-                            var data = (payload as JToken).ToObject<SpeakingEvent>(_serializer);
+                            var data = ((JsonElement)payload!).Deserialize<SpeakingEvent>(_serializerOptions)!;
                             _ssrcMap[data.Ssrc] = data.UserId; //TODO: Memory Leak: SSRCs are never cleaned up
 
                             await _speakingUpdatedEvent.InvokeAsync(data.UserId, data.Speaking);
@@ -284,7 +305,7 @@ namespace Discord.Audio
                         {
                             await _audioLogger.DebugAsync("Received ClientDisconnect").ConfigureAwait(false);
 
-                            var data = (payload as JToken).ToObject<ClientDisconnectEvent>(_serializer);
+                            var data = ((JsonElement)payload!).Deserialize<ClientDisconnectEvent>(_serializerOptions)!;
 
                             await _clientDisconnectedEvent.InvokeAsync(data.UserId);
                         }

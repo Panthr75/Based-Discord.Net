@@ -32,7 +32,7 @@ public class SocketMessageUnpinAuditLogData : ISocketAuditLogData
                 });
         }
 
-        return new SocketMessageUnpinAuditLogData(entry.Options.MessageId!.Value, entry.Options.ChannelId!.Value, cacheableUser);
+        return new SocketMessageUnpinAuditLogData(entry.Options!.MessageId!.Value, entry.Options!.ChannelId!.Value, cacheableUser);
     }
 
     /// <summary>

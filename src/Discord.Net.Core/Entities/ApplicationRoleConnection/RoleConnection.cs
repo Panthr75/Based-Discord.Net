@@ -11,19 +11,19 @@ public class RoleConnection
     /// <summary>
     ///     Gets the vanity name of the platform a bot has connected to.
     /// </summary>
-    public string PlatformName { get; }
+    public string? PlatformName { get; }
 
     /// <summary>
     ///     Gets the username on the platform a bot has connected to.
     /// </summary>
-    public string PlatformUsername { get; }
+    public string? PlatformUsername { get; }
 
     /// <summary>
     ///     Gets the object mapping <see cref="RoleConnectionMetadata"/> keys to their string-ified values.
     /// </summary>
     public IReadOnlyDictionary<string, string> Metadata { get; }
 
-    internal RoleConnection(string platformName, string platformUsername, IReadOnlyDictionary<string, string> metadata)
+    internal RoleConnection(string? platformName, string? platformUsername, IReadOnlyDictionary<string, string> metadata)
     {
         PlatformName = platformName;
         PlatformUsername = platformUsername;

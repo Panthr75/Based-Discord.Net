@@ -1,22 +1,22 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class IdentifyParams
     {
-        [JsonProperty("token")]
-        public string Token { get; set; }
-        [JsonProperty("properties")]
-        public IDictionary<string, string> Properties { get; set; }
-        [JsonProperty("large_threshold")]
+        [JsonPropertyName("token")]
+        public string Token { get; set; } = string.Empty;
+        [JsonPropertyName("properties")]
+        public IDictionary<string, string> Properties { get; set; } = null!;
+        [JsonPropertyName("large_threshold")]
         public int LargeThreshold { get; set; }
-        [JsonProperty("shard")]
+        [JsonPropertyName("shard")]
         public Optional<int[]> ShardingParams { get; set; }
-        [JsonProperty("presence")]
+        [JsonPropertyName("presence")]
         public Optional<PresenceUpdateParams> Presence { get; set; }
-        [JsonProperty("intents")]
+        [JsonPropertyName("intents")]
         public Optional<int> Intents { get; set; }
     }
 }

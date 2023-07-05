@@ -31,7 +31,7 @@ namespace Discord.Commands
     public class RequireNsfwAttribute : PreconditionAttribute
     {
         /// <inheritdoc />
-        public override string ErrorMessage { get; set; }
+        public override string? ErrorMessage { get; set; }
 
         /// <inheritdoc />
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)

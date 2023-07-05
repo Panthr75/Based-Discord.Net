@@ -16,15 +16,15 @@ namespace Discord
         /// <summary>
         ///     Gets the label of the button, this is the text that is shown.
         /// </summary>
-        public string Label { get; }
+        public string? Label { get; }
 
         /// <summary>
         ///     Gets the <see cref="IEmote"/> displayed with this button.
         /// </summary>
-        public IEmote Emote { get; }
+        public IEmote? Emote { get; }
 
         /// <inheritdoc/>
-        public string CustomId { get; }
+        public string? CustomId { get; }
 
         /// <summary>
         ///     Gets the URL for a <see cref="ButtonStyle.Link"/> button.
@@ -32,7 +32,7 @@ namespace Discord
         /// <remarks>
         ///     You cannot have a button with a <b>URL</b> and a <b>CustomId</b>.
         /// </remarks>
-        public string Url { get; }
+        public string? Url { get; }
 
         /// <summary>
         ///     Gets whether this button is disabled or not.
@@ -48,7 +48,7 @@ namespace Discord
         public ButtonBuilder ToBuilder()
             => new ButtonBuilder(Label, CustomId, Style, Url, Emote, IsDisabled);
 
-        internal ButtonComponent(ButtonStyle style, string label, IEmote emote, string customId, string url, bool isDisabled)
+        internal ButtonComponent(ButtonStyle style, string? label, IEmote? emote, string? customId, string? url, bool isDisabled)
         {
             Style = style;
             Label = label;

@@ -10,7 +10,7 @@ namespace Discord.Rest
     /// </summary>
     public class RestAuditLogEntry : RestEntity<ulong>, IAuditLogEntry
     {
-        private RestAuditLogEntry(BaseDiscordClient discord, Model fullLog, EntryModel model, IUser user)
+        private RestAuditLogEntry(BaseDiscordClient discord, Model fullLog, EntryModel model, IUser? user)
             : base(discord, model.Id)
         {
             Action = model.Action;
@@ -22,7 +22,7 @@ namespace Discord.Rest
         internal static RestAuditLogEntry Create(BaseDiscordClient discord, Model fullLog, EntryModel model)
         {
             var userInfo = model.UserId != null ? fullLog.Users.FirstOrDefault(x => x.Id == model.UserId) : null;
-            IUser user = null;
+            IUser? user = null;
             if (userInfo != null)
                 user = RestUser.Create(discord, userInfo);
 
@@ -34,10 +34,10 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public ActionType Action { get; }
         /// <inheritdoc/>
-        public IAuditLogData Data { get; }
+        public IAuditLogData? Data { get; }
         /// <inheritdoc/>
-        public IUser User { get; }
+        public IUser? User { get; }
         /// <inheritdoc/>
-        public string Reason { get; }
+        public string? Reason { get; }
     }
 }

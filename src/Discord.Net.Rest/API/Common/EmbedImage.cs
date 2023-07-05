@@ -1,16 +1,17 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class EmbedImage
     {
-        [JsonProperty("url")]
-        public string Url { get; set; }
-        [JsonProperty("proxy_url")]
-        public string ProxyUrl { get; set; }
-        [JsonProperty("height")]
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
+        [JsonPropertyName("proxy_url")]
+        public string ProxyUrl { get; set; } = string.Empty;
+        [JsonPropertyName("height")]
         public Optional<int> Height { get; set; }
-        [JsonProperty("width")]
+        [JsonPropertyName("width")]
         public Optional<int> Width { get; set; }
     }
 }

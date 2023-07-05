@@ -44,7 +44,7 @@ namespace Discord
         /// <summary>
         ///     Gets a unique string denoting the rate limit being encountered (non-inclusive of major parameters in the route path).
         /// </summary>
-        string Bucket { get; }
+        string? Bucket { get; }
 
         /// <summary>
         ///     Gets the amount of lag for the request. This is used to denote the precise time of when the ratelimit expires.

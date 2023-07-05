@@ -12,7 +12,7 @@ namespace Discord.Rest
     public class RestRole : RestEntity<ulong>, IRole
     {
         #region RestRole
-        internal IGuild Guild { get; }
+        internal IGuild? Guild { get; }
         /// <inheritdoc />
         public Color Color { get; private set; }
         /// <inheritdoc />
@@ -24,31 +24,42 @@ namespace Discord.Rest
         /// <inheritdoc />
         public string Name { get; private set; }
         /// <inheritdoc />
-        public string Icon { get; private set; }
+        public string? Icon { get; private set; }
         /// <inheritdoc />
-        public Emoji Emoji { get; private set; }
+        public Emoji? Emoji { get; private set; }
         /// <inheritdoc />
         public GuildPermissions Permissions { get; private set; }
         /// <inheritdoc />
         public int Position { get; private set; }
         /// <inheritdoc />
-        public RoleTags Tags { get; private set; }
+        public RoleTags? Tags { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
         /// <summary>
         ///     Gets if this role is the @everyone role of the guild or not.
         /// </summary>
-        public bool IsEveryone => Id == Guild.Id;
+        public bool IsEveryone
+        {
+            get
+            {
+                if (this.Guild == null)
+                {
+                    return false;
+                }
+                return Id == Guild.Id;
+            }
+        }
         /// <inheritdoc />
         public string Mention => IsEveryone ? "@everyone" : MentionUtils.MentionRole(Id);
 
-        internal RestRole(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestRole(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, id)
         {
+            Name = string.Empty;
             Guild = guild;
         }
-        internal static RestRole Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal static RestRole Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestRole(discord, guild, model.Id);
             entity.Update(model);
@@ -78,21 +89,21 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<RoleProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null)
         {
             var model = await RoleHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             Update(model);
         }
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => RoleHelper.DeleteAsync(this, Discord, options);
 
         /// <inheritdoc />
-        public string GetIconUrl()
+        public string? GetIconUrl()
             => CDN.GetGuildRoleIconUrl(Id, Icon);
 
         /// <inheritdoc />
-        public int CompareTo(IRole role) => RoleUtils.Compare(this, role);
+        public int CompareTo(IRole? role) => RoleUtils.Compare(this, role);
 
         /// <summary>
         ///     Gets the name of the role.

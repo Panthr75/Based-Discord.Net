@@ -34,7 +34,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public int? UserLimit { get; private set; }
         /// <inheritdoc />
-        public string RTCRegion { get; private set; }
+        public string? RTCRegion { get; private set; }
         /// <inheritdoc/>
         public VideoQualityMode VideoQualityMode { get; private set; }
 
@@ -51,9 +51,9 @@ namespace Discord.WebSocket
             : base(discord, id, guild)
         {
         }
-        internal new static SocketVoiceChannel Create(SocketGuild guild, ClientState state, Model model)
+        internal new static SocketVoiceChannel Create(SocketGuild? guild, ClientState state, Model model)
         {
-            var entity = new SocketVoiceChannel(guild?.Discord, model.Id, guild);
+            var entity = new SocketVoiceChannel(guild?.Discord!, model.Id, guild!);
             entity.Update(state, model);
             return entity;
         }
@@ -68,11 +68,11 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions? options = null)
             => ChannelHelper.ModifyAsync(this, Discord, func, options);
 
         /// <inheritdoc />
-        public async Task<IAudioClient> ConnectAsync(bool selfDeaf = false, bool selfMute = false, bool external = false)
+        public async Task<IAudioClient?> ConnectAsync(bool selfDeaf = false, bool selfMute = false, bool external = false)
         {
             return await Guild.ConnectAudioAsync(Id, selfDeaf, selfMute, external).ConfigureAwait(false);
         }
@@ -82,13 +82,13 @@ namespace Discord.WebSocket
             => await Guild.DisconnectAudioAsync();
 
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions? options = null)
         {
             await Guild.ModifyAudioAsync(Id, func, options).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public override SocketGuildUser GetUser(ulong id)
+        public override SocketGuildUser? GetUser(ulong id)
         {
             var user = Guild.GetUser(id);
             if (user?.VoiceChannel?.Id == Id)
@@ -97,7 +97,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/> <exception cref="InvalidOperationException">Cannot create threads in voice channels.</exception>
-        public override Task<SocketThreadChannel> CreateThreadAsync(string name, ThreadType type = ThreadType.PublicThread, ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage message = null, bool? invitable = null, int? slowmode = null, RequestOptions options = null)
+        public override Task<SocketThreadChannel> CreateThreadAsync(string name, ThreadType type = ThreadType.PublicThread, ThreadArchiveDuration autoArchiveDuration = ThreadArchiveDuration.OneDay, IMessage? message = null, bool? invitable = null, int? slowmode = null, RequestOptions? options = null)
             => throw new InvalidOperationException("Voice channels cannot contain threads.");
 
         #endregion
@@ -105,26 +105,26 @@ namespace Discord.WebSocket
         #region TextOverrides
 
         /// <inheritdoc/> <exception cref="NotSupportedException">Threads are not supported in voice channels</exception>
-        public override Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions options = null)
+        public override Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null)
             => throw new NotSupportedException("Threads are not supported in voice channels");
 
         #endregion
 
         private string DebuggerDisplay => $"{Name} ({Id}, Voice)";
-        internal new SocketVoiceChannel Clone() => MemberwiseClone() as SocketVoiceChannel;
+        internal new SocketVoiceChannel Clone() => (SocketVoiceChannel)MemberwiseClone();
 
         #region IGuildChannel
         /// <inheritdoc />
-        Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IGuildUser>(GetUser(id));
+        Task<IGuildUser?> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IGuildUser?>(GetUser(id));
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => ImmutableArray.Create<IReadOnlyCollection<IGuildUser>>(Users).ToAsyncEnumerable();
         #endregion
 
         #region INestedChannel
         /// <inheritdoc />
-        Task<ICategoryChannel> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions options)
+        Task<ICategoryChannel?> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult(Category);
         #endregion
     }

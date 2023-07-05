@@ -56,8 +56,8 @@ namespace Discord
         /// </summary>
         public GuildPermission? DefaultMemberPermissions { get; set; }
 
-        private string _name;
-        private Dictionary<string, string> _nameLocalizations;
+        private string _name = string.Empty;
+        private Dictionary<string, string> _nameLocalizations = new();
 
         /// <summary>
         ///     Build the current builder into a <see cref="UserCommandProperties"/> class.
@@ -162,7 +162,6 @@ namespace Discord
 
             EnsureValidCommandName(name);
 
-            _nameLocalizations ??= new();
             _nameLocalizations.Add(locale, name);
 
             return this;

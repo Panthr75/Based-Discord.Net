@@ -9,9 +9,9 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an invite creation.
 /// </summary>
-public class InviteCreateAuditLogData : IAuditLogData
+public partial class InviteCreateAuditLogData : IAuditLogData
 {
-    private InviteCreateAuditLogData(InviteInfoAuditLogModel model, IUser inviter)
+    private InviteCreateAuditLogData(InviteInfoAuditLogModel model, IUser? inviter)
     {
         MaxAge = model.MaxAge!.Value;
         Code = model.Code;
@@ -22,17 +22,17 @@ public class InviteCreateAuditLogData : IAuditLogData
         MaxUses = model.MaxUses!.Value;
     }
 
-    internal static InviteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static InviteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (_, data) = AuditLogHelper.CreateAuditLogEntityInfo<InviteInfoAuditLogModel>(changes, discord);
 
-        RestUser inviter = null;
+        RestUser? inviter = null;
 
         if (data.InviterId is not null)
         {
-            var inviterInfo = log.Users.FirstOrDefault(x => x.Id == data.InviterId);
+            var inviterInfo = log!.Users.FirstOrDefault(x => x.Id == data.InviterId);
             inviter = (inviterInfo != null) ? RestUser.Create(discord, inviterInfo) : null;
         }
 
@@ -73,7 +73,7 @@ public class InviteCreateAuditLogData : IAuditLogData
     /// <returns>
     ///     A user that created this invite or <see langword="null"/>.
     /// </returns>
-    public IUser Creator { get; }
+    public IUser? Creator { get; }
 
     /// <summary>
     ///     Gets the ID of the channel this invite is linked to.

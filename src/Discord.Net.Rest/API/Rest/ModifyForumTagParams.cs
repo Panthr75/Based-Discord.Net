@@ -1,23 +1,23 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class ModifyForumTagParams
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public Optional<ulong> Id { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("emoji_id")]
+        [JsonPropertyName("emoji_id")]
         public Optional<ulong?> EmojiId { get; set; }
 
-        [JsonProperty("emoji_name")]
+        [JsonPropertyName("emoji_name")]
         public Optional<string> EmojiName { get; set; }
 
-        [JsonProperty("moderated")]
+        [JsonPropertyName("moderated")]
         public bool Moderated { get; set; }
     }
 }

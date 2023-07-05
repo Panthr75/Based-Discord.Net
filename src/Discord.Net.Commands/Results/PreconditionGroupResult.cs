@@ -9,7 +9,7 @@ namespace Discord.Commands
     {
         public IReadOnlyCollection<PreconditionResult> PreconditionResults { get; }
 
-        protected PreconditionGroupResult(CommandError? error, string errorReason, ICollection<PreconditionResult> preconditions)
+        protected PreconditionGroupResult(CommandError? error, string? errorReason, ICollection<PreconditionResult>? preconditions)
             : base(error, errorReason)
         {
             PreconditionResults = (preconditions ?? new List<PreconditionResult>(0)).ToReadOnlyCollection();

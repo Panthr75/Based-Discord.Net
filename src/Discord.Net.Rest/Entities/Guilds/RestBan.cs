@@ -18,9 +18,9 @@ namespace Discord.Rest
         /// </returns>
         public RestUser User { get; }
         /// <inheritdoc />
-        public string Reason { get; }
+        public string? Reason { get; }
 
-        internal RestBan(RestUser user, string reason)
+        internal RestBan(RestUser user, string? reason)
         {
             User = user;
             Reason = reason;

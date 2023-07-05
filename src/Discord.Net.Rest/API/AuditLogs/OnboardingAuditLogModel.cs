@@ -1,15 +1,15 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class OnboardingAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("default_channel_ids")]
-    public ulong[] DefaultChannelIds { get; set; }
+    [JsonPropertyName("default_channel_ids")]
+    public ulong[]? DefaultChannelIds { get; set; }
 
-    [JsonField("prompts")]
-    public GuildOnboardingPrompt[] Prompts { get; set; }
+    [JsonPropertyName("prompts")]
+    public GuildOnboardingPrompt[]? Prompts { get; set; }
 
-    [JsonField("enabled")]
+    [JsonPropertyName("enabled")]
     public bool? Enabled { get; set; }
 }

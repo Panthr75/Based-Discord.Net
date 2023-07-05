@@ -43,7 +43,7 @@ public class SocketGuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string Name { get; private set; }
+    public string? Name { get; private set; }
 
     /// <inheritdoc cref="IGuild.AFKTimeout"/>
     /// <remarks>
@@ -85,19 +85,19 @@ public class SocketGuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string IconHash { get; private set; }
+    public string? IconHash { get; private set; }
 
     /// <inheritdoc cref="IGuild.SplashId"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string SplashId { get; private set; }
+    public string? SplashId { get; private set; }
 
     /// <inheritdoc cref="IGuild.DiscoverySplashId"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string DiscoverySplashId { get; private set; }
+    public string? DiscoverySplashId { get; private set; }
 
     /// <inheritdoc cref="IGuild.AFKChannelId"/>
     /// <remarks>
@@ -145,19 +145,19 @@ public class SocketGuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string RegionId { get; private set; }
+    public string? RegionId { get; private set; }
 
     /// <inheritdoc cref="IGuild.BannerId"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string BannerId { get; private set; }
+    public string? BannerId { get; private set; }
 
     /// <inheritdoc cref="IGuild.VanityURLCode"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string VanityURLCode { get; private set; }
+    public string? VanityURLCode { get; private set; }
 
     /// <inheritdoc cref="IGuild.SystemChannelFlags"/>
     /// <remarks>
@@ -169,13 +169,13 @@ public class SocketGuildInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string Description { get; private set; }
+    public string? Description { get; private set; }
 
     /// <inheritdoc cref="IGuild.PreferredLocale"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string PreferredLocale { get; private set; }
+    public string? PreferredLocale { get; private set; }
 
     /// <inheritdoc cref="IGuild.NsfwLevel"/>
     /// <remarks>

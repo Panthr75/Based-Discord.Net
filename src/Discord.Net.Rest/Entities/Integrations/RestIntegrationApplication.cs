@@ -9,16 +9,19 @@ namespace Discord.Rest
     {
         public string Name { get; private set; }
 
-        public string Icon { get; private set; }
+        public string? Icon { get; private set; }
 
         public string Description { get; private set; }
-
-        public string Summary { get; private set; }
 
         public IUser Bot { get; private set; }
 
         internal RestIntegrationApplication(BaseDiscordClient discord, ulong id)
-            : base(discord, id) { }
+            : base(discord, id)
+        {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.Bot = null!;
+        }
 
         internal static RestIntegrationApplication Create(BaseDiscordClient discord, Model model)
         {
@@ -32,7 +35,6 @@ namespace Discord.Rest
             Name = model.Name;
             Icon = model.Icon.IsSpecified ? model.Icon.Value : null;
             Description = model.Description;
-            Summary = model.Summary;
             Bot = RestUser.Create(Discord, model.Bot.Value);
         }
     }

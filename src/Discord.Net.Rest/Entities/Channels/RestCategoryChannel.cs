@@ -13,11 +13,11 @@ namespace Discord.Rest
     public class RestCategoryChannel : RestGuildChannel, ICategoryChannel
     {
         #region RestCategoryChannel
-        internal RestCategoryChannel(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestCategoryChannel(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, guild, id)
         {
         }
-        internal new static RestCategoryChannel Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal new static RestCategoryChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestCategoryChannel(discord, guild, model.Id);
             entity.Update(model);
@@ -30,11 +30,11 @@ namespace Discord.Rest
         #region IChannel
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">This method is not supported with category channels.</exception>
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => throw new NotSupportedException();
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">This method is not supported with category channels.</exception>
-        Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
             => throw new NotSupportedException();
         #endregion
     }

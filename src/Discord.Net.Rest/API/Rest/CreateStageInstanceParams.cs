@@ -1,16 +1,17 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class CreateStageInstanceParams
     {
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelId { get; set; }
 
-        [JsonProperty("topic")]
-        public string Topic { get; set; }
+        [JsonPropertyName("topic")]
+        public string Topic { get; set; } = string.Empty;
 
-        [JsonProperty("privacy_level")]
+        [JsonPropertyName("privacy_level")]
         public Optional<StagePrivacyLevel> PrivacyLevel { get; set; }
     }
 }

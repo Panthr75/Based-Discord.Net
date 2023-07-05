@@ -1,10 +1,11 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class GetGatewayResponse
     {
-        [JsonProperty("url")]
-        public string Url { get; set; }
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
     }
 }

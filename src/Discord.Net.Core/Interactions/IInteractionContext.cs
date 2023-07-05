@@ -16,12 +16,12 @@ namespace Discord
         /// <remarks>
         ///     Will be <see langword="null"/> if the interaction originated from a DM channel or the interaction was a Context Command interaction.
         /// </remarks>
-        IGuild Guild { get; }
+        IGuild? Guild { get; }
 
         /// <summary>
         ///     Gets the channel the interaction originated from.
         /// </summary>
-        IMessageChannel Channel { get; }
+        IMessageChannel? Channel { get; }
 
         /// <summary>
         ///     Gets the user who invoked the interaction event.

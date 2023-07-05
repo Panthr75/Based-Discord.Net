@@ -57,7 +57,14 @@ public class RestAutoModRule : RestEntity<ulong>, IAutoModRule
 
     internal RestAutoModRule(BaseDiscordClient discord, ulong id) : base(discord, id)
     {
-
+        this.Name = string.Empty;
+        this.KeywordFilter = Array.Empty<string>();
+        this.RegexPatterns = Array.Empty<string>();
+        this.AllowList = Array.Empty<string>();
+        this.Presets = Array.Empty<KeywordPresetTypes>();
+        this.Actions = Array.Empty<AutoModRuleAction>();
+        this.ExemptChannels = Array.Empty<ulong>();
+        this.ExemptRoles = Array.Empty<ulong>();
     }
 
     internal static RestAutoModRule Create(BaseDiscordClient discord, Model model)
@@ -98,13 +105,13 @@ public class RestAutoModRule : RestEntity<ulong>, IAutoModRule
     }
 
     /// <inheritdoc />
-    public async Task ModifyAsync(Action<AutoModRuleProperties> func, RequestOptions options = null)
+    public async Task ModifyAsync(Action<AutoModRuleProperties> func, RequestOptions? options = null)
     {
         var model = await GuildHelper.ModifyRuleAsync(Discord, this, func, options);
         Update(model);
     }
 
     /// <inheritdoc />
-    public Task DeleteAsync(RequestOptions options = null)
+    public Task DeleteAsync(RequestOptions? options = null)
         => GuildHelper.DeleteRuleAsync(Discord, this, options);
 }

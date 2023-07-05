@@ -1,28 +1,24 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
-using System.Globalization;
 
 namespace Discord.Net.Converters
 {
-    internal class UInt64EntityConverter : JsonConverter
+    internal sealed class UInt64EntityConverter : JsonConverter<IEntity<ulong>>
     {
-        public static readonly UInt64EntityConverter Instance = new UInt64EntityConverter();
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeof(IEntity<ulong>).IsAssignableFrom(typeToConvert);
+        }
 
-        public override bool CanConvert(Type objectType) => true;
-        public override bool CanRead => false;
-        public override bool CanWrite => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override IEntity<ulong>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new InvalidOperationException();
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, IEntity<ulong> value, JsonSerializerOptions options)
         {
-            if (value != null)
-                writer.WriteValue((value as IEntity<ulong>).Id.ToString(CultureInfo.InvariantCulture));
-            else
-                writer.WriteNull();
+            writer.WriteNumberValue(value.Id);
         }
     }
 }

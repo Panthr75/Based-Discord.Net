@@ -15,7 +15,7 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the <see cref="SocketGuild" /> that the command is executed in.
         /// </summary>
-        public SocketGuild Guild { get; }
+        public SocketGuild? Guild { get; }
         /// <summary>
         ///     Gets the <see cref="ISocketMessageChannel" /> that the command is executed in.
         /// </summary>
@@ -53,7 +53,7 @@ namespace Discord.Commands
         /// <inheritdoc/>
         IDiscordClient ICommandContext.Client => Client;
         /// <inheritdoc/>
-        IGuild ICommandContext.Guild => Guild;
+        IGuild? ICommandContext.Guild => Guild;
         /// <inheritdoc/>
         IMessageChannel ICommandContext.Channel => Channel;
         /// <inheritdoc/>

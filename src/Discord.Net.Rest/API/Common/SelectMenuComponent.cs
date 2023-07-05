@@ -1,47 +1,51 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Linq;
 
 namespace Discord.API
 {
     internal class SelectMenuComponent : IMessageComponent
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ComponentType Type { get; set; }
 
-        [JsonProperty("custom_id")]
+        [JsonPropertyName("custom_id")]
         public string CustomId { get; set; }
 
-        [JsonProperty("options")]
-        public SelectMenuOption[] Options { get; set; }
+        [JsonPropertyName("options")]
+        public Optional<SelectMenuOption[]> Options { get; set; }
 
-        [JsonProperty("placeholder")]
+        [JsonPropertyName("placeholder")]
         public Optional<string> Placeholder { get; set; }
 
-        [JsonProperty("min_values")]
+        [JsonPropertyName("min_values")]
         public int MinValues { get; set; }
 
-        [JsonProperty("max_values")]
+        [JsonPropertyName("max_values")]
         public int MaxValues { get; set; }
 
-        [JsonProperty("disabled")]
+        [JsonPropertyName("disabled")]
         public bool Disabled { get; set; }
 
-        [JsonProperty("channel_types")]
+        [JsonPropertyName("channel_types")]
         public Optional<ChannelType[]> ChannelTypes { get; set; }
 
-        [JsonProperty("resolved")]
+        [JsonPropertyName("resolved")]
         public Optional<MessageComponentInteractionDataResolved> Resolved { get; set; }
 
-        [JsonProperty("values")]
+        [JsonPropertyName("values")]
         public Optional<string[]> Values { get; set; }
-        public SelectMenuComponent() { }
+        public SelectMenuComponent()
+        {
+            CustomId = string.Empty;
+        }
 
         public SelectMenuComponent(Discord.SelectMenuComponent component)
         {
             Type = component.Type;
             CustomId = component.CustomId;
-            Options = component.Options?.Select(x => new SelectMenuOption(x)).ToArray();
-            Placeholder = component.Placeholder;
+            Options = Optional.CreateFromNullable(component.Options?.Select(x => new SelectMenuOption(x))?.ToArray());
+            Placeholder = Optional.CreateFromNullable(component.Placeholder);
             MinValues = component.MinValues;
             MaxValues = component.MaxValues;
             Disabled = component.IsDisabled;

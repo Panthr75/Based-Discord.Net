@@ -14,21 +14,21 @@ namespace Discord
         /// <returns>
         ///     A string containing the URL set in a title of the embed.
         /// </returns>
-        string Url { get; }
+        string? Url { get; }
         /// <summary>
         ///     Gets the title of this embed.
         /// </summary>
         /// <returns>
         ///     The title of the embed.
         /// </returns>
-        string Title { get; }
+        string? Title { get; }
         /// <summary>
         ///     Gets the description of this embed.
         /// </summary>
         /// <returns>
         ///     The description field of the embed.
         /// </returns>
-        string Description { get; }
+        string? Description { get; }
         /// <summary>
         ///     Gets the type of this embed.
         /// </summary>

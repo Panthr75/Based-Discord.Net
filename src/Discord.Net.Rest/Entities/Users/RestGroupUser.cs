@@ -35,9 +35,9 @@ namespace Discord.Rest
         /// <inheritdoc />
         bool IVoiceState.IsSuppressed => false;
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => null;
+        IVoiceChannel? IVoiceState.VoiceChannel => null;
         /// <inheritdoc />
-        string IVoiceState.VoiceSessionId => null;
+        string? IVoiceState.VoiceSessionId => null;
         /// <inheritdoc />
         bool IVoiceState.IsStreaming => false;
         /// <inheritdoc />

@@ -1,27 +1,27 @@
-using Discord.Rest;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.AuditLogs;
 
 internal class OnboardingPromptAuditLogModel : IAuditLogInfoModel
 {
-    [JsonField("id")]
+    [JsonPropertyName("id")]
     public ulong? Id { get; set; }
 
-    [JsonField("title")]
-    public string Title { get; set; }
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
 
-    [JsonField("options")]
-    public GuildOnboardingPromptOption[] Options { get; set; }
+    [JsonPropertyName("options")]
+    public GuildOnboardingPromptOption[]? Options { get; set; }
 
-    [JsonField("single_select")]
+    [JsonPropertyName("single_select")]
     public bool? IsSingleSelect { get; set; }
 
-    [JsonField("required")]
+    [JsonPropertyName("required")]
     public bool? IsRequired { get; set; }
 
-    [JsonField("in_onboarding")]
+    [JsonPropertyName("in_onboarding")]
     public bool? IsInOnboarding { get; set; }
 
-    [JsonField("type")]
+    [JsonPropertyName("type")]
     public GuildOnboardingPromptType? Type { get; set; }
 }

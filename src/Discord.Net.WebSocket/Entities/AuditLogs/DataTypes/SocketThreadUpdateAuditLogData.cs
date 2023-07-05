@@ -18,7 +18,7 @@ public class SocketThreadUpdateAuditLogData : ISocketAuditLogData
 
     internal static SocketThreadUpdateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
             
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<ThreadInfoAuditLogModel>(changes, discord);
 

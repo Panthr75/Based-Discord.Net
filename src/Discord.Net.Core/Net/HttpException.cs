@@ -31,7 +31,7 @@ namespace Discord.Net
         /// <summary>
         ///     Gets the reason of the exception.
         /// </summary>
-        public string Reason { get; }
+        public string? Reason { get; }
         /// <summary>
         ///     Gets the request object used to send the request.
         /// </summary>
@@ -48,7 +48,8 @@ namespace Discord.Net
         /// <param name="request">The request that was sent prior to the exception.</param>
         /// <param name="discordCode">The Discord status code returned.</param>
         /// <param name="reason">The reason behind the exception.</param>
-        public HttpException(HttpStatusCode httpCode, IRequest request, DiscordErrorCode? discordCode = null, string reason = null, DiscordJsonError[] errors = null)
+        /// <param name="errors">The discord errors.</param>
+        public HttpException(HttpStatusCode httpCode, IRequest request, DiscordErrorCode? discordCode = null, string? reason = null, DiscordJsonError[]? errors = null)
             : base(CreateMessage(httpCode, (int?)discordCode, reason, errors))
         {
             HttpCode = httpCode;
@@ -58,7 +59,7 @@ namespace Discord.Net
             Errors = errors?.ToImmutableArray() ?? ImmutableArray<DiscordJsonError>.Empty;
         }
 
-        private static string CreateMessage(HttpStatusCode httpCode, int? discordCode = null, string reason = null, DiscordJsonError[] errors = null)
+        private static string CreateMessage(HttpStatusCode httpCode, int? discordCode = null, string? reason = null, DiscordJsonError[]? errors = null)
         {
             string msg;
             if (discordCode != null && discordCode != 0)

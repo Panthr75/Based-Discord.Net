@@ -18,6 +18,7 @@ namespace Discord.Commands
     }
 
     internal class EnumTypeReader<T> : TypeReader
+        where T : notnull
     {
         private readonly IReadOnlyDictionary<string, object> _enumsByName;
         private readonly IReadOnlyDictionary<T, object> _enumsByValue;
@@ -47,7 +48,7 @@ namespace Discord.Commands
         /// <inheritdoc />
         public override Task<TypeReaderResult> ReadAsync(ICommandContext context, string input, IServiceProvider services)
         {
-            object enumValue;
+            object? enumValue;
 
             if (_tryParse(input, out T baseValue))
             {

@@ -1,16 +1,17 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API;
 
-internal class RoleConnection
+public class RoleConnection
 {
-    [JsonProperty("platform_name")]
+    [JsonPropertyName("platform_name")]
     public Optional<string> PlatformName { get; set; }
 
-    [JsonProperty("platform_username")]
+    [JsonPropertyName("platform_username")]
     public Optional<string> PlatformUsername { get; set; }
 
-    [JsonProperty("metadata")]
+    [JsonPropertyName("metadata")]
     public Optional<Dictionary<string, string>> Metadata { get; set; }
 }

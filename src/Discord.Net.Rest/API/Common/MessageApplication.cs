@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,32 +8,32 @@ using System.Threading.Tasks;
 
 namespace Discord.API
 {
-    internal class MessageApplication
+    public class MessageApplication
     {
         /// <summary>
         ///     Gets the snowflake ID of the application.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
         /// <summary>
         ///     Gets the ID of the embed's image asset.
         /// </summary>
-        [JsonProperty("cover_image")]
-        public string CoverImage { get; set; }
+        [JsonPropertyName("cover_image")]
+        public string? CoverImage { get; set; }
         /// <summary>
         ///     Gets the application's description.
         /// </summary>
-        [JsonProperty("description")]
-        public string Description { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
         /// <summary>
         ///     Gets the ID of the application's icon.
         /// </summary>
-        [JsonProperty("icon")]
-        public string Icon { get; set; }
+        [JsonPropertyName("icon")]
+        public string? Icon { get; set; }
         /// <summary>
         ///     Gets the name of the application.
         /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
     }
 }

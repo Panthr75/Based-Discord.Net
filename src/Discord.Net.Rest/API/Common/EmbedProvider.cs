@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class EmbedProvider
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("url")]
-        public string Url { get; set; }
+        [JsonPropertyName("name")]
+        public string? Name { get; set; }
+        [JsonPropertyName("url")]
+        public string? Url { get; set; }
     }
 }

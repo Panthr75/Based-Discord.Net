@@ -7,16 +7,16 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a ban.
 /// </summary>
-public class BanAuditLogData : IAuditLogData
+public partial class BanAuditLogData : IAuditLogData
 {
-    private BanAuditLogData(IUser user)
+    private BanAuditLogData(IUser? user)
     {
         Target = user;
     }
 
-    internal static BanAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static BanAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log = null)
     {
-        var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
+        var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
         return new BanAuditLogData((userInfo != null) ? RestUser.Create(discord, userInfo) : null);
     }
 
@@ -29,5 +29,5 @@ public class BanAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the banned user.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

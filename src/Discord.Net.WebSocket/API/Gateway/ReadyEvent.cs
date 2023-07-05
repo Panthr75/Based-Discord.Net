@@ -1,4 +1,6 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
@@ -6,36 +8,36 @@ namespace Discord.API.Gateway
     {
         public class ReadState
         {
-            [JsonProperty("id")]
-            public string ChannelId { get; set; }
-            [JsonProperty("mention_count")]
+            [JsonPropertyName("id")]
+            public string ChannelId { get; set; } = string.Empty;
+            [JsonPropertyName("mention_count")]
             public int MentionCount { get; set; }
-            [JsonProperty("last_message_id")]
-            public string LastMessageId { get; set; }
+            [JsonPropertyName("last_message_id")]
+            public string LastMessageId { get; set; } = string.Empty;
         }
 
-        [JsonProperty("v")]
+        [JsonPropertyName("v")]
         public int Version { get; set; }
-        [JsonProperty("user")]
-        public User User { get; set; }
-        [JsonProperty("session_id")]
-        public string SessionId { get; set; }
-        [JsonProperty("resume_gateway_url")]
-        public string ResumeGatewayUrl { get; set; }
-        [JsonProperty("read_state")]
-        public ReadState[] ReadStates { get; set; }
-        [JsonProperty("guilds")]
-        public ExtendedGuild[] Guilds { get; set; }
-        [JsonProperty("private_channels")]
-        public Channel[] PrivateChannels { get; set; }
-        [JsonProperty("relationships")]
-        public Relationship[] Relationships { get; set; }
-        [JsonProperty("application")]
-        public PartialApplication Application { get; set; }
+        [JsonPropertyName("user")]
+        public User User { get; set; } = null!;
+        [JsonPropertyName("session_id")]
+        public string SessionId { get; set; } = null!;
+        [JsonPropertyName("resume_gateway_url")]
+        public string ResumeGatewayUrl { get; set; } = null!;
+        [JsonPropertyName("read_state")]
+        public ReadState[] ReadStates { get; set; } = Array.Empty<ReadState>();
+        [JsonPropertyName("guilds")]
+        public ExtendedGuild[] Guilds { get; set; } = Array.Empty<ExtendedGuild>();
+        [JsonPropertyName("private_channels")]
+        public Channel[] PrivateChannels { get; set; } = Array.Empty<Channel>();
+        [JsonPropertyName("relationships")]
+        public Relationship[] Relationships { get; set; } = Array.Empty<Relationship>();
+        [JsonPropertyName("application")]
+        public PartialApplication Application { get; set; } = null!;
 
         //Ignored
-        /*[JsonProperty("user_settings")]
-        [JsonProperty("user_guild_settings")]
-        [JsonProperty("tutorial")]*/
+        /*[JsonPropertyName("user_settings")]
+        [JsonPropertyName("user_guild_settings")]
+        [JsonPropertyName("tutorial")]*/
     }
 }

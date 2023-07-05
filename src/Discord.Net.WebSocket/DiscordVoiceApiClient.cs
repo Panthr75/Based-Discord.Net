@@ -3,7 +3,7 @@ using Discord.API.Voice;
 using Discord.Net.Converters;
 using Discord.Net.Udp;
 using Discord.Net.WebSockets;
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,6 +12,9 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord.Rest;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.Json.Serialization;
 
 namespace Discord.Audio
 {
@@ -22,25 +25,25 @@ namespace Discord.Audio
         public const string Mode = "xsalsa20_poly1305";
 
         public event Func<string, string, double, Task> SentRequest { add { _sentRequestEvent.Add(value); } remove { _sentRequestEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<string, string, double, Task>> _sentRequestEvent = new AsyncEvent<Func<string, string, double, Task>>();
+        private readonly AsyncEvent<Func<string, string, double, Task>> _sentRequestEvent = new();
         public event Func<VoiceOpCode, Task> SentGatewayMessage { add { _sentGatewayMessageEvent.Add(value); } remove { _sentGatewayMessageEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<VoiceOpCode, Task>> _sentGatewayMessageEvent = new AsyncEvent<Func<VoiceOpCode, Task>>();
+        private readonly AsyncEvent<Func<VoiceOpCode, Task>> _sentGatewayMessageEvent = new();
         public event Func<Task> SentDiscovery { add { _sentDiscoveryEvent.Add(value); } remove { _sentDiscoveryEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<Task>> _sentDiscoveryEvent = new AsyncEvent<Func<Task>>();
+        private readonly AsyncEvent<Func<Task>> _sentDiscoveryEvent = new();
         public event Func<int, Task> SentData { add { _sentDataEvent.Add(value); } remove { _sentDataEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<int, Task>> _sentDataEvent = new AsyncEvent<Func<int, Task>>();
+        private readonly AsyncEvent<Func<int, Task>> _sentDataEvent = new();
 
-        public event Func<VoiceOpCode, object, Task> ReceivedEvent { add { _receivedEvent.Add(value); } remove { _receivedEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<VoiceOpCode, object, Task>> _receivedEvent = new AsyncEvent<Func<VoiceOpCode, object, Task>>();
+        public event Func<VoiceOpCode, object?, Task> ReceivedEvent { add { _receivedEvent.Add(value); } remove { _receivedEvent.Remove(value); } }
+        private readonly AsyncEvent<Func<VoiceOpCode, object?, Task>> _receivedEvent = new();
         public event Func<byte[], Task> ReceivedPacket { add { _receivedPacketEvent.Add(value); } remove { _receivedPacketEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<byte[], Task>> _receivedPacketEvent = new AsyncEvent<Func<byte[], Task>>();
+        private readonly AsyncEvent<Func<byte[], Task>> _receivedPacketEvent = new();
         public event Func<Exception, Task> Disconnected { add { _disconnectedEvent.Add(value); } remove { _disconnectedEvent.Remove(value); } }
-        private readonly AsyncEvent<Func<Exception, Task>> _disconnectedEvent = new AsyncEvent<Func<Exception, Task>>();
+        private readonly AsyncEvent<Func<Exception, Task>> _disconnectedEvent = new();
 
-        private readonly JsonSerializer _serializer;
+        private readonly JsonSerializerOptions _serializerOptions;
         private readonly SemaphoreSlim _connectionLock;
         private readonly IUdpSocket _udp;
-        private CancellationTokenSource _connectCancelToken;
+        private CancellationTokenSource? _connectCancelToken;
         private bool _isDisposed;
         private ulong _nextKeepalive;
 
@@ -50,7 +53,7 @@ namespace Discord.Audio
 
         public ushort UdpPort => _udp.Port;
 
-        internal DiscordVoiceAPIClient(ulong guildId, WebSocketProvider webSocketProvider, UdpSocketProvider udpSocketProvider, JsonSerializer serializer = null)
+        internal DiscordVoiceAPIClient(ulong guildId, WebSocketProvider webSocketProvider, UdpSocketProvider udpSocketProvider, JsonSerializerOptions? serializer = null)
         {
             GuildId = guildId;
             _connectionLock = new SemaphoreSlim(1, 1);
@@ -78,14 +81,14 @@ namespace Discord.Audio
                     decompressed.Position = 0;
                     using (var reader = new StreamReader(decompressed))
                     {
-                        var msg = JsonConvert.DeserializeObject<SocketFrame>(reader.ReadToEnd());
+                        var msg = JsonSerializer.Deserialize<SocketFrame>(reader.ReadToEnd(), this._serializerOptions)!;
                         await _receivedEvent.InvokeAsync((VoiceOpCode)msg.Operation, msg.Payload).ConfigureAwait(false);
                     }
                 }
             };
             WebSocketClient.TextMessage += async text =>
             {
-                var msg = JsonConvert.DeserializeObject<SocketFrame>(text);
+                var msg = JsonSerializer.Deserialize<SocketFrame>(text, this._serializerOptions)!;
                 await _receivedEvent.InvokeAsync((VoiceOpCode)msg.Operation, msg.Payload).ConfigureAwait(false);
             };
             WebSocketClient.Closed += async ex =>
@@ -94,7 +97,37 @@ namespace Discord.Audio
                 await _disconnectedEvent.InvokeAsync(ex).ConfigureAwait(false);
             };
 
-            _serializer = serializer ?? new JsonSerializer { ContractResolver = new DiscordContractResolver() };
+            if (serializer == null)
+            {
+
+                _serializerOptions = new JsonSerializerOptions()
+                {
+                    AllowTrailingCommas = true,
+                    IncludeFields = true,
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                    TypeInfoResolver = new DefaultJsonTypeInfoResolver()
+                    {
+                        Modifiers = { Optional.OptionalModifier }
+                    }
+                };
+                _serializerOptions.AddConverter<EmbedTypeConverter>();
+                _serializerOptions.AddConverter<UInt64Converter>();
+                _serializerOptions.AddConverter<EnumStringValueConverter<GuildPermission>>();
+                _serializerOptions.AddConverter<GuildFeaturesConverter>();
+                _serializerOptions.AddConverter<ApplicationCommandOptionValueConverter>();
+                _serializerOptions.AddConverter<OptionalConverterFactory>();
+                _serializerOptions.AddConverter<ImageConverter>();
+                _serializerOptions.AddConverter<InteractionConverter>();
+                _serializerOptions.AddConverter<NumericValueConverter>();
+                _serializerOptions.AddConverter<JsonNodeConverter>();
+                _serializerOptions.AddConverter<MessageComponentConverter>();
+                _serializerOptions.AddConverter<StringEntityConverter>();
+                _serializerOptions.AddConverter<UInt64EntityConverter>();
+                _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
+                _serializerOptions.AddConverter<UserStatusConverter>();
+            }
+            else
+                _serializerOptions = serializer;
         }
         private void Dispose(bool disposing)
         {
@@ -112,9 +145,9 @@ namespace Discord.Audio
         }
         public void Dispose() => Dispose(true);
 
-        public async Task SendAsync(VoiceOpCode opCode, object payload, RequestOptions options = null)
+        public async Task SendAsync(VoiceOpCode opCode, object? payload, RequestOptions? options = null)
         {
-            byte[] bytes = null;
+            byte[] bytes = Array.Empty<byte>();
             payload = new SocketFrame { Operation = (int)opCode, Payload = payload };
             if (payload != null)
                 bytes = Encoding.UTF8.GetBytes(SerializeJson(payload));
@@ -129,7 +162,7 @@ namespace Discord.Audio
         #endregion
 
         #region WebSocket
-        public async Task SendHeartbeatAsync(RequestOptions options = null)
+        public async Task SendHeartbeatAsync(RequestOptions? options = null)
         {
             await SendAsync(VoiceOpCode.Heartbeat, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), options: options).ConfigureAwait(false);
         }
@@ -264,17 +297,11 @@ namespace Discord.Audio
         private static double ToMilliseconds(Stopwatch stopwatch) => Math.Round((double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0, 2);
         private string SerializeJson(object value)
         {
-            var sb = new StringBuilder(256);
-            using (TextWriter text = new StringWriter(sb, CultureInfo.InvariantCulture))
-            using (JsonWriter writer = new JsonTextWriter(text))
-                _serializer.Serialize(writer, value);
-            return sb.ToString();
+            return JsonSerializer.Serialize(value, this._serializerOptions);
         }
         private T DeserializeJson<T>(Stream jsonStream)
         {
-            using (TextReader text = new StreamReader(jsonStream))
-            using (JsonReader reader = new JsonTextReader(text))
-                return _serializer.Deserialize<T>(reader);
+            return JsonSerializer.Deserialize<T>(jsonStream, this._serializerOptions)!;
         }
         #endregion
     }

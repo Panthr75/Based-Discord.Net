@@ -15,6 +15,6 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the roles that can access this <see cref="Emote"/>.
         /// </summary>
-        public Optional<IEnumerable<IRole>> Roles { get; set; }
+        public Optional<IEnumerable<IRole>?> Roles { get; set; }
     }
 }

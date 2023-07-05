@@ -35,7 +35,7 @@ namespace Discord.Commands
                     var prop = Read(out var arg);
                     var propVal = await ReadArgumentAsync(prop, arg).ConfigureAwait(false);
                     if (propVal != null)
-                        prop.SetMethod.Invoke(result, new[] { propVal });
+                        prop.SetMethod!.Invoke(result, new[] { propVal });
                     else
                         return TypeReaderResult.FromError(CommandError.ParseFailed, $"Could not parse the argument for the parameter '{prop.Name}' as type '{prop.PropertyType}'.");
                 }
@@ -49,7 +49,7 @@ namespace Discord.Commands
 
             PropertyInfo Read(out string arg)
             {
-                string currentParam = null;
+                string? currentParam = null;
                 char match = '\0';
 
                 for (; currentRead < input.Length; currentRead++)
@@ -76,7 +76,7 @@ namespace Discord.Commands
                             }
                             break;
                         case ReadState.LookingForArgument:
-                            if (Char.IsWhiteSpace(currentChar))
+                            if (char.IsWhiteSpace(currentChar))
                                 continue;
                             else
                             {
@@ -87,7 +87,7 @@ namespace Discord.Commands
                             }
                             break;
                         case ReadState.InArgument:
-                            if (!Char.IsWhiteSpace(currentChar))
+                            if (!char.IsWhiteSpace(currentChar))
                                 continue;
                             else
                                 return GetPropAndValue(out arg);
@@ -119,11 +119,11 @@ namespace Discord.Commands
                     else
                         argv = input.Substring(beginRead, currentRead - beginRead);
 
-                    return _tProps[currentParam];
+                    return _tProps[currentParam!];
                 }
             }
 
-            async Task<object> ReadArgumentAsync(PropertyInfo prop, string arg)
+            async Task<object?> ReadArgumentAsync(PropertyInfo prop, string arg)
             {
                 var elemType = prop.PropertyType;
                 bool isCollection = false;
@@ -137,14 +137,14 @@ namespace Discord.Commands
                 var reader = (overridden != null)
                     ? ModuleClassBuilder.GetTypeReader(_commands, elemType, overridden.TypeReader, services)
                     : (_commands.GetDefaultTypeReader(elemType)
-                        ?? _commands.GetTypeReaders(elemType).FirstOrDefault().Value);
+                        ?? _commands.GetTypeReaders(elemType)?.FirstOrDefault().Value);
 
                 if (reader != null)
                 {
                     if (isCollection)
                     {
                         var method = _readMultipleMethod.MakeGenericMethod(elemType);
-                        var task = (Task<IEnumerable>)method.Invoke(null, new object[] { reader, context, arg.Split(','), services });
+                        var task = (Task<IEnumerable>)method.Invoke(null, new object[] { reader, context, arg.Split(','), services })!;
                         return await task.ConfigureAwait(false);
                     }
                     else
@@ -154,7 +154,7 @@ namespace Discord.Commands
             }
         }
 
-        private static async Task<object> ReadSingle(TypeReader reader, ICommandContext context, string arg, IServiceProvider services)
+        private static async Task<object?> ReadSingle(TypeReader reader, ICommandContext context, string arg, IServiceProvider services)
         {
             var readResult = await reader.ReadAsync(context, arg, services).ConfigureAwait(false);
             return (readResult.IsSuccess)

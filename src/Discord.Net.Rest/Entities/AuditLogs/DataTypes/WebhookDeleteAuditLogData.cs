@@ -1,27 +1,26 @@
 using Discord.API.AuditLogs;
 
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a webhook deletion.
 /// </summary>
-public class WebhookDeleteAuditLogData : IAuditLogData
+public partial class WebhookDeleteAuditLogData : IAuditLogData
 {
     private WebhookDeleteAuditLogData(ulong id, WebhookInfoAuditLogModel model)
     {
         WebhookId = id;
         ChannelId = model.ChannelId!.Value;
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
         Type = model.Type!.Value;
         Avatar = model.AvatarHash;
     }
 
-    internal static WebhookDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static WebhookDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<WebhookInfoAuditLogModel>(changes, discord);
 
@@ -67,5 +66,5 @@ public class WebhookDeleteAuditLogData : IAuditLogData
     /// <returns>
     ///     A string containing the hash of the webhook's avatar.
     /// </returns>
-    public string Avatar { get; }
+    public string? Avatar { get; }
 }

@@ -22,34 +22,43 @@ namespace Discord.WebSocket
         ///         large guilds, or the bot doesn't have the MANAGE_EMOJIS_AND_STICKERS permission.
         ///     </note>
         /// </remarks>
-        public SocketGuildUser Author
-            => AuthorId.HasValue ? Guild.GetUser(AuthorId.Value) : null;
+        public SocketGuildUser? Author
+            => Guild != null && AuthorId.HasValue ? Guild.GetUser(AuthorId.Value) : null;
 
         /// <summary>
         ///     Gets the guild the sticker was created in.
         /// </summary>
-        public SocketGuild Guild { get; }
+        public SocketGuild? Guild { get; }
+
+        /// <inheritdoc/>
+        public ulong GuildId { get; }
 
         /// <inheritdoc/>
         public ulong? AuthorId { get; set; }
 
-        internal SocketCustomSticker(DiscordSocketClient client, ulong id, SocketGuild guild, ulong? authorId = null)
+        internal SocketCustomSticker(DiscordSocketClient client, ulong id, SocketGuild? guild, ulong guildId, ulong? authorId = null)
             : base(client, id)
         {
             Guild = guild;
             AuthorId = authorId;
+            GuildId = guildId;
         }
 
-        internal static SocketCustomSticker Create(DiscordSocketClient client, Model model, SocketGuild guild, ulong? authorId = null)
+        internal static SocketCustomSticker Create(DiscordSocketClient client, Model model, SocketGuild? guild, ulong guildId, ulong? authorId = null)
         {
-            var entity = new SocketCustomSticker(client, model.Id, guild, authorId);
+            var entity = new SocketCustomSticker(client, model.Id, guild, guildId, authorId);
             entity.Update(model);
             return entity;
         }
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions? options = null)
         {
+            if (Guild is null)
+            {
+                throw new InvalidOperationException("Missing guild!");
+            }
+
             if (!Guild.CurrentUser.GuildPermissions.Has(GuildPermission.ManageEmojisAndStickers))
                 throw new InvalidOperationException($"Missing permission {nameof(GuildPermission.ManageEmojisAndStickers)}");
 
@@ -59,22 +68,19 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public async Task DeleteAsync(RequestOptions options = null)
+        public async Task DeleteAsync(RequestOptions? options = null)
         {
-            await GuildHelper.DeleteStickerAsync(Discord, Guild.Id, this, options);
-            Guild.RemoveSticker(Id);
+            await GuildHelper.DeleteStickerAsync(Discord, GuildId, this, options);
+            this.Guild?.RemoveSticker(Id);
         }
 
-        internal SocketCustomSticker Clone() => MemberwiseClone() as SocketCustomSticker;
+        internal SocketCustomSticker Clone() => (SocketCustomSticker)MemberwiseClone();
 
         private new string DebuggerDisplay => Guild == null ? base.DebuggerDisplay : $"{Name} in {Guild.Name} ({Id})";
         #endregion
 
         #region  ICustomSticker
-        ulong? ICustomSticker.AuthorId
-            => AuthorId;
-
-        IGuild ICustomSticker.Guild
+        IGuild? ICustomSticker.Guild
             => Guild;
         #endregion
     }

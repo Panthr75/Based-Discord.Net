@@ -1,4 +1,3 @@
-using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Concurrent;
 #if DEBUG_LIMITS
@@ -13,14 +12,14 @@ namespace Discord.Net.Queue
 {
     internal class RequestQueue : IDisposable, IAsyncDisposable
     {
-        public event Func<BucketId, RateLimitInfo?, string, Task> RateLimitTriggered;
+        public event Func<BucketId, RateLimitInfo?, string, Task>? RateLimitTriggered;
 
         private readonly ConcurrentDictionary<BucketId, object> _buckets;
         private readonly SemaphoreSlim _tokenLock;
-        private readonly CancellationTokenSource _cancelTokenSource; //Dispose token
+        private readonly CancellationTokenSource? _cancelTokenSource; //Dispose token
         private CancellationTokenSource _clearToken;
         private CancellationToken _parentToken;
-        private CancellationTokenSource _requestCancelTokenSource;
+        private CancellationTokenSource? _requestCancelTokenSource;
         private CancellationToken _requestCancelToken; //Parent token + Clear token
         private DateTimeOffset _waitUntil;
 
@@ -69,7 +68,7 @@ namespace Discord.Net.Queue
 
         public async Task<Stream> SendAsync(RestRequest request)
         {
-            CancellationTokenSource createdTokenSource = null;
+            CancellationTokenSource? createdTokenSource = null;
             if (request.Options.CancelToken.CanBeCanceled)
             {
                 createdTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_requestCancelToken, request.Options.CancelToken);
@@ -85,7 +84,7 @@ namespace Discord.Net.Queue
         }
         public async Task SendAsync(WebSocketRequest request)
         {
-            CancellationTokenSource createdTokenSource = null;
+            CancellationTokenSource? createdTokenSource = null;
             if (request.Options.CancelToken.CanBeCanceled)
             {
                 createdTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_requestCancelToken, request.Options.CancelToken);
@@ -112,11 +111,15 @@ namespace Discord.Net.Queue
         }
         internal void PauseGlobal(RateLimitInfo info)
         {
-            _waitUntil = DateTimeOffset.UtcNow.AddMilliseconds(info.RetryAfter.Value + (info.Lag?.TotalMilliseconds ?? 0.0));
+            _waitUntil = DateTimeOffset.UtcNow.AddMilliseconds((info.RetryAfter ?? 0) + (info.Lag?.TotalMilliseconds ?? 0.0));
         }
         internal async Task EnterGlobalAsync(int id, WebSocketRequest request)
         {
             //If this is a global request (unbucketed), it'll be dealt in EnterAsync
+            if (request.Options.BucketId is null)
+            {
+                return;
+            }
             var requestBucket = GatewayBucket.Get(request.Options.BucketId);
             if (requestBucket.Type == GatewayBucketType.Unbucketed)
                 return;
@@ -133,7 +136,7 @@ namespace Discord.Net.Queue
         private RequestBucket GetOrCreateBucket(RequestOptions options, IRequest request)
         {
             var bucketId = options.BucketId;
-            object obj = _buckets.GetOrAdd(bucketId, x => new RequestBucket(this, request, x));
+            object obj = _buckets.GetOrAdd(bucketId!, x => new RequestBucket(this, request, x));
             if (obj is BucketId hashBucket)
             {
                 options.BucketId = hashBucket;
@@ -143,9 +146,14 @@ namespace Discord.Net.Queue
         }
         internal async Task RaiseRateLimitTriggered(BucketId bucketId, RateLimitInfo? info, string endpoint)
         {
+            if (this.RateLimitTriggered == null)
+            {
+                return;
+            }
+
             await RateLimitTriggered(bucketId, info, endpoint).ConfigureAwait(false);
         }
-        internal (RequestBucket, BucketId) UpdateBucketHash(BucketId id, string discordHash)
+        internal (RequestBucket?, BucketId?) UpdateBucketHash(BucketId id, string discordHash)
         {
             if (!id.IsHashBucket)
             {
@@ -165,6 +173,11 @@ namespace Discord.Net.Queue
 
         private async Task RunCleanup()
         {
+            if (this._cancelTokenSource == null)
+            {
+                return;
+            }
+
             try
             {
                 while (!_cancelTokenSource.IsCancellationRequested)
@@ -189,7 +202,7 @@ namespace Discord.Net.Queue
 
         public void Dispose()
         {
-            if (!(_cancelTokenSource is null))
+            if (_cancelTokenSource is not null)
             {
                 _cancelTokenSource.Cancel();
                 _cancelTokenSource.Dispose();
@@ -202,7 +215,7 @@ namespace Discord.Net.Queue
 
         public async ValueTask DisposeAsync()
         {
-            if (!(_cancelTokenSource is null))
+            if (_cancelTokenSource is not null)
             {
                 _cancelTokenSource.Cancel();
                 _cancelTokenSource.Dispose();

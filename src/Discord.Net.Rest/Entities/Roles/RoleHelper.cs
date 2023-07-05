@@ -9,12 +9,12 @@ namespace Discord.Rest
     {
         #region General
         public static async Task DeleteAsync(IRole role, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             await client.ApiClient.DeleteGuildRoleAsync(role.Guild.Id, role.Id, options).ConfigureAwait(false);
         }
         public static async Task<Model> ModifyAsync(IRole role, BaseDiscordClient client,
-            Action<RoleProperties> func, RequestOptions options)
+            Action<RoleProperties> func, RequestOptions? options = null)
         {
             var args = new RoleProperties();
             func(args);
@@ -23,7 +23,7 @@ namespace Discord.Rest
             {
                 role.Guild.Features.EnsureFeature(GuildFeature.RoleIcons);
 
-                if ((args.Icon.IsSpecified && args.Icon.Value != null) && (args.Emoji.IsSpecified && args.Emoji.Value != null))
+                if (args.Icon.IsSpecified && args.Icon.Value != null && args.Emoji.IsSpecified && args.Emoji.Value != null)
                 {
                     throw new ArgumentException("Emoji and Icon properties cannot be present on a role at the same time.");
                 }
@@ -40,12 +40,12 @@ namespace Discord.Rest
                 Emoji = args.Emoji.IsSpecified ? args.Emoji.Value?.Name ?? "" : Optional.Create<string>(),
             };
 
-            if ((args.Icon.IsSpecified && args.Icon.Value != null) && role.Emoji != null)
+            if (args.Icon.IsSpecified && args.Icon.Value != null && role.Emoji != null)
             {
                 apiArgs.Emoji = "";
             }
 
-            if ((args.Emoji.IsSpecified && args.Emoji.Value != null) && !string.IsNullOrEmpty(role.Icon))
+            if (args.Emoji.IsSpecified && args.Emoji.Value != null && !string.IsNullOrEmpty(role.Icon))
             {
                 apiArgs.Icon = Optional<API.Image?>.Unspecified;
             }

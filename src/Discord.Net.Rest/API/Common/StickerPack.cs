@@ -1,22 +1,24 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class StickerPack
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("stickers")]
-        public Sticker[] Stickers { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("sku_id")]
+        [JsonPropertyName("stickers")]
+        public Sticker[] Stickers { get; set; } = Array.Empty<Sticker>();
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("sku_id")]
         public ulong SkuId { get; set; }
-        [JsonProperty("cover_sticker_id")]
+        [JsonPropertyName("cover_sticker_id")]
         public Optional<ulong> CoverStickerId { get; set; }
-        [JsonProperty("description")]
-        public string Description { get; set; }
-        [JsonProperty("banner_asset_id")]
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+        [JsonPropertyName("banner_asset_id")]
         public ulong BannerAssetId { get; set; }
     }
 }

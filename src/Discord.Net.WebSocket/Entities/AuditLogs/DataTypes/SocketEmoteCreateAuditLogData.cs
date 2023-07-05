@@ -1,5 +1,5 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -17,9 +17,9 @@ public class SocketEmoteCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketEmoteCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var change = entry.Changes.FirstOrDefault(x => x.ChangedProperty == "name");
+        var change = entry.Changes!.FirstOrDefault(x => x.ChangedProperty == "name")!;
 
-        var emoteName = change.NewValue?.ToObject<string>(discord.ApiClient.Serializer);
+        var emoteName = change.NewValue?.Deserialize<string>(discord.ApiClient.SerializerOptions)!;
         return new SocketEmoteCreateAuditLogData(entry.TargetId!.Value, emoteName);
     }
 

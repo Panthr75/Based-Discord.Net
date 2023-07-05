@@ -9,14 +9,14 @@ public struct RoleEditInfo
 {
     internal RoleEditInfo(Model model)
     {
-        if (model.Color is not null)
+        if (model.Color.HasValue)
             Color = new Color(model.Color.Value);
         else
             Color = null;
 
         Mentionable = model.IsMentionable;
         Hoist = model.Hoist;
-        Name = model.Name;
+        Name = model.Name ?? string.Empty;
 
         if (model.Permissions is not null)
             Permissions = new GuildPermissions(model.Permissions.Value);
@@ -60,7 +60,7 @@ public struct RoleEditInfo
     /// <returns>
     ///    A string containing the name of this role.
     /// </returns>
-    public string Name { get; }
+    public string? Name { get; }
 
     /// <summary>
     ///     Gets the permissions assigned to this role.
@@ -75,5 +75,5 @@ public struct RoleEditInfo
     /// <remarks>
     ///     <see langword="null" /> if the value was not updated in this entry.
     /// </remarks>
-    public string IconId { get; }
+    public string? IconId { get; }
 }

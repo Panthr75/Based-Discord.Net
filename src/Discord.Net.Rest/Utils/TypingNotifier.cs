@@ -8,9 +8,9 @@ namespace Discord.Rest
     {
         private readonly CancellationTokenSource _cancelToken;
         private readonly IMessageChannel _channel;
-        private readonly RequestOptions _options;
+        private readonly RequestOptions? _options;
 
-        public TypingNotifier(IMessageChannel channel, RequestOptions options)
+        public TypingNotifier(IMessageChannel channel, RequestOptions? options)
         {
             _cancelToken = new CancellationTokenSource();
             _channel = channel;

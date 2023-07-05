@@ -12,9 +12,9 @@ namespace Discord
         private readonly ulong? _start;
         private readonly int? _count;
         private readonly Func<PageInfo, CancellationToken, Task<IReadOnlyCollection<T>>> _getPage;
-        private readonly Func<PageInfo, IReadOnlyCollection<T>, bool> _nextPage;
+        private readonly Func<PageInfo, IReadOnlyCollection<T>, bool>? _nextPage;
 
-        public PagedAsyncEnumerable(int pageSize, Func<PageInfo, CancellationToken, Task<IReadOnlyCollection<T>>> getPage, Func<PageInfo, IReadOnlyCollection<T>, bool> nextPage = null,
+        public PagedAsyncEnumerable(int pageSize, Func<PageInfo, CancellationToken, Task<IReadOnlyCollection<T>>> getPage, Func<PageInfo, IReadOnlyCollection<T>, bool>? nextPage = null,
             ulong? start = null, int? count = null)
         {
             PageSize = pageSize;
@@ -36,6 +36,7 @@ namespace Discord
 
             public Enumerator(PagedAsyncEnumerable<T> source, CancellationToken token)
             {
+                this.Current = new List<T>();
                 _source = source;
                 _token = token;
                 _info = new PageInfo(source._start, source._count, source.PageSize);
@@ -66,7 +67,7 @@ namespace Discord
 
                 if (_info.Remaining != 0)
                 {
-                    if (!_source._nextPage(_info, data))
+                    if (!_source._nextPage!(_info, data))
                         _info.Remaining = 0;
                 }
 
@@ -75,7 +76,7 @@ namespace Discord
 
             public ValueTask DisposeAsync()
             {
-                Current = null;
+                Current = null!;
                 return default;
             }
         }

@@ -32,11 +32,11 @@ namespace Discord.Net.Rest
         /// <param name="reason">The audit log reason.</param>
         /// <param name="requestHeaders">Additional headers to be sent with the request.</param>
         /// <returns></returns>
-        Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null);
-        Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly = false, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null);
-        Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken, bool headerOnly = false, string reason = null,
-            IEnumerable<KeyValuePair<string, IEnumerable<string>>> requestHeaders = null);
+        Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
+        Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
+        Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
     }
 }

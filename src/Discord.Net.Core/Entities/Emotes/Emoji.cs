@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Discord
@@ -9,7 +10,10 @@ namespace Discord
     /// <summary>
     ///     A Unicode emoji.
     /// </summary>
-    public class Emoji : IEmote
+    public class Emoji : IEmote, IEquatable<Emoji>, IComparable<Emoji>
+#if NET7_0_OR_GREATER
+        , System.Numerics.IEqualityOperators<Emoji, Emoji, bool>
+#endif
     {
         /// <inheritdoc />
         public string Name { get; }
@@ -31,43 +35,84 @@ namespace Discord
             Name = unicode;
         }
 
+        public int CompareTo(Emoji? other)
+        {
+            if (other is null)
+            {
+                return 1;
+            }
+
+            return this.Name.CompareTo(other.Name);
+        }
+
         /// <summary>
         ///     Determines whether the specified emoji is equal to the current one.
         /// </summary>
         /// <param name="other">The object to compare with the current object.</param>
-        public override bool Equals(object other)
+        public override bool Equals([NotNullWhen(true)] object? other)
         {
             if (other == null)
                 return false;
 
-            if (other == this)
+            if (ReferenceEquals(other, this))
                 return true;
 
-            return other is Emoji otherEmoji && string.Equals(Name, otherEmoji.Name);
+            if (other is Emoji emoji)
+            {
+                return this.Equals(emoji);
+            }
+            return false;
+        }
+
+        public bool Equals([NotNullWhen(true)] Emoji? other)
+        {
+            return other != null && other.Name == this.Name;
+        }
+
+        internal static bool TryValidate([NotNullWhen(true)] string? text, [NotNullWhen(true)] out string? resultText)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                resultText = null;
+                return false;
+            }
+
+
+            if (NamesAndUnicodes.TryGetValue(text, out resultText))
+            {
+                return true;
+            }
+
+            if (Unicodes.Contains(text))
+            {
+                resultText = text;
+                return true;
+            }
+
+            resultText = null;
+            return false;
         }
 
         /// <summary> Tries to parse an <see cref="Emoji"/> from its raw format. </summary>
         /// <param name="text">The raw encoding of an emoji. For example: <code>:heart: or ❤</code></param>
         /// <param name="result">An emoji.</param>
-        public static bool TryParse(string text, out Emoji result)
+        public static bool TryParse([NotNullWhen(true)] string? text, [NotNullWhen(true)] out Emoji? result)
         {
-            result = null;
-            if (string.IsNullOrWhiteSpace(text))
-                return false;
-
-            if (NamesAndUnicodes.ContainsKey(text))
-                result = new Emoji(NamesAndUnicodes[text]);
-
-            if (Unicodes.Contains(text))
-                result = new Emoji(text);
-
+            if (TryValidate(text, out string? resultText))
+            {
+                result = new Emoji(resultText);
+            }
+            else
+            {
+                result = null;
+            }
             return result != null;
         }
 
         /// <summary> Parse an <see cref="Emoji"/> from its raw format.</summary>
         /// <param name="emojiStr">The raw encoding of an emoji. For example: <c>:heart: or ❤</c></param>
         /// <exception cref="FormatException">String is not emoji or unicode!</exception>
-        public static Emoji Parse(string emojiStr)
+        public static Emoji Parse([NotNull] string? emojiStr)
         {
             if (!TryParse(emojiStr, out var emoji))
                 throw new FormatException("String is not emoji name or unicode!");
@@ -7061,7 +7106,7 @@ namespace Discord
             ["♡"] = "❤️"
         };
 
-        private static IReadOnlyCollection<string> _unicodes;
+        private static IReadOnlyCollection<string>? _unicodes;
         private static IReadOnlyCollection<string> Unicodes
         {
             get
@@ -7071,7 +7116,7 @@ namespace Discord
             }
         }
 
-        private static IReadOnlyDictionary<string, ReadOnlyCollection<string>> _unicodesAndNames;
+        private static IReadOnlyDictionary<string, ReadOnlyCollection<string>>? _unicodesAndNames;
         private static IReadOnlyDictionary<string, ReadOnlyCollection<string>> UnicodesAndNames
         {
             get
@@ -7090,5 +7135,16 @@ namespace Discord
         }
 
         public static implicit operator Emoji(string s) => Parse(s);
+
+        public static bool operator ==(Emoji? a, Emoji? b)
+        {
+            return a is null ?
+                b is null :
+                a.Equals(b);
+        }
+        public static bool operator !=(Emoji? a, Emoji? b)
+        {
+            return !(a == b);
+        }
     }
 }

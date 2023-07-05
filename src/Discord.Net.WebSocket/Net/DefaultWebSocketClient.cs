@@ -16,20 +16,21 @@ namespace Discord.Net.WebSockets
         public const int SendChunkSize = 4 * 1024; //4KB
         private const int HR_TIMEOUT = -2147012894;
 
-        public event Func<byte[], int, int, Task> BinaryMessage;
-        public event Func<string, Task> TextMessage;
-        public event Func<Exception, Task> Closed;
+        public event Func<byte[], int, int, Task>? BinaryMessage;
+        public event Func<string, Task>? TextMessage;
+        public event Func<Exception, Task>? Closed;
 
         private readonly SemaphoreSlim _lock;
         private readonly Dictionary<string, string> _headers;
-        private readonly IWebProxy _proxy;
-        private ClientWebSocket _client;
-        private Task _task;
-        private CancellationTokenSource _disconnectTokenSource, _cancelTokenSource;
+        private readonly IWebProxy? _proxy;
+        private ClientWebSocket? _client;
+        private Task? _task;
+        private CancellationTokenSource _disconnectTokenSource;
+        private CancellationTokenSource? _cancelTokenSource;
         private CancellationToken _cancelToken, _parentToken;
         private bool _isDisposed, _isDisconnecting;
 
-        public DefaultWebSocketClient(IWebProxy proxy = null)
+        public DefaultWebSocketClient(IWebProxy? proxy = null)
         {
             _lock = new SemaphoreSlim(1, 1);
             _disconnectTokenSource = new CancellationTokenSource();
@@ -151,7 +152,10 @@ namespace Discord.Net.WebSockets
             {
                 _lock.Release();
             }
-            await Closed(ex);
+            if (Closed != null)
+            {
+                await Closed.Invoke(ex).ConfigureAwait(false);
+            }
         }
 
         public void SetHeader(string key, string value)
@@ -207,6 +211,10 @@ namespace Discord.Net.WebSockets
         private async Task RunAsync(CancellationToken cancelToken)
         {
             var buffer = new ArraySegment<byte>(new byte[ReceiveChunkSize]);
+            if (_client is null)
+            {
+                return;
+            }
 
             try
             {
@@ -217,27 +225,27 @@ namespace Discord.Net.WebSockets
                     int resultCount;
 
                     if (socketResult.MessageType == WebSocketMessageType.Close)
-                        throw new WebSocketClosedException((int)socketResult.CloseStatus, socketResult.CloseStatusDescription);
+                        throw new WebSocketClosedException((int)socketResult.CloseStatus!.Value, socketResult.CloseStatusDescription);
 
                     if (!socketResult.EndOfMessage)
                     {
                         //This is a large message (likely just READY), lets create a temporary expandable stream
                         using (var stream = new MemoryStream())
                         {
-                            stream.Write(buffer.Array, 0, socketResult.Count);
+                            stream.Write(buffer.Array!, 0, socketResult.Count);
                             do
                             {
                                 if (cancelToken.IsCancellationRequested)
                                     return;
                                 socketResult = await _client.ReceiveAsync(buffer, cancelToken).ConfigureAwait(false);
-                                stream.Write(buffer.Array, 0, socketResult.Count);
+                                stream.Write(buffer.Array!, 0, socketResult.Count);
                             }
                             while (socketResult == null || !socketResult.EndOfMessage);
 
                             //Use the internal buffer if we can get it
                             resultCount = (int)stream.Length;
 
-                            result = stream.TryGetBuffer(out var streamBuffer) ? streamBuffer.Array : stream.ToArray();
+                            result = stream.TryGetBuffer(out var streamBuffer) ? streamBuffer.Array! : stream.ToArray();
 
                         }
                     }
@@ -245,16 +253,24 @@ namespace Discord.Net.WebSockets
                     {
                         //Small message
                         resultCount = socketResult.Count;
-                        result = buffer.Array;
+                        result = buffer.Array!;
                     }
 
                     if (socketResult.MessageType == WebSocketMessageType.Text)
                     {
                         string text = Encoding.UTF8.GetString(result, 0, resultCount);
-                        await TextMessage(text).ConfigureAwait(false);
+                        if (TextMessage != null)
+                        {
+                            await TextMessage.Invoke(text).ConfigureAwait(false);
+                        }
                     }
                     else
-                        await BinaryMessage(result, 0, resultCount).ConfigureAwait(false);
+                    {
+                        if (BinaryMessage != null)
+                        {
+                            await BinaryMessage.Invoke(result, 0, resultCount).ConfigureAwait(false);
+                        }
+                    }
                 }
             }
             catch (Win32Exception ex) when (ex.HResult == HR_TIMEOUT)

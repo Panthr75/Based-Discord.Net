@@ -1,5 +1,5 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -17,20 +17,20 @@ public class SocketOverwriteCreateAuditLogData : ISocketAuditLogData
 
     internal static SocketOverwriteCreateAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
-        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny");
-        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow");
+        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny")!;
+        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow")!;
 
-        var deny = denyModel.NewValue.ToObject<ulong>(discord.ApiClient.Serializer);
-        var allow = allowModel.NewValue.ToObject<ulong>(discord.ApiClient.Serializer);
+        var deny = denyModel.NewValue.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
+        var allow = allowModel.NewValue.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
 
         var permissions = new OverwritePermissions(allow, deny);
 
-        var id = entry.Options.OverwriteTargetId.Value;
-        var type = entry.Options.OverwriteType;
+        var id = entry.Options!.OverwriteTargetId!.Value;
+        var type = entry.Options!.OverwriteType;
 
-        return new SocketOverwriteCreateAuditLogData(entry.TargetId.Value, new Overwrite(id, type, permissions));
+        return new SocketOverwriteCreateAuditLogData(entry.TargetId!.Value, new Overwrite(id, type, permissions));
     }
 
     /// <summary>

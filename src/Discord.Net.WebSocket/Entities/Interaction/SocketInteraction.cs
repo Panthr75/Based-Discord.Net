@@ -22,7 +22,7 @@ namespace Discord.WebSocket
         ///     If the channel isn't cached, the bot scope isn't used, or the bot doesn't have access to it then
         ///     this property will be <see langword="null"/>.
         /// </remarks>
-        public ISocketMessageChannel Channel { get; private set; }
+        public ISocketMessageChannel? Channel { get; private set; }
 
         /// <inheritdoc/>
         public ulong? ChannelId { get; private set; }
@@ -39,13 +39,13 @@ namespace Discord.WebSocket
         public string Token { get; private set; }
 
         /// <inheritdoc/>
-        public IDiscordInteractionData Data { get; private set; }
+        public IDiscordInteractionData? Data { get; private set; }
 
         /// <inheritdoc/>
-        public string UserLocale { get; private set; }
+        public string? UserLocale { get; private set; }
 
         /// <inheritdoc/>
-        public string GuildLocale { get; private set; }
+        public string? GuildLocale { get; private set; }
 
         /// <inheritdoc/>
         public int Version { get; private set; }
@@ -71,9 +71,10 @@ namespace Discord.WebSocket
         /// <inheritdoc/>
         public ulong ApplicationId { get; private set; }
 
-        internal SocketInteraction(DiscordSocketClient client, ulong id, ISocketMessageChannel channel, SocketUser user)
+        internal SocketInteraction(DiscordSocketClient client, ulong id, ISocketMessageChannel? channel, SocketUser user)
             : base(client, id)
         {
+            Token = string.Empty;
             Channel = channel;
             User = user;
 
@@ -82,12 +83,12 @@ namespace Discord.WebSocket
                 : DateTime.UtcNow;
         }
 
-        internal static SocketInteraction Create(DiscordSocketClient client, Model model, ISocketMessageChannel channel, SocketUser user)
+        internal static SocketInteraction? Create(DiscordSocketClient client, Model model, ISocketMessageChannel? channel, SocketUser user)
         {
             if (model.Type == InteractionType.ApplicationCommand)
             {
                 var dataModel = model.Data.IsSpecified
-                    ? (DataModel)model.Data.Value
+                    ? (DataModel?)model.Data.Value
                     : null;
 
                 if (dataModel == null)
@@ -157,8 +158,8 @@ namespace Discord.WebSocket
         /// <param name="options">The request options for this response.</param>
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="InvalidOperationException">The parameters provided were invalid or the token was invalid.</exception>
-        public abstract Task RespondAsync(string text = null, Embed[] embeds = null, bool isTTS = false,
-            bool ephemeral = false, AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task RespondAsync(string? text = null, Embed[]? embeds = null, bool isTTS = false,
+            bool ephemeral = false, AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Responds to this interaction with a file attachment.
@@ -177,8 +178,8 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public async Task RespondWithFileAsync(Stream fileStream, string fileName, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public async Task RespondWithFileAsync(Stream fileStream, string fileName, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
         {
             using (var file = new FileAttachment(fileStream, fileName))
             {
@@ -203,8 +204,8 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public async Task RespondWithFileAsync(string filePath, string fileName = null, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public async Task RespondWithFileAsync(string filePath, string? fileName = null, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
         {
             using (var file = new FileAttachment(filePath, fileName))
             {
@@ -228,8 +229,8 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public Task RespondWithFileAsync(FileAttachment attachment, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public Task RespondWithFileAsync(FileAttachment attachment, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
             => RespondWithFilesAsync(new FileAttachment[] { attachment }, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
 
         /// <summary>
@@ -248,8 +249,8 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task RespondWithFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task RespondWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -265,8 +266,8 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupAsync(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-             AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupAsync(string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+             AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Sends a followup message for this interaction.
@@ -284,8 +285,8 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The sent message.
         /// </returns>
-        public async Task<RestFollowupMessage> FollowupWithFileAsync(Stream fileStream, string fileName, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public async Task<RestFollowupMessage> FollowupWithFileAsync(Stream fileStream, string fileName, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
         {
             using (var file = new FileAttachment(fileStream, fileName))
             {
@@ -309,8 +310,8 @@ namespace Discord.WebSocket
         /// <returns>
         ///     The sent message.
         /// </returns>
-        public async Task<RestFollowupMessage> FollowupWithFileAsync(string filePath, string fileName = null, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public async Task<RestFollowupMessage> FollowupWithFileAsync(string filePath, string? fileName = null, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
         {
             using (var file = new FileAttachment(filePath, fileName))
             {
@@ -334,8 +335,8 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public Task<RestFollowupMessage> FollowupWithFileAsync(FileAttachment attachment, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null)
+        public Task<RestFollowupMessage> FollowupWithFileAsync(FileAttachment attachment, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null)
             => FollowupWithFilesAsync(new FileAttachment[] { attachment }, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options);
 
         /// <summary>
@@ -354,16 +355,16 @@ namespace Discord.WebSocket
         ///     A task that represents an asynchronous send operation for delivering the message. The task result
         ///     contains the sent message.
         /// </returns>
-        public abstract Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false,
-            AllowedMentions allowedMentions = null, MessageComponent components = null, Embed embed = null, RequestOptions options = null);
+        public abstract Task<RestFollowupMessage> FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false,
+            AllowedMentions? allowedMentions = null, MessageComponent? components = null, Embed? embed = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets the original response for this interaction.
         /// </summary>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A <see cref="RestInteractionMessage"/> that represents the initial response.</returns>
-        public Task<RestInteractionMessage> GetOriginalResponseAsync(RequestOptions options = null)
-            => InteractionHelper.GetOriginalResponseAsync(Discord, Channel, this, options);
+        public Task<RestInteractionMessage?> GetOriginalResponseAsync(RequestOptions? options = null)
+            => InteractionHelper.GetOriginalResponseAsync(Discord, Channel!, this, options);
 
         /// <summary>
         ///     Edits original response for this interaction.
@@ -371,14 +372,14 @@ namespace Discord.WebSocket
         /// <param name="func">A delegate containing the properties to modify the message with.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A <see cref="RestInteractionMessage"/> that represents the initial response.</returns>
-        public async Task<RestInteractionMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public async Task<RestInteractionMessage> ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
             var model = await InteractionHelper.ModifyInteractionResponseAsync(Discord, Token, func, options);
-            return RestInteractionMessage.Create(Discord, model, Token, Channel);
+            return RestInteractionMessage.Create(Discord, model, Token, Channel!);
         }
 
         /// <inheritdoc/>
-        public Task DeleteOriginalResponseAsync(RequestOptions options = null)
+        public Task DeleteOriginalResponseAsync(RequestOptions? options = null)
             => InteractionHelper.DeleteInteractionResponseAsync(Discord, this, options);
 
         /// <summary>
@@ -389,7 +390,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task that represents the asynchronous operation of acknowledging the interaction.
         /// </returns>
-        public abstract Task DeferAsync(bool ephemeral = false, RequestOptions options = null);
+        public abstract Task DeferAsync(bool ephemeral = false, RequestOptions? options = null);
 
         /// <summary>
         ///     Responds to this interaction with a <see cref="Modal"/>.
@@ -397,7 +398,7 @@ namespace Discord.WebSocket
         /// <param name="modal">The <see cref="Modal"/> to respond with.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A task that represents the asynchronous operation of responding to the interaction.</returns>
-        public abstract Task RespondWithModalAsync(Modal modal, RequestOptions options = null);
+        public abstract Task RespondWithModalAsync(Modal modal, RequestOptions? options = null);
         #endregion
 
         /// <summary>
@@ -407,7 +408,7 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A task that represents the asynchronous operation of fetching the channel.
         /// </returns>
-        public async ValueTask<IMessageChannel> GetChannelAsync(RequestOptions options = null)
+        public async ValueTask<IMessageChannel?> GetChannelAsync(RequestOptions? options = null)
         {
             if (Channel != null)
                 return Channel;
@@ -417,7 +418,7 @@ namespace Discord.WebSocket
 
             try
             {
-                return (IMessageChannel)await Discord.GetChannelAsync(ChannelId.Value, options).ConfigureAwait(false);
+                return (IMessageChannel?)await Discord.GetChannelAsync(ChannelId.Value, options).ConfigureAwait(false);
             }
             catch (HttpException ex) when (ex.DiscordCode == DiscordErrorCode.MissingPermissions) { return null; } // bot can't view that channel, return null instead of throwing.
         }
@@ -427,29 +428,29 @@ namespace Discord.WebSocket
         IUser IDiscordInteraction.User => User;
 
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.GetOriginalResponseAsync(RequestOptions options)
+        async Task<IUserMessage?> IDiscordInteraction.GetOriginalResponseAsync(RequestOptions? options)
             => await GetOriginalResponseAsync(options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.ModifyOriginalResponseAsync(Action<MessageProperties> func, RequestOptions? options)
             => await ModifyOriginalResponseAsync(func, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task IDiscordInteraction.RespondAsync(string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task IDiscordInteraction.RespondAsync(string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await RespondAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupAsync(string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupAsync(string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupAsync(text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFilesAsync(IEnumerable<FileAttachment> attachments, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFilesAsync(attachments, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
 #if NETCOREAPP3_0_OR_GREATER != true
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(Stream fileStream, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(Stream fileStream, string fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(fileStream, fileName, text, embeds, isTTS, ephemeral, allowedMentions, components, embed).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(string filePath, string fileName, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(string filePath, string? fileName, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(filePath, fileName, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
         /// <inheritdoc/>
-        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(FileAttachment attachment, string text, Embed[] embeds, bool isTTS, bool ephemeral, AllowedMentions allowedMentions, MessageComponent components, Embed embed, RequestOptions options)
+        async Task<IUserMessage> IDiscordInteraction.FollowupWithFileAsync(FileAttachment attachment, string? text, Embed[]? embeds, bool isTTS, bool ephemeral, AllowedMentions? allowedMentions, MessageComponent? components, Embed? embed, RequestOptions? options)
             => await FollowupWithFileAsync(attachment, text, embeds, isTTS, ephemeral, allowedMentions, components, embed, options).ConfigureAwait(false);
 #endif
         #endregion

@@ -35,6 +35,6 @@ namespace Discord
         /// <returns>
         ///     A string describing what the player is doing.
         /// </returns>
-        string Details { get; }
+        string? Details { get; }
     }
 }

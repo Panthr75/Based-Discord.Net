@@ -4,20 +4,19 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to a channel deletion.
 /// </summary>
-public class ChannelDeleteAuditLogData : IAuditLogData
+public partial class ChannelDeleteAuditLogData : IAuditLogData
 {
     private ChannelDeleteAuditLogData(ChannelInfoAuditLogModel model, EntryModel entry)
     {
         ChannelId = entry.TargetId!.Value;
         ChannelType = model.Type!.Value;
-        ChannelName = model.Name;
+        ChannelName = model.Name!;
 
         Topic = model.Topic;
         IsNsfw = model.IsNsfw;
@@ -30,12 +29,12 @@ public class ChannelDeleteAuditLogData : IAuditLogData
                 x.Name,
                 x.EmojiId.GetValueOrDefault(null),
                 x.EmojiName.GetValueOrDefault(null),
-                x.Moderated)).ToImmutableArray();
+                x.Moderated))?.ToImmutableArray();
 
         if (model.DefaultEmoji is not null)
         {
             if (model.DefaultEmoji.EmojiId.HasValue && model.DefaultEmoji.EmojiId.Value != 0)
-                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null, false);
+                DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null!, false);
             else if (model.DefaultEmoji.EmojiName.IsSpecified)
                 DefaultReactionEmoji = new Emoji(model.DefaultEmoji.EmojiName.Value);
             else
@@ -54,14 +53,14 @@ public class ChannelDeleteAuditLogData : IAuditLogData
         Overwrites = model.Overwrites?.Select(x
             => new Overwrite(x.TargetId,
                 x.TargetType,
-                new OverwritePermissions(x.Allow, x.Deny))).ToImmutableArray();
+                new OverwritePermissions(x.Allow, x.Deny)))?.ToImmutableArray();
     }
 
-    internal static ChannelDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static ChannelDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
         var changes = entry.Changes;
 
-        var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes, discord);
+        var (data, _) = AuditLogHelper.CreateAuditLogEntityInfo<ChannelInfoAuditLogModel>(changes!, discord);
 
         return new ChannelDeleteAuditLogData(data, entry);
     }
@@ -118,7 +117,7 @@ public class ChannelDeleteAuditLogData : IAuditLogData
     /// <returns>
     ///     A collection of permission <see cref="Overwrite"/>.
     /// </returns>
-    public IReadOnlyCollection<Overwrite> Overwrites { get; }
+    public IReadOnlyCollection<Overwrite>? Overwrites { get; }
     /// <summary>
     ///     Gets the user limit configured in the created voice channel.
     /// </summary>
@@ -132,7 +131,7 @@ public class ChannelDeleteAuditLogData : IAuditLogData
     /// <summary>
     ///     Gets the region configured in the created voice channel.
     /// </summary>
-    public string RtcRegion { get; }
+    public string? RtcRegion { get; }
 
     /// <summary>
     ///     Gets channel flags configured for the created channel.
@@ -159,17 +158,17 @@ public class ChannelDeleteAuditLogData : IAuditLogData
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public IReadOnlyCollection<ForumTag> ForumTags { get; }
+    public IReadOnlyCollection<ForumTag>? ForumTags { get; }
 
     /// <inheritdoc cref="ITextChannel.Topic"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public string Topic { get; }
+    public string? Topic { get; }
 
     /// <inheritdoc cref="IForumChannel.DefaultReactionEmoji"/>
     /// <remarks>
     ///     <see langword="null" /> if the value was not specified in this entry..
     /// </remarks>
-    public IEmote DefaultReactionEmoji { get; }
+    public IEmote? DefaultReactionEmoji { get; }
 }

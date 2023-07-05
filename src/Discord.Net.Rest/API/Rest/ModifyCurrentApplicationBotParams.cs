@@ -1,21 +1,22 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest;
 
 internal class ModifyCurrentApplicationBotParams
 {
-    [JsonProperty("interactions_endpoint_url")]
+    [JsonPropertyName("interactions_endpoint_url")]
     public Optional<string> InteractionsEndpointUrl { get; set; }
 
-    [JsonProperty("role_connections_verification_url")]
+    [JsonPropertyName("role_connections_verification_url")]
     public Optional<string> RoleConnectionsEndpointUrl { get; set; }
 
-    [JsonProperty("description")]
+    [JsonPropertyName("description")]
     public Optional<string> Description { get; set; }
 
-    [JsonProperty("tags")]
+    [JsonPropertyName("tags")]
     public Optional<string[]> Tags { get; set; }
 
-    [JsonProperty("icon")]
+    [JsonPropertyName("icon")]
     public Optional<Image?> Icon { get; set; }
 }

@@ -11,7 +11,7 @@ namespace Discord.WebSocket
     ///     Represents a WebSocket-based channel.
     /// </summary>
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
-    public abstract class SocketChannel : SocketEntity<ulong>, IChannel
+    public abstract class SocketChannel : SocketEntity<ulong, SocketChannel>, IChannel
     {
         #region SocketChannel
         /// <summary>
@@ -49,23 +49,23 @@ namespace Discord.WebSocket
         /// <returns>
         ///     A generic WebSocket-based user associated with the snowflake identifier.
         /// </returns>
-        public SocketUser GetUser(ulong id) => GetUserInternal(id);
-        internal abstract SocketUser GetUserInternal(ulong id);
+        public SocketUser? GetUser(ulong id) => GetUserInternal(id);
+        internal abstract SocketUser? GetUserInternal(ulong id);
         internal abstract IReadOnlyCollection<SocketUser> GetUsersInternal();
 
         private string DebuggerDisplay => $"Unknown ({Id}, Channel)";
-        internal SocketChannel Clone() => MemberwiseClone() as SocketChannel;
+        internal SocketChannel Clone() => (SocketChannel)MemberwiseClone();
         #endregion
 
         #region IChannel
         /// <inheritdoc />
-        string IChannel.Name => null;
+        string IChannel.Name => string.Empty;
 
         /// <inheritdoc />
-        Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IUser>(null); //Overridden
+        Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IUser?>(null); //Overridden
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => AsyncEnumerable.Empty<IReadOnlyCollection<IUser>>(); //Overridden
         #endregion
     }

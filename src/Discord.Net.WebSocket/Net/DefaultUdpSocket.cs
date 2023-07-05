@@ -8,14 +8,15 @@ namespace Discord.Net.Udp
 {
     internal class DefaultUdpSocket : IUdpSocket, IDisposable
     {
-        public event Func<byte[], int, int, Task> ReceivedDatagram;
+        public event Func<byte[], int, int, Task>? ReceivedDatagram;
 
         private readonly SemaphoreSlim _lock;
-        private UdpClient _udp;
-        private IPEndPoint _destination;
-        private CancellationTokenSource _stopCancelTokenSource, _cancelTokenSource;
+        private UdpClient? _udp;
+        private IPEndPoint? _destination;
+        private CancellationTokenSource _stopCancelTokenSource;
+        private CancellationTokenSource? _cancelTokenSource;
         private CancellationToken _cancelToken, _parentToken;
-        private Task _task;
+        private Task? _task;
         private bool _isDisposed;
 
         public ushort Port => (ushort)((_udp?.Client.LocalEndPoint as IPEndPoint)?.Port ?? 0);
@@ -118,6 +119,11 @@ namespace Discord.Net.Udp
 
         public async Task SendAsync(byte[] data, int index, int count)
         {
+            if (_udp is null)
+            {
+                return;
+            }
+
             if (index != 0) //Should never happen?
             {
                 var newData = new byte[count];
@@ -129,6 +135,11 @@ namespace Discord.Net.Udp
 
         private async Task RunAsync(CancellationToken cancelToken)
         {
+            if (_udp is null)
+            {
+                return;
+            }
+
             var closeTask = Task.Delay(-1, cancelToken);
             while (!cancelToken.IsCancellationRequested)
             {
@@ -146,7 +157,11 @@ namespace Discord.Net.Udp
                     break;
 
                 var result = receiveTask.Result;
-                await ReceivedDatagram(result.Buffer, 0, result.Buffer.Length).ConfigureAwait(false);
+
+                if (ReceivedDatagram != null)
+                {
+                    await ReceivedDatagram.Invoke(result.Buffer, 0, result.Buffer.Length).ConfigureAwait(false);
+                }
             }
         }
     }

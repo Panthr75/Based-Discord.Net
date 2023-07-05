@@ -1,47 +1,44 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
+using System.Text.Json.Nodes;
 
 namespace Discord.Net.Converters
 {
-    internal class MessageComponentConverter : JsonConverter
+    internal class MessageComponentConverter : JsonConverter<IMessageComponent>
     {
-        public static MessageComponentConverter Instance => new MessageComponentConverter();
-
-        public override bool CanRead => true;
-        public override bool CanWrite => false;
-        public override bool CanConvert(Type objectType) => true;
-        public override void WriteJson(JsonWriter writer,
-            object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, IMessageComponent value, JsonSerializerOptions options)
         {
-            serializer.Serialize(writer, value);
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override IMessageComponent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var jsonObject = JObject.Load(reader);
-            var messageComponent = default(IMessageComponent);
-            switch ((ComponentType)jsonObject["type"].Value<int>())
+            if (reader.TokenType == JsonTokenType.Null)
             {
-                case ComponentType.ActionRow:
-                    messageComponent = new API.ActionRowComponent();
-                    break;
-                case ComponentType.Button:
-                    messageComponent = new API.ButtonComponent();
-                    break;
-                case ComponentType.SelectMenu:
-                case ComponentType.ChannelSelect:
-                case ComponentType.MentionableSelect:
-                case ComponentType.RoleSelect:
-                case ComponentType.UserSelect:
-                    messageComponent = new API.SelectMenuComponent();
-                    break;
-                case ComponentType.TextInput:
-                    messageComponent = new API.TextInputComponent();
-                    break;
+                return null;
             }
-            serializer.Populate(jsonObject.CreateReader(), messageComponent);
-            return messageComponent;
+
+            JsonObject ob = JsonNode.Parse(ref reader, nodeOptions: new JsonNodeOptions()
+            {
+                PropertyNameCaseInsensitive = options.PropertyNameCaseInsensitive
+            })!.AsObject();
+
+
+            int type = 0;
+            if (ob.TryGetPropertyValue("type", out JsonNode? typeValue))
+            {
+                type = typeValue.Deserialize<int>();
+            }
+
+            return (ComponentType)type switch
+            {
+                ComponentType.ActionRow => ob.Deserialize<API.ActionRowComponent>(options),
+                ComponentType.Button => ob.Deserialize<API.ButtonComponent>(options),
+                ComponentType.SelectMenu or ComponentType.ChannelSelect or ComponentType.MentionableSelect or ComponentType.RoleSelect or ComponentType.UserSelect => ob.Deserialize<API.SelectMenuComponent>(options),
+                ComponentType.TextInput => ob.Deserialize<API.TextInputComponent>(options),
+                _ => null,
+            };
         }
     }
 }

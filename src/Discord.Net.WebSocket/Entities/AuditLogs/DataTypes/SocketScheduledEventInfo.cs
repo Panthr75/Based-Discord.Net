@@ -21,7 +21,7 @@ public class SocketScheduledEventInfo
     /// <summary>
     ///     Gets the description of the event. null if none is set.
     /// </summary>
-    public string Description { get; }
+    public string? Description { get; }
 
     /// <summary>
     ///     Gets the time the event was scheduled for.
@@ -56,17 +56,17 @@ public class SocketScheduledEventInfo
     /// <summary>
     ///     Gets the metadata for the entity associated with the event.
     /// </summary>
-    public string Location { get; }
+    public string? Location { get; }
 
     /// <summary>
     ///     Gets the image hash of the image that was attached to the event. Null if not set.
     /// </summary>
-    public string Image { get; }
+    public string? Image { get; }
 
     internal SocketScheduledEventInfo(ScheduledEventInfoAuditLogModel model)
     {
         ChannelId = model.ChannelId;
-        Name = model.Name;
+        Name = model.Name!;
         Description = model.Description;
         ScheduledStartTime = model.StartTime;
         ScheduledEndTime = model.EndTime;

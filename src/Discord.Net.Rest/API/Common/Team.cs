@@ -1,18 +1,20 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API
 {
     internal class Team
     {
-        [JsonProperty("icon")]
+        [JsonPropertyName("icon")]
         public Optional<string> Icon { get; set; }
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("members")]
-        public TeamMember[] TeamMembers { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("owner_user_id")]
+        [JsonPropertyName("members")]
+        public TeamMember[] TeamMembers { get; set; } = Array.Empty<TeamMember>();
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("owner_user_id")]
         public ulong OwnerUserId { get; set; }
     }
 }

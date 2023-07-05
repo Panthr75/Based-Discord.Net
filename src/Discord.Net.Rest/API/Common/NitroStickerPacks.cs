@@ -1,11 +1,12 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Discord.API
 {
     internal class NitroStickerPacks
     {
-        [JsonProperty("sticker_packs")]
-        public List<StickerPack> StickerPacks { get; set; }
+        [JsonPropertyName("sticker_packs")]
+        public List<StickerPack> StickerPacks { get; set; } = new();
     }
 }

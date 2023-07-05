@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Model = Discord.API.GuildMember;
@@ -24,12 +25,12 @@ namespace Discord.Rest
         public string DisplayName => Nickname ?? GlobalName ?? Username;
 
         /// <inheritdoc />
-        public string Nickname { get; private set; }
+        public string? Nickname { get; private set; }
         /// <inheritdoc/>
-        public string DisplayAvatarId => GuildAvatarId ?? AvatarId;
+        public string? DisplayAvatarId => GuildAvatarId ?? AvatarId;
         /// <inheritdoc/>
-        public string GuildAvatarId { get; private set; }
-        internal IGuild Guild { get; private set; }
+        public string? GuildAvatarId { get; private set; }
+        internal IGuild? Guild { get; private set; }
         /// <inheritdoc />
         public bool IsDeafened { get; private set; }
         /// <inheritdoc />
@@ -45,10 +46,13 @@ namespace Discord.Rest
         public GuildUserFlags Flags { get; private set; }
 
         /// <inheritdoc />
+        [MemberNotNull(nameof(this.Guild))]
         public int Hierarchy
         {
             get
             {
+                this.ValidateGuildExists();
+
                 if (Guild.OwnerId == Id)
                     return int.MaxValue;
 
@@ -71,10 +75,13 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException" accessor="get">Resolving permissions requires the parent guild to be downloaded.</exception>
+        [MemberNotNull(nameof(this.Guild))]
         public GuildPermissions GuildPermissions
         {
             get
             {
+                this.ValidateGuildExists();
+
                 if (!Guild.Available)
                     throw new InvalidOperationException("Resolving permissions requires the parent guild to be downloaded.");
                 return new GuildPermissions(Permissions.ResolveGuild(Guild, this));
@@ -86,14 +93,14 @@ namespace Discord.Rest
         /// <inheritdoc />
         public DateTimeOffset? JoinedAt => DateTimeUtils.FromTicks(_joinedAtTicks);
 
-        internal RestGuildUser(BaseDiscordClient discord, IGuild guild, ulong id, ulong? guildId = null)
+        internal RestGuildUser(BaseDiscordClient discord, IGuild? guild, ulong id, ulong? guildId = null)
             : base(discord, id)
         {
             if (guild is not null)
                 Guild = guild;
-            GuildId = guildId ?? Guild.Id;
+            GuildId = guildId ?? Guild!.Id;
         }
-        internal static RestGuildUser Create(BaseDiscordClient discord, IGuild guild, Model model, ulong? guildId = null)
+        internal static RestGuildUser Create(BaseDiscordClient discord, IGuild? guild, Model model, ulong? guildId = null)
         {
             var entity = new RestGuildUser(discord, guild, model.User.Id, guildId);
             entity.Update(model);
@@ -132,13 +139,17 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public override async Task UpdateAsync(RequestOptions options = null)
+        public override async Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetGuildMemberAsync(GuildId, Id, options).ConfigureAwait(false);
+            if (model == null)
+            {
+                return;
+            }
             Update(model);
         }
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
         {
             var args = await UserHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             if (args.Deaf.IsSpecified)
@@ -153,37 +164,37 @@ namespace Discord.Rest
                 UpdateRoles(args.RoleIds.Value.ToArray());
         }
         /// <inheritdoc />
-        public Task KickAsync(string reason = null, RequestOptions options = null)
+        public Task KickAsync(string? reason = null, RequestOptions? options = null)
             => UserHelper.KickAsync(this, Discord, reason, options);
         /// <inheritdoc />
-        public Task AddRoleAsync(ulong roleId, RequestOptions options = null)
+        public Task AddRoleAsync(ulong roleId, RequestOptions? options = null)
             => AddRolesAsync(new[] { roleId }, options);
         /// <inheritdoc />
-        public Task AddRoleAsync(IRole role, RequestOptions options = null)
+        public Task AddRoleAsync(IRole role, RequestOptions? options = null)
             => AddRoleAsync(role.Id, options);
         /// <inheritdoc />
-        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null)
+        public Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null)
             => UserHelper.AddRolesAsync(this, Discord, roleIds, options);
         /// <inheritdoc />
-        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null)
+        public Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null)
             => AddRolesAsync(roles.Select(x => x.Id), options);
         /// <inheritdoc />
-        public Task RemoveRoleAsync(ulong roleId, RequestOptions options = null)
+        public Task RemoveRoleAsync(ulong roleId, RequestOptions? options = null)
             => RemoveRolesAsync(new[] { roleId }, options);
         /// <inheritdoc />
-        public Task RemoveRoleAsync(IRole role, RequestOptions options = null)
+        public Task RemoveRoleAsync(IRole role, RequestOptions? options = null)
             => RemoveRoleAsync(role.Id, options);
         /// <inheritdoc />
-        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null)
+        public Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null)
             => UserHelper.RemoveRolesAsync(this, Discord, roleIds, options);
         /// <inheritdoc />
-        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null)
+        public Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null)
             => RemoveRolesAsync(roles.Select(x => x.Id));
         /// <inheritdoc />
-        public Task SetTimeOutAsync(TimeSpan span, RequestOptions options = null)
+        public Task SetTimeOutAsync(TimeSpan span, RequestOptions? options = null)
             => UserHelper.SetTimeoutAsync(this, Discord, span, options);
         /// <inheritdoc />
-        public Task RemoveTimeOutAsync(RequestOptions options = null)
+        public Task RemoveTimeOutAsync(RequestOptions? options = null)
             => UserHelper.RemoveTimeOutAsync(this, Discord, options);
 
         /// <inheritdoc />
@@ -195,14 +206,23 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => GuildAvatarId is not null
                 ? GetGuildAvatarUrl(format, size)
                 : GetAvatarUrl(format, size);
 
         /// <inheritdoc />
-        public string GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
             => CDN.GetGuildUserAvatarUrl(Id, GuildId, GuildAvatarId, size, format);
+
+        [MemberNotNull(nameof(this.Guild))]
+        private void ValidateGuildExists()
+        {
+            if (Guild == null)
+            {
+                throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+            }
+        }
         #endregion
 
         #region IGuildUser
@@ -211,9 +231,8 @@ namespace Discord.Rest
         {
             get
             {
-                if (Guild != null)
-                    return Guild;
-                throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+                this.ValidateGuildExists();
+                return this.Guild;
             }
         }
         #endregion
@@ -226,9 +245,9 @@ namespace Discord.Rest
         /// <inheritdoc />
         bool IVoiceState.IsSuppressed => false;
         /// <inheritdoc />
-        IVoiceChannel IVoiceState.VoiceChannel => null;
+        IVoiceChannel? IVoiceState.VoiceChannel => null;
         /// <inheritdoc />
-        string IVoiceState.VoiceSessionId => null;
+        string? IVoiceState.VoiceSessionId => null;
         /// <inheritdoc />
         bool IVoiceState.IsStreaming => false;
         /// <inheritdoc />

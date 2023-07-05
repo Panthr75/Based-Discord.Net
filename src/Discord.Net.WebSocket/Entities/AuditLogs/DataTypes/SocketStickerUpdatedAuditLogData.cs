@@ -17,7 +17,7 @@ public class SocketStickerUpdatedAuditLogData : ISocketAuditLogData
 
     internal static SocketStickerUpdatedAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<StickerInfoAuditLogModel>(changes, discord);
 
         return new SocketStickerUpdatedAuditLogData(new(before), new (after));

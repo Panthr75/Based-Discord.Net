@@ -14,13 +14,13 @@ namespace Discord.Rest
     {
         #region General
         public static async Task DeleteAsync(IChannel channel, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             await client.ApiClient.DeleteChannelAsync(channel.Id, options).ConfigureAwait(false);
         }
         public static async Task<Model> ModifyAsync(IGuildChannel channel, BaseDiscordClient client,
             Action<GuildChannelProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new GuildChannelProperties();
             func(args);
@@ -44,7 +44,7 @@ namespace Discord.Rest
         }
         public static async Task<Model> ModifyAsync(ITextChannel channel, BaseDiscordClient client,
             Action<TextChannelProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new TextChannelProperties();
             func(args);
@@ -71,7 +71,7 @@ namespace Discord.Rest
         }
         public static async Task<Model> ModifyAsync(IVoiceChannel channel, BaseDiscordClient client,
             Action<VoiceChannelProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new VoiceChannelProperties();
             func(args);
@@ -99,7 +99,7 @@ namespace Discord.Rest
         }
 
         public static async Task<StageInstance> ModifyAsync(IStageChannel channel, BaseDiscordClient client,
-            Action<StageInstanceProperties> func, RequestOptions options = null)
+            Action<StageInstanceProperties> func, RequestOptions? options = null)
         {
             var args = new StageInstanceProperties();
             func(args);
@@ -116,7 +116,7 @@ namespace Discord.Rest
 
         #region Invites
         public static async Task<IReadOnlyCollection<RestInviteMetadata>> GetInvitesAsync(IGuildChannel channel, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var models = await client.ApiClient.GetChannelInvitesAsync(channel.Id, options).ConfigureAwait(false);
             return models.Select(x => RestInviteMetadata.Create(client, null, channel, x)).ToImmutableArray();
@@ -129,7 +129,7 @@ namespace Discord.Rest
         /// <paramref name="maxAge"/> must be lesser than 86400.
         /// </exception>
         public static async Task<RestInviteMetadata> CreateInviteAsync(IGuildChannel channel, BaseDiscordClient client,
-            int? maxAge, int? maxUses, bool isTemporary, bool isUnique, RequestOptions options)
+            int? maxAge, int? maxUses, bool isTemporary, bool isUnique, RequestOptions? options = null)
         {
             var args = new API.Rest.CreateChannelInviteParams
             {
@@ -151,7 +151,7 @@ namespace Discord.Rest
         /// </exception>
         public static async Task<RestInviteMetadata> CreateInviteToStreamAsync(IGuildChannel channel, BaseDiscordClient client,
             int? maxAge, int? maxUses, bool isTemporary, bool isUnique, IUser user,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new API.Rest.CreateChannelInviteParams
             {
@@ -175,7 +175,7 @@ namespace Discord.Rest
         /// </exception>
         public static async Task<RestInviteMetadata> CreateInviteToApplicationAsync(IGuildChannel channel, BaseDiscordClient client,
             int? maxAge, int? maxUses, bool isTemporary, bool isUnique, ulong applicationId,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new API.Rest.CreateChannelInviteParams
             {
@@ -192,8 +192,8 @@ namespace Discord.Rest
         #endregion
 
         #region Messages
-        public static async Task<RestMessage> GetMessageAsync(IMessageChannel channel, BaseDiscordClient client,
-            ulong id, RequestOptions options)
+        public static async Task<RestMessage?> GetMessageAsync(IMessageChannel channel, BaseDiscordClient client,
+            ulong id, RequestOptions? options = null)
         {
             var guildId = (channel as IGuildChannel)?.GuildId;
             var guild = guildId != null ? await (client as IDiscordClient).GetGuildAsync(guildId.Value, CacheMode.CacheOnly).ConfigureAwait(false) : null;
@@ -204,7 +204,7 @@ namespace Discord.Rest
             return RestMessage.Create(client, channel, author, model);
         }
         public static IAsyncEnumerable<IReadOnlyCollection<RestMessage>> GetMessagesAsync(IMessageChannel channel, BaseDiscordClient client,
-            ulong? fromMessageId, Direction dir, int limit, RequestOptions options)
+            ulong? fromMessageId, Direction dir, int limit, RequestOptions? options = null)
         {
             var guildId = (channel as IGuildChannel)?.GuildId;
             var guild = guildId != null ? (client as IDiscordClient).GetGuildAsync(guildId.Value, CacheMode.CacheOnly).Result : null;
@@ -255,7 +255,7 @@ namespace Discord.Rest
             );
         }
         public static async Task<IReadOnlyCollection<RestMessage>> GetPinnedMessagesAsync(IMessageChannel channel, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var guildId = (channel as IGuildChannel)?.GuildId;
             var guild = guildId != null ? await (client as IDiscordClient).GetGuildAsync(guildId.Value, CacheMode.CacheOnly).ConfigureAwait(false) : null;
@@ -272,9 +272,10 @@ namespace Discord.Rest
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
         public static async Task<RestUserMessage> SendMessageAsync(IMessageChannel channel, BaseDiscordClient client,
-            string text, bool isTTS, Embed embed, AllowedMentions allowedMentions, MessageReference messageReference,
-            MessageComponent components, ISticker[] stickers, RequestOptions options, Embed[] embeds, MessageFlags flags)
+            string? text, bool isTTS, Embed? embed, AllowedMentions? allowedMentions, MessageReference? messageReference,
+            MessageComponent? components, ISticker[]? stickers, RequestOptions? options, Embed[]? embeds, MessageFlags flags)
         {
+
             embeds ??= Array.Empty<Embed>();
             if (embed != null)
                 embeds = new[] { embed }.Concat(embeds).ToArray();
@@ -311,11 +312,11 @@ namespace Discord.Rest
 
             var args = new CreateMessageParams
             {
-                Content = text,
+                Content = Optional.CreateFromNullable(text),
                 IsTTS = isTTS,
                 Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
-                AllowedMentions = allowedMentions?.ToModel(),
-                MessageReference = messageReference?.ToModel(),
+                AllowedMentions = Optional.CreateFromNullable(allowedMentions?.ToModel()),
+                MessageReference = Optional.CreateFromNullable(messageReference?.ToModel()),
                 Components = components?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Optional<API.ActionRowComponent[]>.Unspecified,
                 Stickers = stickers?.Any() ?? false ? stickers.Select(x => x.Id).ToArray() : Optional<ulong[]>.Unspecified,
                 Flags = flags
@@ -349,10 +350,11 @@ namespace Discord.Rest
         /// <exception cref="IOException">An I/O error occurred while opening the file.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
+        /// <exception cref="InvalidOperationException">The client is not logged in yet.</exception>
         public static async Task<RestUserMessage> SendFileAsync(IMessageChannel channel, BaseDiscordClient client,
-            string filePath, string text, bool isTTS, Embed embed, AllowedMentions allowedMentions,
-            MessageReference messageReference, MessageComponent components, ISticker[] stickers, RequestOptions options,
-            bool isSpoiler, Embed[] embeds, MessageFlags flags = MessageFlags.None)
+            string filePath, string? text, bool isTTS, Embed? embed, AllowedMentions? allowedMentions,
+            MessageReference? messageReference, MessageComponent? components, ISticker[]? stickers, RequestOptions? options,
+            bool isSpoiler, Embed[]? embeds, MessageFlags flags = MessageFlags.None)
         {
             string filename = Path.GetFileName(filePath);
             using (var file = File.OpenRead(filePath))
@@ -362,10 +364,11 @@ namespace Discord.Rest
 
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
+        /// <exception cref="InvalidOperationException">The client is not logged in yet.</exception>
         public static async Task<RestUserMessage> SendFileAsync(IMessageChannel channel, BaseDiscordClient client,
-            Stream stream, string filename, string text, bool isTTS, Embed embed, AllowedMentions allowedMentions,
-            MessageReference messageReference, MessageComponent components, ISticker[] stickers, RequestOptions options,
-            bool isSpoiler, Embed[] embeds, MessageFlags flags = MessageFlags.None)
+            Stream stream, string filename, string? text, bool isTTS, Embed? embed, AllowedMentions? allowedMentions,
+            MessageReference? messageReference, MessageComponent? components, ISticker[]? stickers, RequestOptions? options,
+            bool isSpoiler, Embed[]? embeds, MessageFlags flags = MessageFlags.None)
         {
             using (var file = new FileAttachment(stream, filename, isSpoiler: isSpoiler))
                 return await SendFileAsync(channel, client, file, text, isTTS, embed, allowedMentions, messageReference,
@@ -374,18 +377,19 @@ namespace Discord.Rest
 
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/> and <see cref="MessageFlags.None"/>.</exception>
+        /// <exception cref="InvalidOperationException">The client is not logged in yet.</exception>
         public static Task<RestUserMessage> SendFileAsync(IMessageChannel channel, BaseDiscordClient client,
-            FileAttachment attachment, string text, bool isTTS, Embed embed, AllowedMentions allowedMentions,
-            MessageReference messageReference, MessageComponent components, ISticker[] stickers, RequestOptions options,
-            Embed[] embeds, MessageFlags flags = MessageFlags.None)
+            FileAttachment attachment, string? text, bool isTTS, Embed? embed, AllowedMentions? allowedMentions,
+            MessageReference? messageReference, MessageComponent? components, ISticker[]? stickers, RequestOptions? options,
+            Embed[]? embeds, MessageFlags flags = MessageFlags.None)
             => SendFilesAsync(channel, client, new[] { attachment }, text, isTTS, embed, allowedMentions, messageReference,
                 components, stickers, options, embeds, flags);
 
         /// <exception cref="ArgumentException">The only valid <see cref="MessageFlags"/> are <see cref="MessageFlags.SuppressEmbeds"/>, <see cref="MessageFlags.SuppressNotification"/> and <see cref="MessageFlags.None"/>.</exception>
         public static async Task<RestUserMessage> SendFilesAsync(IMessageChannel channel, BaseDiscordClient client,
-            IEnumerable<FileAttachment> attachments, string text, bool isTTS, Embed embed, AllowedMentions allowedMentions,
-            MessageReference messageReference, MessageComponent components, ISticker[] stickers, RequestOptions options,
-            Embed[] embeds, MessageFlags flags)
+            IEnumerable<FileAttachment> attachments, string? text, bool isTTS, Embed? embed, AllowedMentions? allowedMentions,
+            MessageReference? messageReference, MessageComponent? components, ISticker[]? stickers, RequestOptions? options,
+            Embed[]? embeds, MessageFlags flags)
         {
             embeds ??= Array.Empty<Embed>();
             if (embed != null)
@@ -438,7 +442,7 @@ namespace Discord.Rest
 
             var args = new UploadFileParams(attachments.ToArray())
             {
-                Content = text,
+                Content = Optional.CreateFromNullable(text),
                 IsTTS = isTTS,
                 Embeds = embeds.Any() ? embeds.Select(x => x.ToModel()).ToArray() : Optional<API.Embed[]>.Unspecified,
                 AllowedMentions = allowedMentions?.ToModel() ?? Optional<API.AllowedMentions>.Unspecified,
@@ -453,18 +457,18 @@ namespace Discord.Rest
         }
 
         public static async Task<RestUserMessage> ModifyMessageAsync(IMessageChannel channel, ulong messageId, Action<MessageProperties> func,
-            BaseDiscordClient client, RequestOptions options)
+            BaseDiscordClient client, RequestOptions? options = null)
         {
             var msgModel = await MessageHelper.ModifyAsync(channel.Id, messageId, client, func, options).ConfigureAwait(false);
-            return RestUserMessage.Create(client, channel, msgModel.Author.IsSpecified ? RestUser.Create(client, msgModel.Author.Value) : client.CurrentUser, msgModel);
+            return RestUserMessage.Create(client, channel, msgModel.Author.IsSpecified ? RestUser.Create(client, msgModel.Author.Value) : client.CurrentUser!, msgModel);
         }
 
         public static Task DeleteMessageAsync(IMessageChannel channel, ulong messageId, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
             => MessageHelper.DeleteAsync(channel.Id, messageId, client, options);
 
         public static async Task DeleteMessagesAsync(ITextChannel channel, BaseDiscordClient client,
-            IEnumerable<ulong> messageIds, RequestOptions options)
+            IEnumerable<ulong> messageIds, RequestOptions? options = null)
         {
             const int BATCH_SIZE = 100;
 
@@ -479,7 +483,7 @@ namespace Discord.Rest
                 }
                 else
                 {
-                    batch = new ArraySegment<ulong>(msgs, i * BATCH_SIZE, msgs.Length - batches * BATCH_SIZE);
+                    batch = new ArraySegment<ulong>(msgs, i * BATCH_SIZE, msgs.Length - (batches * BATCH_SIZE));
                     if (batch.Count == 0)
                     {
                         break;
@@ -493,24 +497,24 @@ namespace Discord.Rest
 
         #region Permission Overwrites
         public static async Task AddPermissionOverwriteAsync(IGuildChannel channel, BaseDiscordClient client,
-            IUser user, OverwritePermissions perms, RequestOptions options)
+            IUser user, OverwritePermissions perms, RequestOptions? options)
         {
             var args = new ModifyChannelPermissionsParams((int)PermissionTarget.User, perms.AllowValue.ToString(), perms.DenyValue.ToString());
             await client.ApiClient.ModifyChannelPermissionsAsync(channel.Id, user.Id, args, options).ConfigureAwait(false);
         }
         public static async Task AddPermissionOverwriteAsync(IGuildChannel channel, BaseDiscordClient client,
-            IRole role, OverwritePermissions perms, RequestOptions options)
+            IRole role, OverwritePermissions perms, RequestOptions? options = null)
         {
             var args = new ModifyChannelPermissionsParams((int)PermissionTarget.Role, perms.AllowValue.ToString(), perms.DenyValue.ToString());
             await client.ApiClient.ModifyChannelPermissionsAsync(channel.Id, role.Id, args, options).ConfigureAwait(false);
         }
         public static async Task RemovePermissionOverwriteAsync(IGuildChannel channel, BaseDiscordClient client,
-            IUser user, RequestOptions options)
+            IUser user, RequestOptions? options = null)
         {
             await client.ApiClient.DeleteChannelPermissionAsync(channel.Id, user.Id, options).ConfigureAwait(false);
         }
         public static async Task RemovePermissionOverwriteAsync(IGuildChannel channel, BaseDiscordClient client,
-            IRole role, RequestOptions options)
+            IRole role, RequestOptions? options = null)
         {
             await client.ApiClient.DeleteChannelPermissionAsync(channel.Id, role.Id, options).ConfigureAwait(false);
         }
@@ -518,8 +522,8 @@ namespace Discord.Rest
 
         #region Users
         /// <exception cref="InvalidOperationException">Resolving permissions requires the parent guild to be downloaded.</exception>
-        public static async Task<RestGuildUser> GetUserAsync(IGuildChannel channel, IGuild guild, BaseDiscordClient client,
-            ulong id, RequestOptions options)
+        public static async Task<RestGuildUser?> GetUserAsync(IGuildChannel channel, IGuild guild, BaseDiscordClient client,
+            ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetGuildMemberAsync(channel.GuildId, id, options).ConfigureAwait(false);
             if (model == null)
@@ -532,7 +536,7 @@ namespace Discord.Rest
         }
         /// <exception cref="InvalidOperationException">Resolving permissions requires the parent guild to be downloaded.</exception>
         public static IAsyncEnumerable<IReadOnlyCollection<RestGuildUser>> GetUsersAsync(IGuildChannel channel, IGuild guild, BaseDiscordClient client,
-            ulong? fromUserId, int? limit, RequestOptions options)
+            ulong? fromUserId, int? limit, RequestOptions? options = null)
         {
             return new PagedAsyncEnumerable<RestGuildUser>(
                 DiscordConfig.MaxUsersPerBatch,
@@ -565,17 +569,17 @@ namespace Discord.Rest
 
         #region Typing
         public static async Task TriggerTypingAsync(IMessageChannel channel, BaseDiscordClient client,
-            RequestOptions options = null)
+            RequestOptions? options = null)
         {
             await client.ApiClient.TriggerTypingIndicatorAsync(channel.Id, options).ConfigureAwait(false);
         }
         public static IDisposable EnterTypingState(IMessageChannel channel, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
             => new TypingNotifier(channel, options);
         #endregion
 
         #region Webhooks
-        public static async Task<RestWebhook> CreateWebhookAsync(IIntegrationChannel channel, BaseDiscordClient client, string name, Stream avatar, RequestOptions options)
+        public static async Task<RestWebhook> CreateWebhookAsync(IIntegrationChannel channel, BaseDiscordClient client, string name, Stream? avatar, RequestOptions? options)
         {
             var args = new CreateWebhookParams { Name = name };
             if (avatar != null)
@@ -584,39 +588,44 @@ namespace Discord.Rest
             var model = await client.ApiClient.CreateWebhookAsync(channel.Id, args, options).ConfigureAwait(false);
             return RestWebhook.Create(client, channel, model);
         }
-        public static async Task<RestWebhook> GetWebhookAsync(IIntegrationChannel channel, BaseDiscordClient client, ulong id, RequestOptions options)
+        public static async Task<RestWebhook?> GetWebhookAsync(IIntegrationChannel channel, BaseDiscordClient client, ulong id, RequestOptions? options)
         {
             var model = await client.ApiClient.GetWebhookAsync(id, options: options).ConfigureAwait(false);
             if (model == null)
                 return null;
             return RestWebhook.Create(client, channel, model);
         }
-        public static async Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(IIntegrationChannel channel, BaseDiscordClient client, RequestOptions options)
+        public static async Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(IIntegrationChannel channel, BaseDiscordClient client, RequestOptions? options)
         {
             var models = await client.ApiClient.GetChannelWebhooksAsync(channel.Id, options).ConfigureAwait(false);
             return models.Select(x => RestWebhook.Create(client, channel, x))
                 .ToImmutableArray();
         }
 
-        public static async Task<ulong> FollowAnnouncementChannelAsync(INewsChannel newsChannel, ulong channelId, BaseDiscordClient client, RequestOptions options)
+        /// <exception cref="InvalidOperationException">The news channel doesn't exist</exception>
+        public static async Task<ulong> FollowAnnouncementChannelAsync(INewsChannel newsChannel, ulong channelId, BaseDiscordClient client, RequestOptions? options)
         {
             var model = await client.ApiClient.FollowChannelAsync(newsChannel.Id, channelId, options);
-            return model.WebhookId;
+            return model == null ? throw new InvalidOperationException("Cannot follow a channel that doesn't exist") : model.WebhookId;
         }
         #endregion
 
         #region Categories
-        public static async Task<ICategoryChannel> GetCategoryAsync(INestedChannel channel, BaseDiscordClient client, RequestOptions options)
+        public static async Task<ICategoryChannel?> GetCategoryAsync(INestedChannel channel, BaseDiscordClient client, RequestOptions? options)
         {
             // if no category id specified, return null
             if (!channel.CategoryId.HasValue)
                 return null;
             // CategoryId will contain a value here
             var model = await client.ApiClient.GetChannelAsync(channel.CategoryId.Value, options).ConfigureAwait(false);
+            if (model is null)
+            {
+                return null;
+            }
             return RestCategoryChannel.Create(client, model) as ICategoryChannel;
         }
         /// <exception cref="InvalidOperationException">This channel does not have a parent channel.</exception>
-        public static async Task SyncPermissionsAsync(INestedChannel channel, BaseDiscordClient client, RequestOptions options)
+        public static async Task SyncPermissionsAsync(INestedChannel channel, BaseDiscordClient client, RequestOptions? options)
         {
             var category = await GetCategoryAsync(channel, client, options).ConfigureAwait(false);
             if (category == null)

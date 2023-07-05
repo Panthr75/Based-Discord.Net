@@ -25,6 +25,6 @@ namespace Discord.WebSocket
         }
 
         private string DebuggerDisplay => $"{Author}: {Content} ({Id}, {Type})";
-        internal new SocketSystemMessage Clone() => MemberwiseClone() as SocketSystemMessage;
+        internal new SocketSystemMessage Clone() => (SocketSystemMessage)MemberwiseClone();
     }
 }

@@ -11,7 +11,7 @@ namespace Discord.Rest
     internal static class UserHelper
     {
         public static async Task<Model> ModifyAsync(ISelfUser user, BaseDiscordClient client, Action<SelfUserProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new SelfUserProperties();
             func(args);
@@ -27,12 +27,12 @@ namespace Discord.Rest
             return await client.ApiClient.ModifySelfAsync(apiArgs, options).ConfigureAwait(false);
         }
         public static async Task<GuildUserProperties> ModifyAsync(IGuildUser user, BaseDiscordClient client, Action<GuildUserProperties> func,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new GuildUserProperties();
             func(args);
 
-            if (args.TimedOutUntil.IsSpecified && args.TimedOutUntil.Value.Value.Offset > (new TimeSpan(28, 0, 0, 0)))
+            if (args.TimedOutUntil.IsSpecified && args.TimedOutUntil.Value.HasValue && args.TimedOutUntil.Value.Value.Offset > new TimeSpan(28, 0, 0, 0))
                 throw new ArgumentOutOfRangeException(nameof(args.TimedOutUntil), "Offset cannot be more than 28 days from the current date.");
 
             var apiArgs = new API.Rest.ModifyGuildMemberParams
@@ -67,31 +67,31 @@ namespace Discord.Rest
         }
 
         public static async Task KickAsync(IGuildUser user, BaseDiscordClient client,
-            string reason, RequestOptions options)
+            string? reason, RequestOptions? options = null)
         {
             await client.ApiClient.RemoveGuildMemberAsync(user.GuildId, user.Id, reason, options).ConfigureAwait(false);
         }
 
         public static async Task<RestDMChannel> CreateDMChannelAsync(IUser user, BaseDiscordClient client,
-            RequestOptions options)
+            RequestOptions? options)
         {
             var args = new CreateDMChannelParams(user.Id);
             return RestDMChannel.Create(client, await client.ApiClient.CreateDMChannelAsync(args, options).ConfigureAwait(false));
         }
 
-        public static async Task AddRolesAsync(IGuildUser user, BaseDiscordClient client, IEnumerable<ulong> roleIds, RequestOptions options)
+        public static async Task AddRolesAsync(IGuildUser user, BaseDiscordClient client, IEnumerable<ulong> roleIds, RequestOptions? options = null)
         {
             foreach (var roleId in roleIds)
                 await client.ApiClient.AddRoleAsync(user.Guild.Id, user.Id, roleId, options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveRolesAsync(IGuildUser user, BaseDiscordClient client, IEnumerable<ulong> roleIds, RequestOptions options)
+        public static async Task RemoveRolesAsync(IGuildUser user, BaseDiscordClient client, IEnumerable<ulong> roleIds, RequestOptions? options = null)
         {
             foreach (var roleId in roleIds)
                 await client.ApiClient.RemoveRoleAsync(user.Guild.Id, user.Id, roleId, options).ConfigureAwait(false);
         }
 
-        public static async Task SetTimeoutAsync(IGuildUser user, BaseDiscordClient client, TimeSpan span, RequestOptions options)
+        public static async Task SetTimeoutAsync(IGuildUser user, BaseDiscordClient client, TimeSpan span, RequestOptions? options = null)
         {
             if (span.TotalDays > 28) // As its double, an exact value of 28 can be accepted.
                 throw new ArgumentOutOfRangeException(nameof(span), "Offset cannot be more than 28 days from the current date.");
@@ -104,7 +104,7 @@ namespace Discord.Rest
             await client.ApiClient.ModifyGuildMemberAsync(user.Guild.Id, user.Id, apiArgs, options).ConfigureAwait(false);
         }
 
-        public static async Task RemoveTimeOutAsync(IGuildUser user, BaseDiscordClient client, RequestOptions options)
+        public static async Task RemoveTimeOutAsync(IGuildUser user, BaseDiscordClient client, RequestOptions? options = null)
         {
             var apiArgs = new API.Rest.ModifyGuildMemberParams()
             {

@@ -18,19 +18,19 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the name of this module.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
         /// <summary>
         ///     Gets the summary of this module.
         /// </summary>
-        public string Summary { get; }
+        public string? Summary { get; }
         /// <summary>
         ///     Gets the remarks of this module.
         /// </summary>
-        public string Remarks { get; }
+        public string? Remarks { get; }
         /// <summary>
         ///     Gets the group name (main prefix) of this module.
         /// </summary>
-        public string Group { get; }
+        public string? Group { get; }
 
         /// <summary>
         ///     Gets a read-only list of aliases associated with this module.
@@ -55,13 +55,13 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the parent module of this submodule if applicable.
         /// </summary>
-        public ModuleInfo Parent { get; }
+        public ModuleInfo? Parent { get; }
         /// <summary>
         ///     Gets a value that indicates whether this module is a submodule or not.
         /// </summary>
         public bool IsSubmodule => Parent != null;
 
-        internal ModuleInfo(ModuleBuilder builder, CommandService service, IServiceProvider services, ModuleInfo parent = null)
+        internal ModuleInfo(ModuleBuilder builder, CommandService service, IServiceProvider? services, ModuleInfo? parent = null)
         {
             Service = service;
 
@@ -106,7 +106,7 @@ namespace Discord.Commands
             return result;
         }
 
-        private List<ModuleInfo> BuildSubmodules(ModuleBuilder parent, CommandService service, IServiceProvider services)
+        private List<ModuleInfo> BuildSubmodules(ModuleBuilder parent, CommandService service, IServiceProvider? services)
         {
             var result = new List<ModuleInfo>();
 
@@ -120,7 +120,7 @@ namespace Discord.Commands
         {
             var result = new List<PreconditionAttribute>();
 
-            ModuleBuilder parent = builder;
+            ModuleBuilder? parent = builder;
             while (parent != null)
             {
                 result.AddRange(parent.Preconditions);
@@ -134,7 +134,7 @@ namespace Discord.Commands
         {
             var result = new List<Attribute>();
 
-            ModuleBuilder parent = builder;
+            ModuleBuilder? parent = builder;
             while (parent != null)
             {
                 result.AddRange(parent.Attributes);

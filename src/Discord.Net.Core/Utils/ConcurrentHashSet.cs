@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace Discord
@@ -38,11 +39,11 @@ namespace Discord
     {
         private sealed class Tables
         {
-            internal readonly Node[] _buckets;
+            internal readonly Node?[] _buckets;
             internal readonly object[] _locks;
             internal volatile int[] _countPerLock;
 
-            internal Tables(Node[] buckets, object[] locks, int[] countPerLock)
+            internal Tables(Node?[] buckets, object[] locks, int[] countPerLock)
             {
                 _buckets = buckets;
                 _locks = locks;
@@ -52,10 +53,10 @@ namespace Discord
         private sealed class Node
         {
             internal readonly T _value;
-            internal volatile Node _next;
+            internal volatile Node? _next;
             internal readonly int _hashcode;
 
-            internal Node(T key, int hashcode, Node next)
+            internal Node(T key, int hashcode, Node? next)
             {
                 _value = key;
                 _next = next;
@@ -135,7 +136,7 @@ namespace Discord
 
                     for (int i = 0; i < _tables._buckets.Length; i++)
                     {
-                        Node current = _tables._buckets[i];
+                        Node? current = _tables._buckets[i];
                         while (current != null)
                         {
                             values.Add(current._value);
@@ -230,7 +231,7 @@ namespace Discord
 
             int bucketNo = GetBucket(hashcode, tables._buckets.Length);
 
-            Node n = Volatile.Read(ref tables._buckets[bucketNo]);
+            Node? n = Volatile.Read(ref tables._buckets[bucketNo]);
 
             while (n != null)
             {
@@ -245,8 +246,7 @@ namespace Discord
         /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null" /></exception>
         public bool TryAdd(T value)
         {
-            if (value == null)
-                throw new ArgumentNullException(paramName: "key");
+            Preconditions.NotNull(value, "key");
             return TryAddInternal(value, _comparer.GetHashCode(value), true);
         }
         private bool TryAddInternal(T value, int hashcode, bool acquireLock)
@@ -266,8 +266,8 @@ namespace Discord
                     if (tables != _tables)
                         continue;
 
-                    Node prev = null;
-                    for (Node node = tables._buckets[bucketNo]; node != null; node = node._next)
+                    Node? prev = null;
+                    for (Node? node = tables._buckets[bucketNo]; node != null; node = node._next)
                     {
                         if (hashcode == node._hashcode && _comparer.Equals(node._value, value))
                             return false;
@@ -297,11 +297,10 @@ namespace Discord
         /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null" /></exception>
         public bool TryRemove(T value)
         {
-            if (value == null)
-                throw new ArgumentNullException(paramName: "key");
+            Preconditions.NotNull(value, "key");
             return TryRemoveInternal(value);
         }
-        private bool TryRemoveInternal(T value)
+        private bool TryRemoveInternal([DisallowNull] T value)
         {
             int hashcode = _comparer.GetHashCode(value);
             while (true)
@@ -314,8 +313,8 @@ namespace Discord
                     if (tables != _tables)
                         continue;
 
-                    Node prev = null;
-                    for (Node curr = tables._buckets[bucketNo]; curr != null; curr = curr._next)
+                    Node? prev = null;
+                    for (Node? curr = tables._buckets[bucketNo]; curr != null; curr = curr._next)
                     {
                         if (hashcode == curr._hashcode && _comparer.Equals(curr._value, value))
                         {
@@ -332,7 +331,6 @@ namespace Discord
                     }
                 }
 
-                value = default(T);
                 return false;
             }
         }
@@ -356,11 +354,11 @@ namespace Discord
 
         public IEnumerator<T> GetEnumerator()
         {
-            Node[] buckets = _tables._buckets;
+            Node?[] buckets = _tables._buckets;
 
             for (int i = 0; i < buckets.Length; i++)
             {
-                Node current = Volatile.Read(ref buckets[i]);
+                Node? current = Volatile.Read(ref buckets[i]);
 
                 while (current != null)
                 {
@@ -399,7 +397,7 @@ namespace Discord
                 {
                     checked
                     {
-                        newLength = tables._buckets.Length * 2 + 1;
+                        newLength = (tables._buckets.Length * 2) + 1;
                         while (newLength % 3 == 0 || newLength % 5 == 0 || newLength % 7 == 0)
                             newLength += 2;
 
@@ -435,10 +433,10 @@ namespace Discord
 
                 for (int i = 0; i < tables._buckets.Length; i++)
                 {
-                    Node current = tables._buckets[i];
+                    Node? current = tables._buckets[i];
                     while (current != null)
                     {
-                        Node next = current._next;
+                        Node? next = current._next;
                         GetBucketAndLockNo(current._hashcode, out int newBucketNo, out int newLockNo, newBuckets.Length, newLocks.Length);
 
                         newBuckets[newBucketNo] = new Node(current._value, current._hashcode, newBuckets[newBucketNo]);

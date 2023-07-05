@@ -1,12 +1,13 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class GuildRoleCreateEvent
     {
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
-        [JsonProperty("role")]
-        public Role Role { get; set; }
+        [JsonPropertyName("role")]
+        public Role Role { get; set; } = null!;
     }
 }

@@ -8,7 +8,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to an auto moderation rule update.
 /// </summary>
-public class AutoModRuleUpdatedAuditLogData : IAuditLogData
+public partial class AutoModRuleUpdatedAuditLogData : IAuditLogData
 {
     private AutoModRuleUpdatedAuditLogData(AutoModRuleInfo before, AutoModRuleInfo after, IAutoModRule rule)
     {
@@ -17,13 +17,13 @@ public class AutoModRuleUpdatedAuditLogData : IAuditLogData
         Rule = rule;
     }
 
-    internal static AutoModRuleUpdatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static AutoModRuleUpdatedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
         var changes = entry.Changes;
 
-        var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<AutoModRuleInfoAuditLogModel>(changes, discord);
+        var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<AutoModRuleInfoAuditLogModel>(changes!, discord);
 
-        var rule = RestAutoModRule.Create(discord, log.AutoModerationRules.FirstOrDefault(x => x.Id == entry.TargetId));
+        var rule = RestAutoModRule.Create(discord, log!.AutoModerationRules.FirstOrDefault(x => x.Id == entry.TargetId)!);
 
         return new AutoModRuleUpdatedAuditLogData(new (before), new(after), rule);
     }

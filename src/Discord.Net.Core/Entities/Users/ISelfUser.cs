@@ -53,11 +53,11 @@ namespace Discord
         ///     The IETF language tag of the user's chosen region, if provided.
         ///     For example, a locale of "English, US" is "en-US", "Chinese (Taiwan)" is "zh-TW", etc.
         /// </returns>
-        string Locale { get; }
+        string? Locale { get; }
 
         /// <summary>
         ///     Modifies the user's properties.
         /// </summary>
-        Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<SelfUserProperties> func, RequestOptions? options = null);
     }
 }

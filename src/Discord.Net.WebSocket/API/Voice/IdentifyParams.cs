@@ -1,16 +1,17 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Voice
 {
     internal class IdentifyParams
     {
-        [JsonProperty("server_id")]
+        [JsonPropertyName("server_id")]
         public ulong GuildId { get; set; }
-        [JsonProperty("user_id")]
+        [JsonPropertyName("user_id")]
         public ulong UserId { get; set; }
-        [JsonProperty("session_id")]
-        public string SessionId { get; set; }
-        [JsonProperty("token")]
-        public string Token { get; set; }
+        [JsonPropertyName("session_id")]
+        public string SessionId { get; set; } = string.Empty;
+        [JsonPropertyName("token")]
+        public string Token { get; set; } = string.Empty;
     }
 }

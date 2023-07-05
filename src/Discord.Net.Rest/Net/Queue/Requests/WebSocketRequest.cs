@@ -8,8 +8,8 @@ namespace Discord.Net.Queue
 {
     public class WebSocketRequest : IRequest
     {
-        public IWebSocketClient Client { get; }
-        public byte[] Data { get; }
+        public IWebSocketClient? Client { get; }
+        public byte[]? Data { get; }
         public bool IsText { get; }
         public bool IgnoreLimit { get; }
         public DateTimeOffset? TimeoutAt { get; }
@@ -17,7 +17,7 @@ namespace Discord.Net.Queue
         public RequestOptions Options { get; }
         public CancellationToken CancelToken { get; internal set; }
 
-        public WebSocketRequest(IWebSocketClient client, byte[] data, bool isText, bool ignoreLimit, RequestOptions options)
+        public WebSocketRequest(IWebSocketClient? client, byte[]? data, bool isText, bool ignoreLimit, RequestOptions options)
         {
             Preconditions.NotNull(options, nameof(options));
 
@@ -32,6 +32,11 @@ namespace Discord.Net.Queue
 
         public async Task SendAsync()
         {
+            if (this.Client is null || this.Data is null)
+            {
+                return;
+            }
+
             await Client.SendAsync(Data, 0, Data.Length, IsText).ConfigureAwait(false);
         }
     }

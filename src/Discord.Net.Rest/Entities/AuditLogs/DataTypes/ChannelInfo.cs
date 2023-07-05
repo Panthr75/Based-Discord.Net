@@ -12,7 +12,7 @@ namespace Discord.Rest
     {
         internal ChannelInfo(Model model)
         {
-            Name = model.Name;
+            Name = model.Name!;
             Topic = model.Topic;
             IsNsfw = model.IsNsfw;
             Bitrate = model.Bitrate;
@@ -25,12 +25,12 @@ namespace Discord.Rest
                     x.Name,
                     x.EmojiId.GetValueOrDefault(null),
                     x.EmojiName.GetValueOrDefault(null),
-                    x.Moderated)).ToImmutableArray();
+                    x.Moderated))?.ToImmutableArray();
 
             if (model.DefaultEmoji is not null)
             {
                 if (model.DefaultEmoji.EmojiId.HasValue && model.DefaultEmoji.EmojiId.Value != 0)
-                    DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null, false);
+                    DefaultReactionEmoji = new Emote(model.DefaultEmoji.EmojiId.GetValueOrDefault(), null!, false);
                 else if (model.DefaultEmoji.EmojiName.IsSpecified)
                     DefaultReactionEmoji = new Emoji(model.DefaultEmoji.EmojiName.Value);
                 else
@@ -60,7 +60,7 @@ namespace Discord.Rest
         /// <returns>
         ///     A string containing the topic of this channel, if any.
         /// </returns>
-        public string Topic { get; }
+        public string? Topic { get; }
         /// <summary>
         ///     Gets the current slow-mode delay of this channel.
         /// </summary>
@@ -104,13 +104,13 @@ namespace Discord.Rest
         /// <remarks>
         ///     <see langword="null" /> if the value was not updated in this entry.
         /// </remarks>
-        public IReadOnlyCollection<ForumTag> ForumTags { get; }
+        public IReadOnlyCollection<ForumTag>? ForumTags { get; }
 
         /// <inheritdoc cref="IForumChannel.DefaultReactionEmoji"/>
         /// <remarks>
         ///     <see langword="null" /> if the value was not updated in this entry.
         /// </remarks>
-        public IEmote DefaultReactionEmoji { get; }
+        public IEmote? DefaultReactionEmoji { get; }
 
         /// <summary>
         ///     Gets the user limit configured in the created voice channel.
@@ -125,7 +125,7 @@ namespace Discord.Rest
         /// <summary>
         ///     Gets the region configured in the created voice channel.
         /// </summary>
-        public string RtcRegion { get; }
+        public string? RtcRegion { get; }
 
         /// <summary>
         ///     Gets channel flags configured for the created channel.

@@ -1,15 +1,16 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using System;
+using Discord.Net.Converters;
 
 namespace Discord.API
 {
     internal class GameTimestamps
     {
-        [JsonProperty("start")]
-        [UnixTimestamp]
+        [JsonPropertyName("start")]
+        [JsonConverter(typeof(UnixTimestampConverter))]
         public Optional<DateTimeOffset> Start { get; set; }
-        [JsonProperty("end")]
-        [UnixTimestamp]
+        [JsonPropertyName("end")]
+        [JsonConverter(typeof(UnixTimestampConverter))]
         public Optional<DateTimeOffset> End { get; set; }
     }
 }

@@ -8,23 +8,23 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a change in a guild member.
 /// </summary>
-public class MemberUpdateAuditLogData : IAuditLogData
+public partial class MemberUpdateAuditLogData : IAuditLogData
 {
-    private MemberUpdateAuditLogData(IUser target, MemberInfo before, MemberInfo after)
+    private MemberUpdateAuditLogData(IUser? target, MemberInfo before, MemberInfo after)
     {
         Target = target;
         Before = before;
         After = after;
     }
 
-    internal static MemberUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static MemberUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<MemberInfoAuditLogModel>(changes, discord);
 
-        var targetInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
-        RestUser user = (targetInfo != null) ? RestUser.Create(discord, targetInfo) : null;
+        var targetInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
+        RestUser? user = (targetInfo != null) ? RestUser.Create(discord, targetInfo) : null;
 
         return new MemberUpdateAuditLogData(user, new MemberInfo(before), new MemberInfo(after));
     }
@@ -38,7 +38,7 @@ public class MemberUpdateAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user who the changes were performed on.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
     /// <summary>
     ///     Gets the member information before the changes.
     /// </summary>

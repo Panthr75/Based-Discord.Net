@@ -1,15 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class ResumeParams
     {
-        [JsonProperty("token")]
-        public string Token { get; set; }
-        [JsonProperty("session_id")]
-        public string SessionId { get; set; }
-        [JsonProperty("seq")]
+        [JsonPropertyName("token")]
+        public string Token { get; set; } = string.Empty;
+        [JsonPropertyName("session_id")]
+        public string SessionId { get; set; } = string.Empty;
+        [JsonPropertyName("seq")]
         public int Sequence { get; set; }
     }
 }

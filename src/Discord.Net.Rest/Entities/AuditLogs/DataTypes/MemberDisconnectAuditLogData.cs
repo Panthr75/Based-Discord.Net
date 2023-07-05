@@ -1,21 +1,20 @@
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data related to disconnecting members from voice channels.
 /// </summary>
-public class MemberDisconnectAuditLogData : IAuditLogData
+public partial class MemberDisconnectAuditLogData : IAuditLogData
 {
     private MemberDisconnectAuditLogData(int count)
     {
         MemberCount = count;
     }
 
-    internal static MemberDisconnectAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static MemberDisconnectAuditLogData Create(EntryModel entry)
     {
-        return new MemberDisconnectAuditLogData(entry.Options.Count.Value);
+        return new MemberDisconnectAuditLogData(entry.Options!.Count!.Value);
     }
 
     /// <summary>

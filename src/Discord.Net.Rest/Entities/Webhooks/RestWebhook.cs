@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Model = Discord.API.Webhook;
 
@@ -9,8 +10,8 @@ namespace Discord.Rest
     public class RestWebhook : RestEntity<ulong>, IWebhook, IUpdateable
     {
         #region RestWebhook
-        internal IGuild Guild { get; private set; }
-        internal IIntegrationChannel Channel { get; private set; }
+        internal IGuild? Guild { get; private set; }
+        internal IIntegrationChannel? Channel { get; private set; }
 
         /// <inheritdoc />
         public string Token { get; }
@@ -20,37 +21,38 @@ namespace Discord.Rest
         /// <inheritdoc />
         public string Name { get; private set; }
         /// <inheritdoc />
-        public string AvatarId { get; private set; }
+        public string? AvatarId { get; private set; }
         /// <inheritdoc />
         public ulong? GuildId { get; private set; }
         /// <inheritdoc />
-        public IUser Creator { get; private set; }
+        public IUser? Creator { get; private set; }
         /// <inheritdoc />
         public ulong? ApplicationId { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
-        internal RestWebhook(BaseDiscordClient discord, IGuild guild, ulong id, string token, ulong channelId)
+        internal RestWebhook(BaseDiscordClient discord, IGuild? guild, ulong id, string token, ulong channelId)
             : base(discord, id)
         {
+            this.Name = string.Empty;
             Guild = guild;
             Token = token;
             ChannelId = channelId;
         }
-        internal RestWebhook(BaseDiscordClient discord, IIntegrationChannel channel, ulong id, string token, ulong channelId)
-            : this(discord, channel.Guild, id, token, channelId)
+        internal RestWebhook(BaseDiscordClient discord, IIntegrationChannel? channel, ulong id, string token, ulong channelId)
+            : this(discord, channel?.Guild, id, token, channelId)
         {
             Channel = channel;
         }
 
-        internal static RestWebhook Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal static RestWebhook Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestWebhook(discord, guild, model.Id, model.Token, model.ChannelId);
             entity.Update(model);
             return entity;
         }
-        internal static RestWebhook Create(BaseDiscordClient discord, IIntegrationChannel channel, Model model)
+        internal static RestWebhook Create(BaseDiscordClient discord, IIntegrationChannel? channel, Model model)
         {
             var entity = new RestWebhook(discord, channel, model.Id, model.Token, model.ChannelId);
             entity.Update(model);
@@ -74,39 +76,73 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(RequestOptions options = null)
+        public async Task UpdateAsync(RequestOptions? options = null)
         {
             var model = await Discord.ApiClient.GetWebhookAsync(Id, options).ConfigureAwait(false);
+            if (model == null)
+            {
+                return;
+            }
             Update(model);
         }
 
         /// <inheritdoc />
-        public string GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+        public string? GetAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
            => CDN.GetUserAvatarUrl(Id, AvatarId, size, format);
 
-        public async Task ModifyAsync(Action<WebhookProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<WebhookProperties> func, RequestOptions? options = null)
         {
             var model = await WebhookHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
             Update(model);
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => WebhookHelper.DeleteAsync(this, Discord, options);
 
         public override string ToString() => $"Webhook: {Name}:{Id}";
         private string DebuggerDisplay => $"Webhook: {Name} ({Id})";
+
+        [MemberNotNull(nameof(this.Guild))]
+        private void ValidateGuildExists()
+        {
+            if (Guild == null)
+            {
+                throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+            }
+        }
+        [MemberNotNull(nameof(this.Channel))]
+        private void ValidateChannelExists()
+        {
+            if (Channel == null)
+            {
+                throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+            }
+        }
+
         #endregion
 
         #region IWebhook
         /// <inheritdoc />
         IGuild IWebhook.Guild
-            => Guild ?? throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+        {
+            get
+            {
+                this.ValidateGuildExists();
+                return this.Guild;
+            }
+        }
         /// <inheritdoc />
         IIntegrationChannel IWebhook.Channel
-            => Channel ?? throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
+        {
+            get
+            {
+                this.ValidateChannelExists();
+                return this.Channel;
+            }
+        }
         /// <inheritdoc />
-        Task IWebhook.ModifyAsync(Action<WebhookProperties> func, RequestOptions options)
+        Task IWebhook.ModifyAsync(Action<WebhookProperties> func, RequestOptions? options)
             => ModifyAsync(func, options);
         #endregion
     }

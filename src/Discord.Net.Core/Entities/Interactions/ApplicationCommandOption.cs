@@ -1,3 +1,4 @@
+using Discord.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,10 +12,10 @@ namespace Discord
     /// </summary>
     public class ApplicationCommandOptionProperties
     {
-        private string _name;
-        private string _description;
-        private IDictionary<string, string> _nameLocalizations = new Dictionary<string, string>();
-        private IDictionary<string, string> _descriptionLocalizations = new Dictionary<string, string>();
+        private string _name = string.Empty;
+        private string _description = string.Empty;
+        private IDictionary<string, string>? _nameLocalizations;
+        private IDictionary<string, string>? _descriptionLocalizations;
 
         /// <summary>
         ///     Gets or sets the name of this option.
@@ -65,12 +66,12 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the smallest number value the user can input.
         /// </summary>
-        public double? MinValue { get; set; }
+        public NumericValue? MinValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the largest number value the user can input.
         /// </summary>
-        public double? MaxValue { get; set; }
+        public NumericValue? MaxValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the minimum allowed length for a string input.
@@ -85,23 +86,23 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the choices for string and int types for the user to pick from.
         /// </summary>
-        public List<ApplicationCommandOptionChoiceProperties> Choices { get; set; }
+        public List<ApplicationCommandOptionChoiceProperties>? Choices { get; set; }
 
         /// <summary>
         ///     Gets or sets if this option is a subcommand or subcommand group type, these nested options will be the parameters.
         /// </summary>
-        public List<ApplicationCommandOptionProperties> Options { get; set; }
+        public List<ApplicationCommandOptionProperties> Options { get; set; } = new();
 
         /// <summary>
         ///     Gets or sets the allowed channel types for this option.
         /// </summary>
-        public List<ChannelType> ChannelTypes { get; set; }
+        public List<ChannelType>? ChannelTypes { get; set; }
 
         /// <summary>
         ///     Gets or sets the localization dictionary for the name field of this option.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown when any of the dictionary keys is an invalid locale.</exception>
-        public IDictionary<string, string> NameLocalizations
+        public IDictionary<string, string>? NameLocalizations
         {
             get => _nameLocalizations;
             set
@@ -125,7 +126,7 @@ namespace Discord
         ///     Gets or sets the localization dictionary for the description field of this option.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown when any of the dictionary keys is an invalid locale.</exception>
-        public IDictionary<string, string> DescriptionLocalizations
+        public IDictionary<string, string>? DescriptionLocalizations
         {
             get => _descriptionLocalizations;
             set

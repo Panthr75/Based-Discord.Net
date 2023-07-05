@@ -1,18 +1,19 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class TypingStartEvent
     {
-        [JsonProperty("user_id")]
+        [JsonPropertyName("user_id")]
         public ulong UserId { get; set; }
-        [JsonProperty("channel_id")]
+        [JsonPropertyName("channel_id")]
         public ulong ChannelId { get; set; }
-        [JsonProperty("guild_id")]
-        public Optional<ulong> GuildId { get; set; }
-        [JsonProperty("member")]
+        [JsonPropertyName("guild_id")]
+        public ulong GuildId { get; set; }
+        [JsonPropertyName("member")]
         public Optional<GuildMember> Member { get; set; }
-        [JsonProperty("timestamp")]
+        [JsonPropertyName("timestamp")]
         public int Timestamp { get; set; }
     }
 }

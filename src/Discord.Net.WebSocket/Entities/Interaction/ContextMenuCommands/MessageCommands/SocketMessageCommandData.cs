@@ -13,7 +13,7 @@ namespace Discord.WebSocket
         ///     Gets the message associated with this message command.
         /// </summary>
         public SocketMessage Message
-            => ResolvableData?.Messages.FirstOrDefault().Value;
+            => ResolvableData!.Messages.FirstOrDefault().Value;
 
         /// <inheritdoc/>
         /// <remarks>

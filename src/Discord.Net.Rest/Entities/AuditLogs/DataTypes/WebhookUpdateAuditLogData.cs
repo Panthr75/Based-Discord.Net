@@ -8,23 +8,23 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a webhook update.
 /// </summary>
-public class WebhookUpdateAuditLogData : IAuditLogData
+public partial class WebhookUpdateAuditLogData : IAuditLogData
 {
-    private WebhookUpdateAuditLogData(IWebhook webhook, WebhookInfo before, WebhookInfo after)
+    private WebhookUpdateAuditLogData(IWebhook? webhook, WebhookInfo before, WebhookInfo after)
     {
         Webhook = webhook;
         Before = before;
         After = after;
     }
 
-    internal static WebhookUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static WebhookUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
         var (before, after) = AuditLogHelper.CreateAuditLogEntityInfo<WebhookInfoAuditLogModel>(changes, discord);
 
-        var webhookInfo = log.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
-        var webhook = webhookInfo != null ? RestWebhook.Create(discord, (IGuild)null, webhookInfo) : null;
+        var webhookInfo = log?.Webhooks?.FirstOrDefault(x => x.Id == entry.TargetId);
+        var webhook = webhookInfo != null ? RestWebhook.Create(discord, (IGuild?)null, webhookInfo) : null;
 
         return new WebhookUpdateAuditLogData(webhook, new(before), new(after));
     }
@@ -35,7 +35,7 @@ public class WebhookUpdateAuditLogData : IAuditLogData
     /// <returns>
     ///     A webhook object representing the webhook that was updated.
     /// </returns>
-    public IWebhook Webhook { get; }
+    public IWebhook? Webhook { get; }
 
     /// <summary>
     ///     Gets the webhook information before the changes.

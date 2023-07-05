@@ -7,7 +7,7 @@ namespace Discord
     /// </summary>
     public class AutocompleteResult
     {
-        private object _value;
+        private ApplicationCommandOptionValue _value;
         private string _name;
 
         /// <summary>
@@ -42,12 +42,12 @@ namespace Discord
         /// </remarks>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
-        public object Value
+        public ApplicationCommandOptionValue Value
         {
             get => _value;
             set
             {
-                if (value is not string && !value.IsNumericType())
+                if (!value.IsString && !value.IsNumber)
                     throw new ArgumentException($"{nameof(value)} must be a numeric type or a string!");
 
                 _value = value;
@@ -57,14 +57,18 @@ namespace Discord
         /// <summary>
         ///     Creates a new <see cref="AutocompleteResult"/>.
         /// </summary>
-        public AutocompleteResult() { }
+        public AutocompleteResult()
+        {
+            this._name = string.Empty;
+            this._value = ApplicationCommandOptionValue.None;
+        }
 
         /// <summary>
         ///     Creates a new <see cref="AutocompleteResult"/> with the passed in <paramref name="name"/> and <paramref name="value"/>.
         /// </summary>
         /// <exception cref="ArgumentNullException"/>
         /// <exception cref="ArgumentException"/>
-        public AutocompleteResult(string name, object value)
+        public AutocompleteResult(string name, ApplicationCommandOptionValue value) : this()
         {
             Name = name;
             Value = value;

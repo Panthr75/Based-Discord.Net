@@ -1,41 +1,42 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 
 namespace Discord.API
 {
     internal class Invite
     {
-        [JsonProperty("code")]
-        public string Code { get; set; }
+        [JsonPropertyName("code")]
+        public string Code { get; set; } = string.Empty;
 
-        [JsonProperty("guild")]
+        [JsonPropertyName("guild")]
         public Optional<PartialGuild> Guild { get; set; }
 
-        [JsonProperty("channel")]
-        public InviteChannel Channel { get; set; }
+        [JsonPropertyName("channel")]
+        public InviteChannel Channel { get; set; } = null!;
 
-        [JsonProperty("inviter")]
+        [JsonPropertyName("inviter")]
         public Optional<User> Inviter { get; set; }
 
-        [JsonProperty("approximate_presence_count")]
+        [JsonPropertyName("approximate_presence_count")]
         public Optional<int?> PresenceCount { get; set; }
 
-        [JsonProperty("approximate_member_count")]
+        [JsonPropertyName("approximate_member_count")]
         public Optional<int?> MemberCount { get; set; }
 
-        [JsonProperty("target_user")]
+        [JsonPropertyName("target_user")]
         public Optional<User> TargetUser { get; set; }
 
-        [JsonProperty("target_type")]
+        [JsonPropertyName("target_type")]
         public Optional<TargetUserType> TargetUserType { get; set; }
 
-        [JsonProperty("target_application")]
+        [JsonPropertyName("target_application")]
         public Optional<Application> Application { get; set; }
 
-        [JsonProperty("expires_at")]
+        [JsonPropertyName("expires_at")]
         public Optional<DateTimeOffset?> ExpiresAt { get; set; }
 
-        [JsonProperty("guild_scheduled_event")]
+        [JsonPropertyName("guild_scheduled_event")]
         public Optional<GuildScheduledEvent> ScheduledEvent { get; set; }
     }
 }

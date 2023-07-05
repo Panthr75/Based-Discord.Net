@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
@@ -8,8 +11,8 @@ namespace Discord
     /// </summary>
     public class AllowedMentions
     {
-        private static readonly Lazy<AllowedMentions> none = new Lazy<AllowedMentions>(() => new AllowedMentions());
-        private static readonly Lazy<AllowedMentions> all = new Lazy<AllowedMentions>(() =>
+        private static readonly Lazy<AllowedMentions> none = new(() => new AllowedMentions());
+        private static readonly Lazy<AllowedMentions> all = new(() =>
             new AllowedMentions(AllowedMentionTypes.Everyone | AllowedMentionTypes.Users | AllowedMentionTypes.Roles));
 
         /// <summary>
@@ -21,6 +24,9 @@ namespace Discord
         ///     Gets a value which indicates that all mentions in the message content should notify users.
         /// </summary>
         public static AllowedMentions All => all.Value;
+
+        private readonly List<ulong> _roleIds = new();
+        private readonly List<ulong> _userIds = new();
 
         /// <summary>
         ///     Gets or sets the type of mentions that will be parsed from the message content.
@@ -39,7 +45,19 @@ namespace Discord
         ///     flag of the <see cref="AllowedTypes"/> property. If the flag is set, the value of this property
         ///     must be <see langword="null" /> or empty.
         /// </summary>
-        public List<ulong> RoleIds { get; set; } = new List<ulong>();
+        public List<ulong> RoleIds
+        {
+            get => this._roleIds;
+            set
+            {
+                this._roleIds.Clear();
+                if (value is null)
+                {
+                    return;
+                }
+                this._roleIds.AddRange(value);
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the list of all user ids that will be mentioned.
@@ -47,7 +65,20 @@ namespace Discord
         ///     flag of the <see cref="AllowedTypes"/> property. If the flag is set, the value of this property
         ///     must be <see langword="null" /> or empty.
         /// </summary>
-        public List<ulong> UserIds { get; set; } = new List<ulong>();
+        public List<ulong> UserIds
+        {
+
+            get => this._userIds;
+            set
+            {
+                this._userIds.Clear();
+                if (value is null)
+                {
+                    return;
+                }
+                this._userIds.AddRange(value);
+            }
+        }
 
         /// <summary>
         ///     Gets or sets whether to mention the author of the message you are replying to or not.

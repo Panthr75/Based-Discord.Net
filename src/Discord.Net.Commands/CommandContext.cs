@@ -6,7 +6,7 @@ namespace Discord.Commands
         /// <inheritdoc/>
         public IDiscordClient Client { get; }
         /// <inheritdoc/>
-        public IGuild Guild { get; }
+        public IGuild? Guild { get; }
         /// <inheritdoc/>
         public IMessageChannel Channel { get; }
         /// <inheritdoc/>

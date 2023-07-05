@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Discord.Commands
@@ -9,45 +10,46 @@ namespace Discord.Commands
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public struct TypeReaderValue
     {
-        public object Value { get; }
+        public object? Value { get; }
         public float Score { get; }
 
-        public TypeReaderValue(object value, float score)
+        public TypeReaderValue(object? value, float score)
         {
             Value = value;
             Score = score;
         }
 
-        public override string ToString() => Value?.ToString();
+        public override string? ToString() => Value?.ToString();
         private string DebuggerDisplay => $"[{Value}, {Math.Round(Score, 2)}]";
     }
 
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public struct TypeReaderResult : IResult
     {
-        public IReadOnlyCollection<TypeReaderValue> Values { get; }
+        public IReadOnlyCollection<TypeReaderValue>? Values { get; }
 
         /// <inheritdoc/>
         public CommandError? Error { get; }
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(true, nameof(this.Values))]
         public bool IsSuccess => !Error.HasValue;
 
         /// <exception cref="InvalidOperationException">TypeReaderResult was not successful.</exception>
-        public object BestMatch => IsSuccess
+        public object? BestMatch => IsSuccess
             ? (Values.Count == 1 ? Values.Single().Value : Values.OrderByDescending(v => v.Score).First().Value)
             : throw new InvalidOperationException("TypeReaderResult was not successful.");
 
-        private TypeReaderResult(IReadOnlyCollection<TypeReaderValue> values, CommandError? error, string errorReason)
+        private TypeReaderResult(IReadOnlyCollection<TypeReaderValue>? values, CommandError? error, string? errorReason)
         {
             Values = values;
             Error = error;
             ErrorReason = errorReason;
         }
 
-        public static TypeReaderResult FromSuccess(object value)
+        public static TypeReaderResult FromSuccess(object? value)
             => new TypeReaderResult(ImmutableArray.Create(new TypeReaderValue(value, 1.0f)), null, null);
         public static TypeReaderResult FromSuccess(TypeReaderValue value)
             => new TypeReaderResult(ImmutableArray.Create(value), null, null);

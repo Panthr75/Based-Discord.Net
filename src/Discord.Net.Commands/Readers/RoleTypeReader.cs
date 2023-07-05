@@ -39,7 +39,7 @@ namespace Discord.Commands
             return Task.FromResult(TypeReaderResult.FromError(CommandError.ObjectNotFound, "Role not found."));
         }
 
-        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T role, float score)
+        private void AddResult(Dictionary<ulong, TypeReaderValue> results, T? role, float score)
         {
             if (role != null && !results.ContainsKey(role.Id))
                 results.Add(role.Id, new TypeReaderValue(role, score));

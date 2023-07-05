@@ -30,7 +30,7 @@ namespace Discord
         /// <returns>
         ///     A string representing the nickname of the user; <see langword="null" /> if none is set.
         /// </returns>
-        string Nickname { get; }
+        string? Nickname { get; }
         /// <summary>
         ///     Gets the displayed avatar for this user.
         /// </summary>
@@ -38,14 +38,14 @@ namespace Discord
         ///     The users displayed avatar hash. If the user does not have a guild avatar, this will be the regular avatar.
         ///     If the user also does not have a regular avatar, this will be <see langword="null"/>.
         /// </returns>
-        string DisplayAvatarId { get; }
+        string? DisplayAvatarId { get; }
         /// <summary>
         ///     Gets the guild specific avatar for this user.
         /// </summary>
         /// <returns>
         ///     The users guild avatar hash if they have one; otherwise <see langword="null"/>.
         /// </returns>
-        string GuildAvatarId { get; }
+        string? GuildAvatarId { get; }
         /// <summary>
         ///     Gets the guild-level permissions for this user.
         /// </summary>
@@ -147,7 +147,7 @@ namespace Discord
         /// <returns>
         ///     A string representing the user's avatar URL; <see langword="null"/> if the user does not have an avatar in place.
         /// </returns>
-        string GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
+        string? GetGuildAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
         /// <summary>
         ///     Gets the display avatar URL for this user.
         /// </summary>
@@ -160,7 +160,7 @@ namespace Discord
         /// <returns>
         ///     A string representing the URL of the displayed avatar for this user. <see langword="null"/> if the user does not have an avatar in place.
         /// </returns>
-        string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
+        string? GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128);
         /// <summary>
         ///     Kicks this user from this guild.
         /// </summary>
@@ -169,7 +169,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous kick operation.
         /// </returns>
-        Task KickAsync(string reason = null, RequestOptions options = null);
+        Task KickAsync(string? reason = null, RequestOptions? options = null);
         /// <summary>
         ///     Modifies this user's properties in this guild.
         /// </summary>
@@ -182,7 +182,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
-        Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null);
         /// <summary>
         ///     Adds the specified role to this user in the guild.
         /// </summary>
@@ -191,7 +191,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role addition operation.
         /// </returns>
-        Task AddRoleAsync(ulong roleId, RequestOptions options = null);
+        Task AddRoleAsync(ulong roleId, RequestOptions? options = null);
         /// <summary>
         ///     Adds the specified role to this user in the guild.
         /// </summary>
@@ -200,7 +200,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role addition operation.
         /// </returns>
-        Task AddRoleAsync(IRole role, RequestOptions options = null);
+        Task AddRoleAsync(IRole role, RequestOptions? options = null);
         /// <summary>
         ///     Adds the specified <paramref name="roleIds"/> to this user in the guild.
         /// </summary>
@@ -209,7 +209,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role addition operation.
         /// </returns>
-        Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null);
+        Task AddRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null);
         /// <summary>
         ///     Adds the specified <paramref name="roles"/> to this user in the guild.
         /// </summary>
@@ -218,7 +218,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role addition operation.
         /// </returns>
-        Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null);
+        Task AddRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null);
         /// <summary>
         ///     Removes the specified <paramref name="roleId"/> from this user in the guild.
         /// </summary>
@@ -227,7 +227,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role removal operation.
         /// </returns>
-        Task RemoveRoleAsync(ulong roleId, RequestOptions options = null);
+        Task RemoveRoleAsync(ulong roleId, RequestOptions? options = null);
         /// <summary>
         ///     Removes the specified <paramref name="role"/> from this user in the guild.
         /// </summary>
@@ -236,7 +236,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role removal operation.
         /// </returns>
-        Task RemoveRoleAsync(IRole role, RequestOptions options = null);
+        Task RemoveRoleAsync(IRole role, RequestOptions? options = null);
         /// <summary>
         ///     Removes the specified <paramref name="roleIds"/> from this user in the guild.
         /// </summary>
@@ -245,7 +245,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role removal operation.
         /// </returns>
-        Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions options = null);
+        Task RemoveRolesAsync(IEnumerable<ulong> roleIds, RequestOptions? options = null);
         /// <summary>
         ///     Removes the specified <paramref name="roles"/> from this user in the guild.
         /// </summary>
@@ -254,7 +254,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous role removal operation.
         /// </returns>
-        Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions options = null);
+        Task RemoveRolesAsync(IEnumerable<IRole> roles, RequestOptions? options = null);
         /// <summary>
         ///     Sets a timeout based on provided <see cref="TimeSpan"/> to this user in the guild.
         /// </summary>
@@ -263,7 +263,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous timeout creation operation.
         /// </returns>
-        Task SetTimeOutAsync(TimeSpan span, RequestOptions options = null);
+        Task SetTimeOutAsync(TimeSpan span, RequestOptions? options = null);
         /// <summary>
         ///     Removes the current timeout from the user in this guild if one exists.
         /// </summary>
@@ -271,6 +271,6 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous timeout removal operation.
         /// </returns>
-        Task RemoveTimeOutAsync(RequestOptions options = null);
+        Task RemoveTimeOutAsync(RequestOptions? options = null);
     }
 }

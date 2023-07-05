@@ -1,19 +1,20 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Gateway
 {
     internal class GuildScheduledEventUserAddRemoveEvent
     {
-        [JsonProperty("guild_scheduled_event_id")]
+        [JsonPropertyName("guild_scheduled_event_id")]
         public ulong EventId { get; set; }
-        [JsonProperty("guild_id")]
+        [JsonPropertyName("guild_id")]
         public ulong GuildId { get; set; }
-        [JsonProperty("user_id")]
+        [JsonPropertyName("user_id")]
         public ulong UserId { get; set; }
     }
 }

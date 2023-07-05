@@ -27,9 +27,14 @@ namespace Discord.Rest
         /// <returns>
         ///     A task representing the download operation, the result of the task is a sticker object.
         /// </returns>
-        public async Task<Sticker> ResolveStickerAsync()
+        public async Task<Sticker?> ResolveStickerAsync()
         {
             var model = await Discord.ApiClient.GetStickerAsync(Id);
+
+            if (model == null)
+            {
+                return null;
+            }
 
             return model.GuildId.IsSpecified
                 ? CustomSticker.Create(Discord, model, model.GuildId.Value, model.User.IsSpecified ? model.User.Value.Id : null)

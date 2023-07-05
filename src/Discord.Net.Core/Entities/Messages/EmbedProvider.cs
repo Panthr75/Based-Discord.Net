@@ -1,11 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
     /// <summary> A provider field for an <see cref="Embed"/>. </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedProvider
+    public struct EmbedProvider : IEquatable<EmbedProvider>
     {
         /// <summary>
         ///     Gets the name of the provider.
@@ -13,16 +16,16 @@ namespace Discord
         /// <returns>
         ///     A string representing the name of the provider.
         /// </returns>
-        public string Name { get; }
+        public string? Name { get; }
         /// <summary>
         ///     Gets the URL of the provider.
         /// </summary>
         /// <returns>
         ///     A string representing the link to the provider.
         /// </returns>
-        public string Url { get; }
+        public string? Url { get; }
 
-        internal EmbedProvider(string name, string url)
+        internal EmbedProvider(string? name, string? url)
         {
             Name = name;
             Url = url;
@@ -35,7 +38,7 @@ namespace Discord
         /// <returns>
         ///     A string that resolves to <see cref="Discord.EmbedProvider.Name" />.
         /// </returns>
-        public override string ToString() => Name;
+        public override string? ToString() => Name;
 
         public static bool operator ==(EmbedProvider? left, EmbedProvider? right)
             => left is null ? right is null
@@ -52,7 +55,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedProvider"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedProvider embedProvider && Equals(embedProvider);
 
         /// <summary>
@@ -60,8 +63,21 @@ namespace Discord
         /// </summary>
         /// <param name="embedProvider">The <see cref="EmbedProvider"/> to compare with the current <see cref="EmbedProvider"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedProvider? embedProvider)
-            => GetHashCode() == embedProvider?.GetHashCode();
+        public bool Equals(EmbedProvider embedProvider)
+        {
+            return this.Name == embedProvider.Name &&
+                this.Url == embedProvider.Url;
+        }
+
+        /// <inheritdoc cref="EmbedProvider.Equals(EmbedProvider)"/>
+        public bool Equals([NotNullWhen(true)] EmbedProvider? embedProvider)
+        {
+            if (!embedProvider.HasValue)
+            {
+                return false;
+            }
+            return this.Equals(embedProvider.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()

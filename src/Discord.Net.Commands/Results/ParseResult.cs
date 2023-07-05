@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Commands
 {
@@ -10,13 +11,13 @@ namespace Discord.Commands
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public struct ParseResult : IResult
     {
-        public IReadOnlyList<TypeReaderResult> ArgValues { get; }
-        public IReadOnlyList<TypeReaderResult> ParamValues { get; }
+        public IReadOnlyList<TypeReaderResult>? ArgValues { get; }
+        public IReadOnlyList<TypeReaderResult>? ParamValues { get; }
 
         /// <inheritdoc/>
         public CommandError? Error { get; }
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <summary>
         ///     Provides information about the parameter that caused the parsing error.
@@ -25,12 +26,14 @@ namespace Discord.Commands
         ///     A <see cref="ParameterInfo" /> indicating the parameter info of the error that may have occurred during parsing; 
         ///     <see langword="null" /> if the parsing was successful or the parsing error is not specific to a single parameter.
         /// </returns>
-        public ParameterInfo ErrorParameter { get; }
+        public ParameterInfo? ErrorParameter { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(true, nameof(this.ParamValues), nameof(this.ArgValues))]
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.ErrorParameter), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private ParseResult(IReadOnlyList<TypeReaderResult> argValues, IReadOnlyList<TypeReaderResult> paramValues, CommandError? error, string errorReason, ParameterInfo errorParamInfo)
+        private ParseResult(IReadOnlyList<TypeReaderResult>? argValues, IReadOnlyList<TypeReaderResult>? paramValues, CommandError? error, string? errorReason, ParameterInfo? errorParamInfo)
         {
             ArgValues = argValues;
             ParamValues = paramValues;
@@ -43,12 +46,14 @@ namespace Discord.Commands
         {
             for (int i = 0; i < argValues.Count; i++)
             {
-                if (argValues[i].Values.Count > 1)
+                TypeReaderResult argValue = argValues[i];
+                if (argValue.IsSuccess && argValue.Values.Count > 1)
                     return new ParseResult(argValues, paramValues, CommandError.MultipleMatches, "Multiple matches found.", null);
             }
             for (int i = 0; i < paramValues.Count; i++)
             {
-                if (paramValues[i].Values.Count > 1)
+                TypeReaderResult paramValue = paramValues[i];
+                if (paramValue.IsSuccess && paramValue.Values.Count > 1)
                     return new ParseResult(argValues, paramValues, CommandError.MultipleMatches, "Multiple matches found.", null);
             }
             return new ParseResult(argValues, paramValues, null, null, null);
@@ -58,7 +63,7 @@ namespace Discord.Commands
             var argList = new TypeReaderResult[argValues.Count];
             for (int i = 0; i < argValues.Count; i++)
                 argList[i] = TypeReaderResult.FromSuccess(argValues[i]);
-            TypeReaderResult[] paramList = null;
+            TypeReaderResult[]? paramList = null;
             if (paramValues != null)
             {
                 paramList = new TypeReaderResult[paramValues.Count];

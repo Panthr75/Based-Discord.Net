@@ -1,5 +1,4 @@
 using Discord.Rest;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,12 +11,12 @@ namespace Discord.WebSocket
     /// <summary>
     ///     Represents a WebSocket-based message.
     /// </summary>
-    public abstract class SocketMessage : SocketEntity<ulong>, IMessage
+    public abstract class SocketMessage : SocketEntity<ulong, SocketMessage>, IMessage
     {
         #region SocketMessage
         private long _timestampTicks;
-        private readonly List<SocketReaction> _reactions = new List<SocketReaction>();
-        private ImmutableArray<SocketUser> _userMentions = ImmutableArray.Create<SocketUser>();
+        private readonly List<SocketReaction> _reactions = new();
+        private ImmutableArray<SocketUser> _userMentions = ImmutableArray<SocketUser>.Empty;
 
         /// <summary>
         ///     Gets the author of this message.
@@ -56,13 +55,13 @@ namespace Discord.WebSocket
         public virtual bool MentionedEveryone => false;
 
         /// <inheritdoc />
-        public MessageActivity Activity { get; private set; }
+        public MessageActivity? Activity { get; private set; }
 
         /// <inheritdoc />
-        public MessageApplication Application { get; private set; }
+        public MessageApplication? Application { get; private set; }
 
         /// <inheritdoc />
-        public MessageReference Reference { get; private set; }
+        public MessageReference? Reference { get; private set; }
 
         /// <inheritdoc/>
         public IReadOnlyCollection<ActionRowComponent> Components { get; private set; }
@@ -70,7 +69,7 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Gets the interaction this message is a response to.
         /// </summary>
-        public MessageInteraction<SocketUser> Interaction { get; private set; }
+        public MessageInteraction<SocketUser>? Interaction { get; private set; }
 
         /// <inheritdoc />
         public MessageFlags? Flags { get; private set; }
@@ -79,13 +78,13 @@ namespace Discord.WebSocket
         public MessageType Type { get; private set; }
 
         /// <inheritdoc />
-        public MessageRoleSubscriptionData RoleSubscriptionData { get; private set; }
+        public MessageRoleSubscriptionData? RoleSubscriptionData { get; private set; }
 
         /// <inheritdoc cref="IMessage.Thread"/>
-        public SocketThreadChannel Thread { get; private set; }
+        public SocketThreadChannel? Thread { get; private set; }
 
         /// <inheritdoc />
-        IThreadChannel IMessage.Thread => Thread;
+        IThreadChannel? IMessage.Thread => Thread;
 
         /// <summary>
         ///     Returns all attachments included in this message.
@@ -93,32 +92,32 @@ namespace Discord.WebSocket
         /// <returns>
         ///     Collection of attachments.
         /// </returns>
-        public virtual IReadOnlyCollection<Attachment> Attachments => ImmutableArray.Create<Attachment>();
+        public virtual IReadOnlyCollection<Attachment> Attachments => ImmutableArray<Attachment>.Empty;
         /// <summary>
         ///     Returns all embeds included in this message.
         /// </summary>
         /// <returns>
         ///     Collection of embed objects.
         /// </returns>
-        public virtual IReadOnlyCollection<Embed> Embeds => ImmutableArray.Create<Embed>();
+        public virtual IReadOnlyCollection<Embed> Embeds => ImmutableArray<Embed>.Empty;
         /// <summary>
         ///     Returns the channels mentioned in this message.
         /// </summary>
         /// <returns>
         ///     Collection of WebSocket-based guild channels.
         /// </returns>
-        public virtual IReadOnlyCollection<SocketGuildChannel> MentionedChannels => ImmutableArray.Create<SocketGuildChannel>();
+        public virtual IReadOnlyCollection<SocketGuildChannel> MentionedChannels => ImmutableArray<SocketGuildChannel>.Empty;
         /// <summary>
         ///     Returns the roles mentioned in this message.
         /// </summary>
         /// <returns>
         ///     Collection of WebSocket-based roles.
         /// </returns>
-        public virtual IReadOnlyCollection<SocketRole> MentionedRoles => ImmutableArray.Create<SocketRole>();
+        public virtual IReadOnlyCollection<SocketRole> MentionedRoles => ImmutableArray<SocketRole>.Empty;
         /// <inheritdoc />
-        public virtual IReadOnlyCollection<ITag> Tags => ImmutableArray.Create<ITag>();
+        public virtual IReadOnlyCollection<ITag> Tags => ImmutableArray<ITag>.Empty;
         /// <inheritdoc />
-        public virtual IReadOnlyCollection<SocketSticker> Stickers => ImmutableArray.Create<SocketSticker>();
+        public virtual IReadOnlyCollection<SocketSticker> Stickers => ImmutableArray<SocketSticker>.Empty;
         /// <inheritdoc />
         public IReadOnlyDictionary<IEmote, ReactionMetadata> Reactions => _reactions.GroupBy(r => r.Emote).ToDictionary(x => x.Key, x => new ReactionMetadata { ReactionCount = x.Count(), IsMe = x.Any(y => y.UserId == Discord.CurrentUser.Id) });
         /// <summary>
@@ -134,6 +133,8 @@ namespace Discord.WebSocket
         internal SocketMessage(DiscordSocketClient discord, ulong id, ISocketMessageChannel channel, SocketUser author, MessageSource source)
             : base(discord, id)
         {
+            this.Content = string.Empty;
+            this.Components = ImmutableArray<ActionRowComponent>.Empty;
             Channel = channel;
             Author = author;
             Source = source;
@@ -210,8 +211,8 @@ namespace Discord.WebSocket
                                     parsed.Label.GetValueOrDefault(),
                                     parsed.Emote.IsSpecified
                                         ? parsed.Emote.Value.Id.HasValue
-                                            ? new Emote(parsed.Emote.Value.Id.Value, parsed.Emote.Value.Name, parsed.Emote.Value.Animated.GetValueOrDefault())
-                                            : new Emoji(parsed.Emote.Value.Name)
+                                            ? new Emote(parsed.Emote.Value.Id.Value, parsed.Emote.Value.Name!, parsed.Emote.Value.Animated.GetValueOrDefault())
+                                            : new Emoji(parsed.Emote.Value.Name!)
                                         : null,
                                     parsed.CustomId.GetValueOrDefault(),
                                     parsed.Url.GetValueOrDefault(),
@@ -222,16 +223,16 @@ namespace Discord.WebSocket
                                 var parsed = (API.SelectMenuComponent)y;
                                 return new SelectMenuComponent(
                                     parsed.CustomId,
-                                    parsed.Options.Select(z => new SelectMenuOption(
+                                    parsed.Options.Map(options => options.Select(z => new SelectMenuOption(
                                         z.Label,
                                         z.Value,
                                         z.Description.GetValueOrDefault(),
                                         z.Emoji.IsSpecified
                                         ? z.Emoji.Value.Id.HasValue
-                                            ? new Emote(z.Emoji.Value.Id.Value, z.Emoji.Value.Name, z.Emoji.Value.Animated.GetValueOrDefault())
-                                            : new Emoji(z.Emoji.Value.Name)
+                                            ? new Emote(z.Emoji.Value.Id.Value, z.Emoji.Value.Name!, z.Emoji.Value.Animated.GetValueOrDefault())
+                                            : new Emoji(z.Emoji.Value.Name!)
                                         : null,
-                                        z.Default.ToNullable())).ToList(),
+                                        z.Default.ToNullable())).ToList()).GetValueOrDefault(),
                                     parsed.Placeholder.GetValueOrDefault(),
                                     parsed.MinValues,
                                     parsed.MaxValues,
@@ -241,9 +242,9 @@ namespace Discord.WebSocket
                                     );
                             }
                         default:
-                            return null;
+                            return null!;
                     }
-                }).ToList())).ToImmutableArray();
+                }).Where(comp => comp is not null).ToList())).ToImmutableArray();
             }
             else
                 Components = new List<ActionRowComponent>();
@@ -292,13 +293,13 @@ namespace Discord.WebSocket
 
             if (model.Thread.IsSpecified)
             {
-                SocketGuild guild = (Channel as SocketGuildChannel)?.Guild;
+                SocketGuild? guild = (Channel as SocketGuildChannel)?.Guild;
                 Thread = guild?.AddOrUpdateChannel(state, model.Thread.Value) as SocketThreadChannel;
             }
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => MessageHelper.DeleteAsync(this, Discord, options);
 
         /// <summary>
@@ -308,7 +309,7 @@ namespace Discord.WebSocket
         ///     Content of the message.
         /// </returns>
         public override string ToString() => Content;
-        internal SocketMessage Clone() => MemberwiseClone() as SocketMessage;
+        internal SocketMessage Clone() => (SocketMessage)MemberwiseClone();
         #endregion
 
         #region IMessage
@@ -331,7 +332,7 @@ namespace Discord.WebSocket
         IReadOnlyCollection<IMessageComponent> IMessage.Components => Components;
 
         /// <inheritdoc/>
-        IMessageInteraction IMessage.Interaction => Interaction;
+        IMessageInteraction? IMessage.Interaction => Interaction;
 
         /// <inheritdoc />
         IReadOnlyCollection<IStickerItem> IMessage.Stickers => Stickers;
@@ -356,22 +357,22 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task AddReactionAsync(IEmote emote, RequestOptions options = null)
+        public Task AddReactionAsync(IEmote emote, RequestOptions? options = null)
             => MessageHelper.AddReactionAsync(this, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions options = null)
+        public Task RemoveReactionAsync(IEmote emote, IUser user, RequestOptions? options = null)
             => MessageHelper.RemoveReactionAsync(this, user.Id, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions options = null)
+        public Task RemoveReactionAsync(IEmote emote, ulong userId, RequestOptions? options = null)
             => MessageHelper.RemoveReactionAsync(this, userId, emote, Discord, options);
         /// <inheritdoc />
-        public Task RemoveAllReactionsAsync(RequestOptions options = null)
+        public Task RemoveAllReactionsAsync(RequestOptions? options = null)
             => MessageHelper.RemoveAllReactionsAsync(this, Discord, options);
         /// <inheritdoc />
-        public Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions options = null)
+        public Task RemoveAllReactionsForEmoteAsync(IEmote emote, RequestOptions? options = null)
             => MessageHelper.RemoveAllReactionsForEmoteAsync(this, emote, Discord, options);
         /// <inheritdoc />
-        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emote, int limit, RequestOptions options = null)
+        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emote, int limit, RequestOptions? options = null)
             => MessageHelper.GetReactionUsersAsync(this, emote, limit, Discord, options);
         #endregion
     }

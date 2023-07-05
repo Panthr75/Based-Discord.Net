@@ -18,6 +18,6 @@ namespace Discord
         /// <returns>
         ///     A string containing the reason behind the ban; <see langword="null" /> if none is specified.
         /// </returns>
-        string Reason { get; }
+        string? Reason { get; }
     }
 }

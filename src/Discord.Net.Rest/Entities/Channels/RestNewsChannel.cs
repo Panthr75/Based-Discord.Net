@@ -15,11 +15,11 @@ namespace Discord.Rest
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public class RestNewsChannel : RestTextChannel, INewsChannel
     {
-        internal RestNewsChannel(BaseDiscordClient discord, IGuild guild, ulong id)
+        internal RestNewsChannel(BaseDiscordClient discord, IGuild? guild, ulong id)
             : base(discord, guild, id)
         {
         }
-        internal new static RestNewsChannel Create(BaseDiscordClient discord, IGuild guild, Model model)
+        internal new static RestNewsChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
             var entity = new RestNewsChannel(discord, guild, model.Id);
             entity.Update(model);
@@ -30,7 +30,7 @@ namespace Discord.Rest
         private string DebuggerDisplay => $"{Name} ({Id}, News)";
 
         /// <inheritdoc />
-        public Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions options = null)
+        public Task<ulong> FollowAnnouncementChannelAsync(ulong channelId, RequestOptions? options = null)
             => ChannelHelper.FollowAnnouncementChannelAsync(this, channelId, Discord, options);
     }
 }

@@ -66,7 +66,7 @@ namespace Discord
         ///     This user MUST already be in a <see cref="IVoiceChannel"/> for this to work.
         ///     When set, this property takes precedence over <see cref="ChannelId"/>.
         /// </remarks>
-        public Optional<IVoiceChannel> Channel { get; set; }
+        public Optional<IVoiceChannel?> Channel { get; set; }
         /// <summary>
         ///     Moves a user to a voice channel. Set <see cref="Channel"/> to <see langword="null" /> to disconnect this user from their current voice channel.
         /// </summary>

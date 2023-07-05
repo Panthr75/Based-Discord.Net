@@ -1,13 +1,15 @@
-using Newtonsoft.Json;
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
     internal class ChannelThreads
     {
-        [JsonProperty("threads")]
-        public Channel[] Threads { get; set; }
+        [JsonPropertyName("threads")]
+        public Channel[] Threads { get; set; } = Array.Empty<Channel>();
 
-        [JsonProperty("members")]
-        public ThreadMember[] Members { get; set; }
+        [JsonPropertyName("members")]
+        public ThreadMember[] Members { get; set; } = Array.Empty<ThreadMember>();
     }
 }

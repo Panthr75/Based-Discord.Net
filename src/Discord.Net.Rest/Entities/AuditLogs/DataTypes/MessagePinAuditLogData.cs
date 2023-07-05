@@ -7,25 +7,25 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to a pinned message.
 /// </summary>
-public class MessagePinAuditLogData : IAuditLogData
+public partial class MessagePinAuditLogData : IAuditLogData
 {
-    private MessagePinAuditLogData(ulong messageId, ulong channelId, IUser user)
+    private MessagePinAuditLogData(ulong messageId, ulong channelId, IUser? user)
     {
         MessageId = messageId;
         ChannelId = channelId;
         Target = user;
     }
 
-    internal static MessagePinAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log)
+    internal static MessagePinAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
     {
-        RestUser user = null;
+        RestUser? user = null;
         if (entry.TargetId.HasValue)
         {
-            var userInfo = log.Users.FirstOrDefault(x => x.Id == entry.TargetId);
+            var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
             user = (userInfo != null) ? RestUser.Create(discord, userInfo) : null;
         }
 
-        return new MessagePinAuditLogData(entry.Options.MessageId!.Value, entry.Options.ChannelId!.Value, user);
+        return new MessagePinAuditLogData(entry.Options!.MessageId!.Value, entry.Options.ChannelId!.Value, user);
     }
 
     /// <summary>
@@ -53,5 +53,5 @@ public class MessagePinAuditLogData : IAuditLogData
     /// <returns>
     ///     A user object representing the user that created the pinned message or <see langword="null"/>.
     /// </returns>
-    public IUser Target { get; }
+    public IUser? Target { get; }
 }

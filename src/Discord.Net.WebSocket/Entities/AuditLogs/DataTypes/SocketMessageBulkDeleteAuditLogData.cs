@@ -15,7 +15,7 @@ public class SocketMessageBulkDeleteAuditLogData : ISocketAuditLogData
 
     internal static SocketMessageBulkDeleteAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        return new SocketMessageBulkDeleteAuditLogData(entry.TargetId!.Value, entry.Options.Count!.Value);
+        return new SocketMessageBulkDeleteAuditLogData(entry.TargetId!.Value, entry.Options!.Count!.Value);
     }
 
     /// <summary>

@@ -66,11 +66,11 @@ namespace Discord
         /// <summary>
         ///     Gets the user for this integration.
         /// </summary>
-        IUser User { get; }
+        IUser? User { get; }
         /// <summary>
         ///     Gets integration account information.
         /// </summary>
-        IIntegrationAccount Account { get; }
+        IIntegrationAccount? Account { get; }
         /// <summary>
         ///     Gets when this integration was last synced.
         /// </summary>
@@ -89,7 +89,7 @@ namespace Discord
         /// <summary>
         ///     Gets the bot/OAuth2 application for a discord integration.
         /// </summary>
-        IIntegrationApplication Application { get; }
+        IIntegrationApplication? Application { get; }
 
         IGuild Guild { get; }
         ulong GuildId { get; }

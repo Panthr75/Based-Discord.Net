@@ -1,3 +1,4 @@
+using Discord.Utils;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -28,10 +29,10 @@ namespace Discord.WebSocket
         public bool? IsAutocomplete { get; private set; }
 
         /// <inheritdoc/>
-        public double? MinValue { get; private set; }
+        public NumericValue? MinValue { get; private set; }
 
         /// <inheritdoc/>
-        public double? MaxValue { get; private set; }
+        public NumericValue? MaxValue { get; private set; }
 
         /// <inheritdoc/>
         public int? MinLength { get; private set; }
@@ -70,7 +71,7 @@ namespace Discord.WebSocket
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string NameLocalized { get; private set; }
+        public string? NameLocalized { get; private set; }
 
         /// <summary>
         ///     Gets the localized description of this command option.
@@ -78,9 +79,18 @@ namespace Discord.WebSocket
         /// <remarks>
         ///     Only returned when the `withLocalizations` query parameter is set to <see langword="false"/> when requesting the command.
         /// </remarks>
-        public string DescriptionLocalized { get; private set; }
+        public string? DescriptionLocalized { get; private set; }
 
-        internal SocketApplicationCommandOption() { }
+        internal SocketApplicationCommandOption()
+        {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.Choices = ImmutableArray<SocketApplicationCommandChoice>.Empty;
+            this.Options = ImmutableArray<SocketApplicationCommandOption>.Empty;
+            this.ChannelTypes = ImmutableArray<ChannelType>.Empty;
+            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            this.DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
+        }
         internal static SocketApplicationCommandOption Create(Model model)
         {
             var entity = new SocketApplicationCommandOption();

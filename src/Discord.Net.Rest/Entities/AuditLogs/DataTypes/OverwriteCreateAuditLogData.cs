@@ -1,14 +1,13 @@
 using System.Linq;
-
+using System.Text.Json;
 using EntryModel = Discord.API.AuditLogEntry;
-using Model = Discord.API.AuditLog;
 
 namespace Discord.Rest;
 
 /// <summary>
 ///     Contains a piece of audit log data for a permissions overwrite creation.
 /// </summary>
-public class OverwriteCreateAuditLogData : IAuditLogData
+public partial class OverwriteCreateAuditLogData : IAuditLogData
 {
     private OverwriteCreateAuditLogData(ulong channelId, Overwrite overwrite)
     {
@@ -16,22 +15,22 @@ public class OverwriteCreateAuditLogData : IAuditLogData
         Overwrite = overwrite;
     }
 
-    internal static OverwriteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static OverwriteCreateAuditLogData Create(BaseDiscordClient discord, EntryModel entry)
     {
-        var changes = entry.Changes;
+        var changes = entry.Changes!;
 
-        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny");
-        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow");
+        var denyModel = changes.FirstOrDefault(x => x.ChangedProperty == "deny")!;
+        var allowModel = changes.FirstOrDefault(x => x.ChangedProperty == "allow")!;
 
-        var deny = denyModel.NewValue.ToObject<ulong>(discord.ApiClient.Serializer);
-        var allow = allowModel.NewValue.ToObject<ulong>(discord.ApiClient.Serializer);
+        var deny = denyModel.NewValue.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
+        var allow = allowModel.NewValue.Deserialize<ulong>(discord.ApiClient.SerializerOptions);
 
         var permissions = new OverwritePermissions(allow, deny);
 
-        var id = entry.Options.OverwriteTargetId.Value;
+        var id = entry.Options!.OverwriteTargetId!.Value;
         var type = entry.Options.OverwriteType;
 
-        return new OverwriteCreateAuditLogData(entry.TargetId.Value, new Overwrite(id, type, permissions));
+        return new OverwriteCreateAuditLogData(entry.TargetId!.Value, new Overwrite(id, type, permissions));
     }
 
     /// <summary>
@@ -46,7 +45,7 @@ public class OverwriteCreateAuditLogData : IAuditLogData
     ///     Gets the permission overwrite object that was created.
     /// </summary>
     /// <returns>
-    ///     An <see cref="Overwrite"/> object representing the overwrite that was created.
+    ///     An <see cref="Discord.Overwrite"/> object representing the overwrite that was created.
     /// </returns>
     public Overwrite Overwrite { get; }
 }

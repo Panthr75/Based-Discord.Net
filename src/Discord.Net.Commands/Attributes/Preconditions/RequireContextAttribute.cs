@@ -34,7 +34,7 @@ namespace Discord.Commands
         /// </summary>
         public ContextType Contexts { get; }
         /// <inheritdoc />
-        public override string ErrorMessage { get; set; }
+        public override string? ErrorMessage { get; set; }
 
         /// <summary> Requires the command to be invoked in the specified context. </summary>
         /// <param name="contexts">The type of context the command can be invoked in. Multiple contexts can be specified by ORing the contexts together.</param>

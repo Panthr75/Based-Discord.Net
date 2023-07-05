@@ -6,7 +6,7 @@ namespace Discord.Rest;
 /// <summary>
 ///     Contains a piece of audit log data related to moving members between voice channels.
 /// </summary>
-public class MemberMoveAuditLogData : IAuditLogData
+public partial class MemberMoveAuditLogData : IAuditLogData
 {
     private MemberMoveAuditLogData(ulong channelId, int count)
     {
@@ -14,9 +14,9 @@ public class MemberMoveAuditLogData : IAuditLogData
         MemberCount = count;
     }
 
-    internal static MemberMoveAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model log = null)
+    internal static MemberMoveAuditLogData Create(EntryModel entry)
     {
-        return new MemberMoveAuditLogData(entry.Options.ChannelId.Value, entry.Options.Count.Value);
+        return new MemberMoveAuditLogData(entry.Options!.ChannelId!.Value, entry.Options!.Count!.Value);
     }
 
     /// <summary>

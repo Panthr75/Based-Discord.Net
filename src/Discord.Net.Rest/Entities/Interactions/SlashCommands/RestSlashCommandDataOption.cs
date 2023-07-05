@@ -19,7 +19,7 @@ namespace Discord.Rest
         public string Name { get; private set; }
 
         /// <inheritdoc/>
-        public object Value { get; private set; }
+        public ApplicationCommandOptionValue Value { get; private set; }
 
         /// <inheritdoc/>
         public ApplicationCommandOptionType Type { get; private set; }
@@ -29,7 +29,11 @@ namespace Discord.Rest
         /// </summary>
         public IReadOnlyCollection<RestSlashCommandDataOption> Options { get; private set; }
 
-        internal RestSlashCommandDataOption() { }
+        internal RestSlashCommandDataOption()
+        {
+            this.Name = string.Empty;
+            this.Options = ImmutableArray<RestSlashCommandDataOption>.Empty;
+        }
         internal RestSlashCommandDataOption(RestSlashCommandData data, Model model)
         {
             Name = model.Name;
@@ -50,72 +54,62 @@ namespace Discord.Rest
                             {
                                 case ApplicationCommandOptionType.User:
                                     {
-                                        var guildUser = data.ResolvableData.GuildMembers.FirstOrDefault(x => x.Key == valueId).Value;
+                                        var guildUser = data.ResolvableData!.GuildMembers.FirstOrDefault(x => x.Key == valueId).Value;
 
                                         if (guildUser != null)
-                                            Value = guildUser;
+                                            Value = ApplicationCommandOptionValue.Convert(guildUser);
                                         else
-                                            Value = data.ResolvableData.Users.FirstOrDefault(x => x.Key == valueId).Value;
+                                            Value = ApplicationCommandOptionValue.Convert(data.ResolvableData!.Users.FirstOrDefault(x => x.Key == valueId).Value);
                                     }
                                     break;
                                 case ApplicationCommandOptionType.Channel:
-                                    Value = data.ResolvableData.Channels.FirstOrDefault(x => x.Key == valueId).Value;
+                                    Value = ApplicationCommandOptionValue.Convert(data.ResolvableData!.Channels.FirstOrDefault(x => x.Key == valueId).Value);
                                     break;
                                 case ApplicationCommandOptionType.Role:
-                                    Value = data.ResolvableData.Roles.FirstOrDefault(x => x.Key == valueId).Value;
+                                    Value = ApplicationCommandOptionValue.Convert(data.ResolvableData!.Roles.FirstOrDefault(x => x.Key == valueId).Value);
                                     break;
                                 case ApplicationCommandOptionType.Mentionable:
                                     {
-                                        if (data.ResolvableData.GuildMembers.Any(x => x.Key == valueId) || data.ResolvableData.Users.Any(x => x.Key == valueId))
+                                        if (data.ResolvableData!.GuildMembers.Any(x => x.Key == valueId) || data.ResolvableData!.Users.Any(x => x.Key == valueId))
                                         {
                                             var guildUser = data.ResolvableData.GuildMembers.FirstOrDefault(x => x.Key == valueId).Value;
 
                                             if (guildUser != null)
-                                                Value = guildUser;
+                                                Value = ApplicationCommandOptionValue.Convert(guildUser);
                                             else
-                                                Value = data.ResolvableData.Users.FirstOrDefault(x => x.Key == valueId).Value;
+                                                Value = ApplicationCommandOptionValue.Convert(data.ResolvableData!.Users.FirstOrDefault(x => x.Key == valueId).Value);
                                         }
-                                        else if (data.ResolvableData.Roles.Any(x => x.Key == valueId))
+                                        else if (data.ResolvableData!.Roles.Any(x => x.Key == valueId))
                                         {
-                                            Value = data.ResolvableData.Roles.FirstOrDefault(x => x.Key == valueId).Value;
+                                            Value = ApplicationCommandOptionValue.Convert(data.ResolvableData.Roles.FirstOrDefault(x => x.Key == valueId).Value);
                                         }
                                     }
                                     break;
                                 case ApplicationCommandOptionType.Attachment:
-                                    Value = data.ResolvableData.Attachments.FirstOrDefault(x => x.Key == valueId).Value;
+                                    Value = ApplicationCommandOptionValue.Convert(data.ResolvableData!.Attachments.FirstOrDefault(x => x.Key == valueId).Value);
                                     break;
                                 default:
-                                    Value = model.Value.Value;
+                                    try
+                                    {
+                                        Value = ApplicationCommandOptionValue.Convert(model.Value.Value);
+                                    }
+                                    catch (InvalidCastException)
+                                    {
+                                        Value = ApplicationCommandOptionValue.None;
+                                    }
                                     break;
                             }
                         }
                         break;
                     case ApplicationCommandOptionType.String:
-                        Value = model.Value.ToString();
+                        Value = model.Value.GetValueOrDefault().ToString();
                         break;
                     case ApplicationCommandOptionType.Integer:
-                        {
-                            if (model.Value.Value is long val)
-                                Value = val;
-                            else if (long.TryParse(model.Value.Value.ToString(), out long res))
-                                Value = res;
-                        }
+                    case ApplicationCommandOptionType.Number:
+                        Value = model.Value.GetValueOrDefault().ToNumber();
                         break;
                     case ApplicationCommandOptionType.Boolean:
-                        {
-                            if (model.Value.Value is bool val)
-                                Value = val;
-                            else if (bool.TryParse(model.Value.Value.ToString(), out bool res))
-                                Value = res;
-                        }
-                        break;
-                    case ApplicationCommandOptionType.Number:
-                        {
-                            if (model.Value.Value is int val)
-                                Value = val;
-                            else if (double.TryParse(model.Value.Value.ToString(), out double res))
-                                Value = res;
-                        }
+                        Value = model.Value.GetValueOrDefault().ToBool();
                         break;
                 }
             }
@@ -130,9 +124,9 @@ namespace Discord.Rest
         public static explicit operator bool(RestSlashCommandDataOption option)
             => (bool)option.Value;
         public static explicit operator int(RestSlashCommandDataOption option)
-            => (int)option.Value;
+            => (int)option.Value.ToNumber();
         public static explicit operator string(RestSlashCommandDataOption option)
-            => option.Value.ToString();
+            => (string)option.Value;
         #endregion
 
         #region IApplicationCommandInteractionDataOption

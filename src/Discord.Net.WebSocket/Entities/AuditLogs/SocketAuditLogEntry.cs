@@ -35,21 +35,21 @@ public class SocketAuditLogEntry : SocketEntity<ulong>, IAuditLogEntry
     public ActionType Action { get; }
 
     /// <inheritdoc cref="IAuditLogEntry.Data"/>
-    public ISocketAuditLogData Data { get; }
+    public ISocketAuditLogData? Data { get; }
 
     /// <inheritdoc cref="IAuditLogEntry.User" />
-    public SocketUser User { get; private set; }
+    public SocketUser? User { get; private set; }
 
     /// <inheritdoc/>
-    public string Reason { get; }
+    public string? Reason { get; }
 
     #region IAuditLogEntry
 
     /// <inheritdoc/>
-    IUser IAuditLogEntry.User => User;
+    IUser? IAuditLogEntry.User => User;
 
     /// <inheritdoc/>
-    IAuditLogData IAuditLogEntry.Data => Data;
+    IAuditLogData? IAuditLogEntry.Data => Data;
 
     #endregion
 }

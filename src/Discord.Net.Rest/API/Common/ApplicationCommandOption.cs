@@ -1,60 +1,62 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
+using Discord.Utils;
 
 namespace Discord.API
 {
     internal class ApplicationCommandOption
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public ApplicationCommandOptionType Type { get; set; }
 
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonProperty("description")]
-        public string Description { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
 
-        [JsonProperty("default")]
+        [JsonPropertyName("default")]
         public Optional<bool> Default { get; set; }
 
-        [JsonProperty("required")]
+        [JsonPropertyName("required")]
         public Optional<bool> Required { get; set; }
 
-        [JsonProperty("choices")]
+        [JsonPropertyName("choices")]
         public Optional<ApplicationCommandOptionChoice[]> Choices { get; set; }
 
-        [JsonProperty("options")]
+        [JsonPropertyName("options")]
         public Optional<ApplicationCommandOption[]> Options { get; set; }
 
-        [JsonProperty("autocomplete")]
+        [JsonPropertyName("autocomplete")]
         public Optional<bool> Autocomplete { get; set; }
 
-        [JsonProperty("min_value")]
-        public Optional<double> MinValue { get; set; }
+        [JsonPropertyName("min_value")]
+        public Optional<NumericValue> MinValue { get; set; }
 
-        [JsonProperty("max_value")]
-        public Optional<double> MaxValue { get; set; }
+        [JsonPropertyName("max_value")]
+        public Optional<NumericValue> MaxValue { get; set; }
 
-        [JsonProperty("channel_types")]
+        [JsonPropertyName("channel_types")]
         public Optional<ChannelType[]> ChannelTypes { get; set; }
 
-        [JsonProperty("name_localizations")]
+        [JsonPropertyName("name_localizations")]
         public Optional<Dictionary<string, string>> NameLocalizations { get; set; }
 
-        [JsonProperty("description_localizations")]
+        [JsonPropertyName("description_localizations")]
         public Optional<Dictionary<string, string>> DescriptionLocalizations { get; set; }
 
-        [JsonProperty("name_localized")]
+        [JsonPropertyName("name_localized")]
         public Optional<string> NameLocalized { get; set; }
 
-        [JsonProperty("description_localized")]
+        [JsonPropertyName("description_localized")]
         public Optional<string> DescriptionLocalized { get; set; }
 
-        [JsonProperty("min_length")]
+        [JsonPropertyName("min_length")]
         public Optional<int> MinLength { get; set; }
 
-        [JsonProperty("max_length")]
+        [JsonPropertyName("max_length")]
         public Optional<int> MaxLength { get; set; }
 
         public ApplicationCommandOption() { }
@@ -73,8 +75,8 @@ namespace Discord.API
 
             Required = cmd.IsRequired ?? Optional<bool>.Unspecified;
             Default = cmd.IsDefault ?? Optional<bool>.Unspecified;
-            MinValue = cmd.MinValue ?? Optional<double>.Unspecified;
-            MaxValue = cmd.MaxValue ?? Optional<double>.Unspecified;
+            MinValue = cmd.MinValue ?? Optional<NumericValue>.Unspecified;
+            MaxValue = cmd.MaxValue ?? Optional<NumericValue>.Unspecified;
             MinLength = cmd.MinLength ?? Optional<int>.Unspecified;
             MaxLength = cmd.MaxLength ?? Optional<int>.Unspecified;
             Autocomplete = cmd.IsAutocomplete ?? Optional<bool>.Unspecified;
@@ -85,8 +87,8 @@ namespace Discord.API
 
             NameLocalizations = cmd.NameLocalizations?.ToDictionary() ?? Optional<Dictionary<string, string>>.Unspecified;
             DescriptionLocalizations = cmd.DescriptionLocalizations?.ToDictionary() ?? Optional<Dictionary<string, string>>.Unspecified;
-            NameLocalized = cmd.NameLocalized;
-            DescriptionLocalized = cmd.DescriptionLocalized;
+            NameLocalized = Optional.CreateFromNullable(cmd.NameLocalized);
+            DescriptionLocalized = Optional.CreateFromNullable(cmd.DescriptionLocalized);
         }
         public ApplicationCommandOption(ApplicationCommandOptionProperties option)
         {
@@ -102,8 +104,8 @@ namespace Discord.API
             Required = option.IsRequired ?? Optional<bool>.Unspecified;
 
             Default = option.IsDefault ?? Optional<bool>.Unspecified;
-            MinValue = option.MinValue ?? Optional<double>.Unspecified;
-            MaxValue = option.MaxValue ?? Optional<double>.Unspecified;
+            MinValue = option.MinValue ?? Optional<NumericValue>.Unspecified;
+            MaxValue = option.MaxValue ?? Optional<NumericValue>.Unspecified;
             MinLength = option.MinLength ?? Optional<int>.Unspecified;
             MaxLength = option.MaxLength ?? Optional<int>.Unspecified;
 

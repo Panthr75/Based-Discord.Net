@@ -21,12 +21,12 @@ namespace Discord.Interactions
         /// <remarks>
         ///     Will be null if the command is from a DM Channel.
         /// </remarks>
-        public SocketGuild Guild { get; }
+        public SocketGuild? Guild { get; }
 
         /// <summary>
         ///     Gets the <see cref="ISocketMessageChannel"/> the command originated from.
         /// </summary>
-        public ISocketMessageChannel Channel { get; }
+        public ISocketMessageChannel? Channel { get; }
 
         /// <summary>
         ///     Gets the <see cref="SocketUser"/> who executed the command.
@@ -53,6 +53,7 @@ namespace Discord.Interactions
             Guild = (interaction.User as SocketGuildUser)?.Guild;
             User = interaction.User;
             Interaction = interaction;
+            this.SegmentMatches = ImmutableArray<IRouteSegmentMatch>.Empty;
         }
 
         /// <inheritdoc/>
@@ -67,10 +68,10 @@ namespace Discord.Interactions
         IDiscordClient IInteractionContext.Client => Client;
 
         /// <inheritdoc/>
-        IGuild IInteractionContext.Guild => Guild;
+        IGuild? IInteractionContext.Guild => Guild;
 
         /// <inheritdoc/>
-        IMessageChannel IInteractionContext.Channel => Channel;
+        IMessageChannel? IInteractionContext.Channel => Channel;
 
         /// <inheritdoc/>
         IUser IInteractionContext.User => User;

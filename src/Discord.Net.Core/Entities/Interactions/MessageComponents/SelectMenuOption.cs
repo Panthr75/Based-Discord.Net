@@ -18,19 +18,19 @@ namespace Discord
         /// <summary>
         ///     Gets a description of the option.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         /// <summary>
         ///     Gets the <see cref="IEmote"/> displayed with this menu option.
         /// </summary>
-        public IEmote Emote { get; }
+        public IEmote? Emote { get; }
 
         /// <summary>
         ///     Gets whether or not this option will render as selected by default.
         /// </summary>
         public bool? IsDefault { get; }
 
-        internal SelectMenuOption(string label, string value, string description, IEmote emote, bool? defaultValue)
+        internal SelectMenuOption(string label, string value, string? description, IEmote? emote, bool? defaultValue)
         {
             Label = label;
             Value = value;

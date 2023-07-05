@@ -3,6 +3,7 @@ using Discord.Rest;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -16,13 +17,13 @@ namespace Discord.WebSocket
         private readonly DiscordSocketConfig _baseConfig;
         private readonly Dictionary<int, int> _shardIdsToIndex;
         private readonly bool _automaticShards;
+        private readonly object _semaphoreResetLock;
         private int[] _shardIds;
         private DiscordSocketClient[] _shards;
         private ImmutableArray<StickerPack<SocketSticker>> _defaultStickers;
         private int _totalShards;
         private SemaphoreSlim[] _identifySemaphores;
-        private object _semaphoreResetLock;
-        private Task _semaphoreResetTask;
+        private Task? _semaphoreResetTask;
 
         private bool _isDisposed;
 
@@ -31,7 +32,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override UserStatus Status { get => _shards[0].Status; protected set { } }
         /// <inheritdoc />
-        public override IActivity Activity { get => _shards[0].Activity; protected set { } }
+        public override IActivity? Activity { get => _shards[0].Activity; protected set { } }
 
         internal new DiscordSocketApiClient ApiClient
         {
@@ -56,23 +57,23 @@ namespace Discord.WebSocket
         /// <summary>
         ///     Provides access to a REST-only client with a shared state from this client.
         /// </summary>
-        public override DiscordSocketRestClient Rest => _shards?[0].Rest;
+        public override DiscordSocketRestClient Rest => _shards?[0].Rest ?? throw new InvalidOperationException("Sharded client has not been set up with shards yet!");
 
-        public override SocketSelfUser CurrentUser { get => _shards?.FirstOrDefault(x => x.CurrentUser != null)?.CurrentUser; protected set => throw new InvalidOperationException(); }
+        public override SocketSelfUser CurrentUser { get => _shards?.FirstOrDefault(x => x.CurrentUser != null)?.CurrentUser ?? throw new InvalidOperationException("Client is not logged in"); protected set => throw new InvalidOperationException(); }
 
         /// <summary> Creates a new REST/WebSocket Discord client. </summary>
         public DiscordShardedClient() : this(null, new DiscordSocketConfig()) { }
         /// <summary> Creates a new REST/WebSocket Discord client. </summary>
 #pragma warning disable IDISP004
-        public DiscordShardedClient(DiscordSocketConfig config) : this(null, config, CreateApiClient(config)) { }
+        public DiscordShardedClient(DiscordSocketConfig? config) : this(null, config ?? new DiscordSocketConfig(), CreateApiClient(config ?? new DiscordSocketConfig())) { }
 #pragma warning restore IDISP004
         /// <summary> Creates a new REST/WebSocket Discord client. </summary>
-        public DiscordShardedClient(int[] ids) : this(ids, new DiscordSocketConfig()) { }
+        public DiscordShardedClient(int[]? ids) : this(ids, new DiscordSocketConfig()) { }
         /// <summary> Creates a new REST/WebSocket Discord client. </summary>
 #pragma warning disable IDISP004
-        public DiscordShardedClient(int[] ids, DiscordSocketConfig config) : this(ids, config, CreateApiClient(config)) { }
+        public DiscordShardedClient(int[]? ids, DiscordSocketConfig? config) : this(ids, config ?? new DiscordSocketConfig(), CreateApiClient(config ?? new DiscordSocketConfig())) { }
 #pragma warning restore IDISP004
-        private DiscordShardedClient(int[] ids, DiscordSocketConfig config, API.DiscordSocketApiClient client)
+        private DiscordShardedClient(int[]? ids, DiscordSocketConfig config, API.DiscordSocketApiClient client)
             : base(config, client)
         {
             if (config.ShardId != null)
@@ -80,6 +81,10 @@ namespace Discord.WebSocket
             if (ids != null && config.TotalShards == null)
                 throw new ArgumentException($"Custom ids are not supported when {nameof(config.TotalShards)} is not specified.");
 
+            this._shardIds = Array.Empty<int>();
+            this._shards = Array.Empty<DiscordSocketClient>();
+            this._identifySemaphores = Array.Empty<SemaphoreSlim>();
+            this._semaphoreResetTask = null;
             _semaphoreResetLock = new object();
             _shardIdsToIndex = new Dictionary<int, int>();
             config.DisplayInitialLog = false;
@@ -107,7 +112,7 @@ namespace Discord.WebSocket
             }
         }
         private static API.DiscordSocketApiClient CreateApiClient(DiscordSocketConfig config)
-            => new DiscordSocketApiClient(config.RestClientProvider, config.WebSocketProvider, DiscordRestConfig.UserAgent, config.GatewayHost,
+            => new(config.RestClientProvider, config.WebSocketProvider, DiscordRestConfig.UserAgent, config.GatewayHost,
                 useSystemClock: config.UseSystemClock, defaultRatelimitCallback: config.DefaultRatelimitCallback);
 
         internal async Task AcquireIdentifyLockAsync(int shardId, CancellationToken token)
@@ -139,7 +144,7 @@ namespace Discord.WebSocket
 
         internal override async Task OnLoginAsync(TokenType tokenType, string token)
         {
-            var botGateway = await GetBotGatewayAsync().ConfigureAwait(false);
+            BotGateway botGateway = await GetBotGatewayAsync().ConfigureAwait(false);
             if (_automaticShards)
             {
                 _shardIds = Enumerable.Range(0, botGateway.Shards).ToArray();
@@ -190,10 +195,10 @@ namespace Discord.WebSocket
 
             if (_automaticShards)
             {
-                _shardIds = new int[0];
+                _shardIds = Array.Empty<int>();
                 _shardIdsToIndex.Clear();
                 _totalShards = 0;
-                _shards = null;
+                _shards = Array.Empty<DiscordSocketClient>();
             }
         }
 
@@ -204,31 +209,53 @@ namespace Discord.WebSocket
         public override async Task StopAsync()
             => await Task.WhenAll(_shards.Select(x => x.StopAsync())).ConfigureAwait(false);
 
-        public DiscordSocketClient GetShard(int id)
+        public DiscordSocketClient? GetShard(int id)
         {
             if (_shardIdsToIndex.TryGetValue(id, out id))
                 return _shards[id];
             return null;
         }
+        public bool TryGetShard(int id, [NotNullWhen(true)] out DiscordSocketClient? shard)
+        {
+            if (this._shardIdsToIndex.TryGetValue(id, out id))
+            {
+                shard = this._shards[id];
+                return true;
+            }
+            else
+            {
+                shard = null;
+                return false;
+            }
+        }
+
         private int GetShardIdFor(ulong guildId)
             => (int)((guildId >> 22) % (uint)_totalShards);
-        public int GetShardIdFor(IGuild guild)
+        public int GetShardIdFor(IGuild? guild)
             => GetShardIdFor(guild?.Id ?? 0);
-        private DiscordSocketClient GetShardFor(ulong guildId)
+        private DiscordSocketClient? GetShardFor(ulong guildId)
             => GetShard(GetShardIdFor(guildId));
-        public DiscordSocketClient GetShardFor(IGuild guild)
+        private bool TryGetShardFor(ulong guildId, [NotNullWhen(true)] out DiscordSocketClient? shard)
+        {
+            return this.TryGetShard(this.GetShardIdFor(guildId), out shard);
+        }
+        public DiscordSocketClient? GetShardFor(IGuild? guild)
             => GetShardFor(guild?.Id ?? 0);
+        public bool TryGetShardFor(IGuild? guild, [NotNullWhen(true)] out DiscordSocketClient? shard)
+        {
+            return this.TryGetShardFor(guild?.Id ?? 0, out shard);
+        }
 
         /// <inheritdoc />
-        public override async Task<RestApplication> GetApplicationInfoAsync(RequestOptions options = null)
+        public override async Task<RestApplication> GetApplicationInfoAsync(RequestOptions? options = null)
             => await _shards[0].GetApplicationInfoAsync(options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        public override SocketGuild GetGuild(ulong id)
-            => GetShardFor(id).GetGuild(id);
+        public override SocketGuild? GetGuild(ulong id)
+            => GetShardFor(id)?.GetGuild(id);
 
         /// <inheritdoc />
-        public override SocketChannel GetChannel(ulong id)
+        public override SocketChannel? GetChannel(ulong id)
         {
             for (int i = 0; i < _shards.Length; i++)
             {
@@ -270,7 +297,7 @@ namespace Discord.WebSocket
             return result;
         }
         /// <inheritdoc/>
-        public override async Task<SocketSticker> GetStickerAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        public override async Task<SocketSticker?> GetStickerAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null)
         {
             var sticker = _defaultStickers.FirstOrDefault(x => x.Stickers.Any(y => y.Id == id))?.Stickers.FirstOrDefault(x => x.Id == id);
 
@@ -297,13 +324,13 @@ namespace Discord.WebSocket
             if (model.GuildId.IsSpecified)
             {
                 var guild = GetGuild(model.GuildId.Value);
-                sticker = guild.AddOrUpdateSticker(model);
-                return sticker;
+                if (guild is not null)
+                {
+                    return guild.AddOrUpdateSticker(model);
+                }
             }
-            else
-            {
-                return SocketSticker.Create(_shards[0], model);
-            }
+
+            return SocketSticker.Create(_shards[0], model);
         }
         private async Task DownloadDefaultStickersAsync()
         {
@@ -332,7 +359,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public override SocketUser GetUser(ulong id)
+        public override SocketUser? GetUser(ulong id)
         {
             for (int i = 0; i < _shards.Length; i++)
             {
@@ -343,7 +370,7 @@ namespace Discord.WebSocket
             return null;
         }
         /// <inheritdoc />
-        public override SocketUser GetUser(string username, string discriminator = null)
+        public override SocketUser? GetUser(string username, string? discriminator = null)
         {
             for (int i = 0; i < _shards.Length; i++)
             {
@@ -355,13 +382,13 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public override async ValueTask<IReadOnlyCollection<RestVoiceRegion>> GetVoiceRegionsAsync(RequestOptions options = null)
+        public override async ValueTask<IReadOnlyCollection<RestVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null)
         {
             return await _shards[0].GetVoiceRegionsAsync().ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public override async ValueTask<RestVoiceRegion> GetVoiceRegionAsync(string id, RequestOptions options = null)
+        public override async ValueTask<RestVoiceRegion?> GetVoiceRegionAsync(string id, RequestOptions? options = null)
         {
             return await _shards[0].GetVoiceRegionAsync(id, options).ConfigureAwait(false);
         }
@@ -396,13 +423,15 @@ namespace Discord.WebSocket
                 await _shards[i].SetStatusAsync(status).ConfigureAwait(false);
         }
         /// <inheritdoc />
-        public override async Task SetGameAsync(string name, string streamUrl = null, ActivityType type = ActivityType.Playing)
+        public override async Task SetGameAsync(string name, string? streamUrl = null, ActivityType type = ActivityType.Playing)
         {
-            IActivity activity = null;
+            IActivity? activity = null;
             if (!string.IsNullOrEmpty(streamUrl))
-                activity = new StreamingGame(name, streamUrl);
+                activity = new StreamingGame(name, streamUrl!);
             else if (!string.IsNullOrEmpty(name))
                 activity = new Game(name, type);
+            else
+                return;
             await SetActivityAsync(activity).ConfigureAwait(false);
         }
         /// <inheritdoc />
@@ -518,36 +547,36 @@ namespace Discord.WebSocket
         ISelfUser IDiscordClient.CurrentUser => CurrentUser;
 
         /// <inheritdoc />
-        async Task<IApplication> IDiscordClient.GetApplicationInfoAsync(RequestOptions options)
+        async Task<IApplication> IDiscordClient.GetApplicationInfoAsync(RequestOptions? options)
             => await GetApplicationInfoAsync().ConfigureAwait(false);
 
         /// <inheritdoc />
-        Task<IChannel> IDiscordClient.GetChannelAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IChannel>(GetChannel(id));
+        Task<IChannel?> IDiscordClient.GetChannelAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IChannel?>(GetChannel(id));
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IPrivateChannel>> IDiscordClient.GetPrivateChannelsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IPrivateChannel>> IDiscordClient.GetPrivateChannelsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IPrivateChannel>>(PrivateChannels);
 
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IConnection>> IDiscordClient.GetConnectionsAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IConnection>> IDiscordClient.GetConnectionsAsync(RequestOptions? options)
             => await GetConnectionsAsync().ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IInvite> IDiscordClient.GetInviteAsync(string inviteId, RequestOptions options)
+        async Task<IInvite?> IDiscordClient.GetInviteAsync(string inviteId, RequestOptions? options)
             => await GetInviteAsync(inviteId, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        Task<IGuild> IDiscordClient.GetGuildAsync(ulong id, CacheMode mode, RequestOptions options)
-            => Task.FromResult<IGuild>(GetGuild(id));
+        Task<IGuild?> IDiscordClient.GetGuildAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IGuild?>(GetGuild(id));
         /// <inheritdoc />
-        Task<IReadOnlyCollection<IGuild>> IDiscordClient.GetGuildsAsync(CacheMode mode, RequestOptions options)
+        Task<IReadOnlyCollection<IGuild>> IDiscordClient.GetGuildsAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IGuild>>(Guilds);
         /// <inheritdoc />
-        async Task<IGuild> IDiscordClient.CreateGuildAsync(string name, IVoiceRegion region, Stream jpegIcon, RequestOptions options)
+        async Task<IGuild> IDiscordClient.CreateGuildAsync(string name, IVoiceRegion region, Stream? jpegIcon, RequestOptions? options)
             => await CreateGuildAsync(name, region, jpegIcon).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IUser> IDiscordClient.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IUser?> IDiscordClient.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             var user = GetUser(id);
             if (user is not null || mode == CacheMode.CacheOnly)
@@ -557,16 +586,16 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        Task<IUser> IDiscordClient.GetUserAsync(string username, string discriminator, RequestOptions options)
-            => Task.FromResult<IUser>(GetUser(username, discriminator));
+        Task<IUser?> IDiscordClient.GetUserAsync(string username, string? discriminator, RequestOptions? options)
+            => Task.FromResult<IUser?>(GetUser(username, discriminator));
 
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IVoiceRegion>> IDiscordClient.GetVoiceRegionsAsync(RequestOptions options)
+        async Task<IReadOnlyCollection<IVoiceRegion>> IDiscordClient.GetVoiceRegionsAsync(RequestOptions? options)
         {
             return await GetVoiceRegionsAsync().ConfigureAwait(false);
         }
         /// <inheritdoc />
-        async Task<IVoiceRegion> IDiscordClient.GetVoiceRegionAsync(string id, RequestOptions options)
+        async Task<IVoiceRegion?> IDiscordClient.GetVoiceRegionAsync(string id, RequestOptions? options)
         {
             return await GetVoiceRegionAsync(id).ConfigureAwait(false);
         }

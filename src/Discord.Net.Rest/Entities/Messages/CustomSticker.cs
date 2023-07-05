@@ -25,15 +25,17 @@ namespace Discord.Rest
         /// <remarks>
         ///     <b>Note</b>: This property can be <see langword="null"/> if the sticker wasn't fetched from a guild.
         /// </remarks>
-        public RestGuild Guild { get; private set; }
+        public RestGuild? Guild { get; private set; }
 
-        private ulong GuildId { get; set; }
+        /// <inheritdoc/>
+        public ulong GuildId { get; }
 
         internal CustomSticker(BaseDiscordClient client, ulong id, RestGuild guild, ulong? authorId = null)
             : base(client, id)
         {
             AuthorId = authorId;
             Guild = guild;
+            GuildId = guild.Id;
         }
         internal CustomSticker(BaseDiscordClient client, ulong id, ulong guildId, ulong? authorId = null)
             : base(client, id)
@@ -57,11 +59,11 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions options = null)
+        public Task DeleteAsync(RequestOptions? options = null)
             => GuildHelper.DeleteStickerAsync(Discord, GuildId, this, options);
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions options = null)
+        public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions? options = null)
         {
             var model = await GuildHelper.ModifyStickerAsync(Discord, GuildId, this, func, options);
             Update(model);
@@ -69,6 +71,6 @@ namespace Discord.Rest
 
         private string DebuggerDisplay => Guild != null ? $"{Name} in {Guild.Name} ({Id})" : $"{Name} ({Id})";
 
-        IGuild ICustomSticker.Guild => Guild;
+        IGuild ICustomSticker.Guild => Guild ?? new RestGuild(this.Discord, this.GuildId);
     }
 }

@@ -52,11 +52,11 @@ namespace Discord
         ///     A generic voice channel object representing the voice channel that the user is currently in; <see langword="null" />
         ///     if none.
         /// </returns>
-        IVoiceChannel VoiceChannel { get; }
+        IVoiceChannel? VoiceChannel { get; }
         /// <summary>
         ///     Gets the unique identifier for this user's voice session.
         /// </summary>
-        string VoiceSessionId { get; }
+        string? VoiceSessionId { get; }
         /// <summary>
         ///     Gets a value that indicates if this user is streaming in a voice channel.
         /// </summary>

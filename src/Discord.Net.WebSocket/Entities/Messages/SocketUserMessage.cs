@@ -17,7 +17,7 @@ namespace Discord.WebSocket
     {
         private bool _isMentioningEveryone, _isTTS, _isPinned;
         private long? _editedTimestampTicks;
-        private IUserMessage _referencedMessage;
+        private IUserMessage? _referencedMessage;
         private ImmutableArray<Attachment> _attachments = ImmutableArray.Create<Attachment>();
         private ImmutableArray<Embed> _embeds = ImmutableArray.Create<Embed>();
         private ImmutableArray<ITag> _tags = ImmutableArray.Create<ITag>();
@@ -47,7 +47,7 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public override IReadOnlyCollection<SocketSticker> Stickers => _stickers;
         /// <inheritdoc />
-        public IUserMessage ReferencedMessage => _referencedMessage;
+        public IUserMessage? ReferencedMessage => _referencedMessage;
 
         internal SocketUserMessage(DiscordSocketClient discord, ulong id, ISocketMessageChannel channel, SocketUser author, MessageSource source)
             : base(discord, id, channel, author, source)
@@ -64,7 +64,7 @@ namespace Discord.WebSocket
         {
             base.Update(state, model);
 
-            SocketGuild guild = (Channel as SocketGuildChannel)?.Guild;
+            SocketGuild? guild = (Channel as SocketGuildChannel)?.Guild;
 
             if (model.IsTextToSpeech.IsSpecified)
                 _isTTS = model.IsTextToSpeech.Value;
@@ -74,8 +74,8 @@ namespace Discord.WebSocket
                 _editedTimestampTicks = model.EditedTimestamp.Value?.UtcTicks;
             if (model.MentionEveryone.IsSpecified)
                 _isMentioningEveryone = model.MentionEveryone.Value;
-            if (model.RoleMentions.IsSpecified)
-                _roleMentions = model.RoleMentions.Value.Select(x => guild.GetRole(x)).ToImmutableArray();
+            if (model.RoleMentions.IsSpecified && guild != null)
+                _roleMentions = model.RoleMentions.Value.Select(x => guild.GetRole(x)!).Where(x => x is not null).ToImmutableArray();
 
             if (model.Attachments.IsSpecified)
             {
@@ -116,7 +116,7 @@ namespace Discord.WebSocket
             {
                 var refMsg = model.ReferencedMessage.Value;
                 ulong? webhookId = refMsg.WebhookId.ToNullable();
-                SocketUser refMsgAuthor = null;
+                SocketUser? refMsgAuthor = null;
                 if (refMsg.Author.IsSpecified)
                 {
                     if (guild != null)
@@ -146,7 +146,7 @@ namespace Discord.WebSocket
                     for (int i = 0; i < value.Length; i++)
                     {
                         var stickerItem = value[i];
-                        SocketSticker sticker = null;
+                        SocketSticker? sticker = null;
 
                         if (guild != null)
                             sticker = guild.GetSticker(stickerItem.Id);
@@ -177,14 +177,14 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException">Only the author of a message may modify the message.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Message content is too long, length must be less or equal to <see cref="DiscordConfig.MaxMessageSize"/>.</exception>
-        public Task ModifyAsync(Action<MessageProperties> func, RequestOptions options = null)
+        public Task ModifyAsync(Action<MessageProperties> func, RequestOptions? options = null)
             => MessageHelper.ModifyAsync(this, Discord, func, options);
 
         /// <inheritdoc />
-        public Task PinAsync(RequestOptions options = null)
+        public Task PinAsync(RequestOptions? options = null)
             => MessageHelper.PinAsync(this, Discord, options);
         /// <inheritdoc />
-        public Task UnpinAsync(RequestOptions options = null)
+        public Task UnpinAsync(RequestOptions? options = null)
             => MessageHelper.UnpinAsync(this, Discord, options);
 
         public string Resolve(int startIndex, TagHandling userHandling = TagHandling.Name, TagHandling channelHandling = TagHandling.Name,
@@ -197,9 +197,9 @@ namespace Discord.WebSocket
 
         /// <inheritdoc />
         /// <exception cref="InvalidOperationException">This operation may only be called on a <see cref="INewsChannel"/> channel.</exception>
-        public async Task CrosspostAsync(RequestOptions options = null)
+        public async Task CrosspostAsync(RequestOptions? options = null)
         {
-            if (!(Channel is INewsChannel))
+            if (Channel is not INewsChannel)
             {
                 throw new InvalidOperationException("Publishing (crossposting) is only valid in news channels.");
             }
@@ -208,6 +208,6 @@ namespace Discord.WebSocket
         }
 
         private string DebuggerDisplay => $"{Author}: {Content} ({Id}{(Attachments.Count > 0 ? $", {Attachments.Count} Attachments" : "")})";
-        internal new SocketUserMessage Clone() => MemberwiseClone() as SocketUserMessage;
+        internal new SocketUserMessage Clone() => (SocketUserMessage)MemberwiseClone();
     }
 }

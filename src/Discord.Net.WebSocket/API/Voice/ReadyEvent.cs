@@ -1,19 +1,20 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 using System;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Voice
 {
     internal class ReadyEvent
     {
-        [JsonProperty("ssrc")]
+        [JsonPropertyName("ssrc")]
         public uint SSRC { get; set; }
-        [JsonProperty("ip")]
-        public string Ip { get; set; }
-        [JsonProperty("port")]
+        [JsonPropertyName("ip")]
+        public string Ip { get; set; } = string.Empty;
+        [JsonPropertyName("port")]
         public ushort Port { get; set; }
-        [JsonProperty("modes")]
-        public string[] Modes { get; set; }
-        [JsonProperty("heartbeat_interval")]
+        [JsonPropertyName("modes")]
+        public string[] Modes { get; set; } = Array.Empty<string>();
+        [JsonPropertyName("heartbeat_interval")]
         [Obsolete("This field is erroneous and should not be used", true)]
         public int HeartbeatInterval { get; set; }
     }

@@ -1,5 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
@@ -7,7 +10,7 @@ namespace Discord
     ///     A author field of an <see cref="Embed"/>.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedAuthor
+    public struct EmbedAuthor : IEquatable<EmbedAuthor>
     {
         /// <summary>
         ///     Gets the name of the author field.
@@ -16,17 +19,17 @@ namespace Discord
         /// <summary>
         ///     Gets the URL of the author field.
         /// </summary>
-        public string Url { get; internal set; }
+        public string? Url { get; internal set; }
         /// <summary>
         ///     Gets the icon URL of the author field.
         /// </summary>
-        public string IconUrl { get; internal set; }
+        public string? IconUrl { get; internal set; }
         /// <summary>
         ///     Gets the proxified icon URL of the author field.
         /// </summary>
-        public string ProxyIconUrl { get; internal set; }
+        public string? ProxyIconUrl { get; internal set; }
 
-        internal EmbedAuthor(string name, string url, string iconUrl, string proxyIconUrl)
+        internal EmbedAuthor(string name, string? url, string? iconUrl, string? proxyIconUrl)
         {
             Name = name;
             Url = url;
@@ -58,7 +61,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedAuthor"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedAuthor embedAuthor && Equals(embedAuthor);
 
         /// <summary>
@@ -66,11 +69,26 @@ namespace Discord
         /// </summary>
         /// <param name="embedAuthor">The <see cref="EmbedAuthor"/> to compare with the current <see cref="EmbedAuthor"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedAuthor? embedAuthor)
-            => GetHashCode() == embedAuthor?.GetHashCode();
+        public bool Equals(EmbedAuthor embedAuthor)
+        {
+            return this.Name == embedAuthor.Name &&
+                this.Url == embedAuthor.Url &&
+                this.IconUrl == embedAuthor.IconUrl &&
+                this.ProxyIconUrl == embedAuthor.ProxyIconUrl;
+        }
+
+        /// <inheritdoc cref="EmbedAuthor.Equals(EmbedAuthor)"/>
+        public bool Equals([NotNullWhen(true)] EmbedAuthor? embedAuthor)
+        {
+            if (!embedAuthor.HasValue)
+            {
+                return false;
+            }
+            return this.Equals(embedAuthor.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => (Name, Url, IconUrl).GetHashCode();
+            => HashCode.Combine(this.Name, this.Url ?? string.Empty, this.IconUrl ?? string.Empty, this.ProxyIconUrl ?? string.Empty);
     }
 }

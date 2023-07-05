@@ -86,7 +86,7 @@ internal static class SocketAuditLogHelper
             [ActionType.OnboardingUpdated] = SocketOnboardingUpdatedAuditLogData.Create,
         };
 
-    public static ISocketAuditLogData CreateData(DiscordSocketClient discord, EntryModel entry)
+    public static ISocketAuditLogData? CreateData(DiscordSocketClient discord, EntryModel entry)
     {
         if (CreateMapping.TryGetValue(entry.Action, out var func))
             return func(discord, entry);

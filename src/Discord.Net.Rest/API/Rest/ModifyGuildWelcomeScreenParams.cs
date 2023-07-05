@@ -1,15 +1,16 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest;
 
 internal class ModifyGuildWelcomeScreenParams
 {
-    [JsonProperty("enabled")]
+    [JsonPropertyName("enabled")]
     public Optional<bool> Enabled { get; set; }
 
-    [JsonProperty("welcome_channels")]
+    [JsonPropertyName("welcome_channels")]
     public Optional<WelcomeScreenChannel[]> WelcomeChannels { get; set; }
 
-    [JsonProperty("description")]
+    [JsonPropertyName("description")]
     public Optional<string> Description { get; set; }
 }

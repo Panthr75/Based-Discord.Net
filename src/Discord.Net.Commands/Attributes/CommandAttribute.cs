@@ -11,7 +11,7 @@ namespace Discord.Commands
         /// <summary>
         ///     Gets the text that has been set to be recognized as a command.
         /// </summary>
-        public string Text { get; }
+        public string? Text { get; }
         /// <summary>
         ///     Specifies the <see cref="RunMode" /> of the command. This affects how the command is executed.
         /// </summary>

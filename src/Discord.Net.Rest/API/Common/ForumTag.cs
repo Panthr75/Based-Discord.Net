@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,16 @@ namespace Discord.API
 {
     internal class ForumTag
     {
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public ulong Id { get; set; }
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("emoji_id")]
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("emoji_id")]
         public Optional<ulong?> EmojiId { get; set; }
-        [JsonProperty("emoji_name")]
-        public Optional<string> EmojiName { get; set; }
+        [JsonPropertyName("emoji_name")]
+        public Optional<string?> EmojiName { get; set; }
 
-        [JsonProperty("moderated")]
+        [JsonPropertyName("moderated")]
         public bool Moderated { get; set; }
     }
 }

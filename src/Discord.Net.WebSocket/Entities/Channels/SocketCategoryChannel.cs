@@ -37,9 +37,9 @@ namespace Discord.WebSocket
             : base(discord, id, guild)
         {
         }
-        internal new static SocketCategoryChannel Create(SocketGuild guild, ClientState state, Model model)
+        internal new static SocketCategoryChannel Create(SocketGuild? guild, ClientState state, Model model)
         {
-            var entity = new SocketCategoryChannel(guild?.Discord, model.Id, guild);
+            var entity = new SocketCategoryChannel(guild?.Discord!, model.Id, guild!);
             entity.Update(state, model);
             return entity;
         }
@@ -47,7 +47,7 @@ namespace Discord.WebSocket
 
         #region Users
         /// <inheritdoc />
-        public override SocketGuildUser GetUser(ulong id)
+        public override SocketGuildUser? GetUser(ulong id)
         {
             var user = Guild.GetUser(id);
             if (user != null)
@@ -61,21 +61,21 @@ namespace Discord.WebSocket
         }
 
         private string DebuggerDisplay => $"{Name} ({Id}, Category)";
-        internal new SocketCategoryChannel Clone() => MemberwiseClone() as SocketCategoryChannel;
+        internal new SocketCategoryChannel Clone() => (SocketCategoryChannel)MemberwiseClone();
         #endregion
 
         #region IGuildChannel
 
         /// <inheritdoc />
         IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode,
-            RequestOptions options)
+            RequestOptions? options)
         {
             return mode == CacheMode.AllowDownload
                 ? ChannelHelper.GetUsersAsync(this, Guild, Discord, null, null, options)
                 : ImmutableArray.Create<IReadOnlyCollection<IGuildUser>>(Users).ToAsyncEnumerable();
         }
         /// <inheritdoc />
-        async Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IGuildUser?> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             var user = GetUser(id);
             if (user is not null || mode == CacheMode.CacheOnly)
@@ -88,14 +88,14 @@ namespace Discord.WebSocket
         #region IChannel
 
         /// <inheritdoc />
-        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
         {
             return mode == CacheMode.AllowDownload
                 ? ChannelHelper.GetUsersAsync(this, Guild, Discord, null, null, options)
                 : ImmutableArray.Create<IReadOnlyCollection<IGuildUser>>(Users).ToAsyncEnumerable();
         }
         /// <inheritdoc />
-        async Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        async Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
         {
             var user = GetUser(id);
             if (user is not null || mode == CacheMode.CacheOnly)

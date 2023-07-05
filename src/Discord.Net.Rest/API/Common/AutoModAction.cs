@@ -1,4 +1,5 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Discord.API
 {
     internal class AutoModAction
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public AutoModActionType Type { get; set; }
 
-        [JsonProperty("metadata")]
+        [JsonPropertyName("metadata")]
         public Optional<ActionMetadata> Metadata { get; set; }
     }
 }

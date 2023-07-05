@@ -1,5 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord
 {
@@ -7,7 +10,7 @@ namespace Discord
     ///     A video featured in an <see cref="Embed"/>.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public struct EmbedVideo
+    public struct EmbedVideo : IEquatable<EmbedVideo>
     {
         /// <summary>
         ///     Gets the URL of the video.
@@ -15,7 +18,7 @@ namespace Discord
         /// <returns>
         ///     A string containing the URL of the image.
         /// </returns>
-        public string Url { get; }
+        public string? Url { get; }
         /// <summary>
         ///     Gets the height of the video.
         /// </summary>
@@ -33,7 +36,7 @@ namespace Discord
         /// </returns>
         public int? Width { get; }
 
-        internal EmbedVideo(string url, int? height, int? width)
+        internal EmbedVideo(string? url, int? height, int? width)
         {
             Url = url;
             Height = height;
@@ -47,7 +50,7 @@ namespace Discord
         /// <returns>
         ///     A string that resolves to <see cref="Url"/>.
         /// </returns>
-        public override string ToString() => Url;
+        public override string? ToString() => Url;
 
         public static bool operator ==(EmbedVideo? left, EmbedVideo? right)
             => left is null ? right is null
@@ -64,7 +67,7 @@ namespace Discord
         /// </remarks>
         /// <param name="obj">The object to compare with the current <see cref="EmbedVideo"/></param>
         /// <returns></returns>
-        public override bool Equals(object obj)
+        public override bool Equals([NotNullWhen(true)] object? obj)
             => obj is EmbedVideo embedVideo && Equals(embedVideo);
 
         /// <summary>
@@ -72,11 +75,25 @@ namespace Discord
         /// </summary>
         /// <param name="embedVideo">The <see cref="EmbedVideo"/> to compare with the current <see cref="EmbedVideo"/></param>
         /// <returns></returns>
-        public bool Equals(EmbedVideo? embedVideo)
-            => GetHashCode() == embedVideo?.GetHashCode();
+        public bool Equals(EmbedVideo embedVideo)
+        {
+            return this.Url == embedVideo.Url &&
+                this.Width == embedVideo.Width &&
+                this.Height == embedVideo.Height;
+        }
+
+        /// <inheritdoc cref="EmbedVideo.Equals(EmbedVideo)"/>
+        public bool Equals([NotNullWhen(true)] EmbedVideo? embedVideo)
+        {
+            if (!embedVideo.HasValue)
+            {
+                return false;
+            }
+            return this.Equals(embedVideo.Value);
+        }
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => (Width, Height, Url).GetHashCode();
+            => HashCode.Combine(Width, Height, Url);
     }
 }

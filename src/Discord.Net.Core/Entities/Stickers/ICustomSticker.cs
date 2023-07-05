@@ -17,9 +17,15 @@ namespace Discord
         ulong? AuthorId { get; }
 
         /// <summary>
-        ///     Gets the guild that this custom sticker is in.
+        ///     Gets the guild that this custom sticker is in, or <see langword="null"/>
+        ///     if it wasn't cached.
         /// </summary>
-        IGuild Guild { get; }
+        IGuild? Guild { get; }
+
+        /// <summary>
+        ///     The ID of the guild this sticker is in.
+        /// </summary>
+        ulong GuildId { get; }
 
         /// <summary>
         ///     Modifies this sticker.
@@ -42,7 +48,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
-        Task ModifyAsync(Action<StickerProperties> func, RequestOptions options = null);
+        Task ModifyAsync(Action<StickerProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Deletes the current sticker.
@@ -54,6 +60,6 @@ namespace Discord
         /// <returns>
         ///      A task that represents the asynchronous deletion operation.
         /// </returns>
-        Task DeleteAsync(RequestOptions options = null);
+        Task DeleteAsync(RequestOptions? options = null);
     }
 }

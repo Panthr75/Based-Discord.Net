@@ -14,7 +14,7 @@ namespace Discord.Rest
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     public class RestApplication : RestEntity<ulong>, IApplication
     {
-        protected string _iconId;
+        protected string? _iconId;
 
         /// <inheritdoc />
         public string Name { get; private set; }
@@ -29,28 +29,28 @@ namespace Discord.Rest
         /// <inheritdoc />
         public bool? BotRequiresCodeGrant { get; private set; }
         /// <inheritdoc />
-        public ITeam Team { get; private set; }
+        public ITeam? Team { get; private set; }
         /// <inheritdoc />
-        public IUser Owner { get; private set; }
+        public IUser? Owner { get; private set; }
         /// <inheritdoc />
-        public string TermsOfService { get; private set; }
+        public string? TermsOfService { get; private set; }
         /// <inheritdoc />
-        public string PrivacyPolicy { get; private set; }
+        public string? PrivacyPolicy { get; private set; }
 
         /// <inheritdoc />
         public string VerifyKey { get; private set; }
         /// <inheritdoc />
-        public string CustomInstallUrl { get; private set; }
+        public string? CustomInstallUrl { get; private set; }
         /// <inheritdoc />
-        public string RoleConnectionsVerificationUrl { get; private set; }
+        public string? RoleConnectionsVerificationUrl { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
         /// <inheritdoc />
-        public string IconUrl => CDN.GetApplicationIconUrl(Id, _iconId);
+        public string? IconUrl => CDN.GetApplicationIconUrl(Id, _iconId);
 
         /// <inheritdoc />
-        public PartialGuild Guild { get; private set; }
+        public PartialGuild? Guild { get; private set; }
 
         /// <inheritdoc />
         public int? ApproximateGuildCount { get; private set; }
@@ -59,15 +59,21 @@ namespace Discord.Rest
         public IReadOnlyCollection<string> RedirectUris { get; private set; }
 
         /// <inheritdoc />
-        public string InteractionsEndpointUrl { get; private set; }
+        public string? InteractionsEndpointUrl { get; private set; }
 
-        public ApplicationInstallParams InstallParams { get; private set; }
+        public ApplicationInstallParams? InstallParams { get; private set; }
 
         public IReadOnlyCollection<string> Tags { get; private set; }
 
         internal RestApplication(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
+            this.Name = string.Empty;
+            this.Description = string.Empty;
+            this.RPCOrigins = ImmutableArray<string>.Empty;
+            this.VerifyKey = string.Empty;
+            this.RedirectUris = ImmutableArray<string>.Empty;
+            this.Tags = ImmutableArray<string>.Empty;
         }
         internal static RestApplication Create(BaseDiscordClient discord, Model model)
         {

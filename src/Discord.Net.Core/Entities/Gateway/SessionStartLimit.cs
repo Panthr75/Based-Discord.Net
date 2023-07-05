@@ -34,5 +34,8 @@ namespace Discord
         ///     limited to the same rate limit key.
         /// </returns>
         public int MaxConcurrency { get; internal set; }
+
+        internal SessionStartLimit()
+        { }
     }
 }

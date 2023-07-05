@@ -1,15 +1,15 @@
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Discord.API.Rest
 {
-    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     internal class CreateGuildEmoteParams
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-        [JsonProperty("image")]
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+        [JsonPropertyName("image")]
         public Image Image { get; set; }
-        [JsonProperty("roles")]
+        [JsonPropertyName("roles")]
         public Optional<ulong[]> RoleIds { get; set; }
     }
 }
