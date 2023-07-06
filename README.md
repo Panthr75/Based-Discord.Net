@@ -19,6 +19,23 @@
 </p>
 Discord.Net is an unofficial .NET API Wrapper for the Discord client (https://discord.com).
 
+## Info
+This fork is used for Bonnel, a util library for discord commands. Although it is not recommended to use this fork
+for your own personal projects, you can still use it if you want to. Keep in mind that you can only build
+this fork with .NET Standard 2.0, .NET Standard 2.1, .NET 6.0, and .NET 7.0.
+
+This fork implements the following new features
+- `NumericValue` - A new data type used in Min/Max values for application commands. They can represent decimal numbers, and integral numbers.
+- `ApplicationCommandOptionValue` - Replaces the generic `object` value inside `ApplicationCommandOption`. This allows for more type safety when using application commands, and lets JSON serializer do whatever it wants to really.
+- Nullability support
+- `Pronouns` in `IUser` (Although not fully available yet to bots, but it is ready whenever discord feels like sending it over in requests *wink wink*)
+- `Newtonsoft.Json` has been entirely replaced with `System.Text.Json`. No more Newtonsoft.Json!
+- Utility functions inside `Optional`, as well as some other types for easier use. (e.g. `IGuildScheduledEvent.IsExternal`, so that `IGuildScheduledEvent.Location` won't be `null`.)
+
+The fork has the following features in progress
+- Updating the remaining projects `Discord.Net.Interactions`, the test projects, and the example documents with the new features.
+- `Media` channel support. Although it's type has been added to `ChannelType`, SocketMediaChannel, RestMediaChannel, and IMediaChannel have not been implemented.
+
 ## 📄 Documentation
 
 - https://discordnet.dev
