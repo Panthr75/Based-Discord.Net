@@ -1199,7 +1199,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuOptionBuilder WithLabel(string label)
+        public SelectMenuOptionBuilder WithLabel(string? label)
         {
             Label = label;
             return this;
@@ -1213,7 +1213,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuOptionBuilder WithValue(string value)
+        public SelectMenuOptionBuilder WithValue(string? value)
         {
             Value = value;
             return this;
@@ -1227,7 +1227,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuOptionBuilder WithDescription(string description)
+        public SelectMenuOptionBuilder WithDescription(string? description)
         {
             Description = description;
             return this;
