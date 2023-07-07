@@ -141,7 +141,7 @@ namespace Discord.Rest
             return RestThreadUser.Create(client, channel.Guild, model, channel);
         }
 
-        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel,
+        public static async Task<RestThreadChannel> CreatePostAsync(IDiscussionChannel channel,
             BaseDiscordClient client,
             string title,
             ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
@@ -220,7 +220,7 @@ namespace Discord.Rest
             return RestThreadChannel.Create(client, channel.Guild, model);
         }
 
-        public static async Task<RestThreadChannel> CreatePostAsync(IForumChannel channel,
+        public static async Task<RestThreadChannel> CreatePostAsync(IDiscussionChannel channel,
             BaseDiscordClient client,
             string title,
             IEnumerable<FileAttachment> attachments,

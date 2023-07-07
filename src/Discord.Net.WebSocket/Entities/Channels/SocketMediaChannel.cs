@@ -1,3 +1,4 @@
+using Discord.Rest;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -7,16 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Model = Discord.API.Channel;
 
-namespace Discord.Rest
+namespace Discord.WebSocket
 {
     /// <summary>
-    ///     Represents a REST-based forum channel in a guild.
+    ///     Represents a forum channel in a guild.
     /// </summary>
-    public class RestForumChannel : RestGuildChannel, IForumChannel
+    public class SocketMediaChannel : SocketGuildChannel, IMediaChannel
     {
-        /// <inheritdoc/>
-        public bool IsNsfw { get; private set; }
-
         /// <inheritdoc/>
         public string? Topic { get; private set; }
 
@@ -33,6 +31,9 @@ namespace Discord.Rest
         public int DefaultSlowModeInterval { get; private set; }
 
         /// <inheritdoc/>
+        public string Mention => MentionUtils.MentionChannel(Id);
+
+        /// <inheritdoc/>
         public ulong? CategoryId { get; private set; }
 
         /// <inheritdoc/>
@@ -41,29 +42,30 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public ForumSortOrder? DefaultSortOrder { get; private set; }
 
-        /// <inheritdoc />
-        public ForumLayout DefaultLayout { get; private set; }
+        /// <summary>
+        ///     Gets the parent (category) of this channel in the guild's channel list.
+        /// </summary>
+        /// <returns>
+        ///     An <see cref="ICategoryChannel"/> representing the parent of this channel; <see langword="null" /> if none is set.
+        /// </returns>
+        public ICategoryChannel? Category
+            => CategoryId.HasValue ? Guild.GetChannel(CategoryId.Value) as ICategoryChannel : null;
 
-        /// <inheritdoc/>
-        public string Mention => MentionUtils.MentionChannel(Id);
-
-        internal RestForumChannel(BaseDiscordClient client, IGuild? guild, ulong id)
-            : base(client, guild, id)
+        internal SocketMediaChannel(DiscordSocketClient discord, ulong id, SocketGuild guild) : base(discord, id, guild)
         {
-            this.Tags = Array.Empty<ForumTag>();
+                this.Tags = ImmutableArray<ForumTag>.Empty;
         }
 
-        internal new static RestForumChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
+        internal new static SocketForumChannel Create(SocketGuild? guild, ClientState state, Model model)
         {
-            var entity = new RestForumChannel(discord, guild, model.Id);
-            entity.Update(model);
+            var entity = new SocketForumChannel(guild?.Discord!, model.Id, guild!);
+            entity.Update(state, model);
             return entity;
         }
 
-        internal override void Update(Model model)
+        internal override void Update(ClientState state, Model model)
         {
-            base.Update(model);
-            IsNsfw = model.Nsfw.GetValueOrDefault(false);
+            base.Update(state, model);
             Topic = model.Topic.GetValueOrDefault();
             DefaultAutoArchiveDuration = model.AutoArchiveDuration.GetValueOrDefault(ThreadArchiveDuration.OneDay);
 
@@ -90,20 +92,15 @@ namespace Discord.Rest
             }
 
             CategoryId = model.CategoryId.GetValueOrDefault();
-            DefaultLayout = model.DefaultForumLayout.GetValueOrDefault();
         }
 
-        /// <inheritdoc/>
-        public async Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions? options = null)
-        {
-            var model = await DiscussionHelper.ModifyAsync(this, Discord, func, options);
-            Update(model);
-        }
+        /// <inheritdoc />
+        public virtual Task ModifyAsync(Action<MediaChannelProperties> func, RequestOptions? options = null)
+            => DiscussionHelper.ModifyAsync(this, Discord, func, options);
 
         /// <inheritdoc cref="IDiscussionChannel.CreatePostAsync(string, ThreadArchiveDuration, int?, string, Embed, RequestOptions, AllowedMentions, MessageComponent, ISticker[], Embed[], MessageFlags, ForumTag[])"/>
-        public Task<RestThreadChannel> CreatePostAsync(string title, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay, int? slowmode = null,
-            string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageComponent? components = null, ISticker[]? stickers = null,
-            Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null) => ThreadHelper.CreatePostAsync(this, Discord, title, archiveDuration, slowmode, text, embed, options, allowedMentions, components, stickers, embeds, flags, tags?.Select(tag => tag.Id).ToArray());
+        public Task<RestThreadChannel> CreatePostAsync(string title, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay, int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null)
+            => ThreadHelper.CreatePostAsync(this, Discord, title, archiveDuration, slowmode, text, embed, options, allowedMentions, components, stickers, embeds, flags, tags?.Select(tag => tag.Id).ToArray());
 
         /// <inheritdoc cref="IDiscussionChannel.CreatePostWithFileAsync(string, string, ThreadArchiveDuration, int?, string, Embed, RequestOptions, bool, AllowedMentions, MessageComponent, ISticker[], Embed[], MessageFlags, ForumTag[])"/>
         public async Task<RestThreadChannel> CreatePostWithFileAsync(string title, string filePath, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay,
@@ -139,10 +136,7 @@ namespace Discord.Rest
 
         /// <inheritdoc cref="ITextChannel.GetActiveThreadsAsync(RequestOptions)"/>
         public Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null)
-        {
-            this.ValidateGuildExists();
-            return ThreadHelper.GetActiveThreadsAsync(Guild, Id, Discord, options);
-        }
+            => ThreadHelper.GetActiveThreadsAsync(Guild, Id, Discord, options);
 
         /// <inheritdoc cref="IForumChannel.GetJoinedPrivateArchivedThreadsAsync(int?, DateTimeOffset?, RequestOptions)"/>
         public Task<IReadOnlyCollection<RestThreadChannel>> GetJoinedPrivateArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null)
@@ -156,31 +150,22 @@ namespace Discord.Rest
         public Task<IReadOnlyCollection<RestThreadChannel>> GetPublicArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null)
             => ThreadHelper.GetPublicArchivedThreadsAsync(this, Discord, limit, before, options);
 
-        /// <inheritdoc cref="IIntegrationChannel.CreateWebhookAsync"/>
-        public Task<RestWebhook> CreateWebhookAsync(string name, Stream? avatar = null, RequestOptions? options = null)
-            => ChannelHelper.CreateWebhookAsync(this, Discord, name, avatar, options);
 
-        /// <inheritdoc cref="IIntegrationChannel.GetWebhookAsync"/>
-        public Task<RestWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null)
-            => ChannelHelper.GetWebhookAsync(this, Discord, id, options);
-
-        /// <inheritdoc cref="IIntegrationChannel.GetWebhooksAsync"/>
-        public Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(RequestOptions? options = null)
-            => ChannelHelper.GetWebhooksAsync(this, Discord, options);
-
-        #region IForumChannel
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetActiveThreadsAsync(RequestOptions? options)
+        #region IMediaChannel
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetActiveThreadsAsync(RequestOptions? options)
             => await GetActiveThreadsAsync(options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetPublicArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetPublicArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetPublicArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetPrivateArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetJoinedPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetJoinedPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetJoinedPrivateArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
 
         #endregion
 
         #region IDiscussionChannel
+
+
         async Task<IThreadChannel> IDiscussionChannel.CreatePostAsync(string title, ThreadArchiveDuration archiveDuration, int? slowmode, string? text, Embed? embed, RequestOptions? options, AllowedMentions? allowedMentions, MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags, ForumTag[]? tags)
             => await CreatePostAsync(title, archiveDuration, slowmode, text, embed, options, allowedMentions, components, stickers, embeds, flags, tags).ConfigureAwait(false);
         async Task<IThreadChannel> IDiscussionChannel.CreatePostWithFileAsync(string title, string filePath, ThreadArchiveDuration archiveDuration, int? slowmode, string? text, Embed? embed, RequestOptions? options, bool isSpoiler, AllowedMentions? allowedMentions, MessageComponent? components, ISticker[]? stickers, Embed[]? embeds, MessageFlags flags, ForumTag[]? tags)
@@ -209,34 +194,12 @@ namespace Discord.Rest
             => await ChannelHelper.GetInvitesAsync(this, Discord, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<ICategoryChannel?> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions? options)
-        {
-            if (CategoryId.HasValue && mode == CacheMode.AllowDownload)
-            {
-                this.ValidateGuildExists();
-                return (await Guild.GetChannelAsync(CategoryId.Value, mode, options).ConfigureAwait(false)) as ICategoryChannel;
-            }
-            return null;
-        }
+        Task<ICategoryChannel?> INestedChannel.GetCategoryAsync(CacheMode mode, RequestOptions? options)
+            => Task.FromResult(Category);
 
         /// <inheritdoc />
-        public Task SyncPermissionsAsync(RequestOptions? options = null)
+        public virtual Task SyncPermissionsAsync(RequestOptions? options = null)
             => ChannelHelper.SyncPermissionsAsync(this, Discord, options);
         #endregion
-
-        #region IIntegrationChannel
-
-        /// <inheritdoc />
-        async Task<IWebhook> IIntegrationChannel.CreateWebhookAsync(string name, Stream? avatar, RequestOptions? options)
-            => await CreateWebhookAsync(name, avatar, options).ConfigureAwait(false);
-        /// <inheritdoc />
-        async Task<IWebhook?> IIntegrationChannel.GetWebhookAsync(ulong id, RequestOptions? options)
-            => await GetWebhookAsync(id, options).ConfigureAwait(false);
-        /// <inheritdoc />
-        async Task<IReadOnlyCollection<IWebhook>> IIntegrationChannel.GetWebhooksAsync(RequestOptions? options)
-            => await GetWebhooksAsync(options).ConfigureAwait(false);
-
-        #endregion
-
     }
 }

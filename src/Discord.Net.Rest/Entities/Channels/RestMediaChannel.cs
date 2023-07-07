@@ -10,13 +10,10 @@ using Model = Discord.API.Channel;
 namespace Discord.Rest
 {
     /// <summary>
-    ///     Represents a REST-based forum channel in a guild.
+    ///     Represents a REST-based media channel in a guild.
     /// </summary>
-    public class RestForumChannel : RestGuildChannel, IForumChannel
+    public class RestMediaChannel : RestGuildChannel, IMediaChannel
     {
-        /// <inheritdoc/>
-        public bool IsNsfw { get; private set; }
-
         /// <inheritdoc/>
         public string? Topic { get; private set; }
 
@@ -41,13 +38,10 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public ForumSortOrder? DefaultSortOrder { get; private set; }
 
-        /// <inheritdoc />
-        public ForumLayout DefaultLayout { get; private set; }
-
         /// <inheritdoc/>
         public string Mention => MentionUtils.MentionChannel(Id);
 
-        internal RestForumChannel(BaseDiscordClient client, IGuild? guild, ulong id)
+        internal RestMediaChannel(BaseDiscordClient client, IGuild? guild, ulong id)
             : base(client, guild, id)
         {
             this.Tags = Array.Empty<ForumTag>();
@@ -63,7 +57,6 @@ namespace Discord.Rest
         internal override void Update(Model model)
         {
             base.Update(model);
-            IsNsfw = model.Nsfw.GetValueOrDefault(false);
             Topic = model.Topic.GetValueOrDefault();
             DefaultAutoArchiveDuration = model.AutoArchiveDuration.GetValueOrDefault(ThreadArchiveDuration.OneDay);
 
@@ -90,11 +83,10 @@ namespace Discord.Rest
             }
 
             CategoryId = model.CategoryId.GetValueOrDefault();
-            DefaultLayout = model.DefaultForumLayout.GetValueOrDefault();
         }
 
         /// <inheritdoc/>
-        public async Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions? options = null)
+        public async Task ModifyAsync(Action<MediaChannelProperties> func, RequestOptions? options = null)
         {
             var model = await DiscussionHelper.ModifyAsync(this, Discord, func, options);
             Update(model);
@@ -156,26 +148,14 @@ namespace Discord.Rest
         public Task<IReadOnlyCollection<RestThreadChannel>> GetPublicArchivedThreadsAsync(int? limit = null, DateTimeOffset? before = null, RequestOptions? options = null)
             => ThreadHelper.GetPublicArchivedThreadsAsync(this, Discord, limit, before, options);
 
-        /// <inheritdoc cref="IIntegrationChannel.CreateWebhookAsync"/>
-        public Task<RestWebhook> CreateWebhookAsync(string name, Stream? avatar = null, RequestOptions? options = null)
-            => ChannelHelper.CreateWebhookAsync(this, Discord, name, avatar, options);
-
-        /// <inheritdoc cref="IIntegrationChannel.GetWebhookAsync"/>
-        public Task<RestWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null)
-            => ChannelHelper.GetWebhookAsync(this, Discord, id, options);
-
-        /// <inheritdoc cref="IIntegrationChannel.GetWebhooksAsync"/>
-        public Task<IReadOnlyCollection<RestWebhook>> GetWebhooksAsync(RequestOptions? options = null)
-            => ChannelHelper.GetWebhooksAsync(this, Discord, options);
-
-        #region IForumChannel
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetActiveThreadsAsync(RequestOptions? options)
+        #region IMediaChannel
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetActiveThreadsAsync(RequestOptions? options)
             => await GetActiveThreadsAsync(options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetPublicArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetPublicArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetPublicArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetPrivateArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
-        async Task<IReadOnlyCollection<IThreadChannel>> IForumChannel.GetJoinedPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
+        async Task<IReadOnlyCollection<IThreadChannel>> IMediaChannel.GetJoinedPrivateArchivedThreadsAsync(int? limit, DateTimeOffset? before, RequestOptions? options)
             => await GetJoinedPrivateArchivedThreadsAsync(limit, before, options).ConfigureAwait(false);
 
         #endregion
@@ -223,20 +203,5 @@ namespace Discord.Rest
         public Task SyncPermissionsAsync(RequestOptions? options = null)
             => ChannelHelper.SyncPermissionsAsync(this, Discord, options);
         #endregion
-
-        #region IIntegrationChannel
-
-        /// <inheritdoc />
-        async Task<IWebhook> IIntegrationChannel.CreateWebhookAsync(string name, Stream? avatar, RequestOptions? options)
-            => await CreateWebhookAsync(name, avatar, options).ConfigureAwait(false);
-        /// <inheritdoc />
-        async Task<IWebhook?> IIntegrationChannel.GetWebhookAsync(ulong id, RequestOptions? options)
-            => await GetWebhookAsync(id, options).ConfigureAwait(false);
-        /// <inheritdoc />
-        async Task<IReadOnlyCollection<IWebhook>> IIntegrationChannel.GetWebhooksAsync(RequestOptions? options)
-            => await GetWebhooksAsync(options).ConfigureAwait(false);
-
-        #endregion
-
     }
 }
