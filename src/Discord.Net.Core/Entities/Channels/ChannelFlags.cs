@@ -18,5 +18,10 @@ public enum ChannelFlags
     /// <summary>
     ///     Flag given to a forum channel that requires people to select tags when posting.
     /// </summary>
-    RequireTag = 1 << 4
+    RequireTag = 1 << 4,
+
+    /// <summary>
+    ///     Flag given to a media channel thats hides the embedded media download options.
+    /// </summary>
+    HideMediaDownloadOptions = 1 << 15
 }
