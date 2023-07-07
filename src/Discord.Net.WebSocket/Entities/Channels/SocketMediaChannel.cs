@@ -11,7 +11,7 @@ using Model = Discord.API.Channel;
 namespace Discord.WebSocket
 {
     /// <summary>
-    ///     Represents a forum channel in a guild.
+    ///     Represents a media channel in a guild.
     /// </summary>
     public class SocketMediaChannel : SocketGuildChannel, IMediaChannel
     {
