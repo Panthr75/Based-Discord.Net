@@ -5,7 +5,7 @@ namespace Discord
     /// <summary>
     /// The value for an application command option.
     /// </summary>
-    public readonly struct ApplicationCommandOptionValue
+    public readonly struct ApplicationCommandOptionValue : IConvertible
     {
         private readonly bool m_booleanValue;
         private readonly string m_stringValue;
@@ -136,6 +136,11 @@ namespace Discord
             return this.m_stringValue ?? string.Empty;
         }
 
+        public string ToString(IFormatProvider? provider)
+        {
+            return this.ToString();
+        }
+
         public NumericValue ToNumber()
         {
             return this.m_numericValue;
@@ -201,6 +206,191 @@ namespace Discord
                 return this.m_attachmentValue;
             }
             throw new InvalidOperationException();
+        }
+
+        bool IConvertible.ToBoolean(IFormatProvider? provider)
+        {
+            return this.ToBool();
+        }
+
+        byte IConvertible.ToByte(IFormatProvider? provider)
+        {
+            return System.Convert.ToByte(this.ToNumber(), provider);
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider? provider)
+        {
+            return System.Convert.ToSByte(this.ToNumber(), provider);
+        }
+
+        short IConvertible.ToInt16(IFormatProvider? provider)
+        {
+            return System.Convert.ToInt16(this.ToNumber(), provider);
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider? provider)
+        {
+            return System.Convert.ToUInt16(this.ToNumber(), provider);
+        }
+
+        int IConvertible.ToInt32(IFormatProvider? provider)
+        {
+            return System.Convert.ToInt32(this.ToNumber(), provider);
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider? provider)
+        {
+            return System.Convert.ToUInt32(this.ToNumber(), provider);
+        }
+
+        long IConvertible.ToInt64(IFormatProvider? provider)
+        {
+            return System.Convert.ToInt64(this.ToNumber(), provider);
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider? provider)
+        {
+            return System.Convert.ToUInt64(this.ToNumber(), provider);
+        }
+
+        double IConvertible.ToDouble(IFormatProvider? provider)
+        {
+            return System.Convert.ToDouble(this.ToNumber(), provider);
+        }
+
+        float IConvertible.ToSingle(IFormatProvider? provider)
+        {
+            return System.Convert.ToSingle(this.ToNumber(), provider);
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider? provider)
+        {
+            return System.Convert.ToDecimal(this.ToNumber(), provider);
+        }
+
+        char IConvertible.ToChar(IFormatProvider? provider)
+        {
+            return this.m_type switch
+            {
+                Type.None => throw new InvalidCastException("Cannot convert None value to char"),
+                Type.Boolean => System.Convert.ToChar(this.m_booleanValue),
+                Type.String => System.Convert.ToChar(this.m_stringValue),
+                Type.Number => System.Convert.ToChar(this.m_numericValue),
+                Type.User => System.Convert.ToChar(this.m_userValue),
+                Type.Channel => System.Convert.ToChar(this.m_channelValue),
+                Type.Role => System.Convert.ToChar(this.m_roleValue),
+                Type.Mentionable => System.Convert.ToChar(this.m_mentionableValue),
+                Type.Attachment => System.Convert.ToChar(this.m_attachmentValue),
+                _ => throw new InvalidCastException()
+            };
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider? provider)
+        {
+            return this.m_type switch
+            {
+                Type.None => throw new InvalidCastException("Cannot convert None value to DateTime"),
+                Type.Boolean => System.Convert.ToDateTime(this.m_booleanValue),
+                Type.String => System.Convert.ToDateTime(this.m_stringValue),
+                Type.Number => System.Convert.ToDateTime(this.m_numericValue),
+                Type.User => System.Convert.ToDateTime(this.m_userValue),
+                Type.Channel => System.Convert.ToDateTime(this.m_channelValue),
+                Type.Role => System.Convert.ToDateTime(this.m_roleValue),
+                Type.Mentionable => System.Convert.ToDateTime(this.m_mentionableValue),
+                Type.Attachment => System.Convert.ToDateTime(this.m_attachmentValue),
+                _ => throw new InvalidCastException()
+            };
+        }
+
+        TypeCode IConvertible.GetTypeCode()
+        {
+            return TypeCode.Object;
+        }
+
+        object IConvertible.ToType(System.Type conversionType, IFormatProvider? provider)
+        {
+            IConvertible convertible = this;
+
+            if (conversionType == typeof(string))
+            {
+                return convertible.ToString(provider); 
+            }
+            else if (conversionType == typeof(DateTime))
+            {
+                return convertible.ToDateTime(provider);
+            }
+            else if (conversionType == typeof(bool))
+            {
+                return convertible.ToBoolean(provider);
+            }
+            else if (conversionType == typeof(char))
+            {
+                return convertible.ToChar(provider);
+            }
+            else if (conversionType == typeof(decimal))
+            {
+                return convertible.ToDecimal(provider);
+            }
+            else if (conversionType == typeof(double))
+            {
+                return convertible.ToDouble(provider);
+            }
+            else if (conversionType == typeof(ushort))
+            {
+                return convertible.ToUInt16(provider);
+            }
+            else if (conversionType == typeof(uint))
+            {
+                return convertible.ToUInt32(provider);
+            }
+            else if (conversionType == typeof(ulong))
+            {
+                return convertible.ToUInt64(provider);
+            }
+            else if (conversionType == typeof(short))
+            {
+                return convertible.ToInt16(provider);
+            }
+            else if (conversionType == typeof(int))
+            {
+                return convertible.ToInt32(provider);
+            }
+            else if (conversionType == typeof(long))
+            {
+                return convertible.ToInt64(provider);
+            }
+            else if (conversionType == typeof(sbyte))
+            {
+                return convertible.ToSByte(provider);
+            }
+            else if (conversionType == typeof(float))
+            {
+                return convertible.ToSingle(provider);
+            }
+            else if (typeof(IChannel).IsAssignableFrom(conversionType))
+            {
+                return System.Convert.ChangeType(this.m_channelValue!, conversionType);
+            }
+            else if (typeof(IRole).IsAssignableFrom(conversionType))
+            {
+                return System.Convert.ChangeType(this.m_roleValue!, conversionType);
+            }
+            else if (typeof(IAttachment).IsAssignableFrom(conversionType))
+            {
+                return System.Convert.ChangeType(this.m_attachmentValue!, conversionType);
+            }
+            else if (typeof(IUser).IsAssignableFrom(conversionType))
+            {
+                return System.Convert.ChangeType(this.m_userValue!, conversionType);
+            }
+            else if (typeof(IMentionable).IsAssignableFrom(conversionType))
+            {
+                return System.Convert.ChangeType(this.m_mentionableValue!, conversionType);
+            }
+            else
+            {
+                throw new InvalidCastException("Cannot convert ApplicationCommandOptionValue to " + conversionType.FullName);
+            }
         }
 
         public static implicit operator ApplicationCommandOptionValue(string value)
@@ -321,7 +511,6 @@ namespace Discord
             {
                 return NumericValue.Convert(value);
             }
-
         }
 
         public static explicit operator string(ApplicationCommandOptionValue value)
