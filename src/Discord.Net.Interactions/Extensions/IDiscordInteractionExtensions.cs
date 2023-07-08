@@ -9,11 +9,12 @@ namespace Discord.Interactions
         ///     Respond to an interaction with a <see cref="IModal"/>.
         /// </summary>
         /// <typeparam name="T">Type of the <see cref="IModal"/> implementation.</typeparam>
+        /// <param name="customId">Custom id of the model</param>
         /// <param name="interaction">The interaction to respond to.</param>
         /// <param name="modifyModal">Delegate that can be used to modify the modal.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <returns>A task that represents the asynchronous operation of responding to the interaction.</returns>
-        public static async Task RespondWithModalAsync<T>(this IDiscordInteraction interaction, string customId, RequestOptions options = null, Action<ModalBuilder> modifyModal = null)
+        public static async Task RespondWithModalAsync<T>(this IDiscordInteraction interaction, string customId, RequestOptions? options = null, Action<ModalBuilder>? modifyModal = null)
             where T : class, IModal
         {
             if (!ModalUtils.TryGet<T>(out var modalInfo))
@@ -34,9 +35,10 @@ namespace Discord.Interactions
         /// <param name="interactionService">Interaction service instance that should be used to build <see cref="ModalInfo"/>s.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <param name="modifyModal">Delegate that can be used to modify the modal.</param>
+        /// <param name="customId">Custom id of the model</param>
         /// <returns></returns>
         public static async Task RespondWithModalAsync<T>(this IDiscordInteraction interaction, string customId, InteractionService interactionService,
-            RequestOptions options = null, Action<ModalBuilder> modifyModal = null)
+            RequestOptions? options = null, Action<ModalBuilder>? modifyModal = null)
             where T : class, IModal
         {
             var modalInfo = ModalUtils.GetOrAdd<T>(interactionService);
@@ -53,9 +55,10 @@ namespace Discord.Interactions
         /// <param name="modal">The <see cref="IModal"/> instance to get field values from.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
         /// <param name="modifyModal">Delegate that can be used to modify the modal.</param>
+        /// <param name="customId">Custom id of the model</param>
         /// <returns></returns>
-        public static async Task RespondWithModalAsync<T>(this IDiscordInteraction interaction, string customId, T modal, RequestOptions options = null,
-            Action<ModalBuilder> modifyModal = null)
+        public static async Task RespondWithModalAsync<T>(this IDiscordInteraction interaction, string customId, T modal, RequestOptions? options = null,
+            Action<ModalBuilder>? modifyModal = null)
             where T : class, IModal
         {
             if (!ModalUtils.TryGet<T>(out var modalInfo))
@@ -82,7 +85,7 @@ namespace Discord.Interactions
             await interaction.RespondWithModalAsync(builder.Build(), options).ConfigureAwait(false);
         }
 
-        private static async Task SendModalResponseAsync(IDiscordInteraction interaction, string customId, ModalInfo modalInfo, RequestOptions options = null, Action<ModalBuilder> modifyModal = null)
+        private static async Task SendModalResponseAsync(IDiscordInteraction interaction, string customId, ModalInfo modalInfo, RequestOptions? options = null, Action<ModalBuilder>? modifyModal = null)
         {
             var builder = new ModalBuilder(modalInfo.Title, customId);
 

@@ -40,16 +40,9 @@ namespace Discord.Interactions
         }
         public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider services)
         {
-            object value;
-
-            if (option.Value is Optional<object> optional)
-                value = optional.IsSpecified ? optional.Value : default(T);
-            else
-                value = option.Value;
-
             try
             {
-                var converted = Convert.ChangeType(value, typeof(T));
+                var converted = Convert.ChangeType(option.Value, typeof(T));
                 return Task.FromResult(TypeConverterResult.FromSuccess(converted));
             }
             catch (InvalidCastException castEx)

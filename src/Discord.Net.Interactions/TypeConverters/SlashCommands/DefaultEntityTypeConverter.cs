@@ -14,7 +14,7 @@ namespace Discord.Interactions
             var value = option.Value as T;
 
             if (value is not null)
-                return Task.FromResult(TypeConverterResult.FromSuccess(option.Value as T));
+                return Task.FromResult(TypeConverterResult.FromSuccess(value));
             else
                 return Task.FromResult(TypeConverterResult.FromError(InteractionCommandError.ConvertFailed, $"Provided input cannot be read as {nameof(IChannel)}"));
         }
@@ -37,7 +37,7 @@ namespace Discord.Interactions
 
     internal class DefaultChannelConverter<T> : DefaultEntityTypeConverter<T> where T : class, IChannel
     {
-        private readonly List<ChannelType> _channelTypes;
+        private readonly List<ChannelType>? _channelTypes;
 
         public DefaultChannelConverter()
         {

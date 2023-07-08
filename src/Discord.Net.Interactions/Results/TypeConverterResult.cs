@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -10,18 +11,19 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the result of the conversion if the operation was successful.
         /// </summary>
-        public object Value { get; }
+        public object? Value { get; }
 
         /// <inheritdoc/>
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private TypeConverterResult(object value, InteractionCommandError? error, string reason)
+        private TypeConverterResult(object? value, InteractionCommandError? error, string? reason)
         {
             Value = value;
             Error = error;
@@ -31,7 +33,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Returns a <see cref="TypeConverterResult" /> with no errors.
         /// </summary>
-        public static TypeConverterResult FromSuccess(object value) =>
+        public static TypeConverterResult FromSuccess(object? value) =>
             new TypeConverterResult(value, null, null);
 
         /// <summary>

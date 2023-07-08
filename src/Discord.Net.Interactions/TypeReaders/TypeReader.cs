@@ -30,10 +30,11 @@ namespace Discord.Interactions
         ///     Will be used to serialize objects into strings.
         /// </summary>
         /// <param name="obj">Object to be serialized.</param>
+        /// <param name="services">Service provider</param>
         /// <returns>
         ///     A task representing the conversion process. The result of the task contains the conversion result.
         /// </returns>
-        public virtual Task<string> SerializeAsync(object obj, IServiceProvider services) => Task.FromResult(obj.ToString());
+        public virtual Task<string?> SerializeAsync(object obj, IServiceProvider services) => Task.FromResult(obj.ToString());
     }
 
     /// <inheritdoc/>

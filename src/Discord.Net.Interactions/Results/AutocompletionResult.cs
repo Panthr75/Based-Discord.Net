@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -13,9 +14,10 @@ namespace Discord.Interactions
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => Error is null;
 
         /// <summary>
@@ -23,9 +25,9 @@ namespace Discord.Interactions
         /// </summary>
         public IReadOnlyCollection<AutocompleteResult> Suggestions { get; }
 
-        private AutocompletionResult(IEnumerable<AutocompleteResult> suggestions, InteractionCommandError? error, string reason)
+        private AutocompletionResult(IEnumerable<AutocompleteResult>? suggestions, InteractionCommandError? error, string? reason)
         {
-            Suggestions = suggestions?.ToImmutableArray();
+            Suggestions = suggestions?.ToImmutableArray() ?? ImmutableArray<AutocompleteResult>.Empty;
             Error = error;
             ErrorReason = reason;
         }

@@ -8,8 +8,8 @@ namespace Discord.Interactions
 {
     internal sealed class DefaultArrayComponentConverter<T> : ComponentTypeConverter<T>
     {
-        private readonly TypeReader _typeReader;
-        private readonly Type _underlyingType;
+        private readonly TypeReader? _typeReader;
+        private readonly Type? _underlyingType;
 
         public DefaultArrayComponentConverter(InteractionService interactionService)
         {
@@ -34,7 +34,7 @@ namespace Discord.Interactions
         {
             var objs = new List<object>();
 
-            if (_typeReader is not null && option.Values.Count > 0)
+            if (_typeReader is not null && option.Values!.Count > 0)
                 foreach (var value in option.Values)
                 {
                     var result = await _typeReader.ReadAsync(context, value, services).ConfigureAwait(false);

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -10,18 +11,19 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the exception that may have occurred during the command execution.
         /// </summary>
-        public Exception Exception { get; }
+        public Exception? Exception { get; }
 
         /// <inheritdoc/>
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private ExecuteResult(Exception exception, InteractionCommandError? commandError, string errorReason)
+        private ExecuteResult(Exception? exception, InteractionCommandError? commandError, string? errorReason)
         {
             Exception = exception;
             Error = commandError;
