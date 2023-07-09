@@ -34,7 +34,7 @@ namespace Discord.WebSocket
         internal abstract SocketPresence? Presence { get; set; }
 
         /// <inheritdoc />
-        public string? GlobalName { get; internal set; }
+        public abstract string? GlobalName { get; internal set; }
         /// <inheritdoc />
         public string? Pronouns { get; internal set; }
 
