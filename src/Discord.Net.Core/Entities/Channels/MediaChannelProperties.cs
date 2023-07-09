@@ -1,5 +1,5 @@
 namespace Discord;
 
-public class MediaChannelProperties : DiscussionChannelProperties
+public class MediaChannelProperties : ForumChannelProperties
 {
 }

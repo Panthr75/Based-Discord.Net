@@ -77,7 +77,8 @@ namespace Discord.API.Rest
                 {
                     id = (ulong)n,
                     filename = filename,
-                    description = attachment.Description ?? Optional<string>.Unspecified
+                    description = attachment.Description ?? Optional<string>.Unspecified,
+                    is_thumbnail = attachment.IsThumbnail,
                 });
             }
 
