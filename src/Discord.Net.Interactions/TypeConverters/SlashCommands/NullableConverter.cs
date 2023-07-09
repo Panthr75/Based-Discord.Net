@@ -21,7 +21,7 @@ namespace Discord.Interactions
         public override ApplicationCommandOptionType GetDiscordType()
             => _typeConverter.GetDiscordType();
 
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider? services)
             => _typeConverter.ReadAsync(context, option, services);
 
         public override void Write(ApplicationCommandOptionProperties properties, IParameterInfo parameter)

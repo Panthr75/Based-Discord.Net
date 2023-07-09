@@ -21,7 +21,7 @@ namespace Discord.Interactions
         ///     Gets or sets the error message if the precondition
         ///     fails due to being run outside of a Guild channel.
         /// </summary>
-        public string NotAGuildErrorMessage { get; set; }
+        public string? NotAGuildErrorMessage { get; set; }
 
         /// <summary>
         ///     Requires that the user invoking the command to have a specific <see cref="Discord.GuildPermission"/>.
@@ -51,7 +51,7 @@ namespace Discord.Interactions
         }
 
         /// <inheritdoc />
-        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services)
+        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider? services)
         {
             var guildUser = context.User as IGuildUser;
 
@@ -67,9 +67,9 @@ namespace Discord.Interactions
             {
                 ChannelPermissions perms;
                 if (context.Channel is IGuildChannel guildChannel)
-                    perms = guildUser.GetPermissions(guildChannel);
+                    perms = guildUser!.GetPermissions(guildChannel);
                 else
-                    perms = ChannelPermissions.All(context.Channel);
+                    perms = ChannelPermissions.All(context.Channel!);
 
                 if (!perms.Has(ChannelPermission.Value))
                     return Task.FromResult(PreconditionResult.FromError(ErrorMessage ?? $"User requires channel permission {ChannelPermission.Value}."));

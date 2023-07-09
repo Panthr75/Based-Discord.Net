@@ -168,7 +168,7 @@ namespace Discord
         {
             Assert.Throws<ArgumentException>(() =>
             {
-                ChannelPermissions.All(null);
+                ChannelPermissions.All(null!);
             });
         }
 

@@ -1,9 +1,8 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -57,11 +56,14 @@ namespace Discord.Interactions
 
                 var locale = match.Groups["locale"].Value;
 
-                using var sr = new StreamReader(file);
-                using var jr = new JsonTextReader(sr);
-                var obj = JObject.Load(jr);
-                var token = string.Join(".", key.Select(x => $"['{x}']")) + $".{identifier}";
-                var value = (string)obj.SelectToken(token);
+                JsonNode? node = JsonNode.Parse(file);
+                foreach (string x in key)
+                {
+                    node = node?[x];
+                }
+                node = node?[identifier];
+
+                string? value = node?.GetValue<string>();
                 if (value is not null)
                     result[locale] = value;
             }

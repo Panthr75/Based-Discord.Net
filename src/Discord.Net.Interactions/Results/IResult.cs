@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Discord.Interactions
 {
     /// <summary>
@@ -20,7 +22,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     A string containing the error reason.
         /// </returns>
-        string ErrorReason { get; }
+        string? ErrorReason { get; }
 
         /// <summary>
         ///     Indicates whether the operation was successful or not.
@@ -28,6 +30,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     <see langword="true"/> if the result is positive; otherwise <see langword="false"/>.
         /// </returns>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         bool IsSuccess { get; }
     }
 }

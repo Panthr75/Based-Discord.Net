@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -11,10 +12,11 @@ namespace Discord.Interactions
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
-        public bool IsSuccess => Error == null;
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
+        public bool IsSuccess => !Error.HasValue;
 
         /// <summary>
         ///     Initializes a new <see cref="PreconditionResult" /> class with the command <paramref name="error"/> type
@@ -22,7 +24,7 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="error">The type of failure.</param>
         /// <param name="reason">The reason of failure.</param>
-        protected PreconditionResult(InteractionCommandError? error, string reason)
+        protected PreconditionResult(InteractionCommandError? error, string? reason)
         {
             Error = error;
             ErrorReason = reason;

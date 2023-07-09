@@ -16,17 +16,17 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets or sets the description of this parameter.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         ///     Gets or sets the max value of this parameter.
         /// </summary>
-        public double? MaxValue { get; set; }
+        public NumericValue? MaxValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the min value of this parameter.
         /// </summary>
-        public double? MinValue { get; set; }
+        public NumericValue? MinValue { get; set; }
 
         /// <summary>
         ///     Gets or sets the minimum length allowed for a string type parameter.
@@ -61,7 +61,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets or sets the <see cref="TypeConverter"/> of this parameter.
         /// </summary>
-        public TypeConverter TypeConverter { get; private set; }
+        public TypeConverter? TypeConverter { get; private set; }
 
         /// <summary>
         ///     Gets whether this type should be treated as a complex parameter.
@@ -71,12 +71,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the initializer delegate for this parameter, if <see cref="IsComplexParameter"/> is <see langword="true"/>.
         /// </summary>
-        public ComplexParameterInitializer ComplexParameterInitializer { get; internal set; }
+        public ComplexParameterInitializer? ComplexParameterInitializer { get; internal set; }
 
         /// <summary>
         ///     Gets or sets the <see cref="IAutocompleteHandler"/> of this parameter.
         /// </summary>
-        public IAutocompleteHandler AutocompleteHandler { get; set; }
+        public IAutocompleteHandler? AutocompleteHandler { get; set; }
         protected override SlashCommandParameterBuilder Instance => this;
 
         internal SlashCommandParameterBuilder(ICommandBuilder command) : base(command) { }
@@ -87,7 +87,8 @@ namespace Discord.Interactions.Builders
         /// <param name="command">Parent command of this parameter.</param>
         /// <param name="name">Name of this command.</param>
         /// <param name="type">Type of this parameter.</param>
-        public SlashCommandParameterBuilder(ICommandBuilder command, string name, Type type, ComplexParameterInitializer complexParameterInitializer = null)
+        /// <param name="complexParameterInitializer">Complex parameter initializer</param>
+        public SlashCommandParameterBuilder(ICommandBuilder command, string name, Type type, ComplexParameterInitializer? complexParameterInitializer = null)
             : base(command, name, type)
         {
             ComplexParameterInitializer = complexParameterInitializer;
@@ -208,7 +209,7 @@ namespace Discord.Interactions.Builders
         /// <returns>
         ///     The builder instance.
         /// </returns>
-        public SlashCommandParameterBuilder WithAutocompleteHandler(Type autocompleteHandlerType, IServiceProvider services = null)
+        public SlashCommandParameterBuilder WithAutocompleteHandler(Type autocompleteHandlerType, IServiceProvider? services = null)
         {
             AutocompleteHandler = Command.Module.InteractionService.GetAutocompleteHandler(autocompleteHandlerType, services);
             return this;
@@ -225,12 +226,12 @@ namespace Discord.Interactions.Builders
         /// <returns>
         ///     The builder instance.
         /// </returns>
-        public SlashCommandParameterBuilder SetParameterType(Type type, IServiceProvider services = null)
+        public SlashCommandParameterBuilder SetParameterType(Type type, IServiceProvider? services = null)
         {
             base.SetParameterType(type);
 
             if (!IsComplexParameter)
-                TypeConverter = Command.Module.InteractionService.GetTypeConverter(ParameterType, services);
+                TypeConverter = Command.Module.InteractionService.GetTypeConverter(ParameterType!, services);
 
             return this;
         }
@@ -273,6 +274,6 @@ namespace Discord.Interactions.Builders
         }
 
         internal override SlashCommandParameterInfo Build(ICommandInfo command) =>
-            new SlashCommandParameterInfo(this, command as SlashCommandInfo);
+            new SlashCommandParameterInfo(this, (SlashCommandInfo)command);
     }
 }

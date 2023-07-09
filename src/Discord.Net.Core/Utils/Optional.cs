@@ -121,7 +121,6 @@ namespace Discord
             return optional.IsSpecified;
         }
 
-
         /// <summary>
         /// A modifier for JSON so that optional properties are skipped.
         /// <para>

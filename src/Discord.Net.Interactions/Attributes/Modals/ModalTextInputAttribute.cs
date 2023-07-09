@@ -16,7 +16,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the placeholder of the text input.
         /// </summary>
-        public string Placeholder { get; }
+        public string? Placeholder { get; }
 
         /// <summary>
         ///     Gets the minimum length of the text input.
@@ -31,7 +31,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the initial value to be displayed by this input.
         /// </summary>
-        public string InitialValue { get; }
+        public string? InitialValue { get; }
 
         /// <summary>
         ///     Create a new <see cref="ModalTextInputAttribute"/>.
@@ -42,7 +42,7 @@ namespace Discord.Interactions
         /// <param name="minLength">The minimum length of the text input's content.</param>
         /// <param name="maxLength">The maximum length of the text input's content.</param>
         /// <param name="initValue">The initial value to be displayed by this input.</param>
-        public ModalTextInputAttribute(string customId, TextInputStyle style = TextInputStyle.Short, string placeholder = null, int minLength = 1, int maxLength = 4000, string initValue = null)
+        public ModalTextInputAttribute(string customId, TextInputStyle style = TextInputStyle.Short, string? placeholder = null, int minLength = 1, int maxLength = 4000, string? initValue = null)
             : base(customId)
         {
             Style = style;

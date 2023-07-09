@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Discord.Interactions
 {
     /// <summary>
@@ -9,9 +11,10 @@ namespace Discord.Interactions
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
         /// <summary>
@@ -19,7 +22,7 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="error">The type of failure, or <see langword="null" /> if none.</param>
         /// <param name="reason">The reason of failure.</param>
-        protected RuntimeResult(InteractionCommandError? error, string reason)
+        protected RuntimeResult(InteractionCommandError? error, string? reason)
         {
             Error = error;
             ErrorReason = reason;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Discord.Interactions.Builders
@@ -26,27 +27,28 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the parent module if this module is a sub-module.
         /// </summary>
-        public ModuleBuilder Parent { get; }
+        public ModuleBuilder? Parent { get; }
 
         /// <summary>
         ///     Gets the name of this module.
         /// </summary>
-        public string Name { get; internal set; }
+        public string? Name { get; internal set; }
 
         /// <summary>
         ///     Gets and sets the group name of this module.
         /// </summary>
-        public string SlashGroupName { get; set; }
+        public string? SlashGroupName { get; set; }
 
         /// <summary>
         ///     Gets whether this has a <see cref="GroupAttribute"/>.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.SlashGroupName))]
         public bool IsSlashGroup => !string.IsNullOrEmpty(SlashGroupName);
 
         /// <summary>
         ///     Gets and sets the description of this module.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         ///     Gets and sets the default permission of this module.
@@ -114,9 +116,9 @@ namespace Discord.Interactions.Builders
         /// </summary>
         public IReadOnlyList<ModalCommandBuilder> ModalCommands => _modalCommands;
 
-        internal TypeInfo TypeInfo { get; set; }
+        internal TypeInfo? TypeInfo { get; set; }
 
-        internal ModuleBuilder(InteractionService interactionService, ModuleBuilder parent = null)
+        internal ModuleBuilder(InteractionService interactionService, ModuleBuilder? parent = null)
         {
             InteractionService = interactionService;
             Parent = parent;
@@ -137,7 +139,7 @@ namespace Discord.Interactions.Builders
         /// <param name="interactionService">The underlying Interaction Service.</param>
         /// <param name="name">Name of this module.</param>
         /// <param name="parent">Parent module of this sub-module.</param>
-        public ModuleBuilder(InteractionService interactionService, string name, ModuleBuilder parent = null) : this(interactionService, parent)
+        public ModuleBuilder(InteractionService interactionService, string name, ModuleBuilder? parent = null) : this(interactionService, parent)
         {
             Name = name;
         }
@@ -423,7 +425,7 @@ namespace Discord.Interactions.Builders
             return this;
         }
 
-        internal ModuleInfo Build(InteractionService interactionService, IServiceProvider services, ModuleInfo parent = null)
+        internal ModuleInfo Build(InteractionService interactionService, IServiceProvider? services, ModuleInfo? parent = null)
         {
             if (TypeInfo is not null && ModuleClassBuilder.IsValidModuleDefinition(TypeInfo))
             {

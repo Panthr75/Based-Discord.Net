@@ -18,7 +18,7 @@ namespace Discord.Interactions
         ///     be successful (A || B). Specifying <see cref="Group" /> = <see langword="null" /> or not at all will
         ///     require *all* preconditions to pass, just like normal (A &amp;&amp; B).
         /// </remarks>
-        public string Group { get; set; } = null;
+        public string? Group { get; set; } = null;
 
         /// <summary>
         ///     Gets the error message to be returned if execution context doesn't pass the precondition check.
@@ -29,7 +29,7 @@ namespace Discord.Interactions
         ///     Setting this for a class that doesn't override
         ///     this property is a no-op.
         /// </remarks>
-        public virtual string ErrorMessage { get; }
+        public virtual string? ErrorMessage { get; }
 
         /// <summary>
         ///     Checks if the <paramref name="commandInfo"/> command to be executed meets the precondition requirements.
@@ -37,6 +37,6 @@ namespace Discord.Interactions
         /// <param name="context">The context of the command.</param>
         /// <param name="commandInfo">The command being executed.</param>
         /// <param name="services">The service collection used for dependency injection.</param>
-        public abstract Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider services);
+        public abstract Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo, IServiceProvider? services);
     }
 }

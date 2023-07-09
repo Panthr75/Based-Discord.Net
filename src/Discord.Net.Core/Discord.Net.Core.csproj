@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Discord.Net.targets" />
   <Import Project="../../StyleAnalyzer.targets" />
+  <Import Project="../../BuildFrameworks.targets" />
   <PropertyGroup>
     <RootNamespace>Discord</RootNamespace>
     <Description>The core components for the Discord.Net library.</Description>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <AssemblyName>Discord.Net.Core</AssemblyName>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>

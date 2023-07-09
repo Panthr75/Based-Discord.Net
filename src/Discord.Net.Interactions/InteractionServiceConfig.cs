@@ -26,7 +26,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets or sets the delimiters that will be used to separate group names and the method name when a Message Component Interaction is received.
         /// </summary>
-        public char[] InteractionCustomIdDelimiters { get; set; }
+        public char[]? InteractionCustomIdDelimiters { get; set; }
 
         /// <summary>
         ///     Gets or sets the string expression that will be treated as a wild card.
@@ -68,7 +68,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Localization provider to be used when registering application commands.
         /// </summary>
-        public ILocalizationManager LocalizationManager { get; set; }
+        public ILocalizationManager? LocalizationManager { get; set; }
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,17 +12,17 @@ namespace Discord.Interactions
     /// <returns>
     ///     Returns the constructed object.
     /// </returns>
-    public delegate object ComplexParameterInitializer(object[] args);
+    public delegate object ComplexParameterInitializer(object?[] args);
 
     /// <summary>
     ///     Represents the parameter info class for <see cref="SlashCommandInfo"/> commands.
     /// </summary>
     public class SlashCommandParameterInfo : CommandParameterInfo
     {
-        internal readonly ComplexParameterInitializer _complexParameterInitializer;
+        internal readonly ComplexParameterInitializer? _complexParameterInitializer;
 
         /// <inheritdoc/>
-        public new SlashCommandInfo Command => base.Command as SlashCommandInfo;
+        public new SlashCommandInfo Command => (SlashCommandInfo)base.Command;
 
         /// <summary>
         ///     Gets the description of the Slash Command Parameter.
@@ -31,12 +32,12 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the minimum value permitted for a number type parameter.
         /// </summary>
-        public double? MinValue { get; }
+        public NumericValue? MinValue { get; }
 
         /// <summary>
         ///     Gets the maximum value permitted for a number type parameter.
         /// </summary>
-        public double? MaxValue { get; }
+        public NumericValue? MaxValue { get; }
 
         /// <summary>
         ///     Gets the minimum length allowed for a string type parameter.
@@ -57,7 +58,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the <see cref="IAutocompleteHandler"/> that's linked to this parameter.
         /// </summary>
-        public IAutocompleteHandler AutocompleteHandler { get; }
+        public IAutocompleteHandler? AutocompleteHandler { get; }
 
         /// <summary>
         ///     Gets whether this parameter is configured for Autocomplete Interactions.
@@ -91,9 +92,9 @@ namespace Discord.Interactions
 
         internal SlashCommandParameterInfo(Builders.SlashCommandParameterBuilder builder, SlashCommandInfo command) : base(builder, command)
         {
-            TypeConverter = builder.TypeConverter;
+            TypeConverter = builder.TypeConverter ?? throw new ArgumentException("Builder's TypeConverter was null!");
             AutocompleteHandler = builder.AutocompleteHandler;
-            Description = builder.Description;
+            Description = builder.Description ?? throw new ArgumentException("Builder's Description was null!");
             MaxValue = builder.MaxValue;
             MinValue = builder.MinValue;
             MinLength = builder.MinLength;
@@ -102,7 +103,7 @@ namespace Discord.Interactions
             IsAutocomplete = builder.Autocomplete;
             Choices = builder.Choices.ToImmutableArray();
             ChannelTypes = builder.ChannelTypes.ToImmutableArray();
-            ComplexParameterFields = builder.ComplexParameterFields?.Select(x => x.Build(command)).ToImmutableArray();
+            ComplexParameterFields = builder.ComplexParameterFields?.Select(x => x.Build(command))?.ToImmutableArray() ?? ImmutableArray<SlashCommandParameterInfo>.Empty;
 
             _complexParameterInitializer = builder.ComplexParameterInitializer;
         }

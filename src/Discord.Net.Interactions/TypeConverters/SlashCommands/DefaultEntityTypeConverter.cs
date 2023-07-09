@@ -9,12 +9,12 @@ namespace Discord.Interactions
 {
     internal abstract class DefaultEntityTypeConverter<T> : TypeConverter<T> where T : class
     {
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider? services)
         {
             var value = option.Value as T;
 
             if (value is not null)
-                return Task.FromResult(TypeConverterResult.FromSuccess(option.Value as T));
+                return Task.FromResult(TypeConverterResult.FromSuccess(value));
             else
                 return Task.FromResult(TypeConverterResult.FromError(InteractionCommandError.ConvertFailed, $"Provided input cannot be read as {nameof(IChannel)}"));
         }
@@ -37,7 +37,7 @@ namespace Discord.Interactions
 
     internal class DefaultChannelConverter<T> : DefaultEntityTypeConverter<T> where T : class, IChannel
     {
-        private readonly List<ChannelType> _channelTypes;
+        private readonly List<ChannelType>? _channelTypes;
 
         public DefaultChannelConverter()
         {

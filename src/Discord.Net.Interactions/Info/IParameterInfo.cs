@@ -37,7 +37,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the default value of this parameter if the parameter is optional.
         /// </summary>
-        object DefaultValue { get; }
+        object? DefaultValue { get; }
 
         /// <summary>
         ///     Gets a list of the attributes this parameter has.
@@ -52,6 +52,6 @@ namespace Discord.Interactions
         /// <summary>
         ///     Check if an execution context meets the parameter precondition requirements.
         /// </summary>
-        Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, object value, IServiceProvider services);
+        Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, object? value, IServiceProvider? services);
     }
 }

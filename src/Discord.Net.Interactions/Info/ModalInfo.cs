@@ -13,7 +13,7 @@ namespace Discord.Interactions
     /// <returns>
     ///     Returns the constructed object.
     /// </returns>
-    public delegate IModal ModalInitializer(object[] args);
+    public delegate IModal ModalInitializer(object?[] args);
 
     /// <summary>
     ///     Represents the info class of an <see cref="IModal"/> form.
@@ -45,7 +45,7 @@ namespace Discord.Interactions
 
         internal ModalInfo(Builders.ModalBuilder builder)
         {
-            Title = builder.Title;
+            Title = builder.Title ?? throw new ArgumentException("Builder's Title property was null", nameof(builder));
             Type = builder.Type;
             Components = builder.Components.Select(x => x switch
             {
@@ -56,20 +56,21 @@ namespace Discord.Interactions
             TextComponents = Components.OfType<TextInputComponentInfo>().ToImmutableArray();
 
             _interactionService = builder._interactionService;
-            _initializer = builder.ModalInitializer;
+            _initializer = builder.ModalInitializer ?? throw new ArgumentException("Builder's ModelInitializer property was null", nameof(builder));
         }
 
         /// <summary>
         ///     Creates an <see cref="IModal"/> and fills it with provided message components.
         /// </summary>
         /// <param name="modalInteraction"><see cref="IModalInteraction"/> that will be injected into the modal.</param>
+        /// <param name="throwOnMissingField">Whether or not this method should exit on encountering a missing modal field.</param>
         /// <returns>
         ///     A <see cref="IModal"/> filled with the provided components.
         /// </returns>
         [Obsolete("This method is no longer supported with the introduction of Component TypeConverters, please use the CreateModalAsync method.")]
         public IModal CreateModal(IModalInteraction modalInteraction, bool throwOnMissingField = false)
         {
-            var args = new object[Components.Count];
+            var args = new object?[Components.Count];
             var components = modalInteraction.Data.Components.ToList();
 
             for (var i = 0; i < Components.Count; i++)
@@ -88,7 +89,7 @@ namespace Discord.Interactions
                     args[i] = component.Value;
             }
 
-            return _initializer(args);
+            return _initializer!(args);
         }
 
         /// <summary>
@@ -100,14 +101,14 @@ namespace Discord.Interactions
         /// <returns>
         ///     A <see cref="TypeConverterResult"/> if a type conversion has failed, else  a <see cref="ParseResult"/>.
         /// </returns>
-        public async Task<IResult> CreateModalAsync(IInteractionContext context, IServiceProvider services = null, bool throwOnMissingField = false)
+        public async Task<IResult> CreateModalAsync(IInteractionContext context, IServiceProvider? services = null, bool throwOnMissingField = false)
         {
             if (context.Interaction is not IModalInteraction modalInteraction)
                 return TypeConverterResult.FromError(InteractionCommandError.Unsuccessful, "Provided context doesn't belong to a Modal Interaction.");
 
             services ??= EmptyServiceProvider.Instance;
 
-            var args = new object[Components.Count];
+            var args = new object?[Components.Count];
             var components = modalInteraction.Data.Components.ToList();
 
             for (var i = 0; i < Components.Count; i++)

@@ -19,7 +19,7 @@ namespace Discord.Interactions
         ///     Setting this for a class that doesn't override
         ///     this property is a no-op.
         /// </remarks>
-        public virtual string ErrorMessage { get; }
+        public virtual string? ErrorMessage { get; }
 
         /// <summary>
         ///     Checks whether the condition is met before execution of the command.
@@ -28,7 +28,7 @@ namespace Discord.Interactions
         /// <param name="parameterInfo">The parameter of the command being checked against.</param>
         /// <param name="value">The raw value of the parameter.</param>
         /// <param name="services">The service collection used for dependency injection.</param>
-        public abstract Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, IParameterInfo parameterInfo, object value,
-            IServiceProvider services);
+        public abstract Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, IParameterInfo parameterInfo, object? value,
+            IServiceProvider? services);
     }
 }

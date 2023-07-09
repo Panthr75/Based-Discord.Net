@@ -14,7 +14,7 @@ namespace Discord
         {
             using (var commands = new CommandService())
             {
-                var module = await commands.AddModuleAsync<TestModule>(null);
+                var module = await commands.AddModuleAsync<TestModule>(null!);
 
                 Assert.NotNull(module);
                 Assert.NotEmpty(module.Commands);
@@ -27,12 +27,12 @@ namespace Discord
                 Assert.NotNull(param);
                 Assert.True(param.IsRemainder);
 
-                var result = await param.ParseAsync(null, "bar: hello foo: 42");
+                var result = await param.ParseAsync(null!, "bar: hello foo: 42");
                 Assert.True(result.IsSuccess);
 
                 var m = result.BestMatch as ArgumentType;
                 Assert.NotNull(m);
-                Assert.Equal(expected: 42, actual: m.Foo);
+                Assert.Equal(expected: 42, actual: m!.Foo);
                 Assert.Equal(expected: "hello", actual: m.Bar);
             }
         }
@@ -42,7 +42,7 @@ namespace Discord
         {
             using (var commands = new CommandService())
             {
-                var module = await commands.AddModuleAsync<TestModule>(null);
+                var module = await commands.AddModuleAsync<TestModule>(null!);
 
                 Assert.NotNull(module);
                 Assert.NotEmpty(module.Commands);
@@ -55,12 +55,12 @@ namespace Discord
                 Assert.NotNull(param);
                 Assert.True(param.IsRemainder);
 
-                var result = await param.ParseAsync(null, "foo: 42 bar: 《hello》");
+                var result = await param.ParseAsync(null!, "foo: 42 bar: 《hello》");
                 Assert.True(result.IsSuccess);
 
                 var m = result.BestMatch as ArgumentType;
                 Assert.NotNull(m);
-                Assert.Equal(expected: 42, actual: m.Foo);
+                Assert.Equal(expected: 42, actual: m!.Foo);
                 Assert.Equal(expected: "hello", actual: m.Bar);
             }
         }
@@ -70,7 +70,7 @@ namespace Discord
         {
             using (var commands = new CommandService())
             {
-                var module = await commands.AddModuleAsync<TestModule>(null);
+                var module = await commands.AddModuleAsync<TestModule>(null!);
 
                 Assert.NotNull(module);
                 Assert.NotEmpty(module.Commands);
@@ -83,7 +83,7 @@ namespace Discord
                 Assert.NotNull(param);
                 Assert.True(param.IsRemainder);
 
-                var result = await param.ParseAsync(null, "foobar");
+                var result = await param.ParseAsync(null!, "foobar");
                 Assert.False(result.IsSuccess);
                 Assert.Equal(expected: CommandError.Exception, actual: result.Error);
             }
@@ -94,7 +94,7 @@ namespace Discord
         {
             using (var commands = new CommandService())
             {
-                var module = await commands.AddModuleAsync<TestModule>(null);
+                var module = await commands.AddModuleAsync<TestModule>(null!);
 
                 Assert.NotNull(module);
                 Assert.NotEmpty(module.Commands);
@@ -107,12 +107,12 @@ namespace Discord
                 Assert.NotNull(param);
                 Assert.True(param.IsRemainder);
 
-                var result = await param.ParseAsync(null, "manyints: \"1, 2, 3, 4, 5, 6, 7\"");
+                var result = await param.ParseAsync(null!, "manyints: \"1, 2, 3, 4, 5, 6, 7\"");
                 Assert.True(result.IsSuccess);
 
                 var m = result.BestMatch as ArgumentType;
                 Assert.NotNull(m);
-                Assert.Equal(expected: new int[] { 1, 2, 3, 4, 5, 6, 7 }, actual: m.ManyInts);
+                Assert.Equal(expected: new int[] { 1, 2, 3, 4, 5, 6, 7 }, actual: m!.ManyInts);
             }
         }
     }
@@ -123,9 +123,9 @@ namespace Discord
         public int Foo { get; set; }
 
         [OverrideTypeReader(typeof(CustomTypeReader))]
-        public string Bar { get; set; }
+        public string Bar { get; set; } = null!;
 
-        public IEnumerable<int> ManyInts { get; set; }
+        public IEnumerable<int> ManyInts { get; set; } = null!;
     }
 
     public sealed class CustomTypeReader : TypeReader

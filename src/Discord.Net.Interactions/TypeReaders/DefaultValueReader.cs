@@ -6,7 +6,7 @@ namespace Discord.Interactions
     internal sealed class DefaultValueReader<T> : TypeReader<T>
         where T : IConvertible
     {
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider? services)
         {
             try
             {

@@ -17,7 +17,7 @@ namespace Discord.Interactions
             {
                 Name = parameterInfo.Name,
                 Description = parameterInfo.Description,
-                Type = parameterInfo.DiscordOptionType.Value,
+                Type = parameterInfo.DiscordOptionType!.Value,
                 IsRequired = parameterInfo.IsRequired,
                 Choices = parameterInfo.Choices?.Select(x => new ApplicationCommandOptionChoiceProperties
                 {
@@ -80,7 +80,7 @@ namespace Discord.Interactions
                 Type = ApplicationCommandOptionType.SubCommand,
                 IsRequired = false,
                 Options = commandInfo.FlattenedParameters?.Select(x => x.ToApplicationCommandOptionProps())
-                    ?.ToList(),
+                    ?.ToList() ?? new List<ApplicationCommandOptionProperties>(),
                 NameLocalizations = localizationManager?.GetAllNames(commandPath, LocalizationTarget.Command) ?? ImmutableDictionary<string, string>.Empty,
                 DescriptionLocalizations = localizationManager?.GetAllDescriptions(commandPath, LocalizationTarget.Command) ?? ImmutableDictionary<string, string>.Empty
             };
@@ -133,11 +133,11 @@ namespace Discord.Interactions
             if (moduleInfo.DontAutoRegister && !ignoreDontRegister)
                 return;
 
-            args.AddRange(moduleInfo.ContextCommands?.Select(x => x.ToApplicationCommandProps()));
+            args.AddRange(moduleInfo.ContextCommands?.Select(x => x.ToApplicationCommandProps()) ?? Enumerable.Empty<ApplicationCommandProperties>());
 
             if (!moduleInfo.IsSlashGroup)
             {
-                args.AddRange(moduleInfo.SlashCommands?.Select(x => x.ToApplicationCommandProps()));
+                args.AddRange(moduleInfo.SlashCommands?.Select(x => x.ToApplicationCommandProps()) ?? Enumerable.Empty<ApplicationCommandProperties>());
 
                 foreach (var submodule in moduleInfo.SubModules)
                     submodule.ParseModuleModel(args, ignoreDontRegister);
@@ -154,15 +154,16 @@ namespace Discord.Interactions
                         options.Add(command.ToApplicationCommandOptionProps());
                 }
 
-                options.AddRange(moduleInfo.SubModules?.SelectMany(x => x.ParseSubModule(args, ignoreDontRegister)));
+                options.AddRange(moduleInfo.SubModules?.SelectMany(x => x.ParseSubModule(args, ignoreDontRegister)) ?? Enumerable.Empty<ApplicationCommandOptionProperties>());
 
                 var localizationManager = moduleInfo.CommandService.LocalizationManager;
                 var modulePath = moduleInfo.GetModulePath();
 
+#pragma warning disable CS0618 // Type or member is obsolete (DefaultPermission)
                 var props = new SlashCommandBuilder
                 {
                     Name = moduleInfo.SlashGroupName,
-                    Description = moduleInfo.Description,
+                    Description = moduleInfo.Description!,
                     IsDefaultPermission = moduleInfo.DefaultPermission,
                     IsDMEnabled = moduleInfo.IsEnabledInDm,
                     IsNsfw = moduleInfo.IsNsfw,
@@ -171,6 +172,7 @@ namespace Discord.Interactions
                 .WithNameLocalizations(localizationManager?.GetAllNames(modulePath, LocalizationTarget.Group) ?? ImmutableDictionary<string, string>.Empty)
                 .WithDescriptionLocalizations(localizationManager?.GetAllDescriptions(modulePath, LocalizationTarget.Group) ?? ImmutableDictionary<string, string>.Empty)
                 .Build();
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (options.Count > SlashCommandBuilder.MaxOptionsCount)
                     throw new InvalidOperationException($"Slash Commands cannot have more than {SlashCommandBuilder.MaxOptionsCount} command parameters");
@@ -187,10 +189,10 @@ namespace Discord.Interactions
             if (moduleInfo.DontAutoRegister && !ignoreDontRegister)
                 return Array.Empty<ApplicationCommandOptionProperties>();
 
-            args.AddRange(moduleInfo.ContextCommands?.Select(x => x.ToApplicationCommandProps()));
+            args.AddRange(moduleInfo.ContextCommands?.Select(x => x.ToApplicationCommandProps()) ?? Enumerable.Empty<ApplicationCommandProperties>());
 
             var options = new List<ApplicationCommandOptionProperties>();
-            options.AddRange(moduleInfo.SubModules?.SelectMany(x => x.ParseSubModule(args, ignoreDontRegister)));
+            options.AddRange(moduleInfo.SubModules?.SelectMany(x => x.ParseSubModule(args, ignoreDontRegister)) ?? Enumerable.Empty<ApplicationCommandOptionProperties>());
 
             foreach (var command in moduleInfo.SlashCommands)
             {
@@ -206,7 +208,7 @@ namespace Discord.Interactions
                 return new List<ApplicationCommandOptionProperties>() { new ApplicationCommandOptionProperties
                 {
                     Name = moduleInfo.SlashGroupName,
-                    Description = moduleInfo.Description,
+                    Description = moduleInfo.Description!,
                     Type = ApplicationCommandOptionType.SubCommandGroup,
                     Options = options,
                     NameLocalizations = moduleInfo.CommandService.LocalizationManager?.GetAllNames(moduleInfo.GetModulePath(), LocalizationTarget.Group)
@@ -274,14 +276,14 @@ namespace Discord.Interactions
                     Name = x.Name,
                     Value = x.Value
                 }).ToList(),
-                Options = commandOption.Options?.Select(x => x.ToApplicationCommandOptionProps()).ToList(),
+                Options = commandOption.Options?.Select(x => x.ToApplicationCommandOptionProps())?.ToList() ?? new List<ApplicationCommandOptionProperties>(),
                 NameLocalizations = commandOption.NameLocalizations?.ToImmutableDictionary(),
                 DescriptionLocalizations = commandOption.DescriptionLocalizations?.ToImmutableDictionary(),
                 MaxLength = commandOption.MaxLength,
                 MinLength = commandOption.MinLength,
             };
 
-        public static Modal ToModal(this ModalInfo modalInfo, string customId, Action<ModalBuilder> modifyModal = null)
+        public static Modal ToModal(this ModalInfo modalInfo, string customId, Action<ModalBuilder>? modifyModal = null)
         {
             var builder = new ModalBuilder(modalInfo.Title, customId);
 

@@ -1,6 +1,7 @@
 using Discord.Interactions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace System.Text.RegularExpressions
@@ -91,7 +92,7 @@ namespace System.Text.RegularExpressions
             return match.Count;
         }
 
-        internal static bool TryBuildRegexPattern<T>(T commandInfo, string wildCardStr, out string pattern) where T : class, ICommandInfo
+        internal static bool TryBuildRegexPattern<T>(T commandInfo, string wildCardStr, [NotNullWhen(true)] out string? pattern) where T : class, ICommandInfo
         {
             if (commandInfo.TreatNameAsRegex)
             {

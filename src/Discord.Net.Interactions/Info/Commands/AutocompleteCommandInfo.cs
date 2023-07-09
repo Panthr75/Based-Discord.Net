@@ -31,8 +31,8 @@ namespace Discord.Interactions
         internal AutocompleteCommandInfo(AutocompleteCommandBuilder builder, ModuleInfo module, InteractionService commandService) : base(builder, module, commandService)
         {
             Parameters = builder.Parameters.Select(x => x.Build(this)).ToImmutableArray();
-            ParameterName = builder.ParameterName;
-            CommandName = builder.CommandName;
+            ParameterName = builder.ParameterName ?? throw new ArgumentException("Builder's ParameterName was null", nameof(builder));
+            CommandName = builder.CommandName ?? throw new ArgumentException("Builder's CommandName was null", nameof(builder));;
         }
 
         /// <inheritdoc/>
@@ -44,7 +44,7 @@ namespace Discord.Interactions
             return await base.ExecuteAsync(context, services).ConfigureAwait(false);
         }
 
-        protected override Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider services)
+        protected override Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider? services)
             => Task.FromResult(ParseResult.FromSuccess(Array.Empty<object>()) as IResult);
 
         /// <inheritdoc/>
@@ -71,7 +71,7 @@ namespace Discord.Interactions
                 while (currentParent != null)
                 {
                     if (!string.IsNullOrEmpty(currentParent.SlashGroupName))
-                        keywords.Add(currentParent.SlashGroupName);
+                        keywords.Add(currentParent.SlashGroupName!);
 
                     currentParent = currentParent.Parent;
                 }

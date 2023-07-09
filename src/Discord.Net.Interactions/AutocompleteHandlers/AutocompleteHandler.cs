@@ -13,7 +13,7 @@ namespace Discord.Interactions
     public abstract class AutocompleteHandler : IAutocompleteHandler
     {
         /// <inheritdoc/>
-        public InteractionService InteractionService { get; set; }
+        public InteractionService InteractionService { get; set; } = null!;
 
         /// <inheritdoc/>
         public abstract Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter,
@@ -21,8 +21,8 @@ namespace Discord.Interactions
 
         protected virtual string GetLogString(IInteractionContext context)
         {
-            var interaction = (context.Interaction as IAutocompleteInteraction);
-            return $"{interaction.Data.CommandName}: {interaction.Data.Current.Name} Autocomplete";
+            var interaction = (IAutocompleteInteraction)context.Interaction;
+            return $"{interaction.Data.CommandName}: {interaction.Data.Current?.Name} Autocomplete";
         }
 
         /// <inheritdoc/>
@@ -78,7 +78,7 @@ namespace Discord.Interactions
             {
                 var originalEx = ex;
                 while (ex is TargetInvocationException)
-                    ex = ex.InnerException;
+                    ex = ex.InnerException!;
 
                 await InteractionService._cmdLogger.ErrorAsync(ex).ConfigureAwait(false);
 

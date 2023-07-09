@@ -15,7 +15,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets and sets the placeholder of the text input.
         /// </summary>
-        public string Placeholder { get; set; }
+        public string? Placeholder { get; set; }
 
         /// <summary>
         ///     Gets and sets the minimum length of the text input.
@@ -30,7 +30,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets and sets the initial value to be displayed by this input.
         /// </summary>
-        public string InitialValue { get; set; }
+        public string? InitialValue { get; set; }
 
         /// <summary>
         ///     Initializes a new <see cref="TextInputComponentBuilder"/>.

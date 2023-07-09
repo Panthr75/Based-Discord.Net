@@ -78,14 +78,14 @@ namespace Discord
             }
 
 
-            if (NamesAndUnicodes.TryGetValue(text, out resultText))
+            if (NamesAndUnicodes.TryGetValue(text!, out resultText))
             {
                 return true;
             }
 
             if (Unicodes.Contains(text))
             {
-                resultText = text;
+                resultText = text!;
                 return true;
             }
 

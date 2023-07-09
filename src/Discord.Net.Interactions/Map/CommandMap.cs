@@ -13,7 +13,7 @@ namespace Discord.Interactions
 
         public IReadOnlyCollection<char> Seperators => _seperators;
 
-        public CommandMap(InteractionService commandService, char[] seperators = null)
+        public CommandMap(InteractionService commandService, char[]? seperators = null)
         {
             _seperators = seperators ?? Array.Empty<char>();
 

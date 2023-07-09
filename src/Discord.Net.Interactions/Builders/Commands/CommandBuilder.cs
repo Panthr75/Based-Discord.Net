@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Discord.Interactions.Builders
 {
@@ -24,13 +25,13 @@ namespace Discord.Interactions.Builders
         public ModuleBuilder Module { get; }
 
         /// <inheritdoc/>
-        public ExecuteCallback Callback { get; internal set; }
+        public ExecuteCallback? Callback { get; internal set; }
 
         /// <inheritdoc/>
-        public string Name { get; internal set; }
+        public string? Name { get; internal set; }
 
         /// <inheritdoc/>
-        public string MethodName { get; set; }
+        public string? MethodName { get; set; }
 
         /// <inheritdoc/>
         public bool IgnoreGroupNames { get; set; }
@@ -185,7 +186,7 @@ namespace Discord.Interactions.Builders
 
         /// <inheritdoc/>
         ICommandBuilder ICommandBuilder.AddParameters(params IParameterBuilder[] parameters) =>
-            AddParameters(parameters as TParamBuilder);
+            AddParameters(parameters.Select(p => (TParamBuilder)p).ToArray());
 
         /// <inheritdoc/>
         ICommandBuilder ICommandBuilder.WithPreconditions(params PreconditionAttribute[] preconditions) =>

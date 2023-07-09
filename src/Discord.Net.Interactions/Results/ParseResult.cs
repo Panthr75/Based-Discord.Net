@@ -1,25 +1,28 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
     public struct ParseResult : IResult
     {
-        public object[] Args { get; }
+        public object?[]? Args { get; }
 
         public InteractionCommandError? Error { get; }
 
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
+        [MemberNotNullWhen(true, nameof(this.Args))]
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private ParseResult(object[] args, InteractionCommandError? error, string reason)
+        private ParseResult(object?[]? args, InteractionCommandError? error, string? reason)
         {
             Args = args;
             Error = error;
             ErrorReason = reason;
         }
 
-        public static ParseResult FromSuccess(object[] args) =>
+        public static ParseResult FromSuccess(object?[] args) =>
             new ParseResult(args, null, null);
 
         public static ParseResult FromError(Exception exception) =>

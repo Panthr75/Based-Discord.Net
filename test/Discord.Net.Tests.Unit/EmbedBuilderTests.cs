@@ -27,9 +27,9 @@ namespace Discord
                 .WithAuthor(Name, Icon, Url);
 
             Assert.NotNull(builder.Author);
-            Assert.Equal(Name, builder.Author.Name);
-            Assert.Equal(Icon, builder.Author.IconUrl);
-            Assert.Equal(Url, builder.Author.Url);
+            Assert.Equal(Name, builder.Author!.Name);
+            Assert.Equal(Icon, builder.Author!.IconUrl);
+            Assert.Equal(Url, builder.Author!.Url);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Discord
             var builder = new EmbedBuilder()
                 .WithAuthor(author);
             Assert.NotNull(builder.Author);
-            Assert.Equal(Name, builder.Author.Name);
+            Assert.Equal(Name, builder.Author!.Name);
             Assert.Equal(Icon, builder.Author.IconUrl);
             Assert.Equal(Url, builder.Author.Url);
         }
@@ -62,7 +62,7 @@ namespace Discord
                 .WithName(Name)
                 .WithUrl(Url));
             Assert.NotNull(builder.Author);
-            Assert.Equal(Name, builder.Author.Name);
+            Assert.Equal(Name, builder.Author!.Name);
             Assert.Equal(Icon, builder.Author.IconUrl);
             Assert.Equal(Url, builder.Author.Url);
         }
@@ -151,7 +151,7 @@ namespace Discord
         [Fact]
         public void Description_Valid()
         {
-            IEnumerable<string> GetValid()
+            IEnumerable<string?> GetValid()
             {
                 yield return string.Empty;
                 yield return null;
@@ -240,7 +240,7 @@ namespace Discord
             var e = new EmbedBuilder()
                 .WithCurrentTimestamp();
             // ensure within a second of accuracy
-            Assert.Equal(DateTime.UtcNow, e.Timestamp.Value.UtcDateTime, TimeSpan.FromSeconds(1));
+            Assert.Equal(DateTime.UtcNow, e.Timestamp!.Value.UtcDateTime, TimeSpan.FromSeconds(1));
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace Discord
         {
             // use WithColor
             var e = new EmbedBuilder().WithColor(Color.Red);
-            Assert.Equal(Color.Red.RawValue, e.Color.Value.RawValue);
+            Assert.Equal(Color.Red.RawValue, e.Color!.Value.RawValue);
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace Discord
                     x.IconUrl = Url;
                     x.Text = Name;
                 });
-            Assert.Equal(Url, e.Footer.IconUrl);
+            Assert.Equal(Url, e.Footer!.IconUrl);
             Assert.Equal(Name, e.Footer.Text);
         }
 
@@ -283,7 +283,7 @@ namespace Discord
             };
             var e = new EmbedBuilder()
                 .WithFooter(footer);
-            Assert.Equal(Url, e.Footer.IconUrl);
+            Assert.Equal(Url, e.Footer!.IconUrl);
             Assert.Equal(Name, e.Footer.Text);
             // use the property
             e = new EmbedBuilder
@@ -302,7 +302,7 @@ namespace Discord
         {
             var e = new EmbedBuilder()
                 .WithFooter(Name, Url);
-            Assert.Equal(Url, e.Footer.IconUrl);
+            Assert.Equal(Url, e.Footer!.IconUrl);
             Assert.Equal(Name, e.Footer.Text);
         }
 
@@ -412,7 +412,7 @@ namespace Discord
         [Fact]
         public void EmbedFieldBuilder_InvalidValue()
         {
-            IEnumerable<string> GetInvalidValue()
+            IEnumerable<string?> GetInvalidValue()
             {
                 yield return null;
                 yield return string.Empty;
@@ -420,7 +420,7 @@ namespace Discord
                 yield return new string('a', 1025);
             };
             foreach (var v in GetInvalidValue())
-                Assert.Throws<ArgumentException>(() => new EmbedFieldBuilder().WithValue(v));
+                Assert.Throws<ArgumentException>(() => new EmbedFieldBuilder().WithValue(v!));
         }
     }
 }

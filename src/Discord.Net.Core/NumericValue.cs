@@ -15,7 +15,7 @@ namespace Discord
     /// Represents a numeric value. Can be either a
     /// <see cref="long"/>, or a <see cref="double"/>.
     /// </summary>
-    public readonly struct NumericValue : IEquatable<NumericValue>, IEquatable<byte>, IEquatable<sbyte>, IEquatable<short>, IEquatable<ushort>, IEquatable<int>, IEquatable<uint>, IEquatable<long>, IEquatable<ulong>, IEquatable<float>, IEquatable<double>, IComparable<NumericValue>, IComparable<byte>, IComparable<sbyte>, IComparable<short>, IComparable<ushort>, IComparable<int>, IComparable<uint>, IComparable<long>, IComparable<ulong>
+    public readonly struct NumericValue : IEquatable<NumericValue>, IEquatable<byte>, IEquatable<sbyte>, IEquatable<short>, IEquatable<ushort>, IEquatable<int>, IEquatable<uint>, IEquatable<long>, IEquatable<ulong>, IEquatable<float>, IEquatable<double>, IComparable<NumericValue>, IComparable<byte>, IComparable<sbyte>, IComparable<short>, IComparable<ushort>, IComparable<int>, IComparable<uint>, IComparable<long>, IComparable<ulong>, IConvertible
 #if NET7_0_OR_GREATER
         , INumber<NumericValue>
 #endif
@@ -205,6 +205,117 @@ namespace Discord
             else
             {
                 result = default;
+                return false;
+            }
+        }
+
+        private static bool TryConvertToCast(NumericValue value, Type type, [NotNullWhen(true)] out object? result)
+        {
+            if (type == typeof(double))
+            {
+                result = (double)value;
+                return true;
+            }
+            else if (type == typeof(float))
+            {
+                double underlyingValue = (double)value;
+                float actualResult = (double.IsPositiveInfinity(underlyingValue) || underlyingValue > float.MaxValue) ? float.PositiveInfinity :
+                    (double.IsNegativeInfinity(underlyingValue) || underlyingValue < -float.MaxValue) ? float.NegativeInfinity :
+                    (underlyingValue > 0 && underlyingValue < float.MinValue) ? float.MinValue :
+                    (underlyingValue < 0 && underlyingValue > -float.MinValue) ? float.MinValue :
+                    (float)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(int))
+            {
+                long underlyingValue = (long)value;
+                int actualResult = (value < int.MinValue) ? int.MinValue :
+                    (value > int.MaxValue) ? int.MaxValue :
+                    (int)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(long))
+            {
+                result = (long)value;
+                return true;
+            }
+            else if (type == typeof(ulong))
+            {
+                long underlyingValue = (long)value;
+                ulong actualResult = underlyingValue < 0 ? ulong.MinValue : (ulong)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(ushort))
+            {
+                long underlyingValue = (long)value;
+                ushort actualResult = (value < ushort.MinValue) ? ushort.MinValue :
+                    (value > ushort.MaxValue) ? ushort.MaxValue :
+                    (ushort)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(short))
+            {
+                long underlyingValue = (long)value;
+                short actualResult = (value < short.MinValue) ? short.MinValue :
+                    (value > short.MaxValue) ? short.MaxValue :
+                    (short)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(uint))
+            {
+                long underlyingValue = (long)value;
+                uint actualResult = (value < uint.MinValue) ? uint.MinValue :
+                    (value > uint.MaxValue) ? uint.MaxValue :
+                    (uint)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(sbyte))
+            {
+                long underlyingValue = (long)value;
+                sbyte actualResult = (value < sbyte.MinValue) ? sbyte.MinValue :
+                    (value > sbyte.MaxValue) ? sbyte.MaxValue :
+                    (sbyte)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+            else if (type == typeof(byte))
+            {
+                long underlyingValue = (long)value;
+                byte actualResult = (value < byte.MinValue) ? byte.MinValue :
+                    (value > byte.MaxValue) ? byte.MaxValue :
+                    (byte)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+#if NET5_0_OR_GREATER
+            else if (type == typeof(Half))
+            {
+                double underlyingValue = (double)value;
+                Half actualResult = (double.IsPositiveInfinity(underlyingValue) || underlyingValue > float.MaxValue) ? Half.PositiveInfinity :
+                    (double.IsNegativeInfinity(underlyingValue) || underlyingValue < -float.MaxValue) ? Half.NegativeInfinity :
+                    (underlyingValue > 0 && underlyingValue < (double)Half.MinValue) ? Half.MinValue :
+                    (underlyingValue < 0 && underlyingValue > -(double)Half.MinValue) ? Half.MinValue :
+                    (Half)underlyingValue;
+                result = actualResult;
+                return true;
+            }
+#endif
+#if NET7_0_OR_GREATER
+            else if (type == typeof(Int128))
+            {
+                result = (Int128)(long)value;
+                return true;
+            }
+#endif
+            else
+            {
+                result = null;
                 return false;
             }
         }
@@ -1503,6 +1614,128 @@ namespace Discord
             }
         }
 #endif
+
+        bool IConvertible.ToBoolean(IFormatProvider? provider)
+        {
+            if (this.IsInteger)
+            {
+                return System.Convert.ToBoolean(this.m_integerValue);
+            }
+            else
+            {
+                return System.Convert.ToBoolean(this.m_doubleValue);
+            }
+        }
+
+        byte IConvertible.ToByte(IFormatProvider? provider)
+        {
+            return (byte)this;
+        }
+
+        sbyte IConvertible.ToSByte(IFormatProvider? provider)
+        {
+            return (sbyte)this;
+        }
+
+        char IConvertible.ToChar(IFormatProvider? provider)
+        {
+            if (this.IsInteger)
+            {
+                return System.Convert.ToChar(this.m_integerValue);
+            }
+            else if (Math.Round(this.m_doubleValue) == this.m_doubleValue)
+            {
+                return System.Convert.ToChar((long)this.m_doubleValue);
+            }
+            else
+            {
+                throw new InvalidCastException("Cannot convert decimal numeric value to char.");
+            }
+        }
+
+        DateTime IConvertible.ToDateTime(IFormatProvider? provider)
+        {
+            throw new InvalidCastException("Cannot convert NumericValue to DateTime");
+        }
+
+        decimal IConvertible.ToDecimal(IFormatProvider? provider)
+        {
+            if (this.IsInteger)
+            {
+                return System.Convert.ToDecimal(this.m_integerValue);
+            }
+            else
+            {
+                return System.Convert.ToDecimal(this.m_doubleValue);
+            }
+        }
+
+        double IConvertible.ToDouble(IFormatProvider? provider)
+        {
+            return (double)this;
+        }
+
+        float IConvertible.ToSingle(IFormatProvider? provider)
+        {
+            return (float)this;
+        }
+
+        short IConvertible.ToInt16(IFormatProvider? provider)
+        {
+            return (short)this;
+        }
+
+        ushort IConvertible.ToUInt16(IFormatProvider? provider)
+        {
+            return (ushort)this;
+        }
+
+        int IConvertible.ToInt32(IFormatProvider? provider)
+        {
+            return (int)this;
+        }
+
+        uint IConvertible.ToUInt32(IFormatProvider? provider)
+        {
+            return (uint)this;
+        }
+
+        long IConvertible.ToInt64(IFormatProvider? provider)
+        {
+            return (long)this;
+        }
+
+        ulong IConvertible.ToUInt64(IFormatProvider? provider)
+        {
+            return (ulong)this;
+        }
+
+        public string ToString(IFormatProvider? provider)
+        {
+            if (this.IsInteger)
+            {
+                return this.m_integerValue.ToString(provider);
+            }
+            else
+            {
+                return this.m_doubleValue.ToString(provider);
+            }
+        }
+
+        TypeCode IConvertible.GetTypeCode()
+        {
+            return TypeCode.Object;
+        }
+
+        object IConvertible.ToType(Type conversionType, IFormatProvider? provider)
+        {
+            if (!NumericValue.TryConvertToCast(this, conversionType, out object? result))
+            {
+                throw new InvalidCastException("Cannot convert NumericValue to " + conversionType.FullName);
+            }
+            return result;
+        }
+
 
         public static NumericValue operator +(NumericValue value)
         {

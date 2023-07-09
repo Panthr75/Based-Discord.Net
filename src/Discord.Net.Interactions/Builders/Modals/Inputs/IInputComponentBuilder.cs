@@ -17,12 +17,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the custom id of this input component.
         /// </summary>
-        string CustomId { get; }
+        string? CustomId { get; }
 
         /// <summary>
         ///     Gets the label of this input component.
         /// </summary>
-        string Label { get; }
+        string? Label { get; }
 
         /// <summary>
         ///     Gets whether this input component is required.
@@ -37,22 +37,22 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Get the reference type of this input component.
         /// </summary>
-        Type Type { get; }
+        Type? Type { get; }
 
         /// <summary>
         ///     Get the <see cref="PropertyInfo"/> of this component's property.
         /// </summary>
-        PropertyInfo PropertyInfo { get; }
+        PropertyInfo? PropertyInfo { get; }
 
         /// <summary>
         ///     Get the <see cref="ComponentTypeConverter"/> assigned to this input.
         /// </summary>
-        ComponentTypeConverter TypeConverter { get; }
+        ComponentTypeConverter? TypeConverter { get; }
 
         /// <summary>
         ///     Gets the default value of this input component.
         /// </summary>
-        object DefaultValue { get; }
+        object? DefaultValue { get; }
 
         /// <summary>
         ///     Gets a collection of the attributes of this component.

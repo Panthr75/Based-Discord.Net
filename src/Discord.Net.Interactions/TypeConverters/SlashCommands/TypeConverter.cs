@@ -28,7 +28,7 @@ namespace Discord.Interactions
         /// <param name="option">Received option payload.</param>
         /// <param name="services">Service provider that will be used to initialize the command module.</param>
         /// <returns>The result of the read process.</returns>
-        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider services);
+        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider? services);
 
         /// <summary>
         ///     Will be used to manipulate the outgoing command option, before the command gets registered to Discord.

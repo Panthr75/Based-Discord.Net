@@ -37,7 +37,7 @@ namespace Discord.Interactions.Builders
         }
 
         public static async Task<Dictionary<Type, ModuleInfo>> BuildAsync(IEnumerable<TypeInfo> validTypes, InteractionService commandService,
-            IServiceProvider services)
+            IServiceProvider? services)
         {
             var topLevelGroups = validTypes.Where(x => x.DeclaringType == null || !IsValidModuleDefinition(x.DeclaringType.GetTypeInfo()));
             var built = new List<TypeInfo>();
@@ -63,7 +63,7 @@ namespace Discord.Interactions.Builders
         }
 
         private static void BuildModule(ModuleBuilder builder, TypeInfo typeInfo, InteractionService commandService,
-            IServiceProvider services)
+            IServiceProvider? services)
         {
             var attributes = typeInfo.GetCustomAttributes();
 
@@ -80,11 +80,13 @@ namespace Discord.Interactions.Builders
                             builder.Description = group.Description;
                         }
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
                     case DefaultPermissionAttribute defPermission:
                         {
                             builder.DefaultPermission = defPermission.IsDefaultPermission;
                         }
                         break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case EnabledInDmAttribute enabledInDm:
                         {
                             builder.IsEnabledInDm = enabledInDm.IsEnabled;
@@ -118,7 +120,7 @@ namespace Discord.Interactions.Builders
             var validAutocompleteCommands = methods.Where(IsValidAutocompleteCommandDefinition);
             var validModalCommands = methods.Where(IsValidModalCommanDefinition);
 
-            Func<IServiceProvider, IInteractionModuleBase> createInstance = commandService._useCompiledLambda ?
+            Func<IServiceProvider?, IInteractionModuleBase> createInstance = commandService._useCompiledLambda ?
                 ReflectionUtils<IInteractionModuleBase>.CreateLambdaBuilder(typeInfo, commandService) : ReflectionUtils<IInteractionModuleBase>.CreateBuilder(typeInfo, commandService);
 
             foreach (var method in validSlashCommands)
@@ -138,7 +140,7 @@ namespace Discord.Interactions.Builders
         }
 
         private static void BuildSubModules(ModuleBuilder parent, IEnumerable<TypeInfo> subModules, IList<TypeInfo> builtTypes, InteractionService commandService,
-            IServiceProvider services, int slashGroupDepth = 0)
+            IServiceProvider? services, int slashGroupDepth = 0)
         {
             foreach (var submodule in subModules.Where(IsValidModuleDefinition))
             {
@@ -158,8 +160,8 @@ namespace Discord.Interactions.Builders
             }
         }
 
-        private static void BuildSlashCommand(SlashCommandBuilder builder, Func<IServiceProvider, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
-            InteractionService commandService, IServiceProvider services)
+        private static void BuildSlashCommand(SlashCommandBuilder builder, Func<IServiceProvider?, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
+            InteractionService commandService, IServiceProvider? services)
         {
             var attributes = methodInfo.GetCustomAttributes();
 
@@ -177,11 +179,13 @@ namespace Discord.Interactions.Builders
                             builder.RunMode = command.RunMode;
                         }
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
                     case DefaultPermissionAttribute defaultPermission:
                         {
                             builder.DefaultPermission = defaultPermission.IsDefaultPermission;
                         }
                         break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case EnabledInDmAttribute enabledInDm:
                         {
                             builder.IsEnabledInDm = enabledInDm.IsEnabled;
@@ -212,8 +216,8 @@ namespace Discord.Interactions.Builders
             builder.Callback = CreateCallback(createInstance, methodInfo, commandService);
         }
 
-        private static void BuildContextCommand(ContextCommandBuilder builder, Func<IServiceProvider, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
-            InteractionService commandService, IServiceProvider services)
+        private static void BuildContextCommand(ContextCommandBuilder builder, Func<IServiceProvider?, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
+            InteractionService commandService, IServiceProvider? services)
         {
             var attributes = methodInfo.GetCustomAttributes();
 
@@ -232,11 +236,13 @@ namespace Discord.Interactions.Builders
                             command.CheckMethodDefinition(methodInfo);
                         }
                         break;
+#pragma warning disable CS0618 // Type or member is obsolete
                     case DefaultPermissionAttribute defaultPermission:
                         {
                             builder.DefaultPermission = defaultPermission.IsDefaultPermission;
                         }
                         break;
+#pragma warning restore CS0618 // Type or member is obsolete
                     case EnabledInDmAttribute enabledInDm:
                         {
                             builder.IsEnabledInDm = enabledInDm.IsEnabled;
@@ -267,8 +273,8 @@ namespace Discord.Interactions.Builders
             builder.Callback = CreateCallback(createInstance, methodInfo, commandService);
         }
 
-        private static void BuildComponentCommand(ComponentCommandBuilder builder, Func<IServiceProvider, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
-            InteractionService commandService, IServiceProvider services)
+        private static void BuildComponentCommand(ComponentCommandBuilder builder, Func<IServiceProvider?, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
+            InteractionService commandService, IServiceProvider? services)
         {
             var attributes = methodInfo.GetCustomAttributes();
 
@@ -297,7 +303,7 @@ namespace Discord.Interactions.Builders
 
             var parameters = methodInfo.GetParameters();
 
-            var wildCardCount = RegexUtils.GetWildCardCount(builder.Name, commandService._wildCardExp);
+            var wildCardCount = RegexUtils.GetWildCardCount(builder.Name ?? string.Empty, commandService._wildCardExp);
 
             foreach (var parameter in parameters)
                 builder.AddParameter(x => BuildComponentParameter(x, parameter, parameter.Position >= wildCardCount));
@@ -305,8 +311,8 @@ namespace Discord.Interactions.Builders
             builder.Callback = CreateCallback(createInstance, methodInfo, commandService);
         }
 
-        private static void BuildAutocompleteCommand(AutocompleteCommandBuilder builder, Func<IServiceProvider, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
-            InteractionService commandService, IServiceProvider services)
+        private static void BuildAutocompleteCommand(AutocompleteCommandBuilder builder, Func<IServiceProvider?, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
+            InteractionService commandService, IServiceProvider? services)
         {
             var attributes = methodInfo.GetCustomAttributes();
 
@@ -341,8 +347,8 @@ namespace Discord.Interactions.Builders
             builder.Callback = CreateCallback(createInstance, methodInfo, commandService);
         }
 
-        private static void BuildModalCommand(ModalCommandBuilder builder, Func<IServiceProvider, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
-            InteractionService commandService, IServiceProvider services)
+        private static void BuildModalCommand(ModalCommandBuilder builder, Func<IServiceProvider?, IInteractionModuleBase> createInstance, MethodInfo methodInfo,
+            InteractionService commandService, IServiceProvider? services)
         {
             var parameters = methodInfo.GetParameters();
 
@@ -383,13 +389,13 @@ namespace Discord.Interactions.Builders
             builder.Callback = CreateCallback(createInstance, methodInfo, commandService);
         }
 
-        private static ExecuteCallback CreateCallback(Func<IServiceProvider, IInteractionModuleBase> createInstance,
+        private static ExecuteCallback CreateCallback(Func<IServiceProvider?, IInteractionModuleBase> createInstance,
             MethodInfo methodInfo, InteractionService commandService)
         {
-            Func<IInteractionModuleBase, object[], Task> commandInvoker = commandService._useCompiledLambda ?
-                ReflectionUtils<IInteractionModuleBase>.CreateMethodInvoker(methodInfo) : (module, args) => methodInfo.Invoke(module, args) as Task;
+            Func<IInteractionModuleBase, object?[], Task> commandInvoker = commandService._useCompiledLambda ?
+                ReflectionUtils<IInteractionModuleBase>.CreateMethodInvoker(methodInfo) : (module, args) => (Task)methodInfo.Invoke(module, args)!;
 
-            async Task<IResult> ExecuteCallback(IInteractionContext context, object[] args, IServiceProvider serviceProvider, ICommandInfo commandInfo)
+            async Task<IResult> ExecuteCallback(IInteractionContext context, object?[] args, IServiceProvider? serviceProvider, ICommandInfo commandInfo)
             {
                 var instance = createInstance(serviceProvider);
                 instance.SetContext(context);
@@ -428,7 +434,7 @@ namespace Discord.Interactions.Builders
         }
 
         #region Parameters
-        private static void BuildSlashParameter(SlashCommandParameterBuilder builder, ParameterInfo paramInfo, IServiceProvider services)
+        private static void BuildSlashParameter(SlashCommandParameterBuilder builder, ParameterInfo paramInfo, IServiceProvider? services)
         {
             var attributes = paramInfo.GetCustomAttributes();
             var paramType = paramInfo.ParameterType;
@@ -507,7 +513,10 @@ namespace Discord.Interactions.Builders
             builder.SetParameterType(paramType, services);
 
             // Replace pascal casings with '-'
-            builder.Name = Regex.Replace(builder.Name, "(?<=[a-z])(?=[A-Z])", "-").ToLower();
+            if (builder.Name is not null)
+            {
+                builder.Name = Regex.Replace(builder.Name, "(?<=[a-z])(?=[A-Z])", "-").ToLower();
+            }
         }
 
         private static void BuildComponentParameter(ComponentCommandParameterBuilder builder, ParameterInfo paramInfo, bool isComponentParam)
@@ -523,7 +532,7 @@ namespace Discord.Interactions.Builders
             var attributes = paramInfo.GetCustomAttributes();
             var paramType = paramInfo.ParameterType;
 
-            builder.Name = paramInfo.Name;
+            builder.Name = paramInfo.Name!;
             builder.IsRequired = !paramInfo.IsOptional;
             builder.DefaultValue = paramInfo.DefaultValue;
             builder.SetParameterType(paramType);
@@ -552,7 +561,7 @@ namespace Discord.Interactions.Builders
             if (!typeof(IModal).IsAssignableFrom(modalType))
                 throw new InvalidOperationException($"{modalType.FullName} isn't an implementation of {typeof(IModal).FullName}");
 
-            var instance = Activator.CreateInstance(modalType, false) as IModal;
+            var instance = (IModal)Activator.CreateInstance(modalType, false)!;
 
             try
             {
@@ -570,16 +579,16 @@ namespace Discord.Interactions.Builders
                     switch (componentType)
                     {
                         case ComponentType.TextInput:
-                            builder.AddTextComponent(x => BuildTextInput(x, prop, prop.GetValue(instance)));
+                            builder.AddTextComponent(x => BuildTextInput(x, prop, prop.GetValue(instance)!));
                             break;
                         case null:
-                            throw new InvalidOperationException($"{prop.Name} of {prop.DeclaringType.Name} isn't a valid modal input field.");
+                            throw new InvalidOperationException($"{prop.Name} of {prop.DeclaringType!.Name} isn't a valid modal input field.");
                         default:
                             throw new InvalidOperationException($"Component type {componentType} cannot be used in modals.");
                     }
                 }
 
-                var memberInit = ReflectionUtils<IModal>.CreateLambdaMemberInit(modalType.GetTypeInfo(), modalType.GetConstructor(Type.EmptyTypes), x => x.IsDefined(typeof(ModalInputAttribute)));
+                var memberInit = ReflectionUtils<IModal>.CreateLambdaMemberInit(modalType.GetTypeInfo(), modalType.GetConstructor(Type.EmptyTypes)!, x => x.IsDefined(typeof(ModalInputAttribute)));
                 builder.ModalInitializer = (args) => memberInit(Array.Empty<object>(), args);
                 return builder.Build();
             }

@@ -26,7 +26,7 @@ namespace Discord.Interactions
         public bool IsParameterArray { get; }
 
         /// <inheritdoc/>
-        public object DefaultValue { get; }
+        public object? DefaultValue { get; }
 
         /// <inheritdoc/>
         public IReadOnlyCollection<Attribute> Attributes { get; }
@@ -37,8 +37,8 @@ namespace Discord.Interactions
         internal CommandParameterInfo(Builders.IParameterBuilder builder, ICommandInfo command)
         {
             Command = command;
-            Name = builder.Name;
-            ParameterType = builder.ParameterType;
+            Name = builder.Name ?? throw new ArgumentException("Builder's Name property was null", nameof(builder));
+            ParameterType = builder.ParameterType ?? throw new ArgumentException("Builder's ParameterType property was null", nameof(builder));
             IsRequired = builder.IsRequired;
             IsParameterArray = builder.IsParameterArray;
             DefaultValue = builder.DefaultValue;
@@ -47,7 +47,7 @@ namespace Discord.Interactions
         }
 
         /// <inheritdoc/>
-        public async Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, object value, IServiceProvider services)
+        public async Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, object? value, IServiceProvider? services)
         {
             foreach (var precondition in Preconditions)
             {

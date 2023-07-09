@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -21,13 +22,23 @@ namespace Discord.Interactions
         /// <summary>
         ///     Occurs when a Slash Command related information is received.
         /// </summary>
-        public event Func<LogMessage, Task> Log { add { _logEvent.Add(value); } remove { _logEvent.Remove(value); } }
+        public event Func<LogMessage, Task> Log
+        {
+            add
+            {
+                _logEvent.Add(value);
+            }
+            remove
+            {
+                _logEvent.Remove(value);
+            }
+        }
         internal readonly AsyncEvent<Func<LogMessage, Task>> _logEvent = new();
 
         /// <summary>
         ///     Occurs when any type of interaction is executed.
         /// </summary>
-        public event Func<ICommandInfo, IInteractionContext, IResult, Task> InteractionExecuted
+        public event Func<ICommandInfo?, IInteractionContext, IResult, Task> InteractionExecuted
         {
             add
             {
@@ -50,43 +61,103 @@ namespace Discord.Interactions
         /// <summary>
         ///     Occurs when a Slash Command is executed.
         /// </summary>
-        public event Func<SlashCommandInfo, IInteractionContext, IResult, Task> SlashCommandExecuted { add { _slashCommandExecutedEvent.Add(value); } remove { _slashCommandExecutedEvent.Remove(value); } }
-        internal readonly AsyncEvent<Func<SlashCommandInfo, IInteractionContext, IResult, Task>> _slashCommandExecutedEvent = new();
+        public event Func<SlashCommandInfo?, IInteractionContext, IResult, Task> SlashCommandExecuted
+        {
+            add
+            {
+                _slashCommandExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _slashCommandExecutedEvent.Remove(value);
+            }
+        }
+        internal readonly AsyncEvent<Func<SlashCommandInfo?, IInteractionContext, IResult, Task>> _slashCommandExecutedEvent = new();
 
         /// <summary>
         ///     Occurs when a Context Command is executed.
         /// </summary>
-        public event Func<ContextCommandInfo, IInteractionContext, IResult, Task> ContextCommandExecuted { add { _contextCommandExecutedEvent.Add(value); } remove { _contextCommandExecutedEvent.Remove(value); } }
-        internal readonly AsyncEvent<Func<ContextCommandInfo, IInteractionContext, IResult, Task>> _contextCommandExecutedEvent = new();
+        public event Func<ContextCommandInfo?, IInteractionContext, IResult, Task> ContextCommandExecuted
+        {
+            add
+            {
+                _contextCommandExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _contextCommandExecutedEvent.Remove(value);
+            }
+        }
+        internal readonly AsyncEvent<Func<ContextCommandInfo?, IInteractionContext, IResult, Task>> _contextCommandExecutedEvent = new();
 
         /// <summary>
         ///     Occurs when a Message Component command is executed.
         /// </summary>
-        public event Func<ComponentCommandInfo, IInteractionContext, IResult, Task> ComponentCommandExecuted { add { _componentCommandExecutedEvent.Add(value); } remove { _componentCommandExecutedEvent.Remove(value); } }
-        internal readonly AsyncEvent<Func<ComponentCommandInfo, IInteractionContext, IResult, Task>> _componentCommandExecutedEvent = new();
+        public event Func<ComponentCommandInfo?, IInteractionContext, IResult, Task> ComponentCommandExecuted
+        {
+            add
+            {
+                _componentCommandExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _componentCommandExecutedEvent.Remove(value);
+            }
+        }
+        internal readonly AsyncEvent<Func<ComponentCommandInfo?, IInteractionContext, IResult, Task>> _componentCommandExecutedEvent = new();
 
         /// <summary>
         ///     Occurs when a Autocomplete command is executed.
         /// </summary>
-        public event Func<AutocompleteCommandInfo, IInteractionContext, IResult, Task> AutocompleteCommandExecuted { add { _autocompleteCommandExecutedEvent.Add(value); } remove { _autocompleteCommandExecutedEvent.Remove(value); } }
-        internal readonly AsyncEvent<Func<AutocompleteCommandInfo, IInteractionContext, IResult, Task>> _autocompleteCommandExecutedEvent = new();
+        public event Func<AutocompleteCommandInfo?, IInteractionContext, IResult, Task> AutocompleteCommandExecuted
+        {
+            add
+            {
+                _autocompleteCommandExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _autocompleteCommandExecutedEvent.Remove(value);
+            }
+        }
+        internal readonly AsyncEvent<Func<AutocompleteCommandInfo?, IInteractionContext, IResult, Task>> _autocompleteCommandExecutedEvent = new();
 
         /// <summary>
         ///     Occurs when a AutocompleteHandler is executed.
         /// </summary>
-        public event Func<IAutocompleteHandler, IInteractionContext, IResult, Task> AutocompleteHandlerExecuted { add { _autocompleteHandlerExecutedEvent.Add(value); } remove { _autocompleteHandlerExecutedEvent.Remove(value); } }
+        public event Func<IAutocompleteHandler, IInteractionContext, IResult, Task> AutocompleteHandlerExecuted
+        {
+            add
+            {
+                _autocompleteHandlerExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _autocompleteHandlerExecutedEvent.Remove(value);
+            }
+        }
         internal readonly AsyncEvent<Func<IAutocompleteHandler, IInteractionContext, IResult, Task>> _autocompleteHandlerExecutedEvent = new();
 
         /// <summary>
         ///     Occurs when a Modal command is executed.
         /// </summary>
-        public event Func<ModalCommandInfo, IInteractionContext, IResult, Task> ModalCommandExecuted { add { _modalCommandExecutedEvent.Add(value); } remove { _modalCommandExecutedEvent.Remove(value); } }
-        internal readonly AsyncEvent<Func<ModalCommandInfo, IInteractionContext, IResult, Task>> _modalCommandExecutedEvent = new();
+        public event Func<ModalCommandInfo?, IInteractionContext, IResult, Task> ModalCommandExecuted
+        {
+            add
+            {
+                _modalCommandExecutedEvent.Add(value);
+            }
+            remove
+            {
+                _modalCommandExecutedEvent.Remove(value);
+            }
+        }
+        internal readonly AsyncEvent<Func<ModalCommandInfo?, IInteractionContext, IResult, Task>> _modalCommandExecutedEvent = new();
 
         /// <summary>
         ///     Get the <see cref="ILocalizationManager"/> used by this Interaction Service instance to localize strings.
         /// </summary>
-        public ILocalizationManager LocalizationManager { get; set; }
+        public ILocalizationManager? LocalizationManager { get; set; }
 
         private readonly ConcurrentDictionary<Type, ModuleInfo> _typedModuleDefs;
         private readonly CommandMap<SlashCommandInfo> _slashCommandMap;
@@ -150,7 +221,7 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="discord">The discord client.</param>
         /// <param name="config">The configuration class.</param>
-        public InteractionService(DiscordSocketClient discord, InteractionServiceConfig config = null)
+        public InteractionService(DiscordSocketClient discord, InteractionServiceConfig? config = null)
             : this(() => discord.Rest, config ?? new InteractionServiceConfig()) { }
 
         /// <summary>
@@ -158,7 +229,7 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="discord">The discord client.</param>
         /// <param name="config">The configuration class.</param>
-        public InteractionService(DiscordShardedClient discord, InteractionServiceConfig config = null)
+        public InteractionService(DiscordShardedClient discord, InteractionServiceConfig? config = null)
             : this(() => discord.Rest, config ?? new InteractionServiceConfig()) { }
 
         /// <summary>
@@ -166,7 +237,7 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="discord">The discord client.</param>
         /// <param name="config">The configuration class.</param>
-        public InteractionService(BaseSocketClient discord, InteractionServiceConfig config = null)
+        public InteractionService(BaseSocketClient discord, InteractionServiceConfig? config = null)
             : this(() => discord.Rest, config ?? new InteractionServiceConfig()) { }
 
         /// <summary>
@@ -174,10 +245,10 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="discord">The discord client.</param>
         /// <param name="config">The configuration class.</param>
-        public InteractionService(DiscordRestClient discord, InteractionServiceConfig config = null)
+        public InteractionService(DiscordRestClient discord, InteractionServiceConfig? config = null)
             : this(() => discord, config ?? new InteractionServiceConfig()) { }
 
-        private InteractionService(Func<DiscordRestClient> getRestClient, InteractionServiceConfig config = null)
+        private InteractionService(Func<DiscordRestClient> getRestClient, InteractionServiceConfig? config = null)
         {
             config ??= new InteractionServiceConfig();
 
@@ -783,7 +854,10 @@ namespace Discord.Interactions
         public SearchResult<AutocompleteCommandInfo> SearchAutocompleteCommand(IAutocompleteInteraction autocompleteInteraction)
         {
             var keywords = autocompleteInteraction.Data.GetCommandKeywords();
-            keywords.Add(autocompleteInteraction.Data.Current.Name);
+            if (autocompleteInteraction.Data.Current is not null)
+            {
+                keywords.Add(autocompleteInteraction.Data.Current.Name);
+            }
             return _autocompleteCommandMap.GetCommand(keywords);
         }
 
@@ -836,7 +910,7 @@ namespace Discord.Interactions
 
             if (!result.IsSuccess)
             {
-                await _cmdLogger.DebugAsync($"Unknown context command, skipping execution ({result.Text.ToUpper()})");
+                await _cmdLogger.DebugAsync($"Unknown context command, skipping execution ({result.Text?.ToUpper()})");
 
                 await _contextCommandExecutedEvent.InvokeAsync(null, context, result).ConfigureAwait(false);
                 return result;
@@ -865,18 +939,22 @@ namespace Discord.Interactions
         {
             var keywords = interaction.Data.GetCommandKeywords();
 
-            if (_enableAutocompleteHandlers)
+            if (interaction.Data.Current is not null)
             {
-                var autocompleteHandlerResult = _slashCommandMap.GetCommand(keywords);
 
-                if (autocompleteHandlerResult.IsSuccess)
+                if (_enableAutocompleteHandlers)
                 {
-                    if (autocompleteHandlerResult.Command._flattenedParameterDictionary.TryGetValue(interaction.Data.Current.Name, out var parameter) && parameter?.AutocompleteHandler is not null)
-                        return await parameter.AutocompleteHandler.ExecuteAsync(context, interaction, parameter, services).ConfigureAwait(false);
-                }
-            }
+                    var autocompleteHandlerResult = _slashCommandMap.GetCommand(keywords);
 
-            keywords.Add(interaction.Data.Current.Name);
+                    if (autocompleteHandlerResult.IsSuccess)
+                    {
+                        if (autocompleteHandlerResult.Command._flattenedParameterDictionary.TryGetValue(interaction.Data.Current.Name, out var parameter) && parameter?.AutocompleteHandler is not null)
+                            return await parameter.AutocompleteHandler.ExecuteAsync(context, interaction, parameter, services).ConfigureAwait(false);
+                    }
+                }
+
+                keywords.Add(interaction.Data.Current.Name);
+            }
 
             var commandResult = _autocompleteCommandMap.GetCommand(keywords);
 
@@ -911,7 +989,7 @@ namespace Discord.Interactions
         private static void SetMatchesIfApplicable<T>(IInteractionContext context, SearchResult<T> searchResult)
             where T : class, ICommandInfo
         {
-            if (!searchResult.Command.SupportsWildCards || context is not IRouteMatchContainer matchContainer)
+            if (searchResult.Command is null || !searchResult.Command.SupportsWildCards || context is not IRouteMatchContainer matchContainer)
                 return;
 
             if (searchResult.RegexCaptureGroups?.Length > 0)
@@ -926,7 +1004,7 @@ namespace Discord.Interactions
                 matchContainer.SetSegmentMatches(Array.Empty<RouteSegmentMatch>());
         }
 
-        internal TypeConverter GetTypeConverter(Type type, IServiceProvider services = null)
+        internal TypeConverter GetTypeConverter(Type type, IServiceProvider? services = null)
             => _typeConverterMap.Get(type, services);
 
         /// <summary>
@@ -962,7 +1040,7 @@ namespace Discord.Interactions
         public void AddGenericTypeConverter(Type targetType, Type converterType) =>
             _typeConverterMap.AddGeneric(targetType, converterType);
 
-        internal ComponentTypeConverter GetComponentTypeConverter(Type type, IServiceProvider services = null) =>
+        internal ComponentTypeConverter GetComponentTypeConverter(Type type, IServiceProvider? services = null) =>
             _compTypeConverterMap.Get(type, services);
 
         /// <summary>
@@ -997,7 +1075,7 @@ namespace Discord.Interactions
         public void AddGenericComponentTypeConverter(Type targetType, Type converterType) =>
             _compTypeConverterMap.AddGeneric(targetType, converterType);
 
-        internal TypeReader GetTypeReader(Type type, IServiceProvider services = null) =>
+        internal TypeReader GetTypeReader(Type type, IServiceProvider? services = null) =>
             _typeReaderMap.Get(type, services);
 
         /// <summary>
@@ -1038,7 +1116,7 @@ namespace Discord.Interactions
         /// <typeparam name="T">The type to remove the readers from.</typeparam>
         /// <param name="reader">The reader if the resulting remove operation was successful.</param>
         /// <returns><see langword="true"/> if the remove operation was successful; otherwise <see langword="false"/>.</returns>
-        public bool TryRemoveTypeReader<T>(out TypeReader reader)
+        public bool TryRemoveTypeReader<T>([NotNullWhen(true)] out TypeReader? reader)
             => TryRemoveTypeReader(typeof(T), out reader);
 
         /// <summary>
@@ -1051,7 +1129,7 @@ namespace Discord.Interactions
         /// <param name="type">The type to remove the reader from.</param>
         /// <param name="reader">The reader if the resulting remove operation was successful.</param>
         /// <returns><see langword="true"/> if the remove operation was successful; otherwise <see langword="false"/>.</returns>
-        public bool TryRemoveTypeReader(Type type, out TypeReader reader)
+        public bool TryRemoveTypeReader(Type type, [NotNullWhen(true)] out TypeReader? reader)
             => _typeReaderMap.TryRemoveConcrete(type, out reader);
 
         /// <summary>
@@ -1064,7 +1142,7 @@ namespace Discord.Interactions
         /// <typeparam name="T">The type to remove the readers from.</typeparam>
         /// <param name="readerType">The removed readers type.</param>
         /// <returns><see langword="true"/> if the remove operation was successful; otherwise <see langword="false"/>.</returns>
-        public bool TryRemoveGenericTypeReader<T>(out Type readerType)
+        public bool TryRemoveGenericTypeReader<T>([NotNullWhen(true)] out Type? readerType)
             => TryRemoveGenericTypeReader(typeof(T), out readerType);
 
         /// <summary>
@@ -1077,7 +1155,7 @@ namespace Discord.Interactions
         /// <param name="type">The type to remove the reader from.</param>
         /// <param name="readerType">The readers type if the remove operation was successful.</param>
         /// <returns><see langword="true"/> if the remove operation was successful; otherwise <see langword="false"/>.</returns>
-        public bool TryRemoveGenericTypeReader(Type type, out Type readerType)
+        public bool TryRemoveGenericTypeReader(Type type, [NotNullWhen(true)] out Type? readerType)
             => _typeReaderMap.TryRemoveGeneric(type, out readerType);
 
         /// <summary>
@@ -1093,8 +1171,10 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the conversion process. The task result contains the result of the conversion.
         /// </returns>
-        public Task<string> SerializeValueAsync<T>(T obj, IServiceProvider services) =>
-            _typeReaderMap.Get(typeof(T), services).SerializeAsync(obj, services);
+        public Task<string> SerializeValueAsync<T>(T obj, IServiceProvider services)
+        {
+            return _typeReaderMap.Get(typeof(T), services).SerializeAsync(obj, services);
+        }
 
         /// <summary>
         ///     Serialize and format multiple objects into a Custom Id string.
@@ -1138,7 +1218,7 @@ namespace Discord.Interactions
             return ModalUtils.GetOrAdd(type, this);
         }
 
-        internal IAutocompleteHandler GetAutocompleteHandler(Type autocompleteHandlerType, IServiceProvider services = null)
+        internal IAutocompleteHandler GetAutocompleteHandler(Type autocompleteHandlerType, IServiceProvider? services = null)
         {
             services ??= EmptyServiceProvider.Instance;
 

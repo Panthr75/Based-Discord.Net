@@ -20,7 +20,7 @@ namespace Discord.Interactions
     /// <returns>
     ///     A task representing the execution operation.
     /// </returns>
-    public delegate Task ExecuteCallback(IInteractionContext context, object[] args, IServiceProvider serviceProvider, ICommandInfo commandInfo);
+    public delegate Task ExecuteCallback(IInteractionContext context, object?[] args, IServiceProvider? serviceProvider, ICommandInfo commandInfo);
 
     /// <summary>
     ///     The base information class for <see cref="InteractionService"/> commands.
@@ -28,8 +28,8 @@ namespace Discord.Interactions
     /// <typeparam name="TParameter">The type of <see cref="IParameterInfo"/> that is used by this command type.</typeparam>
     public abstract class CommandInfo<TParameter> : ICommandInfo where TParameter : class, IParameterInfo
     {
-        private readonly ExecuteCallback _action;
-        private readonly ILookup<string, PreconditionAttribute> _groupedPreconditions;
+        private readonly ExecuteCallback? _action;
+        private readonly ILookup<string?, PreconditionAttribute> _groupedPreconditions;
 
         internal IReadOnlyDictionary<string, TParameter> _parameterDictionary { get; }
 
@@ -73,8 +73,8 @@ namespace Discord.Interactions
             CommandService = commandService;
             Module = module;
 
-            Name = builder.Name;
-            MethodName = builder.MethodName;
+            Name = builder.Name ?? throw new ArgumentException("Builder's Name was null", nameof(builder));
+            MethodName = builder.MethodName ?? throw new ArgumentException("Builder's MethodName was null", nameof(builder));
             IgnoreGroupNames = builder.IgnoreGroupNames;
             IsTopLevelCommand = IgnoreGroupNames || CheckTopLevel(Module);
             RunMode = builder.RunMode != RunMode.Default ? builder.RunMode : commandService._runMode;
@@ -84,7 +84,7 @@ namespace Discord.Interactions
 
             _action = builder.Callback;
             _groupedPreconditions = builder.Preconditions.ToLookup(x => x.Group, x => x, StringComparer.Ordinal);
-            _parameterDictionary = Parameters?.ToDictionary(x => x.Name, x => x).ToImmutableDictionary();
+            _parameterDictionary = Parameters?.ToDictionary(x => x.Name, x => x).ToImmutableDictionary() ?? ImmutableDictionary<string, TParameter>.Empty;
         }
 
         /// <inheritdoc/>
@@ -107,9 +107,9 @@ namespace Discord.Interactions
             return ExecuteResult.FromSuccess();
         }
 
-        protected abstract Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider services);
+        protected abstract Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider? services);
 
-        private async Task<IResult> ExecuteInternalAsync(IInteractionContext context, IServiceProvider services)
+        private async Task<IResult> ExecuteInternalAsync(IInteractionContext context, IServiceProvider? services)
         {
             await CommandService._cmdLogger.DebugAsync($"Executing {GetLogString(context)}").ConfigureAwait(false);
 
@@ -132,7 +132,7 @@ namespace Discord.Interactions
                 if (argsResult is not ParseResult parseResult)
                     return ExecuteResult.FromError(InteractionCommandError.BadArgs, "Complex command parsing failed for an unknown reason.");
 
-                var args = parseResult.Args;
+                var args = parseResult.Args ?? Array.Empty<object>();
 
                 var index = 0;
                 foreach (var parameter in Parameters)
@@ -142,7 +142,7 @@ namespace Discord.Interactions
                         return await InvokeEventAndReturn(context, result).ConfigureAwait(false);
                 }
 
-                var task = _action(context, args, services, this);
+                var task = _action!(context, args, services, this);
 
                 if (task is Task<IResult> resultTask)
                 {
@@ -163,7 +163,7 @@ namespace Discord.Interactions
             {
                 var originalEx = ex;
                 while (ex is TargetInvocationException)
-                    ex = ex.InnerException;
+                    ex = ex.InnerException!;
 
                 await Module.CommandService._cmdLogger.ErrorAsync(ex).ConfigureAwait(false);
 
@@ -190,11 +190,11 @@ namespace Discord.Interactions
         protected abstract string GetLogString(IInteractionContext context);
 
         /// <inheritdoc/>
-        public async Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, IServiceProvider services)
+        public async Task<PreconditionResult> CheckPreconditionsAsync(IInteractionContext context, IServiceProvider? services)
         {
-            async Task<PreconditionResult> CheckGroups(ILookup<string, PreconditionAttribute> preconditions, string type)
+            async Task<PreconditionResult> CheckGroups(ILookup<string?, PreconditionAttribute> preconditions, string type)
             {
-                foreach (IGrouping<string, PreconditionAttribute> preconditionGroup in preconditions)
+                foreach (IGrouping<string?, PreconditionAttribute> preconditionGroup in preconditions)
                 {
                     if (preconditionGroup.Key == null)
                     {

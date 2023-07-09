@@ -13,7 +13,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the <see cref="ModalInfo"/> class for this commands <see cref="IModal"/> parameter.
         /// </summary>
-        public ModalInfo Modal { get; }
+        public ModalInfo? Modal { get; }
 
         /// <inheritdoc/>
         public override bool SupportsWildCards => true;
@@ -36,14 +36,14 @@ namespace Discord.Interactions
             return await base.ExecuteAsync(context, services).ConfigureAwait(false);
         }
 
-        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider services)
+        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider? services)
         {
-            var captures = (context as IRouteMatchContainer)?.SegmentMatches?.ToList();
-            var captureCount = captures?.Count() ?? 0;
+            var captures = (context as IRouteMatchContainer)?.SegmentMatches?.ToList() ?? new();
+            var captureCount = captures.Count;
 
             try
             {
-                var args = new object[Parameters.Count];
+                var args = new object?[Parameters.Count];
 
                 for (var i = 0; i < Parameters.Count; i++)
                 {
@@ -51,7 +51,7 @@ namespace Discord.Interactions
 
                     if (i < captureCount)
                     {
-                        var readResult = await parameter.TypeReader.ReadAsync(context, captures[i].Value, services).ConfigureAwait(false);
+                        var readResult = await parameter.TypeReader!.ReadAsync(context, captures[i].Value, services).ConfigureAwait(false);
                         if (!readResult.IsSuccess)
                             return await InvokeEventAndReturn(context, readResult).ConfigureAwait(false);
 
@@ -59,7 +59,7 @@ namespace Discord.Interactions
                     }
                     else
                     {
-                        var modalResult = await Modal.CreateModalAsync(context, services, Module.CommandService._exitOnMissingModalField).ConfigureAwait(false);
+                        var modalResult = await Modal!.CreateModalAsync(context, services, Module.CommandService._exitOnMissingModalField).ConfigureAwait(false);
                         if (!modalResult.IsSuccess)
                             return await InvokeEventAndReturn(context, modalResult).ConfigureAwait(false);
 

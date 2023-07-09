@@ -11,7 +11,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the parameter array of the constructor method that should be prioritized.
         /// </summary>
-        public Type[] PrioritizedCtorSignature { get; }
+        public Type[]? PrioritizedCtorSignature { get; }
 
         /// <summary>
         ///     Registers a slash command parameter as a complex parameter.

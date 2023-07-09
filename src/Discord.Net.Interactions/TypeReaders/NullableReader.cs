@@ -12,12 +12,12 @@ namespace Discord.Interactions
             var type = Nullable.GetUnderlyingType(typeof(T));
 
             if (type is null)
-                throw new ArgumentException($"No type {nameof(TypeConverter)} is defined for this {type.FullName}", "type");
+                throw new ArgumentException($"No type {nameof(TypeConverter)} is defined for this {typeof(T).FullName}", "type");
 
             _typeReader = interactionService.GetTypeReader(type, services);
         }
 
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider? services)
             => string.IsNullOrEmpty(option) ? Task.FromResult(TypeConverterResult.FromSuccess(null)) : _typeReader.ReadAsync(context, option, services);
     }
 }

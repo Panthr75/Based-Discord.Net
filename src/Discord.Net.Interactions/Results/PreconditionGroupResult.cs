@@ -14,9 +14,9 @@ namespace Discord.Interactions
         /// </summary>
         public IReadOnlyCollection<PreconditionResult> Results { get; }
 
-        private PreconditionGroupResult(InteractionCommandError? error, string reason, IEnumerable<PreconditionResult> results) : base(error, reason)
+        private PreconditionGroupResult(InteractionCommandError? error, string? reason, IEnumerable<PreconditionResult>? results) : base(error, reason)
         {
-            Results = results?.ToImmutableArray();
+            Results = results?.ToImmutableArray() ?? ImmutableArray<PreconditionResult>.Empty;
         }
 
         /// <summary>

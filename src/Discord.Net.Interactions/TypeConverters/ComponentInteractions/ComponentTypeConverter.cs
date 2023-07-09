@@ -26,7 +26,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     The result of the read process.
         /// </returns>
-        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider services);
+        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider? services);
     }
 
     /// <inheritdoc/>

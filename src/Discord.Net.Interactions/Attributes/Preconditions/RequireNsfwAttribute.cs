@@ -31,7 +31,7 @@ namespace Discord.Interactions
     public class RequireNsfwAttribute : PreconditionAttribute
     {
         /// <inheritdoc />
-        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo command, IServiceProvider services)
+        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo command, IServiceProvider? services)
         {
             if (context.Channel is ITextChannel text && text.IsNsfw)
                 return Task.FromResult(PreconditionResult.FromSuccess());

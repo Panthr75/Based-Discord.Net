@@ -61,8 +61,8 @@ namespace Discord
         [Fact]
         public void ParseUser_Null()
         {
-            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseUser(null));
-            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseUser(null, out _));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseUser(null!));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseUser(null!, out _));
         }
         [Theory]
         [InlineData("<#123>", 123)]
@@ -87,8 +87,8 @@ namespace Discord
         [Fact]
         public void ParseChannel_Null()
         {
-            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseChannel(null));
-            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseChannel(null, out _));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseChannel(null!));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseChannel(null!, out _));
         }
         [Theory]
         [InlineData("<@&123>", 123)]
@@ -113,8 +113,8 @@ namespace Discord
         [Fact]
         public void ParseRole_Null()
         {
-            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseRole(null));
-            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseRole(null, out _));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.ParseRole(null!));
+            Assert.Throws<NullReferenceException>(() => MentionUtils.TryParseRole(null!, out _));
         }
     }
 }

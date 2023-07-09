@@ -57,7 +57,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the default value of this component.
         /// </summary>
-        public object DefaultValue { get; }
+        public object? DefaultValue { get; }
 
         /// <summary>
         ///     Gets a collection of the attributes of this command.
@@ -67,13 +67,13 @@ namespace Discord.Interactions
         protected InputComponentInfo(Builders.IInputComponentBuilder builder, ModalInfo modal)
         {
             Modal = modal;
-            CustomId = builder.CustomId;
-            Label = builder.Label;
+            CustomId = builder.CustomId ?? throw new ArgumentException("Builder's CustomId property was null", nameof(builder));
+            Label = builder.Label ?? throw new ArgumentException("Builder's Label property was null", nameof(builder));
             IsRequired = builder.IsRequired;
             ComponentType = builder.ComponentType;
-            Type = builder.Type;
-            PropertyInfo = builder.PropertyInfo;
-            TypeConverter = builder.TypeConverter;
+            Type = builder.Type ?? throw new ArgumentException("Builder's Type property was null", nameof(builder));
+            PropertyInfo = builder.PropertyInfo ?? throw new ArgumentException("Builder's PropertyInfo property was null", nameof(builder));
+            TypeConverter = builder.TypeConverter ?? throw new ArgumentException("Builder's TypeConverter property was null", nameof(builder));
             DefaultValue = builder.DefaultValue;
             Attributes = builder.Attributes.ToImmutableArray();
 

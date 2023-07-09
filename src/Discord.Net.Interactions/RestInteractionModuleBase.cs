@@ -14,7 +14,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets or sets the underlying Interaction Service.
         /// </summary>
-        public InteractionService InteractionService { get; set; }
+        public InteractionService InteractionService { get; set; } = null!;
 
         /// <summary>
         ///     Defer a Rest based Discord Interaction using the <see cref="InteractionServiceConfig.RestResponseCallback"/> delegate.
@@ -25,7 +25,7 @@ namespace Discord.Interactions
         ///     A Task representing the operation of creating the interaction response.
         /// </returns>
         /// <exception cref="InvalidOperationException">Thrown if the interaction isn't a type of <see cref="RestInteraction"/>.</exception>
-        protected override async Task DeferAsync(bool ephemeral = false, RequestOptions options = null)
+        protected override async Task DeferAsync(bool ephemeral = false, RequestOptions? options = null)
         {
             if (Context.Interaction is not RestInteraction restInteraction)
                 throw new InvalidOperationException($"Invalid interaction type. Interaction must be a type of {nameof(RestInteraction)} in order to execute this method");
@@ -53,7 +53,7 @@ namespace Discord.Interactions
         ///     A Task representing the operation of creating the interaction response.
         /// </returns>
         /// <exception cref="InvalidOperationException">Thrown if the interaction isn't a type of <see cref="RestInteraction"/>.</exception>
-        protected override async Task RespondAsync(string text = null, Embed[] embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions allowedMentions = null, RequestOptions options = null, MessageComponent components = null, Embed embed = null)
+        protected override async Task RespondAsync(string? text = null, Embed[]? embeds = null, bool isTTS = false, bool ephemeral = false, AllowedMentions? allowedMentions = null, RequestOptions? options = null, MessageComponent? components = null, Embed? embed = null)
         {
             if (Context.Interaction is not RestInteraction restInteraction)
                 throw new InvalidOperationException($"Invalid interaction type. Interaction must be a type of {nameof(RestInteraction)} in order to execute this method");
@@ -74,7 +74,7 @@ namespace Discord.Interactions
         /// <returns>A string that contains json to write back to the incoming http request.</returns>
         /// <exception cref="TimeoutException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        protected override async Task RespondWithModalAsync(Modal modal, RequestOptions options = null)
+        protected override async Task RespondWithModalAsync(Modal modal, RequestOptions? options = null)
         {
             if (Context.Interaction is not RestInteraction restInteraction)
                 throw new InvalidOperationException($"Invalid interaction type. Interaction must be a type of {nameof(RestInteraction)} in order to execute this method");
@@ -87,7 +87,7 @@ namespace Discord.Interactions
                 await InteractionService._restResponseCallback(Context, payload).ConfigureAwait(false);
         }
 
-        protected override async Task RespondWithModalAsync<TModal>(string customId, RequestOptions options = null)
+        protected override async Task RespondWithModalAsync<TModal>(string customId, RequestOptions? options = null)
         {
             if (Context.Interaction is not RestInteraction restInteraction)
                 throw new InvalidOperationException($"Invalid interaction type. Interaction must be a type of {nameof(RestInteraction)} in order to execute this method");

@@ -32,15 +32,15 @@ namespace Discord.Interactions
             return await base.ExecuteAsync(context, services).ConfigureAwait(false);
         }
 
-        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider services)
+        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider? services)
         {
-            var captures = (context as IRouteMatchContainer)?.SegmentMatches?.ToList();
-            var captureCount = captures?.Count() ?? 0;
+            var captures = (context as IRouteMatchContainer)?.SegmentMatches?.ToList() ?? new();
+            var captureCount = captures.Count;
 
             try
             {
-                var data = (context.Interaction as IComponentInteraction).Data;
-                var args = new object[Parameters.Count];
+                var data = ((IComponentInteraction)context.Interaction).Data;
+                var args = new object?[Parameters.Count];
 
                 for (var i = 0; i < Parameters.Count; i++)
                 {
@@ -50,8 +50,8 @@ namespace Discord.Interactions
                     if (isCapture ^ parameter.IsRouteSegmentParameter)
                         return await InvokeEventAndReturn(context, ExecuteResult.FromError(InteractionCommandError.BadArgs, "Argument type and parameter type didn't match (Wild Card capture/Component value)")).ConfigureAwait(false);
 
-                    var readResult = isCapture ? await parameter.TypeReader.ReadAsync(context, captures[i].Value, services).ConfigureAwait(false) :
-                        await parameter.TypeConverter.ReadAsync(context, data, services).ConfigureAwait(false);
+                    var readResult = isCapture ? await parameter.TypeReader!.ReadAsync(context, captures[i].Value, services).ConfigureAwait(false) :
+                        await parameter.TypeConverter!.ReadAsync(context, data, services).ConfigureAwait(false);
 
                     if (!readResult.IsSuccess)
                         return await InvokeEventAndReturn(context, readResult).ConfigureAwait(false);

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -11,28 +12,30 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the input text of the command search.
         /// </summary>
-        public string Text { get; }
+        public string? Text { get; }
 
         /// <summary>
         ///     Gets the found command, if the search was successful.
         /// </summary>
-        public T Command { get; }
+        public T? Command { get; }
 
         /// <summary>
         ///     Gets the Regex groups captured by the wild card pattern.
         /// </summary>
-        public string[] RegexCaptureGroups { get; }
+        public string[]? RegexCaptureGroups { get; }
 
         /// <inheritdoc/>
         public InteractionCommandError? Error { get; }
 
         /// <inheritdoc/>
-        public string ErrorReason { get; }
+        public string? ErrorReason { get; }
 
         /// <inheritdoc/>
+        [MemberNotNullWhen(true, nameof(this.Text), nameof(this.Command))]
+        [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 
-        private SearchResult(string text, T commandInfo, string[] captureGroups, InteractionCommandError? error, string reason)
+        private SearchResult(string? text, T? commandInfo, string[]? captureGroups, InteractionCommandError? error, string? reason)
         {
             Text = text;
             Error = error;
@@ -47,13 +50,14 @@ namespace Discord.Interactions
         /// <returns>
         ///     A <see cref="SearchResult{T}" /> that does not contain any errors.
         /// </returns>
-        public static SearchResult<T> FromSuccess(string text, T commandInfo, string[] wildCardMatch = null) =>
+        public static SearchResult<T> FromSuccess(string text, T commandInfo, string[]? wildCardMatch = null) =>
             new SearchResult<T>(text, commandInfo, wildCardMatch, null, null);
 
         /// <summary>
         ///     Initializes a new <see cref="SearchResult{T}" /> with a specified <see cref="InteractionCommandError" /> and its
         ///     reason, indicating an unsuccessful execution.
         /// </summary>
+        /// <param name="text">The text</param>
         /// <param name="error">The type of error.</param>
         /// <param name="reason">The reason behind the error.</param>
         /// <returns>

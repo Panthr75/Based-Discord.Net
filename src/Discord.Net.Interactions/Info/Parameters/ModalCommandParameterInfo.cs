@@ -10,7 +10,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the <see cref="ModalInfo"/> class for this parameter if <see cref="IsModalParameter"/> is true.
         /// </summary>
-        public ModalInfo Modal { get; private set; }
+        public ModalInfo? Modal { get; private set; }
 
         /// <summary>
         ///     Gets whether this parameter is an <see cref="IModal"/>
@@ -20,10 +20,10 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the <see cref="TypeReader"/> assigned to this parameter, if <see cref="IsModalParameter"/> is <see langword="true"/>.
         /// </summary>
-        public TypeReader TypeReader { get; }
+        public TypeReader? TypeReader { get; }
 
         /// <inheritdoc/>
-        public new ModalCommandInfo Command => base.Command as ModalCommandInfo;
+        public new ModalCommandInfo Command => (ModalCommandInfo)base.Command;
 
         internal ModalCommandParameterInfo(ModalCommandParameterBuilder builder, ICommandInfo command) : base(builder, command)
         {

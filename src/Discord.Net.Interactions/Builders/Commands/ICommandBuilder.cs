@@ -11,7 +11,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the execution delegate of this command.
         /// </summary>
-        ExecuteCallback Callback { get; }
+        ExecuteCallback? Callback { get; }
 
         /// <summary>
         ///     Gets the parent module of this command.
@@ -21,12 +21,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the name of this command.
         /// </summary>
-        string Name { get; }
+        string? Name { get; }
 
         /// <summary>
         ///     Gets or sets the method name of this command.
         /// </summary>
-        string MethodName { get; set; }
+        string? MethodName { get; set; }
 
         /// <summary>
         ///     Gets or sets <see langword="true"/> if this command will be registered and executed as a standalone command, unaffected by the <see cref="GroupAttribute"/>s of

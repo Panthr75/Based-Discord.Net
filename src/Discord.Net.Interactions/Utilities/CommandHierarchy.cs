@@ -15,7 +15,7 @@ namespace Discord.Interactions
             while (current is not null)
             {
                 if (current.IsSlashGroup)
-                    result.Insert(0, current.SlashGroupName);
+                    result.Insert(0, current.SlashGroupName!);
 
                 current = current.Parent;
             }

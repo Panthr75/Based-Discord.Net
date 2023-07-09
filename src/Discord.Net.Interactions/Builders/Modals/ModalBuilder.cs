@@ -15,12 +15,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the initialization delegate for this modal.
         /// </summary>
-        public ModalInitializer ModalInitializer { get; internal set; }
+        public ModalInitializer? ModalInitializer { get; internal set; }
 
         /// <summary>
         ///     Gets the title of this modal.
         /// </summary>
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         ///     Gets the <see cref="IModal"/> implementation used to initialize this object.
@@ -46,6 +46,8 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Initializes a new <see cref="ModalBuilder"/>
         /// </summary>
+        /// <param name="type">Type of model</param>
+        /// <param name="interactionService">Service</param>
         /// <param name="modalInitializer">The initialization delegate for this modal.</param>
         public ModalBuilder(Type type, ModalInitializer modalInitializer, InteractionService interactionService) : this(type, interactionService)
         {
