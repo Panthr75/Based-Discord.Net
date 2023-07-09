@@ -11,7 +11,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Type of the <see cref="AutocompleteHandler"/>.
         /// </summary>
-        public Type AutocompleteHandlerType { get; }
+        public Type? AutocompleteHandlerType { get; }
 
         /// <summary>
         ///     Set the <see cref="ApplicationCommandOptionProperties.IsAutocomplete"/> to <see langword="true"/> and define a <see cref="AutocompleteHandler"/> to handle

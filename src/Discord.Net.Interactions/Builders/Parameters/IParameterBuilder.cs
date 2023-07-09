@@ -16,12 +16,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the name of this parameter.
         /// </summary>
-        string Name { get; }
+        string? Name { get; }
 
         /// <summary>
         ///     Gets the type of this parameter.
         /// </summary>
-        Type ParameterType { get; }
+        Type? ParameterType { get; }
 
         /// <summary>
         ///     Gets whether this parameter is required.
@@ -36,7 +36,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the default value of this parameter.
         /// </summary>
-        object DefaultValue { get; }
+        object? DefaultValue { get; }
 
         /// <summary>
         ///     Gets a collection of the attributes of this command.

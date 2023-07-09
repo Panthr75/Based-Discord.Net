@@ -18,7 +18,7 @@ namespace Discord.Interactions
             if (!type.IsArray)
                 throw new InvalidOperationException($"{nameof(DefaultArrayComponentConverter<T>)} cannot be used to convert a non-array type.");
 
-            _underlyingType = typeof(T).GetElementType();
+            _underlyingType = typeof(T).GetElementType()!;
 
             _typeReader = true switch
             {
@@ -30,9 +30,9 @@ namespace Discord.Interactions
             };
         }
 
-        public override async Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider services)
+        public override async Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider? services)
         {
-            var objs = new List<object>();
+            var objs = new List<object?>();
 
             if (_typeReader is not null && option.Values!.Count > 0)
                 foreach (var value in option.Values)
@@ -65,7 +65,7 @@ namespace Discord.Interactions
                     objs.AddRange(option.Channels);
             }
 
-            var destination = Array.CreateInstance(_underlyingType, objs.Count);
+            var destination = Array.CreateInstance(_underlyingType!, objs.Count);
 
             for (var i = 0; i < objs.Count; i++)
                 destination.SetValue(objs[i], i);

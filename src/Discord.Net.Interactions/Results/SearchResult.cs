@@ -31,7 +31,7 @@ namespace Discord.Interactions
         public string? ErrorReason { get; }
 
         /// <inheritdoc/>
-        [MemberNotNullWhen(true, nameof(this.Text))]
+        [MemberNotNullWhen(true, nameof(this.Text), nameof(this.Command))]
         [MemberNotNullWhen(false, nameof(this.ErrorReason), nameof(this.Error))]
         public bool IsSuccess => !Error.HasValue;
 

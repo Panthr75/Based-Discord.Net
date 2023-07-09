@@ -11,7 +11,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the name of the parameter.
         /// </summary>
-        public string Name { get; } = null;
+        public string? Name { get; } = null;
 
         /// <summary>
         ///     Modify the default name and description values of a Slash Command parameter.

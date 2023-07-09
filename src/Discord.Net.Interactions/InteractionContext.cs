@@ -9,9 +9,9 @@ namespace Discord.Interactions
         /// <inheritdoc/>
         public IDiscordClient Client { get; }
         /// <inheritdoc/>
-        public IGuild Guild { get; }
+        public IGuild? Guild { get; }
         /// <inheritdoc/>
-        public IMessageChannel Channel { get; }
+        public IMessageChannel? Channel { get; }
         /// <inheritdoc/>
         public IUser User { get; }
         /// <inheritdoc/>
@@ -25,7 +25,7 @@ namespace Discord.Interactions
         /// <param name="client">The underlying client.</param>
         /// <param name="interaction">The underlying interaction.</param>
         /// <param name="channel"><see cref="IMessageChannel"/> the command originated from.</param>
-        public InteractionContext(IDiscordClient client, IDiscordInteraction interaction, IMessageChannel channel = null)
+        public InteractionContext(IDiscordClient client, IDiscordInteraction interaction, IMessageChannel? channel = null)
         {
             Client = client;
             Interaction = interaction;
@@ -33,6 +33,7 @@ namespace Discord.Interactions
             Guild = (interaction.User as IGuildUser)?.Guild;
             User = interaction.User;
             Interaction = interaction;
+            this.SegmentMatches = ImmutableArray<IRouteSegmentMatch>.Empty;
         }
 
         /// <inheritdoc/>

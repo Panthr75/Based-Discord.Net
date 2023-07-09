@@ -12,7 +12,7 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets and sets the description of this command.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         /// <summary>
         ///     Gets and sets the default permission of this command.

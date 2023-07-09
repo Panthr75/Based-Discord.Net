@@ -6,7 +6,7 @@ namespace Discord.Interactions
     internal sealed class DefaultValueComponentConverter<T> : ComponentTypeConverter<T>
         where T : IConvertible
     {
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider? services)
         {
             try
             {

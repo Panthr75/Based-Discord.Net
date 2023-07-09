@@ -13,9 +13,9 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the value of the choice.
         /// </summary>
-        public object Value { get; }
+        public ApplicationCommandOptionValue Value { get; }
 
-        internal ParameterChoice(string name, object value)
+        internal ParameterChoice(string name, ApplicationCommandOptionValue value)
         {
             Name = name;
             Value = value;

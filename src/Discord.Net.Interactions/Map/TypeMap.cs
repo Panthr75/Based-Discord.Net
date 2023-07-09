@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 
@@ -13,20 +14,20 @@ namespace Discord.Interactions
         private readonly ConcurrentDictionary<Type, Type> _generics;
         private readonly InteractionService _interactionService;
 
-        public TypeMap(InteractionService interactionService, IDictionary<Type, TConverter> concretes = null, IDictionary<Type, Type> generics = null)
+        public TypeMap(InteractionService interactionService, IDictionary<Type, TConverter>? concretes = null, IDictionary<Type, Type>? generics = null)
         {
             _interactionService = interactionService;
             _concretes = concretes is not null ? new(concretes) : new();
             _generics = generics is not null ? new(generics) : new();
         }
 
-        internal TConverter Get(Type type, IServiceProvider services = null)
+        internal TConverter Get(Type type, IServiceProvider? services = null)
         {
             if (_concretes.TryGetValue(type, out var specific))
                 return specific;
 
             if (_generics.Any(x => x.Key.IsAssignableFrom(type)
-                                   || x.Key.IsGenericTypeDefinition && type.IsGenericType && x.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition()))
+                                   || (x.Key.IsGenericTypeDefinition && type.IsGenericType && x.Key.GetGenericTypeDefinition() == type.GetGenericTypeDefinition())))
             {
                 services ??= EmptyServiceProvider.Instance;
 
@@ -74,16 +75,16 @@ namespace Discord.Interactions
             _generics[targetType] = converterType;
         }
 
-        public bool TryRemoveConcrete<TTarget>(out TConverter converter)
+        public bool TryRemoveConcrete<TTarget>([NotNullWhen(true)] out TConverter? converter)
             => TryRemoveConcrete(typeof(TTarget), out converter);
 
-        public bool TryRemoveConcrete(Type type, out TConverter converter)
+        public bool TryRemoveConcrete(Type type, [NotNullWhen(true)] out TConverter? converter)
             => _concretes.TryRemove(type, out converter);
 
-        public bool TryRemoveGeneric<TTarget>(out Type converterType)
+        public bool TryRemoveGeneric<TTarget>([NotNullWhen(true)] out Type? converterType)
             => TryRemoveGeneric(typeof(TTarget), out converterType);
 
-        public bool TryRemoveGeneric(Type targetType, out Type converterType)
+        public bool TryRemoveGeneric(Type targetType, [NotNullWhen(true)] out Type? converterType)
             => _generics.TryRemove(targetType, out converterType);
 
         private Type GetMostSpecific(Type type)

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions.Builders
 {
@@ -13,17 +14,18 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the built <see cref="ModalInfo"/> class for this parameter, if <see cref="IsModalParameter"/> is <see langword="true"/>.
         /// </summary>
-        public ModalInfo Modal { get; private set; }
+        public ModalInfo? Modal { get; private set; }
 
         /// <summary>
         ///     Gets whether or not this parameter is an <see cref="IModal"/>.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.Modal))]
         public bool IsModalParameter => Modal is not null;
 
         /// <summary>
         ///     Gets the <see cref="TypeReader"/> assigned to this parameter, if <see cref="IsModalParameter"/> is <see langword="true"/>.
         /// </summary>
-        public TypeReader TypeReader { get; private set; }
+        public TypeReader? TypeReader { get; private set; }
 
         internal ModalCommandParameterBuilder(ICommandBuilder command) : base(command) { }
 

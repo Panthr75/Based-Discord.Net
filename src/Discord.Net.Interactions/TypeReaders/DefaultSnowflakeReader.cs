@@ -8,7 +8,7 @@ namespace Discord.Interactions
     {
         protected abstract Task<T?> GetEntity(ulong id, IInteractionContext ctx);
 
-        public override async Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider services)
+        public override async Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider? services)
         {
             if (!ulong.TryParse(option, out var snowflake))
                 return TypeConverterResult.FromError(InteractionCommandError.ConvertFailed, $"{option} isn't a valid snowflake thus cannot be converted into {typeof(T).Name}");
@@ -19,7 +19,15 @@ namespace Discord.Interactions
                 TypeConverterResult.FromSuccess(result) : TypeConverterResult.FromError(InteractionCommandError.ConvertFailed, $"{option} must be a valid {typeof(T).Name} snowflake to be parsed.");
         }
 
-        public override Task<string?> SerializeAsync(object obj, IServiceProvider services) => Task.FromResult((obj as ISnowflakeEntity)?.Id.ToString());
+        public override Task<string> SerializeAsync(object? obj, IServiceProvider services)
+        {
+            if (obj is null || obj is not ISnowflakeEntity snowflake)
+            {
+                return Task.FromResult("null");
+            }
+
+            return Task.FromResult(snowflake.Id.ToString());
+        }
     }
 
     internal sealed class DefaultUserReader<T> : DefaultSnowflakeReader<T>

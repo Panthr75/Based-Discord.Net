@@ -52,7 +52,7 @@ namespace Discord.Interactions
         }
 
         /// <inheritdoc />
-        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo command, IServiceProvider services)
+        public override Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo command, IServiceProvider? services)
         {
             bool isValid = false;
 

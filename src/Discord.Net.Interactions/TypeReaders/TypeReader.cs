@@ -24,7 +24,7 @@ namespace Discord.Interactions
         /// <param name="option">Received option payload.</param>
         /// <param name="services">Service provider that will be used to initialize the command module.</param>
         /// <returns>The result of the read process.</returns>
-        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider services);
+        public abstract Task<TypeConverterResult> ReadAsync(IInteractionContext context, string option, IServiceProvider? services);
 
         /// <summary>
         ///     Will be used to serialize objects into strings.
@@ -34,7 +34,10 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the conversion process. The result of the task contains the conversion result.
         /// </returns>
-        public virtual Task<string?> SerializeAsync(object obj, IServiceProvider services) => Task.FromResult(obj.ToString());
+        public virtual Task<string> SerializeAsync(object? obj, IServiceProvider services)
+        {
+            return Task.FromResult(obj?.ToString() ?? "null");
+        }
     }
 
     /// <inheritdoc/>

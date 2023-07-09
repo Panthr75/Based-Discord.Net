@@ -2,6 +2,7 @@ using Discord.Interactions.Builders;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Discord.Interactions
@@ -11,7 +12,7 @@ namespace Discord.Interactions
     /// </summary>
     public class ModuleInfo
     {
-        internal ILookup<string, PreconditionAttribute> GroupedPreconditions { get; }
+        internal ILookup<string?, PreconditionAttribute> GroupedPreconditions { get; }
 
         /// <summary>
         ///     Gets the underlying command service.
@@ -26,17 +27,18 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the group name of this module, if the module is marked with a <see cref="GroupAttribute"/>.
         /// </summary>
-        public string SlashGroupName { get; }
+        public string? SlashGroupName { get; }
 
         /// <summary>
         ///     Gets <see langword="true"/> if this module is marked with a <see cref="GroupAttribute"/>.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.SlashGroupName))]
         public bool IsSlashGroup => !string.IsNullOrEmpty(SlashGroupName);
 
         /// <summary>
         ///     Gets the description of this module if <see cref="IsSlashGroup"/> is <see langword="true"/>.
         /// </summary>
-        public string Description { get; }
+        public string? Description { get; }
 
         /// <summary>
         ///     Gets the default Permission of this module.
@@ -89,11 +91,12 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the declaring type of this module, if <see cref="IsSubModule"/> is <see langword="true"/>.
         /// </summary>
-        public ModuleInfo Parent { get; }
+        public ModuleInfo? Parent { get; }
 
         /// <summary>
         ///     Gets <see langword="true"/> if this module is declared by another <see cref="InteractionModuleBase{T}"/>.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(this.Parent))]
         public bool IsSubModule => Parent != null;
 
         /// <summary>
@@ -117,15 +120,17 @@ namespace Discord.Interactions
         /// </summary>
         public bool DontAutoRegister { get; }
 
-        internal ModuleInfo(ModuleBuilder builder, InteractionService commandService, IServiceProvider services, ModuleInfo parent = null)
+        internal ModuleInfo(ModuleBuilder builder, InteractionService commandService, IServiceProvider? services, ModuleInfo? parent = null)
         {
             CommandService = commandService;
 
-            Name = builder.Name;
+            Name = builder.Name ?? throw new ArgumentException("Builder's Name property was null", nameof(builder));
             SlashGroupName = builder.SlashGroupName;
             Description = builder.Description;
             Parent = parent;
+#pragma warning disable CS0618 // Type or member is obsolete
             DefaultPermission = builder.DefaultPermission;
+#pragma warning restore CS0618 // Type or member is obsolete
             IsNsfw = builder.IsNsfw;
             IsEnabledInDm = builder.IsEnabledInDm;
             DefaultMemberPermissions = BuildDefaultMemberPermissions(builder);
@@ -143,7 +148,7 @@ namespace Discord.Interactions
             GroupedPreconditions = Preconditions.ToLookup(x => x.Group, x => x, StringComparer.Ordinal);
         }
 
-        private IEnumerable<ModuleInfo> BuildSubModules(ModuleBuilder builder, InteractionService commandService, IServiceProvider services)
+        private IEnumerable<ModuleInfo> BuildSubModules(ModuleBuilder builder, InteractionService commandService, IServiceProvider? services)
         {
             var result = new List<ModuleInfo>();
 
@@ -232,7 +237,7 @@ namespace Discord.Interactions
             return preconditions;
         }
 
-        private static bool CheckTopLevel(ModuleInfo parent)
+        private static bool CheckTopLevel(ModuleInfo? parent)
         {
             var currentParent = parent;
 

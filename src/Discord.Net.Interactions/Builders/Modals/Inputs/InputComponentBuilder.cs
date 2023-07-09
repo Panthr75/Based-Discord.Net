@@ -20,10 +20,10 @@ namespace Discord.Interactions.Builders
         public ModalBuilder Modal { get; }
 
         /// <inheritdoc/>
-        public string CustomId { get; set; }
+        public string? CustomId { get; set; }
 
         /// <inheritdoc/>
-        public string Label { get; set; }
+        public string? Label { get; set; }
 
         /// <inheritdoc/>
         public bool IsRequired { get; set; } = true;
@@ -32,16 +32,16 @@ namespace Discord.Interactions.Builders
         public ComponentType ComponentType { get; internal set; }
 
         /// <inheritdoc/>
-        public Type Type { get; private set; }
+        public Type? Type { get; private set; }
 
         /// <inheritdoc/>
-        public PropertyInfo PropertyInfo { get; internal set; }
+        public PropertyInfo? PropertyInfo { get; internal set; }
 
         /// <inheritdoc/>
-        public ComponentTypeConverter TypeConverter { get; private set; }
+        public ComponentTypeConverter? TypeConverter { get; private set; }
 
         /// <inheritdoc/>
-        public object DefaultValue { get; set; }
+        public object? DefaultValue { get; set; }
 
         /// <inheritdoc/>
         public IReadOnlyCollection<Attribute> Attributes => _attributes;

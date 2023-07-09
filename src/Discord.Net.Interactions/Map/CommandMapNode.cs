@@ -17,9 +17,9 @@ namespace Discord.Interactions
         public IReadOnlyDictionary<string, CommandMapNode<T>> Nodes => _nodes;
         public IReadOnlyDictionary<string, T> Commands => _commands;
         public IReadOnlyDictionary<Regex, T> WildCardCommands => _wildCardCommands;
-        public string Name { get; }
+        public string? Name { get; }
 
-        public CommandMapNode(string name, string wildCardExp = null)
+        public CommandMapNode(string? name, string? wildCardExp = null)
         {
             Name = name;
             _nodes = new ConcurrentDictionary<string, CommandMapNode<T>>();
@@ -27,7 +27,7 @@ namespace Discord.Interactions
             _wildCardCommands = new ConcurrentDictionary<Regex, T>();
 
             if (!string.IsNullOrEmpty(wildCardExp))
-                _wildCardStr = wildCardExp;
+                _wildCardStr = wildCardExp!;
         }
 
         public void AddCommand(IList<string> keywords, int index, T commandInfo)

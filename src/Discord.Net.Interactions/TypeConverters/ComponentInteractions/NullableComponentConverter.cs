@@ -17,7 +17,7 @@ namespace Discord.Interactions
             _typeConverter = interactionService.GetComponentTypeConverter(type, services);
         }
 
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IComponentInteractionData option, IServiceProvider? services)
             => string.IsNullOrEmpty(option.Value) ? Task.FromResult(TypeConverterResult.FromSuccess(null)) : _typeConverter.ReadAsync(context, option, services);
     }
 }

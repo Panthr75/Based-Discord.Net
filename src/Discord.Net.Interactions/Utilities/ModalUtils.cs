@@ -2,6 +2,7 @@ using Discord.Interactions.Builders;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Interactions
 {
@@ -22,7 +23,7 @@ namespace Discord.Interactions
         public static ModalInfo GetOrAdd<T>(InteractionService interactionService) where T : class, IModal
             => GetOrAdd(typeof(T), interactionService);
 
-        public static bool TryGet(Type type, out ModalInfo modalInfo)
+        public static bool TryGet(Type type, [NotNullWhen(true)] out ModalInfo? modalInfo)
         {
             if (!typeof(IModal).IsAssignableFrom(type))
                 throw new ArgumentException($"Must be an implementation of {nameof(IModal)}", nameof(type));
@@ -30,10 +31,10 @@ namespace Discord.Interactions
             return _modalInfos.TryGetValue(type, out modalInfo);
         }
 
-        public static bool TryGet<T>(out ModalInfo modalInfo) where T : class, IModal
+        public static bool TryGet<T>([NotNullWhen(true)] out ModalInfo? modalInfo) where T : class, IModal
             => TryGet(typeof(T), out modalInfo);
 
-        public static bool TryRemove(Type type, out ModalInfo modalInfo)
+        public static bool TryRemove(Type type, [NotNullWhen(true)] out ModalInfo? modalInfo)
         {
             if (!typeof(IModal).IsAssignableFrom(type))
                 throw new ArgumentException($"Must be an implementation of {nameof(IModal)}", nameof(type));
@@ -41,7 +42,7 @@ namespace Discord.Interactions
             return _modalInfos.TryRemove(type, out modalInfo);
         }
 
-        public static bool TryRemove<T>(out ModalInfo modalInfo) where T : class, IModal
+        public static bool TryRemove<T>([NotNullWhen(true)] out ModalInfo? modalInfo) where T : class, IModal
             => TryRemove(typeof(T), out modalInfo);
 
         public static void Clear() => _modalInfos.Clear();

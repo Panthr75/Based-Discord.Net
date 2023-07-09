@@ -10,12 +10,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Get the <see cref="ComponentTypeConverter"/> assigned to this parameter, if <see cref="IsRouteSegmentParameter"/> is <see langword="false"/>.
         /// </summary>
-        public ComponentTypeConverter TypeConverter { get; private set; }
+        public ComponentTypeConverter? TypeConverter { get; private set; }
 
         /// <summary>
         ///     Get the <see cref="Discord.Interactions.TypeReader"/> assigned to this parameter, if <see cref="IsRouteSegmentParameter"/> is <see langword="true"/>.
         /// </summary>
-        public TypeReader TypeReader { get; private set; }
+        public TypeReader? TypeReader { get; private set; }
 
         /// <summary>
         ///     Gets whether this parameter is a CustomId segment or a Component value parameter.
@@ -46,14 +46,14 @@ namespace Discord.Interactions.Builders
         /// <returns>
         ///     The builder instance.
         /// </returns>
-        public ComponentCommandParameterBuilder SetParameterType(Type type, IServiceProvider services)
+        public ComponentCommandParameterBuilder SetParameterType(Type type, IServiceProvider? services)
         {
             base.SetParameterType(type);
 
             if (IsRouteSegmentParameter)
                 TypeReader = Command.Module.InteractionService.GetTypeReader(type);
             else
-                TypeConverter = Command.Module.InteractionService.GetComponentTypeConverter(ParameterType, services);
+                TypeConverter = Command.Module.InteractionService.GetComponentTypeConverter(ParameterType!, services);
 
             return this;
         }

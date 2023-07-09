@@ -11,7 +11,7 @@ namespace Discord.Interactions
     internal sealed class EnumConverter<T> : TypeConverter<T> where T : struct, Enum
     {
         public override ApplicationCommandOptionType GetDiscordType() => ApplicationCommandOptionType.String;
-        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider services)
+        public override Task<TypeConverterResult> ReadAsync(IInteractionContext context, IApplicationCommandInteractionDataOption option, IServiceProvider? services)
         {
             if (Enum.TryParse<T>((string)option.Value, out var result))
                 return Task.FromResult(TypeConverterResult.FromSuccess(result));

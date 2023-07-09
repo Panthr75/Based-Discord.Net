@@ -19,10 +19,10 @@ namespace Discord.Interactions.Builders
         public ICommandBuilder Command { get; }
 
         /// <inheritdoc/>
-        public string Name { get; internal set; }
+        public string? Name { get; internal set; }
 
         /// <inheritdoc/>
-        public Type ParameterType { get; private set; }
+        public Type? ParameterType { get; private set; }
 
         /// <inheritdoc/>
         public bool IsRequired { get; set; } = true;
@@ -31,7 +31,7 @@ namespace Discord.Interactions.Builders
         public bool IsParameterArray { get; set; } = false;
 
         /// <inheritdoc/>
-        public object DefaultValue { get; set; }
+        public object? DefaultValue { get; set; }
 
         /// <inheritdoc/>
         public IReadOnlyCollection<Attribute> Attributes => _attributes;

@@ -10,12 +10,12 @@ namespace Discord.Interactions.Builders
         /// <summary>
         ///     Gets the name of the target parameter.
         /// </summary>
-        public string ParameterName { get; set; }
+        public string? ParameterName { get; set; }
 
         /// <summary>
         ///     Gets the name of the target command.
         /// </summary>
-        public string CommandName { get; set; }
+        public string? CommandName { get; set; }
 
         protected override AutocompleteCommandBuilder Instance => this;
 

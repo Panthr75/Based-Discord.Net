@@ -11,13 +11,13 @@ namespace Discord.Interactions
         ///     Gets the <see cref="ComponentTypeConverter"/> that will be used to convert a message component value into
         ///     <see cref="CommandParameterInfo.ParameterType"/>, if  <see cref="IsRouteSegmentParameter"/> is false.
         /// </summary>
-        public ComponentTypeConverter TypeConverter { get; }
+        public ComponentTypeConverter? TypeConverter { get; }
 
         /// <summary>
         ///     Gets the <see cref="TypeReader"/> that will be used to convert a CustomId segment value into
         ///     <see cref="CommandParameterInfo.ParameterType"/>, if <see cref="IsRouteSegmentParameter"/> is <see langword="true"/>.
         /// </summary>
-        public TypeReader TypeReader { get; }
+        public TypeReader? TypeReader { get; }
 
         /// <summary>
         ///     Gets whether this parameter is a CustomId segment or a component value parameter.

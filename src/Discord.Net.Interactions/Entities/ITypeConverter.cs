@@ -7,6 +7,6 @@ namespace Discord.Interactions
     {
         public bool CanConvertTo(Type type);
 
-        public Task<TypeConverterResult> ReadAsync(IInteractionContext context, T option, IServiceProvider services);
+        public Task<TypeConverterResult> ReadAsync(IInteractionContext context, T option, IServiceProvider? services);
     }
 }

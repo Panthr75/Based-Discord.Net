@@ -21,7 +21,7 @@ namespace Discord.Interactions
         /// <summary>
         ///     Gets the value that will be used whenever this choice is selected.
         /// </summary>
-        public object Value { get; }
+        public ApplicationCommandOptionValue Value { get; }
 
         private ChoiceAttribute(string name)
         {
@@ -44,10 +44,10 @@ namespace Discord.Interactions
         /// </summary>
         /// <param name="name">Name of the choice.</param>
         /// <param name="value">Predefined value of the choice.</param>
-        public ChoiceAttribute(string name, int value) : this(name)
+        public ChoiceAttribute(string name, long value) : this(name)
         {
             Type = SlashCommandChoiceType.Integer;
-            Value = value;
+            Value = (NumericValue)value;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Discord.Interactions
         public ChoiceAttribute(string name, double value) : this(name)
         {
             Type = SlashCommandChoiceType.Number;
-            Value = value;
+            Value = (NumericValue)value;
         }
     }
 }

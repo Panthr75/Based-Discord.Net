@@ -48,8 +48,10 @@ namespace Discord.Interactions
 
         internal SlashCommandInfo(Builders.SlashCommandBuilder builder, ModuleInfo module, InteractionService commandService) : base(builder, module, commandService)
         {
-            Description = builder.Description;
+            Description = builder.Description ?? throw new ArgumentException("Builder's Description property was null", nameof(builder));
+#pragma warning disable CS0618 // Type or member is obsolete
             DefaultPermission = builder.DefaultPermission;
+#pragma warning restore CS0618 // Type or member is obsolete
             IsEnabledInDm = builder.IsEnabledInDm;
             IsNsfw = builder.IsNsfw;
             DefaultMemberPermissions = builder.DefaultMemberPermissions;
@@ -60,7 +62,7 @@ namespace Discord.Interactions
                 if (!FlattenedParameters.ElementAt(i).IsRequired && FlattenedParameters.ElementAt(i + 1).IsRequired)
                     throw new InvalidOperationException("Optional parameters must appear after all required parameters, ComplexParameters with optional parameters must be located at the end.");
 
-            _flattenedParameterDictionary = FlattenedParameters?.ToDictionary(x => x.Name, x => x).ToImmutableDictionary();
+            _flattenedParameterDictionary = FlattenedParameters.ToDictionary(x => x.Name, x => x)?.ToImmutableDictionary() ?? ImmutableDictionary<string, SlashCommandParameterInfo>.Empty;
         }
 
         /// <inheritdoc/>
@@ -72,20 +74,20 @@ namespace Discord.Interactions
             return await base.ExecuteAsync(context, services);
         }
 
-        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider services)
+        protected override async Task<IResult> ParseArgumentsAsync(IInteractionContext context, IServiceProvider? services)
         {
             List<IApplicationCommandInteractionDataOption> GetOptions()
             {
-                var options = (context.Interaction as ISlashCommandInteraction).Data.Options;
+                var options = ((ISlashCommandInteraction)context.Interaction).Data.Options;
 
                 while (options != null && options.Any(x => x.Type == ApplicationCommandOptionType.SubCommand || x.Type == ApplicationCommandOptionType.SubCommandGroup))
                     options = options.ElementAt(0)?.Options;
 
-                return options.ToList();
+                return options?.ToList() ?? new();
             }
 
             var options = GetOptions();
-            var args = new object[Parameters.Count];
+            var args = new object?[Parameters.Count];
             for (var i = 0; i < Parameters.Count; i++)
             {
                 var parameter = Parameters[i];
@@ -103,11 +105,11 @@ namespace Discord.Interactions
         }
 
         private async ValueTask<IResult> ParseArgumentAsync(SlashCommandParameterInfo parameterInfo, IInteractionContext context, List<IApplicationCommandInteractionDataOption> argList,
-             IServiceProvider services)
+             IServiceProvider? services)
         {
             if (parameterInfo.IsComplexParameter)
             {
-                var ctorArgs = new object[parameterInfo.ComplexParameterFields.Count];
+                var ctorArgs = new object?[parameterInfo.ComplexParameterFields.Count];
 
                 for (var i = 0; i < ctorArgs.Length; i++)
                 {
@@ -122,7 +124,7 @@ namespace Discord.Interactions
                     ctorArgs[i] = converterResult.Value;
                 }
 
-                return TypeConverterResult.FromSuccess(parameterInfo._complexParameterInitializer(ctorArgs));
+                return TypeConverterResult.FromSuccess(parameterInfo._complexParameterInitializer!(ctorArgs));
             }
 
             var arg = argList?.Find(x => string.Equals(x.Name, parameterInfo.Name, StringComparison.OrdinalIgnoreCase));
@@ -132,7 +134,7 @@ namespace Discord.Interactions
                     TypeConverterResult.FromSuccess(parameterInfo.DefaultValue);
 
             var typeConverter = parameterInfo.TypeConverter;
-            var readResult = await typeConverter.ReadAsync(context, arg, services).ConfigureAwait(false);
+            var readResult = await typeConverter!.ReadAsync(context, arg, services).ConfigureAwait(false);
             return readResult;
         }
 
