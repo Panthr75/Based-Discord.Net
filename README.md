@@ -28,12 +28,12 @@ This fork implements the following new features
 - `NumericValue` - A new data type used in Min/Max values for application commands. They can represent decimal numbers, and integral numbers.
 - `ApplicationCommandOptionValue` - Replaces the generic `object` value inside `ApplicationCommandOption`. This allows for more type safety when using application commands, and lets JSON serializer do whatever it wants to really.
 - Nullability support
+  - If you ever have any issues with `Discord.Net.Interactions`, or `Discord.Net.Commands`, please feel free to make a pull request.
 - `Pronouns` in `IUser` (Although not fully available yet to bots, but it is ready whenever discord feels like sending it over in requests *wink wink*)
 - `Newtonsoft.Json` has been entirely replaced with `System.Text.Json`. No more Newtonsoft.Json!
 - Utility functions inside `Optional`, as well as some other types for easier use. (e.g. `IGuildScheduledEvent.IsExternal`, so that `IGuildScheduledEvent.Location` won't be `null`.)
 
 The fork has the following features in progress
-- Updating the remaining projects `Discord.Net.Interactions`, the test projects, and the example documents with the new features.
 - `Media` channel support. Although it's type has been added to `ChannelType`, SocketMediaChannel, RestMediaChannel, and IMediaChannel have not been implemented.
 
 ## 📄 Documentation
