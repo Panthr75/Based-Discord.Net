@@ -19,7 +19,7 @@ namespace Discord
         public ChannelsTests(RestGuildFixture guildFixture, ITestOutputHelper output)
         {
             guild = guildFixture.Guild;
-            output = output;
+            this.output = output;
             output.WriteLine($"RestGuildFixture using guild: {guild.Id}");
             // capture all console output
             guildFixture.Client.Log += LogAsync;
@@ -60,7 +60,7 @@ namespace Discord
             finally
             {
                 // delete the channel when finished
-                await channel?.DeleteAsync();
+                await channel.DeleteAsync();
             }
         }
 
@@ -100,7 +100,7 @@ namespace Discord
         public async Task ModifyChannelCategories()
         {
             // util method for checking if a category is set
-            async Task CheckAsync(INestedChannel channel, ICategoryChannel cat)
+            async Task CheckAsync(INestedChannel channel, ICategoryChannel? cat)
             {
                 // check that the category is not set
                 if (cat == null)
@@ -114,7 +114,7 @@ namespace Discord
                     Assert.Equal(cat.Id, channel.CategoryId);
                     var getCat = await channel.GetCategoryAsync();
                     Assert.NotNull(getCat);
-                    Assert.Equal(cat.Id, getCat.Id);
+                    Assert.Equal(cat.Id, getCat!.Id);
                 }
             }
             // initially create these not under the category
@@ -148,15 +148,15 @@ namespace Discord
                 }
                 finally
                 {
-                    await newText?.DeleteAsync();
+                    await newText.DeleteAsync();
                 }
             }
             finally
             {
                 // clean up
-                await category?.DeleteAsync();
-                await text?.DeleteAsync();
-                await voice?.DeleteAsync();
+                await category.DeleteAsync();
+                await text.DeleteAsync();
+                await voice.DeleteAsync();
             }
         }
     }

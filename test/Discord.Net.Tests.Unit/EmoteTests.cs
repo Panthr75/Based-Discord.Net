@@ -10,9 +10,9 @@ namespace Discord
         [Fact]
         public void Test_Emote_Parse()
         {
-            Assert.True(Emote.TryParse("<:typingstatus:394207658351263745>", out Emote emote));
+            Assert.True(Emote.TryParse("<:typingstatus:394207658351263745>", out Emote? emote));
             Assert.NotNull(emote);
-            Assert.Equal("typingstatus", emote.Name);
+            Assert.Equal("typingstatus", emote!.Name);
             Assert.Equal(394207658351263745UL, emote.Id);
             Assert.False(emote.Animated);
             Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1514056829775), emote.CreatedAt);
@@ -28,9 +28,9 @@ namespace Discord
         [Fact]
         public void Test_Animated_Emote_Parse()
         {
-            Assert.True(Emote.TryParse("<a:typingstatus:394207658351263745>", out Emote emote));
+            Assert.True(Emote.TryParse("<a:typingstatus:394207658351263745>", out Emote? emote));
             Assert.NotNull(emote);
-            Assert.Equal("typingstatus", emote.Name);
+            Assert.Equal("typingstatus", emote!.Name);
             Assert.Equal(394207658351263745UL, emote.Id);
             Assert.True(emote.Animated);
             Assert.Equal(DateTimeOffset.FromUnixTimeMilliseconds(1514056829775), emote.CreatedAt);

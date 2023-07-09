@@ -41,10 +41,10 @@ namespace Discord
         public void TestTimeSpanParse(string input, bool isNegative)
         {
             var reader = new TimeSpanTypeReader();
-            var result = reader.ReadAsync(null, input, null).Result;
+            var result = reader.ReadAsync(null!, input, null!).Result;
             Assert.True(result.IsSuccess);
 
-            var actual = (TimeSpan)result.BestMatch;
+            var actual = (TimeSpan)result.BestMatch!;
             Assert.True(actual != TimeSpan.Zero);
 
             if (isNegative)

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../Discord.Net.targets" />
   <Import Project="../../StyleAnalyzer.targets" />
+  <Import Project="../../BuildFrameworks.targets" />
   <PropertyGroup>
     <AssemblyName>Discord.Net.WebSocket</AssemblyName>
     <RootNamespace>Discord.WebSocket</RootNamespace>
     <Description>A core Discord.Net library containing the WebSocket client and models.</Description>
-    <TargetFrameworks>net7.0;net6.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -20,7 +20,7 @@ namespace Discord
             {
                 // create a new guild if none exists already
                 var region = Client.GetOptimalVoiceRegionAsync().Result;
-                Guild = Client.CreateGuildAsync("DNET INTEGRATION TEST", region).Result;
+                Guild = Client.CreateGuildAsync("DNET INTEGRATION TEST", region!).Result;
                 RemoveAllChannels();
             }
             else
