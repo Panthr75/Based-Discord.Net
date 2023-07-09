@@ -7,9 +7,9 @@ namespace Discord
     /// </summary>
     public readonly struct ApplicationCommandOptionValue : IConvertible
     {
-        private readonly bool m_booleanValue;
-        private readonly string m_stringValue;
-        private readonly NumericValue m_numericValue;
+        private readonly bool? m_booleanValue;
+        private readonly string? m_stringValue;
+        private readonly NumericValue? m_numericValue;
         private readonly IUser? m_userValue;
         private readonly IChannel? m_channelValue;
         private readonly IRole? m_roleValue;
@@ -20,7 +20,7 @@ namespace Discord
         private ApplicationCommandOptionValue(IUser user)
         {
             this.m_type = Type.User;
-            this.m_booleanValue = false;
+            this.m_booleanValue = true;
             this.m_stringValue = MentionUtils.MentionUser(user.Id);
             this.m_numericValue = user.Id;
             this.m_userValue = user;
@@ -32,7 +32,7 @@ namespace Discord
         private ApplicationCommandOptionValue(IChannel channel)
         {
             this.m_type = Type.Channel;
-            this.m_booleanValue = false;
+            this.m_booleanValue = true;
             this.m_stringValue = MentionUtils.MentionChannel(channel.Id);
             this.m_numericValue = channel.Id;
             this.m_userValue = null;
@@ -44,7 +44,7 @@ namespace Discord
         private ApplicationCommandOptionValue(IRole role)
         {
             this.m_type = Type.Role;
-            this.m_booleanValue = false;
+            this.m_booleanValue = true;
             this.m_stringValue = MentionUtils.MentionRole(role.Id);
             this.m_numericValue = role.Id;
             this.m_userValue = null;
@@ -56,12 +56,16 @@ namespace Discord
         private ApplicationCommandOptionValue(IMentionable mentionable)
         {
             this.m_type = Type.Mentionable;
-            this.m_booleanValue = false;
+            this.m_booleanValue = true;
             this.m_stringValue = mentionable.Mention;
-            this.m_numericValue = 0;
-            this.m_userValue = null;
-            this.m_channelValue = null;
-            this.m_roleValue = null;
+            this.m_numericValue = null;
+            if (mentionable is ISnowflakeEntity snowflakeEntity)
+            {
+                this.m_numericValue = snowflakeEntity.Id;
+            }
+            this.m_userValue = mentionable as IUser;
+            this.m_channelValue = mentionable as IChannel;
+            this.m_roleValue = mentionable as IRole;
             this.m_mentionableValue = mentionable;
             this.m_attachmentValue = null;
         }
@@ -83,8 +87,17 @@ namespace Discord
         {
 
             this.m_type = Type.String;
-            bool.TryParse(value, out this.m_booleanValue);
-            NumericValue.TryParse(value, out this.m_numericValue);
+            this.m_booleanValue = null;
+            if (bool.TryParse(value, out bool boolValue))
+            {
+                this.m_booleanValue = boolValue;
+            }
+
+            this.m_numericValue = null;
+            if (NumericValue.TryParse(value, out NumericValue numericValue))
+            {
+                this.m_numericValue = numericValue;
+            }
             this.m_stringValue = value;
             this.m_userValue = null;
             this.m_channelValue = null;
@@ -119,37 +132,306 @@ namespace Discord
             this.m_attachmentValue = value;
         }
 
+        /// <summary>
+        /// Whether or not this application option value is None.
+        /// </summary>
         public bool IsNone => this.m_type == Type.None;
-        public bool IsString => this.m_type == Type.String || this.m_type == Type.User || this.m_type == Type.Channel || this.m_type == Type.Role || this.m_type == Type.Mentionable || this.m_type == Type.Attachment;
+        /// <summary>
+        /// Whether or not this application option value is a String
+        /// </summary>
+        public bool IsString => this.m_type == Type.String;
+        /// <summary>
+        /// Shorthand for writing:
+        /// <para>
+        /// <c><see cref="IsString">IsString</see>
+        /// || <see cref="IsUser">IsUser</see>
+        /// || <see cref="IsChannel">IsChannel</see>
+        /// || <see cref="IsRole">IsRole</see>
+        /// || <see cref="IsMentionable">IsMentionable</see>
+        /// || <see cref="IsAttachment">IsAttachment</see></c>
+        /// </para>
+        /// </summary>
+        public bool IsStringLike => this.IsString || this.IsUser || this.IsChannel || this.IsRole || this.IsMentionable || this.IsAttachment;
+        /// <summary>
+        /// Whether or not this application option value is a Number
+        /// </summary>
         public bool IsNumber => this.m_type == Type.Number;
+
+        /// <summary>
+        /// Shorthand for writing:
+        /// <para>
+        /// <c><see cref="IsNumber">IsNumber</see>
+        /// || <see cref="IsUser">IsUser</see>
+        /// || <see cref="IsChannel">IsChannel</see>
+        /// || <see cref="IsRole">IsRole</see>
+        /// || (<see cref="IsMentionable">IsMentionable</see>
+        /// &amp;&amp; <see cref="GetMentionable()">GetMentionable()</see> <see langword="is"/>
+        /// <see cref="ISnowflakeEntity"/>)</c>
+        /// </para>
+        /// </summary>
+        public bool IsNumberLike => this.IsNumber || this.IsUser || this.IsChannel || this.IsRole || (this.IsMentionable && this.m_mentionableValue is ISnowflakeEntity);
+        /// <summary>
+        /// Whether or not this application option value is a boolean
+        /// </summary>
         public bool IsBool => this.m_type == Type.Boolean;
+        /// <summary>
+        /// Whether or not this application option value is a user.
+        /// </summary>
         public bool IsUser => this.m_type == Type.User || (this.IsMentionable && this.m_mentionableValue is IUser);
+        /// <summary>
+        /// Whether or not this application option value is a channel.
+        /// </summary>
         public bool IsChannel => this.m_type == Type.Channel || (this.IsMentionable && this.m_mentionableValue is IChannel);
+        /// <summary>
+        /// Whether or not this application option value is a role.
+        /// </summary>
         public bool IsRole => this.m_type == Type.Role || (this.IsMentionable && this.m_mentionableValue is IRole);
+        /// <summary>
+        /// Whether or not this application option value is a mentionable.
+        /// </summary>
         public bool IsMentionable => this.m_type == Type.Mentionable;
+        /// <summary>
+        /// Whether or not this application option value is an attachment.
+        /// </summary>
         public bool IsAttachment => this.m_type == Type.Attachment;
 
+        /// <summary>
+        /// Representation of the ApplicationCommandOption None value.
+        /// </summary>
         public static readonly ApplicationCommandOptionValue None = new();
 
+        /// <summary>
+        /// Gets the string value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// The following conversions will be made:
+        /// <list type="table">
+        /// <item>
+        /// <term>String</term>
+        /// <description>The string value</description>
+        /// </item>
+        /// <item>
+        /// <term>Boolean</term>
+        /// <description><c>"True"</c> if <see langword="true"/>, <c>"False"</c> if <see langword="false"/>.</description>
+        /// </item>
+        /// <item>
+        /// <term>Number</term>
+        /// <description>The stringified version of the numeric value.</description>
+        /// </item>
+        /// <item>
+        /// <term>Attachment</term>
+        /// <description>The attachment URL</description>
+        /// </item>
+        /// <item>
+        /// <term>Channel</term>
+        /// <description>A channel mention</description>
+        /// </item>
+        /// <item>
+        /// <term>User</term>
+        /// <description>A user mention</description>
+        /// </item>
+        /// <item>
+        /// <term>Role</term>
+        /// <description>A role mention</description>
+        /// </item>
+        /// <item>
+        /// <term>Mentionable</term>
+        /// <description><see cref="IMentionable.Mention"/></description>
+        /// </item>
+        /// <item>
+        /// <term>None</term>
+        /// <description><see cref="string.Empty"/></description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <returns>This application option value converted to a string.</returns>
         public override string ToString()
         {
             return this.m_stringValue ?? string.Empty;
         }
 
+        /// <inheritdoc/>
+        /// <remarks>
+        /// Just calls <see cref="ToString()"/>.
+        /// </remarks>
         public string ToString(IFormatProvider? provider)
         {
             return this.ToString();
         }
 
+
+        /// <summary>
+        /// Gets the numeric value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// The following conversions will be made:
+        /// <list type="table">
+        /// <item>
+        /// <term>String</term>
+        /// <description>A parsed version using <see cref="NumericValue.TryParse(string?, out NumericValue)"/>. If failed to parse, returns <c>0</c>.</description>
+        /// </item>
+        /// <item>
+        /// <term>Boolean</term>
+        /// <description><c>1</c> if <see langword="true"/>, <c>0</c> if <see langword="false"/>.</description>
+        /// </item>
+        /// <item>
+        /// <term>Number</term>
+        /// <description>The numeric value</description>
+        /// </item>
+        /// <item>
+        /// <term>Attachment</term>
+        /// <description>The attachment Id</description>
+        /// </item>
+        /// <item>
+        /// <term>Channel</term>
+        /// <description>The channel Id</description>
+        /// </item>
+        /// <item>
+        /// <term>User</term>
+        /// <description>The user Id</description>
+        /// </item>
+        /// <item>
+        /// <term>Role</term>
+        /// <description>The role Id</description>
+        /// </item>
+        /// <item>
+        /// <term>Mentionable</term>
+        /// <description>If <see cref="ISnowflakeEntity"/>, <see cref="ISnowflakeEntity"/>.<see cref="IEntity{TId}.Id">Id</see>, otherwise <c>0</c></description>
+        /// </item>
+        /// <item>
+        /// <term>None</term>
+        /// <description><c>0</c></description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <returns>This application option value converted to a numeric value.</returns>
         public NumericValue ToNumber()
         {
-            return this.m_numericValue;
+            return this.m_numericValue ?? 0;
         }
-
+        /// <summary>
+        /// Gets the boolean value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// The following conversions will be made:
+        /// <list type="table">
+        /// <item>
+        /// <term>String</term>
+        /// <description>A parsed version using <see cref="bool.TryParse(string, out bool)"/>. If failed to parse, returns <see langword="false"/>.</description>
+        /// </item>
+        /// <item>
+        /// <term>Boolean</term>
+        /// <description>The boolean value.</description>
+        /// </item>
+        /// <item>
+        /// <term>Number</term>
+        /// <description><see langword="true"/> if the numeric value does not equal <c>0</c>, otherwise <see langword="false"/>.</description>
+        /// </item>
+        /// <item>
+        /// <term>Attachment</term>
+        /// <description><see langword="true"/></description>
+        /// </item>
+        /// <item>
+        /// <term>Channel</term>
+        /// <description><see langword="true"/></description>
+        /// </item>
+        /// <item>
+        /// <term>User</term>
+        /// <description><see langword="true"/></description>
+        /// </item>
+        /// <item>
+        /// <term>Role</term>
+        /// <description><see langword="true"/></description>
+        /// </item>
+        /// <item>
+        /// <term>Mentionable</term>
+        /// <description><see langword="true"/></description>
+        /// </item>
+        /// <item>
+        /// <term>None</term>
+        /// <description><see langword="false"/></description>
+        /// </item>
+        /// </list>
+        /// </remarks>
+        /// <returns>This application option value converted to a boolean.</returns>
         public bool ToBool()
         {
-            return this.m_booleanValue;
+            return this.m_booleanValue ?? false;
         }
+
+        /// <summary>
+        /// Gets the string value of this application option value.
+        /// <para>
+        /// For a less strict version, see <see cref="ToString()">ToString()</see>
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsString">IsString</see> returned
+        /// <see langword="false"/>.
+        /// </remarks>
+        /// <returns>The string value.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public string GetString()
+        {
+            if (this.IsString)
+            {
+                return this.m_stringValue ?? string.Empty;
+            }
+            throw new InvalidOperationException();
+        }
+        /// <summary>
+        /// Gets the numeric value value of this application option value.
+        /// <para>
+        /// For a less strict version, see <see cref="ToNumber">ToNumber()</see>
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsNumber">IsNumber</see> returned
+        /// <see langword="false"/>.
+        /// </remarks>
+        /// <returns>The numeric value.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public NumericValue GetNumber()
+        {
+            if (this.IsNumber)
+            {
+                return this.m_numericValue ?? 0;
+            }
+            throw new InvalidOperationException();
+        }
+        /// <summary>
+        /// Gets the boolean value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsBool">IsBool</see> returned
+        /// <see langword="false"/>.
+        /// </remarks>
+        /// <returns>The boolean value.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public bool GetBool()
+        {
+            if (this.IsBool)
+            {
+                return this.m_booleanValue ?? false;
+            }
+            throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// Gets the user value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsUser">IsUser</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see>
+        /// returned <see langword="false"/>. A conversion attempt with be
+        /// made if <see cref="IsUser">IsUser</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see> returned <see langword="true"/>.
+        /// </remarks>
+        /// <returns>The user value.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public IUser GetUser()
         {
@@ -163,6 +445,19 @@ namespace Discord
             }
             throw new InvalidOperationException();
         }
+
+        /// <summary>
+        /// Gets the channel value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsChannel">IsChannel</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see>
+        /// returned <see langword="false"/>. A conversion attempt with be
+        /// made if <see cref="IsChannel">IsChannel</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see> returned <see langword="true"/>.
+        /// </remarks>
+        /// <returns>The channel value.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public IChannel GetChannel()
         {
@@ -176,6 +471,20 @@ namespace Discord
             }
             throw new InvalidOperationException();
         }
+
+
+        /// <summary>
+        /// Gets the role value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsRole">IsRole</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see>
+        /// returned <see langword="false"/>. A conversion attempt with be
+        /// made if <see cref="IsRole">IsRole</see> returned
+        /// <see langword="false"/> and <see cref="IsMentionable">IsMentionable</see> returned <see langword="true"/>.
+        /// </remarks>
+        /// <returns>The role value.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public IRole GetRole()
         {
@@ -189,6 +498,16 @@ namespace Discord
             }
             throw new InvalidOperationException();
         }
+
+        /// <summary>
+        /// Gets the mentionable value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsMentionable">IsMentionable</see> returned
+        /// <see langword="false"/>.
+        /// </remarks>
+        /// <returns>The mentionable value.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public IMentionable GetMentionable()
         {
@@ -198,6 +517,15 @@ namespace Discord
             }
             throw new InvalidOperationException();
         }
+        /// <summary>
+        /// Gets the attachment value of this application option value.
+        /// </summary>
+        /// <remarks>
+        /// This method will throw an <see cref="InvalidOperationException"/>
+        /// if <see cref="IsAttachment">IsAttachment</see> returned
+        /// <see langword="false"/>.
+        /// </remarks>
+        /// <returns>The attachment value.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public IAttachment GetAttachment()
         {
@@ -208,6 +536,7 @@ namespace Discord
             throw new InvalidOperationException();
         }
 
+        #region IConvertible
         bool IConvertible.ToBoolean(IFormatProvider? provider)
         {
             return this.ToBool();
@@ -392,7 +721,9 @@ namespace Discord
                 throw new InvalidCastException("Cannot convert ApplicationCommandOptionValue to " + conversionType.FullName);
             }
         }
+        #endregion
 
+        #region Operators
         public static implicit operator ApplicationCommandOptionValue(string value)
         {
             if (value is null)
@@ -527,6 +858,7 @@ namespace Discord
         {
             return value.ToBool();
         }
+        #endregion
 
         private enum Type : byte
         {

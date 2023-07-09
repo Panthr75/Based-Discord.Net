@@ -746,7 +746,7 @@ namespace Discord
             Preconditions.AtLeast(name.Length, 1, nameof(name));
             Preconditions.AtMost(name.Length, 100, nameof(name));
 
-            if (value.IsString)
+            if (value.IsStringLike)
             {
                 string str = value.ToString();
                 Preconditions.AtLeast(str.Length, 1, nameof(value));

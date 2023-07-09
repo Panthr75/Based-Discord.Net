@@ -38,11 +38,11 @@ namespace Discord.Net.Converters
             {
                 writer.WriteBooleanValue(value.ToBool());
             }
-            else if (value.IsNumber)
+            else if (value.IsNumberLike)
             {
                 JsonSerializer.Serialize(writer, value.ToNumber(), options);
             }
-            else if (value.IsString)
+            else if (value.IsStringLike)
             {
                 writer.WriteStringValue(value.ToString());
             }
