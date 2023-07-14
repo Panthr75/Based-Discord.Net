@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization.Metadata;
+using System.Collections;
+using System.Linq;
 
 namespace Discord
 {
@@ -45,9 +48,20 @@ namespace Discord
 
         object? IOptional.GetValueOrDefault() => this.GetValueOrDefault();
 
+
+        public Optional<U> Map<U>(Func<T, Optional<U>> mapper)
+        {
+            if (!this.IsSpecified)
+            {
+                return Optional<U>.Unspecified;
+            }
+
+            return mapper(this.Value);
+        }
+
         public Optional<U> Map<U>(Func<T, U> mapper)
         {
-            if (this.IsSpecified)
+            if (!this.IsSpecified)
             {
                 return Optional<U>.Unspecified;
             }
@@ -145,6 +159,35 @@ namespace Discord
                 // override ShouldSerialize property
                 property.ShouldSerialize = ShouldSerializeProperty;
             }
+        }
+
+        public static Optional<TCollection> NotEmpty<TCollection>(this Optional<TCollection> val)
+            where TCollection : IEnumerable
+        {
+            TCollection? value = val.GetValueOrDefault();
+            if (value is not null)
+            {
+                // adopted from Linq Enumerable<T>.Any,
+                // but for non-generic enumerable
+                IEnumerator enumerator = value.GetEnumerator();
+                bool hasValue = enumerator.MoveNext();
+                if (enumerator is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+
+                if (hasValue)
+                {
+                    return val;
+                }
+            }
+            return Optional<TCollection>.Unspecified;
+        }
+
+        public static Optional<TCollection> NotEmpty<TCollection, T>(this Optional<TCollection> val)
+            where TCollection : IEnumerable<T>
+        {
+            return (val.GetValueOrDefault()?.Any() ?? false) ? val : Optional<TCollection>.Unspecified;
         }
 
         public static T? ToNullable<T>(this Optional<T> val)
