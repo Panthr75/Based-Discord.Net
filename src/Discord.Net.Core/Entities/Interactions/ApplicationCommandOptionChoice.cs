@@ -40,7 +40,7 @@ namespace Discord
             get => _value;
             set
             {
-                if (!value.IsString && !value.IsNumber)
+                if (!value.IsStringLike && !value.IsNumberLike)
                     throw new ArgumentException("The value of a choice must be a string or a numeric type!");
                 _value = value!;
             }
