@@ -402,11 +402,11 @@ namespace Discord.Rest
         }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestMediaChannel> CreateMediaChannelAsync(IGuild guild, BaseDiscordClient client,
-            string name, RequestOptions? options, Action<MediaChannelProperties>? func = null)
+            string name, RequestOptions? options, Action<ForumChannelProperties>? func = null)
         {
             Preconditions.NotNull(name, nameof(name));
 
-            var props = new MediaChannelProperties();
+            var props = new ForumChannelProperties();
             func?.Invoke(props);
 
             Preconditions.AtMost(props.Tags.IsSpecified ? props.Tags.Value.Count() : 0, 20, nameof(props.Tags), "Media channel can have max 20 tags.");

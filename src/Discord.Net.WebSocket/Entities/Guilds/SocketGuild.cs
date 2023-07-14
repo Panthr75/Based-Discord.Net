@@ -894,7 +894,7 @@ namespace Discord.WebSocket
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     media channel.
         /// </returns>
-        public Task<RestMediaChannel> CreateMediaChannelAsync(string name, Action<MediaChannelProperties>? func = null, RequestOptions? options = null)
+        public Task<RestMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null)
             => GuildHelper.CreateMediaChannelAsync(this, Discord, name, options, func);
 
         internal SocketGuildChannel AddChannel(ClientState state, ChannelModel model)
@@ -2137,7 +2137,7 @@ namespace Discord.WebSocket
             => await CreateForumChannelAsync(name, func, options).ConfigureAwait(false);
 
         /// <inheritdoc />
-        async Task<IMediaChannel> IGuild.CreateMediaChannelAsync(string name, Action<MediaChannelProperties>? func, RequestOptions? options)
+        async Task<IMediaChannel> IGuild.CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func, RequestOptions? options)
             => await CreateMediaChannelAsync(name, func, options).ConfigureAwait(false);
 
         /// <inheritdoc />

@@ -847,7 +847,7 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     forum channel.
         /// </returns>
-        Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<MediaChannelProperties>? func = null, RequestOptions? options = null);
+        Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of all the voice regions this guild can access.
