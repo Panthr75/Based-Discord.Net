@@ -22,5 +22,5 @@ internal class GuildOnboardingPromptOption
     public string Title { get; set; } = null!;
 
     [JsonPropertyName("description")]
-    public Optional<string> Description { get; set; }
+    public string Description { get; set; } = null!;
 }
