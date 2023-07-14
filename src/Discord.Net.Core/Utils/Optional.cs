@@ -47,7 +47,7 @@ namespace Discord
 
         public Optional<U> Map<U>(Func<T, U> mapper)
         {
-            if (this.IsSpecified)
+            if (!this.IsSpecified)
             {
                 return Optional<U>.Unspecified;
             }
