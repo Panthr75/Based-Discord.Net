@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Discord.Net.targets" />
+  <Import Project="../../StyleAnalyzer.targets" />
+  <Import Project="../../BuildFrameworks.targets" />
+  <PropertyGroup>
+    <AssemblyName>Discord.Net.Shims</AssemblyName>
+    <RootNamespace>Discord.Shims</RootNamespace>
+    <Description>A Discord.Net library containing shims for unit tests.</Description>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Discord.Net.Core\Discord.Net.Core.csproj" />
+  </ItemGroup>
+
+</Project>

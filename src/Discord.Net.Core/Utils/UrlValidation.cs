@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Discord.Utils
 {
@@ -12,7 +13,7 @@ namespace Discord.Utils
         /// <param name="allowAttachments"><see langword="true"/> to allow the <b>attachment://</b> protocol; otherwise <see langword="false"/>.</param>
         /// <exception cref="InvalidOperationException">A URL must include a protocol (http or https).</exception>
         /// <returns>true if URL is valid by our standard, false if null, throws an error upon invalid.</returns>
-        public static bool Validate(string url, bool allowAttachments = false)
+        public static bool Validate([NotNullWhen(true)] string? url, bool allowAttachments = false)
         {
             if (string.IsNullOrEmpty(url))
                 return false;

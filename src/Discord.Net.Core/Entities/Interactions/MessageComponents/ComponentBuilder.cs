@@ -1275,6 +1275,10 @@ namespace Discord
         ///     The max length of a <see cref="TextInputComponent.Placeholder"/>.
         /// </summary>
         public const int MaxPlaceholderLength = 100;
+        /// <summary>
+        ///     The max length of a <see cref="TextInputComponent.Label"/>.
+        /// </summary>
+        public const int MaxLabelLength = 45;
         public const int LargestMaxLength = 4000;
 
         /// <summary>
@@ -1301,7 +1305,19 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the label of the current text input.
         /// </summary>
-        public string? Label { get; set; }
+        public string? Label
+        {
+            get => _label;
+            set
+            {
+                _label = value?.Length switch
+                {
+                    > MaxLabelLength => throw new ArgumentOutOfRangeException(nameof(value), $"Label length must be less or equal to {MaxLabelLength}."),
+                    0 => throw new ArgumentOutOfRangeException(nameof(value), "Label length must be at least 1."),
+                    _ => value
+                };
+            }
+        }
 
         /// <summary>
         ///     Gets or sets the placeholder of the current text input.
@@ -1383,6 +1399,7 @@ namespace Discord
         }
 
         private string? _customId;
+        private string? _label;
         private int? _maxLength;
         private int? _minLength;
         private string? _placeholder;
