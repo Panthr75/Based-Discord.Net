@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -20,7 +21,10 @@ public class ApplicationInstallParams
 
     public ApplicationInstallParams(string[] scopes, GuildPermission permission)
     {
-        Scopes = scopes.ToImmutableArray();
+        Preconditions.NotNull(scopes, nameof(scopes));
+        Scopes = scopes
+            .Where(scope => !string.IsNullOrEmpty(scope))
+            .ToImmutableArray();
         Permission = permission;
     }
 }
