@@ -698,23 +698,23 @@ namespace Discord
             }
             else if (typeof(IChannel).IsAssignableFrom(conversionType))
             {
-                return System.Convert.ChangeType(this.m_channelValue!, conversionType);
+                return this.GetChannel();
             }
             else if (typeof(IRole).IsAssignableFrom(conversionType))
             {
-                return System.Convert.ChangeType(this.m_roleValue!, conversionType);
+                return this.GetRole();
             }
             else if (typeof(IAttachment).IsAssignableFrom(conversionType))
             {
-                return System.Convert.ChangeType(this.m_attachmentValue!, conversionType);
+                return this.GetAttachment();
             }
             else if (typeof(IUser).IsAssignableFrom(conversionType))
             {
-                return System.Convert.ChangeType(this.m_userValue!, conversionType);
+                return this.GetUser();
             }
             else if (typeof(IMentionable).IsAssignableFrom(conversionType))
             {
-                return System.Convert.ChangeType(this.m_mentionableValue!, conversionType);
+                return this.GetMentionable();
             }
             else
             {
