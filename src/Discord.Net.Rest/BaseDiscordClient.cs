@@ -253,7 +253,7 @@ namespace Discord.Rest
             => Task.FromResult<IReadOnlyCollection<IApplicationCommand>>(ImmutableArray.Create<IApplicationCommand>());
         Task<IApplicationCommand?> IDiscordClient.CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions? options)
             => Task.FromResult<IApplicationCommand?>(null);
-        Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties,
+        Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.BulkOverwriteGlobalApplicationCommands(ApplicationCommandProperties[] properties,
             RequestOptions? options)
             => Task.FromResult<IReadOnlyCollection<IApplicationCommand>>(ImmutableArray.Create<IApplicationCommand>());
 
