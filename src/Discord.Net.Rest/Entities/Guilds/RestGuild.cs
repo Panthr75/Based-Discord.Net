@@ -1280,6 +1280,14 @@ namespace Discord.Rest
             return new RestGuildOnboarding(Discord, model, this);
         }
 
+        /// <inheritdoc cref="IGuild.ModifyOnboardingAsync"/>
+        public async Task<RestGuildOnboarding> ModifyOnboardingAsync(Action<GuildOnboardingProperties> props, RequestOptions? options = null)
+        {
+            var model = await GuildHelper.ModifyGuildOnboardingAsync(this, props, Discord, options);
+
+            return new RestGuildOnboarding(Discord, model, this);
+        }
+
         #endregion
 
         #region IGuild
@@ -1649,6 +1657,10 @@ namespace Discord.Rest
         /// <inheritdoc/>
         async Task<IGuildOnboarding> IGuild.GetOnboardingAsync(RequestOptions? options)
             => await GetOnboardingAsync(options);
+
+        /// <inheritdoc/>
+        async Task<IGuildOnboarding> IGuild.ModifyOnboardingAsync(Action<GuildOnboardingProperties> props, RequestOptions? options)
+            => await ModifyOnboardingAsync(props, options);
 
         #endregion
     }
