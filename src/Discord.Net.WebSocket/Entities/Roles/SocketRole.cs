@@ -43,6 +43,8 @@ namespace Discord.WebSocket
         public int Position { get; private set; }
         /// <inheritdoc />
         public RoleTags? Tags { get; private set; }
+        /// <inheritdoc />
+        public RoleFlags Flags { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -83,6 +85,7 @@ namespace Discord.WebSocket
             Position = model.Position;
             Color = new Color(model.Color);
             Permissions = new GuildPermissions(model.Permissions);
+            Flags = model.Flags;
             if (model.Tags.IsSpecified)
                 Tags = model.Tags.Value.ToEntity();
 

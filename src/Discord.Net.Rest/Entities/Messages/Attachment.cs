@@ -31,9 +31,11 @@ namespace Discord
         public string? Waveform { get; }
         /// <inheritdoc />
         public double? Duration { get; }
+        /// <inheritdoc />
+        public AttachmentFlags Flags { get; }
 
         internal Attachment(ulong id, string filename, string url, string proxyUrl, int size, int? height, int? width,
-            bool? ephemeral, string? description, string? contentType, double? duration, string? waveform)
+            bool? ephemeral, string? description, string? contentType, double? duration, string? waveform, AttachmentFlags flags)
         {
             Id = id;
             Filename = filename;
@@ -47,6 +49,7 @@ namespace Discord
             ContentType = contentType;
             Duration = duration;
             Waveform = waveform;
+            Flags = flags;
         }
         internal static Attachment Create(Model model)
         {
@@ -56,7 +59,8 @@ namespace Discord
                 model.Ephemeral.ToNullable(), model.Description.GetValueOrDefault(),
                 model.ContentType.GetValueOrDefault(),
                 model.DurationSeconds.IsSpecified ? model.DurationSeconds.Value : null,
-                model.Waveform.GetValueOrDefault(null));
+                model.Waveform.GetValueOrDefault(null),
+                model.Flags.GetValueOrDefault(AttachmentFlags.None));
         }
 
         /// <summary>
