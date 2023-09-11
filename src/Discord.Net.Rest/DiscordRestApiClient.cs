@@ -678,11 +678,14 @@ namespace Discord.API
 
             if (limit.HasValue)
             {
-                query = $"?before={before.GetValueOrDefault(DateTimeOffset.UtcNow).ToString("O")}&limit={limit.Value}";
+                string beforeEncoded = WebUtility.UrlEncode(before.GetValueOrDefault(DateTimeOffset.UtcNow).ToString("O"));
+
+                query = $"?before={beforeEncoded}&limit={limit.Value}";
             }
             else if (before.HasValue)
             {
-                query = $"?before={before.Value.ToString("O")}";
+                string beforeEncoded = WebUtility.UrlEncode(before.Value.ToString("O"));
+                query = $"?before={beforeEncoded}";
             }
 
             return await SendAsync<ChannelThreads>("GET", () => $"channels/{channelId}/threads/archived/public{query}", bucket, options: options);
@@ -701,11 +704,13 @@ namespace Discord.API
 
             if (limit.HasValue)
             {
-                query = $"?before={before.GetValueOrDefault(DateTimeOffset.UtcNow).ToString("O")}&limit={limit.Value}";
+                string beforeEncoded = WebUtility.UrlEncode(before.GetValueOrDefault(DateTimeOffset.UtcNow).ToString("O"));
+                query = $"?before={beforeEncoded}&limit={limit.Value}";
             }
             else if (before.HasValue)
             {
-                query = $"?before={before.Value.ToString("O")}";
+                string beforeEncoded = WebUtility.UrlEncode(before.Value.ToString("O"));
+                query = $"?before={beforeEncoded}";
             }
 
             return await SendAsync<ChannelThreads>("GET", () => $"channels/{channelId}/threads/archived/private{query}", bucket, options: options);
@@ -1984,8 +1989,6 @@ namespace Discord.API
 
             bool isCurrentUser = userId == CurrentUserId;
 
-            if (args.RoleIds.IsSpecified)
-                Preconditions.NotEveryoneRole(args.RoleIds.Value, guildId, nameof(args.RoleIds));
             if (isCurrentUser && args.Nickname.IsSpecified)
             {
                 var nickArgs = new Rest.ModifyCurrentUserNickParams(args.Nickname.Value ?? "");
@@ -2308,6 +2311,15 @@ namespace Discord.API
             options = RequestOptions.CreateOrClone(options);
 
             return await SendAsync<GuildOnboarding>("GET", () => $"guilds/{guildId}/onboarding", new BucketIds(guildId: guildId), options: options);
+        }
+
+        public async Task<GuildOnboarding> ModifyGuildOnboardingAsync(ulong guildId, ModifyGuildOnboardingParams args, RequestOptions? options)
+        {
+            Preconditions.NotEqual(guildId, 0UL, nameof(guildId));
+
+            options = RequestOptions.CreateOrClone(options);
+
+            return await SendJsonAsync<GuildOnboarding>("PUT", () => $"guilds/{guildId}/onboarding", args, new BucketIds(guildId: guildId), options: options);
         }
 
         #endregion

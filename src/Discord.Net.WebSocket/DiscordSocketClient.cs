@@ -727,11 +727,20 @@ namespace Discord.WebSocket
             await SendStatusAsync().ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
+        public override async Task SetCustomStatusAsync(string status)
+        {
+            var statusGame = new CustomStatusGame(status);
+            await SetActivityAsync(statusGame);
+        }
+
         private async Task SendStatusAsync()
         {
             if (CurrentUser == null)
                 return;
-            var activities = _activity.IsSpecified ? ImmutableList.Create(_activity.Value) : null;
+            var activities = _activity.IsSpecified
+                ? ImmutableList.Create(_activity.Value)
+                : null;
             CurrentUser.Presence = new SocketPresence(Status, null, activities);
 
             var presence = BuildCurrentStatus() ?? (UserStatus.Online, false, null, null);
@@ -764,6 +773,8 @@ namespace Discord.WebSocket
                 gameModel.Type = Activity.Type;
                 if (Activity is StreamingGame streamGame)
                     gameModel.StreamUrl = streamGame.Url;
+                if (Activity is CustomStatusGame customStatus)
+                    gameModel.State = Optional.CreateFromNullable(customStatus.State);
                 game = gameModel;
             }
             else if (activity.IsSpecified)
@@ -3526,7 +3537,7 @@ namespace Discord.WebSocket
         async Task<IApplicationCommand?> IDiscordClient.CreateGlobalApplicationCommand(ApplicationCommandProperties properties, RequestOptions? options)
             => await CreateGlobalApplicationCommandAsync(properties, options).ConfigureAwait(false);
         /// <inheritdoc />
-        async Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.BulkOverwriteGlobalApplicationCommands(ApplicationCommandProperties[] properties, RequestOptions? options)
+        async Task<IReadOnlyCollection<IApplicationCommand>> IDiscordClient.BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties, RequestOptions? options)
             => await BulkOverwriteGlobalApplicationCommandsAsync(properties, options);
 
         /// <inheritdoc />

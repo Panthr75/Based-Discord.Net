@@ -77,7 +77,10 @@ namespace Discord.Rest
             Color = new Color(model.Color);
             Permissions = new GuildPermissions(model.Permissions);
             Flags = model.Flags;
+<<<<<<< HEAD
 
+=======
+>>>>>>> bonnel-lib
             if (model.Tags.IsSpecified)
                 Tags = model.Tags.Value.ToEntity();
 

@@ -183,7 +183,7 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains a collection of application commands that were created.
         /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteGlobalApplicationCommands(ApplicationCommandProperties[] properties, RequestOptions? options = null);
+        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteGlobalApplicationCommand(ApplicationCommandProperties[] properties, RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a guild.

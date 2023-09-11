@@ -45,6 +45,8 @@ namespace Discord.API.Rest
 
             if (Slowmode.IsSpecified)
                 payload["rate_limit_per_user"] = Slowmode.Value;
+            if (TagIds.IsSpecified)
+                message["applied_tags"] = TagIds.Value;
 
             // message
             if (Content.IsSpecified)
@@ -59,8 +61,6 @@ namespace Discord.API.Rest
                 message["sticker_ids"] = Stickers.Value;
             if (Flags.IsSpecified)
                 message["flags"] = Flags.Value;
-            if (TagIds.IsSpecified)
-                message["applied_tags"] = TagIds.Value;
 
             List<object> attachments = new();
 

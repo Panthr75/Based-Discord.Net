@@ -61,8 +61,10 @@ namespace Discord.Rest
         /// <inheritdoc />
         public string? InteractionsEndpointUrl { get; private set; }
 
+        /// <inheritdoc />
         public ApplicationInstallParams? InstallParams { get; private set; }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<string> Tags { get; private set; }
 
         internal RestApplication(BaseDiscordClient discord, ulong id)
@@ -92,8 +94,10 @@ namespace Discord.Rest
             Tags = model.Tags.GetValueOrDefault(null)?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
             PrivacyPolicy = model.PrivacyPolicy;
             TermsOfService = model.TermsOfService;
-            var installParams = model.InstallParams.GetValueOrDefault(null);
-            InstallParams = new ApplicationInstallParams(installParams?.Scopes ?? Array.Empty<string>(), (GuildPermission?)installParams?.Permission);
+
+            InstallParams = model.InstallParams
+                .Map(p => new ApplicationInstallParams(p.Scopes, (GuildPermission)p.Permission))
+                .GetValueOrDefault(null);
 
             if (model.Flags.IsSpecified)
                 Flags = model.Flags.Value;

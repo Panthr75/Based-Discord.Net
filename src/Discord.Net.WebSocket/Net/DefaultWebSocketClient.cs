@@ -111,21 +111,27 @@ namespace Discord.Net.WebSockets
         {
             _isDisconnecting = true;
 
-            try
-            { _disconnectTokenSource.Cancel(false); }
-            catch { }
-
             if (_client != null)
             {
                 if (!isDisposing)
                 {
                     var status = (WebSocketCloseStatus)closeCode;
                     try
-                    { await _client.CloseOutputAsync(status, "", new CancellationToken()); }
+                    {
+                        await _client.CloseOutputAsync(status, "", new CancellationToken());
+                    }
                     catch { }
                 }
                 try
-                { _client.Dispose(); }
+                {
+                    _client.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    _disconnectTokenSource.Cancel(false);
+                }
                 catch { }
 
                 _client = null;

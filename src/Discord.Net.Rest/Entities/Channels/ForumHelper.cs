@@ -17,7 +17,7 @@ internal static class ForumHelper
         var args = new ForumChannelProperties();
         func(args);
 
-        Preconditions.AtMost(args.Tags.IsSpecified ? args.Tags.Value.Count() : 0, 5, nameof(args.Tags), "Forum channel can have max 20 tags.");
+        Preconditions.AtMost(args.Tags.IsSpecified ? args.Tags.Value.Count() : 0, 20, nameof(args.Tags), "Forum channel can have max 20 tags.");
 
         var apiArgs = new API.Rest.ModifyForumChannelParams()
         {
@@ -38,6 +38,7 @@ internal static class ForumHelper
             Tags = args.Tags.IsSpecified
                 ? args.Tags.Value.Select(tag => new API.ModifyForumTagParams
                 {
+                    Id = Optional.CreateFromNullable(tag.Id),
                     Name = tag.Name,
                     EmojiId = tag.Emoji is Emote emote
                         ? emote.Id
