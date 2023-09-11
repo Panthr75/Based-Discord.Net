@@ -8,13 +8,36 @@ namespace Discord
 {
     public class ModalBuilder
     {
+        private string? _customId;
+
+        public ModalBuilder()
+        {
+            _components = new();
+        }
+
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ModalBuilder"/>.
+        /// </summary>
+        /// <param name="title">The modal's title.</param>
+        /// <param name="customId">The modal's customId.</param>
+        /// <param name="components">The modal's components.</param>
+        /// <exception cref="ArgumentException">Only TextInputComponents are allowed.</exception>
+        public ModalBuilder(string title, string customId, ModalComponentBuilder? components = null)
+        {
+            _components = null!;
+
+            Title = title;
+            CustomId = customId;
+            Components = components ?? new();
+        }
+
         /// <summary>
         /// The maximum length of the title in a modal.
         /// </summary>
         public const int MaxTitleLength = 45;
 
         private ModalComponentBuilder _components;
-        private string _title;
+        private string? _title;
 
         /// <summary>
         ///     Gets or sets the components of the current modal.
@@ -28,7 +51,7 @@ namespace Discord
         /// <summary>
         ///     Gets or sets the title of the current modal.
         /// </summary>
-        public string Title
+        public string? Title
         {
             get => this._title;
             set
@@ -49,9 +72,9 @@ namespace Discord
         }
 
         /// <summary>
-        ///     Gets or sets the custom id of the current modal.
+        ///     Gets or sets the custom ID of the current modal.
         /// </summary>
-        public string CustomId
+        public string? CustomId
         {
             get => _customId;
             set => _customId = value?.Length switch
@@ -60,28 +83,6 @@ namespace Discord
                 0 => throw new ArgumentOutOfRangeException(nameof(value), "Custom Id length must be at least 1."),
                 _ => value!
             };
-        }
-
-        private string _customId = string.Empty;
-
-        public ModalBuilder()
-        {
-            this._title = string.Empty;
-            this._components = new();
-        }
-
-        /// <summary>
-        ///     Creates a new instance of a <see cref="ModalBuilder"/>
-        /// </summary>
-        /// <param name="title">The modal's title.</param>
-        /// <param name="customId">The modal's customId.</param>
-        /// <param name="components">The modal's components.</param>
-        /// <exception cref="ArgumentException">Only TextInputComponents are allowed.</exception>
-        public ModalBuilder(string title, string customId, ModalComponentBuilder? components = null) : this()
-        {
-            Title = title;
-            CustomId = customId;
-            Components = components!; // null check on components
         }
 
         /// <summary>
@@ -110,10 +111,101 @@ namespace Discord
         ///     Adds a component to the current builder.
         /// </summary>
         /// <param name="component">The component to add.</param>
+        /// /// <param name="row">The row to add the text input.</param>
         /// <returns>The current builder.</returns>
-        public ModalBuilder AddTextInput(TextInputBuilder component)
+        public ModalBuilder AddTextInput(TextInputBuilder component, int row = 0)
         {
-            Components.WithTextInput(component);
+            Components.WithTextInput(component, row);
+            return this;
+        }
+
+        /// <summary>
+        ///     Gets a <typeparamref name="TMessageComponent"/> by the specified <paramref name="customId"/>.
+        /// </summary>
+        /// <typeparam name="TMessageComponent">The type of the component to get.</typeparam>
+        /// <param name="customId">The <see cref="IMessageComponent.CustomId"/> of the component to get.</param>
+        /// <returns>
+        ///     The component of type <typeparamref name="TMessageComponent"/> that was found, <see langword="null"/> otherwise.
+        /// </returns>
+        public TMessageComponent? GetComponent<TMessageComponent>(string customId)
+            where TMessageComponent : class, IMessageComponent
+        {
+            Preconditions.NotNull(customId, nameof(customId));
+
+            return Components.ActionRows
+                .SelectMany(r => r.Components.OfType<TMessageComponent>())
+                .FirstOrDefault(c => c?.CustomId == customId);
+        }
+
+        /// <summary>
+        ///     Updates a <see cref="TextInputComponent"/> by the specified <paramref name="customId"/>.
+        /// </summary>
+        /// <param name="customId">The <see cref="TextInputComponent.CustomId"/> of the input to update.</param>
+        /// <param name="updateTextInput">An action that configures the updated text input.</param>
+        /// <returns>The current builder.</returns>
+        /// <exception cref="ArgumentException">
+        ///     Thrown when the <see cref="TextInputComponent"/> to be updated was not found.
+        /// </exception>
+        public ModalBuilder UpdateTextInput(string customId, Action<TextInputBuilder> updateTextInput)
+        {
+            Preconditions.NotNull(customId, nameof(customId));
+
+            var component = GetComponent<TextInputComponent>(customId) ?? throw new ArgumentException($"There is no component of type {nameof(TextInputComponent)} with the specified custom ID in this modal builder.", nameof(customId));
+            var row = Components.ActionRows.First(r => r.Components.Contains(component));
+
+            var builder = new TextInputBuilder
+            {
+                Label = component.Label,
+                CustomId = component.CustomId,
+                Style = component.Style,
+                Placeholder = component.Placeholder,
+                MinLength = component.MinLength,
+                MaxLength = component.MaxLength,
+                Required = component.Required,
+                Value = component.Value
+            };
+
+            updateTextInput(builder);
+
+            row.Components.Remove(component);
+            row.AddComponent(builder.Build());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Updates the value of a <see cref="TextInputComponent"/> by the specified <paramref name="customId"/>.
+        /// </summary>
+        /// <param name="customId">The <see cref="TextInputComponent.CustomId"/> of the input to update.</param>
+        /// <param name="value">The new value to put.</param>
+        /// <returns>The current builder.</returns>
+        public ModalBuilder UpdateTextInput(string customId, object value)
+        {
+            UpdateTextInput(customId, x => x.Value = value?.ToString());
+            return this;
+        }
+
+        /// <summary>
+        ///     Removes a component from this builder by the specified <paramref name="customId"/>.
+        /// </summary>
+        /// <param name="customId">The <see cref="IMessageComponent.CustomId"/> of the component to remove.</param>
+        /// <returns>The current builder.</returns>
+        public ModalBuilder RemoveComponent(string customId)
+        {
+            Preconditions.NotNull(customId, nameof(customId));
+
+            Components.ActionRows.ForEach(r => r.Components.RemoveAll(c => c.CustomId == customId));
+            return this;
+        }
+
+        /// <summary>
+        ///     Removes all components of the given <paramref name="type"/> from this builder.
+        /// </summary>
+        /// <param name="type">The <see cref="ComponentType"/> to remove.</param>
+        /// <returns>The current builder.</returns>
+        public ModalBuilder RemoveComponentsOfType(ComponentType type)
+        {
+            Components.ActionRows.ForEach(r => r.Components.RemoveAll(c => c.Type == type));
             return this;
         }
 
@@ -155,9 +247,9 @@ namespace Discord
         ///     Builds this builder into a <see cref="Modal"/>.
         /// </summary>
         /// <returns>A <see cref="Modal"/> with the same values as this builder.</returns>
-        /// <exception cref="ArgumentException">Only TextInputComponents are allowed.</exception>
-        /// <exception cref="ArgumentException">Modals must have a custom id.</exception>
+        /// <exception cref="ArgumentException">Modals must have a custom ID.</exception>
         /// <exception cref="ArgumentException">Modals must have a title.</exception>
+        /// <exception cref="ArgumentException">Only components of type <see cref="TextInputComponent"/> are allowed.</exception>
         public Modal Build()
         {
             if (string.IsNullOrEmpty(CustomId))
@@ -165,7 +257,7 @@ namespace Discord
             if (string.IsNullOrWhiteSpace(Title))
                 throw new ArgumentException("Modals must have a title.", nameof(Title));
             if (Components.ActionRows?.SelectMany(x => x.Components).Any(x => x.Type != ComponentType.TextInput) ?? false)
-                throw new ArgumentException($"Only TextInputComponents are allowed.", nameof(Components));
+                throw new ArgumentException($"Only components of type {nameof(TextInputComponent)} are allowed.", nameof(Components));
 
             return new(Title, CustomId, Components.Build());
         }
