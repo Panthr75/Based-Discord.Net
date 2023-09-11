@@ -24,6 +24,8 @@ public struct ForumTag : ISnowflakeEntity, IForumTag, IEquatable<ForumTag>
     /// <inheritdoc/>
     public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
+    ulong? IForumTag.Id => this.Id;
+
     internal ForumTag(ulong id, string name, ulong? emojiId = null, string? emojiName = null, bool moderated = false)
     {
         if (emojiId.HasValue && emojiId.Value != 0)
