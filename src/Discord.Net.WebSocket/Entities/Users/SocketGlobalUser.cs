@@ -8,12 +8,19 @@ namespace Discord.WebSocket
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     internal class SocketGlobalUser : SocketUser
     {
+        /// <inheritdoc/>
         public override bool IsBot { get; internal set; }
+        /// <inheritdoc/>
         public override string Username { get; internal set; }
+        /// <inheritdoc/>
         public override ushort DiscriminatorValue { get; internal set; }
+        /// <inheritdoc/>
         public override string? AvatarId { get; internal set; }
+        /// <inheritdoc/>
+        public override string? GlobalName { get { return GlobalUser.GlobalName; } internal set { GlobalUser.GlobalName = value; } }
         internal override SocketPresence? Presence { get; set; }
 
+        /// <inheritdoc/>
         public override bool IsWebhook => false;
         internal override SocketGlobalUser GlobalUser { get => this; set => throw new NotImplementedException(); }
 
