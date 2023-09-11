@@ -22,9 +22,11 @@ public class ApplicationInstallParams
     public ApplicationInstallParams(string[] scopes, GuildPermission permission)
     {
         Preconditions.NotNull(scopes, nameof(scopes));
-        Scopes = scopes
-            .Where(scope => !string.IsNullOrEmpty(scope))
-            .ToImmutableArray();
+        foreach (var scope in scopes)
+        {
+            Preconditions.NotNullOrEmpty(scope, nameof(scope));
+        }
+        Scopes = scopes.ToImmutableArray();
         Permission = permission;
     }
 }
