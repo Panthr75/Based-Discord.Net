@@ -267,18 +267,39 @@ namespace Discord.WebSocket
                 }
             }
 
-            var response = new API.InteractionResponse
+            if (!args.Attachments.IsSpecified)
             {
-                Type = InteractionResponseType.UpdateMessage,
-                Data = new API.InteractionCallbackData
+                var response = new API.InteractionResponse
                 {
+                    Type = InteractionResponseType.UpdateMessage,
+                    Data = new API.InteractionCallbackData
+                    {
+                        Content = args.Content,
+                        AllowedMentions = args.AllowedMentions.Map(o => o.ToModel()),
+                        Embeds = Optional.CreateFromNullable(apiEmbeds?.ToArray()),
+                        Components = args.Components.Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
+                        Flags = Optional.CreateFromNullable(args.Flags.GetValueOrDefault())
+                    }
+                };
+
+                await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
+            }
+            else
+            {
+                var attachments = args.Attachments.Map(x => x.ToArray()).GetValueOrDefault(Array.Empty<FileAttachment>());
+
+                var response = new API.Rest.UploadInteractionFileParams(attachments)
+                {
+                    Type = InteractionResponseType.UpdateMessage,
                     Content = args.Content,
                     AllowedMentions = args.AllowedMentions.Map(o => o.ToModel()),
                     Embeds = Optional.CreateFromNullable(apiEmbeds?.ToArray()),
-                    Components = args.Components.Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
+                    MessageComponents = args.Components.Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
                     Flags = Optional.CreateFromNullable(args.Flags.GetValueOrDefault())
-                }
-            };
+                };
+
+                await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
+            }
 
             lock (_lock)
             {
@@ -288,7 +309,6 @@ namespace Discord.WebSocket
                 }
             }
 
-            await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
             HasResponded = true;
         }
 

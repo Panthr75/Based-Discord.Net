@@ -145,8 +145,7 @@ namespace Discord.Rest
         /// </summary>
         /// <param name="func">A delegate containing the properties to modify the message with.</param>
         /// <param name="options">The request options for this <see langword="async"/> request.</param>
-        /// <returns>A string that contains json to write back to the incoming http request.</returns>
-        public string Update(Action<MessageProperties> func, RequestOptions? options = null)
+        public async Task UpdateAsync(Action<MessageProperties> func, RequestOptions? options = null)
         {
             var args = new MessageProperties();
             func(args);
@@ -203,21 +202,43 @@ namespace Discord.Rest
                     throw new ArgumentException("The Roles flag is mutually exclusive with the list of Role Ids.", nameof(args.AllowedMentions));
                 }
             }
-
-            var response = new API.InteractionResponse
+            if (!args.Attachments.IsSpecified)
             {
-                Type = InteractionResponseType.UpdateMessage,
-                Data = new API.InteractionCallbackData
+                var response = new API.InteractionResponse
                 {
+                    Type = InteractionResponseType.UpdateMessage,
+                    Data = new API.InteractionCallbackData
+                    {
+                        Content = args.Content,
+                        AllowedMentions = args.AllowedMentions.Map(v => v.ToModel()),
+                        Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
+                        Components = args.Components.IsSpecified
+                        ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
+                        : Optional<API.ActionRowComponent[]>.Unspecified,
+                        Flags = args.Flags.IsSpecified ? args.Flags.Value ?? Optional<MessageFlags>.Unspecified : Optional<MessageFlags>.Unspecified
+                    }
+                };
+
+                await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
+            }
+            else
+            {
+                var attachments = args.Attachments.Map(x => x.ToArray()).GetValueOrDefault(Array.Empty<FileAttachment>());
+
+                var response = new API.Rest.UploadInteractionFileParams(attachments)
+                {
+                    Type = InteractionResponseType.UpdateMessage,
                     Content = args.Content,
                     AllowedMentions = args.AllowedMentions.Map(v => v.ToModel()),
                     Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
-                    Components = args.Components.IsSpecified
-                        ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
-                        : Optional<API.ActionRowComponent[]>.Unspecified,
+                    MessageComponents = args.Components.IsSpecified
+                    ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
+                    : Optional<API.ActionRowComponent[]>.Unspecified,
                     Flags = args.Flags.IsSpecified ? args.Flags.Value ?? Optional<MessageFlags>.Unspecified : Optional<MessageFlags>.Unspecified
-                }
-            };
+                    
+                };
+            }
+
 
             lock (_lock)
             {
@@ -229,7 +250,7 @@ namespace Discord.Rest
                 HasResponded = true;
             }
 
-            return SerializePayload(response);
+
         }
 
         /// <inheritdoc/>
@@ -497,7 +518,7 @@ namespace Discord.Rest
 
         /// <inheritdoc />
         Task IComponentInteraction.UpdateAsync(Action<MessageProperties> func, RequestOptions? options)
-            => Task.FromResult(Update(func, options));
+            => UpdateAsync(func, options);
 
         /// <inheritdoc />
         Task IComponentInteraction.DeferLoadingAsync(bool ephemeral, RequestOptions? options)

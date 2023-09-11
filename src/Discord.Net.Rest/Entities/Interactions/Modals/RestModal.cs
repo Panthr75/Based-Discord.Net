@@ -518,20 +518,44 @@ namespace Discord.Rest
                 }
             }
 
-            var response = new API.InteractionResponse
+            if (!args.Attachments.IsSpecified)
             {
-                Type = InteractionResponseType.UpdateMessage,
-                Data = new API.InteractionCallbackData
+
+                var response = new API.InteractionResponse
                 {
+                    Type = InteractionResponseType.UpdateMessage,
+                    Data = new API.InteractionCallbackData
+                    {
+                        Content = args.Content,
+                        AllowedMentions = args.AllowedMentions.Map(v => v.ToModel()),
+                        Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
+                        Components = args.Components.IsSpecified
+                            ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
+                            : Optional<API.ActionRowComponent[]>.Unspecified,
+                        Flags = args.Flags.IsSpecified ? args.Flags.Value ?? Optional<MessageFlags>.Unspecified : Optional<MessageFlags>.Unspecified
+                    }
+                };
+
+                await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
+            }
+            else
+            {
+                var attachments = args.Attachments.Map(x => x.ToArray()).GetValueOrDefault(Array.Empty<FileAttachment>());
+
+                var response = new API.Rest.UploadInteractionFileParams(attachments)
+                {
+                    Type = InteractionResponseType.UpdateMessage,
                     Content = args.Content,
                     AllowedMentions = args.AllowedMentions.Map(v => v.ToModel()),
                     Embeds = apiEmbeds?.ToArray() ?? Optional<API.Embed[]>.Unspecified,
-                    Components = args.Components.IsSpecified
+                    MessageComponents = args.Components.IsSpecified
                         ? args.Components.Value?.Components.Select(x => new API.ActionRowComponent(x)).ToArray() ?? Array.Empty<API.ActionRowComponent>()
                         : Optional<API.ActionRowComponent[]>.Unspecified,
                     Flags = args.Flags.IsSpecified ? args.Flags.Value ?? Optional<MessageFlags>.Unspecified : Optional<MessageFlags>.Unspecified
-                }
-            };
+                };
+
+                await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
+            }
 
             lock (_lock)
             {
@@ -541,7 +565,6 @@ namespace Discord.Rest
                 }
             }
 
-            await InteractionHelper.SendInteractionResponseAsync(Discord, response, this, Channel, options).ConfigureAwait(false);
             HasResponded = true;
         }
     }
