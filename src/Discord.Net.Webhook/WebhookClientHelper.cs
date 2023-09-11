@@ -117,7 +117,9 @@ namespace Discord.Webhook
             }
             else
             {
-                var apiArgs = new UploadWebhookFileParams(args.Attachments.Value.ToArray())
+                var attachments = args.Attachments.Map(x => x.ToArray()).GetValueOrDefault(Array.Empty<FileAttachment>());
+
+                var apiArgs = new UploadWebhookFileParams(attachments)
                 {
                     Content = args.Content.IsSpecified ? args.Content.Value : Optional.Create<string>(),
                     Embeds = args.Embeds.Map(e =>
