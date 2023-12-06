@@ -3,7 +3,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataModel = Discord.API.ApplicationCommandInteractionData;
@@ -89,12 +91,16 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public ulong ApplicationId { get; private set; }
 
+        /// <inheritdoc cref="IDiscordInteraction.Entitlements"/>
+        public IReadOnlyCollection<RestEntitlement> Entitlements { get; private set; }
+
         internal RestInteraction(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
             this.Token = string.Empty;
             this.User = null!;
-            CreatedAt = discord.UseInteractionSnowflakeDate
+            this.Entitlements = Array.Empty<RestEntitlement>();
+            this.CreatedAt = discord.UseInteractionSnowflakeDate
                 ? SnowflakeUtils.FromSnowflake(Id)
                 : DateTime.UtcNow;
         }
@@ -226,6 +232,8 @@ namespace Discord.Rest
             GuildLocale = model.GuildLocale.IsSpecified
                 ? model.GuildLocale.Value
                 : null;
+
+            Entitlements = model.Entitlements.Select(x => RestEntitlement.Create(discord, x)).ToImmutableArray();
         }
 
         internal string SerializePayload(object payload)
@@ -435,7 +443,14 @@ namespace Discord.Rest
         public Task DeleteOriginalResponseAsync(RequestOptions? options = null)
             => InteractionHelper.DeleteInteractionResponseAsync(Discord, this, options);
 
+        /// <inheritdoc/>
+        public Task RespondWithPremiumRequiredAsync(RequestOptions? options = null)
+            => InteractionHelper.RespondWithPremiumRequiredAsync(Discord, Id, Token, options);
+
         #region  IDiscordInteraction
+        /// <inheritdoc/>
+        IReadOnlyCollection<IEntitlement> IDiscordInteraction.Entitlements => Entitlements;
+
         /// <inheritdoc/>
         IUser IDiscordInteraction.User => User;
 

@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -46,5 +47,8 @@ namespace Discord.API
 
         [JsonPropertyName("guild_locale")]
         public Optional<string> GuildLocale { get; set; }
+
+        [JsonPropertyName("entitlements")]
+        public Entitlement[] Entitlements { get; set; } = Array.Empty<Entitlement>();
     }
 }
