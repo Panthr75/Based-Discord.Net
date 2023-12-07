@@ -203,7 +203,9 @@ namespace Discord.Rest
                                     parsed.MaxValues,
                                     parsed.Disabled,
                                     parsed.Type,
-                                    parsed.ChannelTypes.GetValueOrDefault()
+                                    parsed.ChannelTypes.GetValueOrDefault(),
+                                    parsed.DefaultValues.Map(
+                                        v => v.Select(x => new SelectMenuDefaultValue(x.Id, x.Type))).GetValueOrDefault(Array.Empty<SelectMenuDefaultValue>())
                                 );
                             }
                         default:

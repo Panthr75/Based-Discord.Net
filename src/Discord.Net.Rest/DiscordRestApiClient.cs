@@ -87,6 +87,7 @@ namespace Discord.API
                 serializerOptions.AddConverter<UInt64EntityConverter>();
                 serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
                 serializerOptions.AddConverter<UserStatusConverter>();
+                serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
             }
 
             _restClientProvider = restClientProvider;

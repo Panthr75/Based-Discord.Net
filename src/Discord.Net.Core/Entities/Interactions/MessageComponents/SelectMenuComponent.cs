@@ -45,6 +45,11 @@ namespace Discord
         ///     Gets the allowed channel types for this modal
         /// </summary>
         public IReadOnlyCollection<ChannelType> ChannelTypes { get; }
+        
+        /// <summary>
+        ///     Gets default values for auto-populated select menu components.
+        /// </summary>
+        public IReadOnlyCollection<SelectMenuDefaultValue> DefaultValues { get; }
 
         /// <summary>
         ///     Turns this select menu into a builder.
@@ -59,9 +64,10 @@ namespace Discord
                 Placeholder,
                 MaxValues,
                 MinValues,
-                IsDisabled, Type, ChannelTypes.ToList());
+                IsDisabled, Type, ChannelTypes.ToList(),
+                DefaultValues.ToList());
 
-        internal SelectMenuComponent(string customId, List<SelectMenuOption>? options, string? placeholder, int minValues, int maxValues, bool disabled, ComponentType type, IEnumerable<ChannelType>? channelTypes = null)
+        internal SelectMenuComponent(string customId, List<SelectMenuOption>? options, string? placeholder, int minValues, int maxValues, bool disabled, ComponentType type, IEnumerable<ChannelType>? channelTypes = null, IEnumerable<SelectMenuDefaultValue>? defaultValues = null)
         {
             CustomId = customId;
             Options = (IReadOnlyCollection<SelectMenuOption>?)options ?? ImmutableList<SelectMenuOption>.Empty;
@@ -71,6 +77,7 @@ namespace Discord
             IsDisabled = disabled;
             Type = type;
             ChannelTypes = channelTypes?.ToArray() ?? Array.Empty<ChannelType>();
+            DefaultValues = defaultValues?.ToArray() ?? Array.Empty<SelectMenuDefaultValue>();
         }
     }
 }

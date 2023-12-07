@@ -36,7 +36,8 @@ public static class EmbedBuilderUtils
                 new StringEntityConverter(),
                 new UInt64EntityConverter(),
                 new UInt64EntityOrIdConverter(),
-                new UserStatusConverter()
+                new UserStatusConverter(),
+                new SelectMenuDefaultValueTypeConverter(),
             }
         };
     });

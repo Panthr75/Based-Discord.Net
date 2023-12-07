@@ -35,6 +35,10 @@ namespace Discord.API
 
         [JsonPropertyName("values")]
         public Optional<string[]> Values { get; set; }
+
+        [JsonPropertyName("default_values")]
+        public Optional<SelectMenuDefaultValue[]> DefaultValues { get; set; }
+
         public SelectMenuComponent()
         {
             CustomId = string.Empty;
@@ -50,6 +54,7 @@ namespace Discord.API
             MaxValues = component.MaxValues;
             Disabled = component.IsDisabled;
             ChannelTypes = component.ChannelTypes.ToArray();
+            DefaultValues = component.DefaultValues.Select(x => new SelectMenuDefaultValue { Id = x.Id, Type = x.Type }).ToArray();
         }
     }
 }

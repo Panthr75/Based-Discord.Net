@@ -203,6 +203,7 @@ namespace Discord.WebSocket
             _serializerOptions.AddConverter<UInt64EntityConverter>();
             _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
             _serializerOptions.AddConverter<UserStatusConverter>();
+            _serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
 
             ApiClient.SentGatewayMessage += async opCode => await _gatewayLogger.DebugAsync($"Sent {opCode}").ConfigureAwait(false);
             ApiClient.ReceivedGatewayEvent += ProcessMessageAsync;

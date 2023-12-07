@@ -125,6 +125,7 @@ namespace Discord.Audio
                 _serializerOptions.AddConverter<UInt64EntityConverter>();
                 _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
                 _serializerOptions.AddConverter<UserStatusConverter>();
+                _serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
             }
             else
                 _serializerOptions = serializer;

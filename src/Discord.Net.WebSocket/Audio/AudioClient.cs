@@ -107,6 +107,7 @@ namespace Discord.Audio
             _serializerOptions.AddConverter<UInt64EntityConverter>();
             _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
             _serializerOptions.AddConverter<UserStatusConverter>();
+            _serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
 
             LatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"Latency = {val} ms").ConfigureAwait(false);
             UdpLatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"UDP Latency = {val} ms").ConfigureAwait(false);
