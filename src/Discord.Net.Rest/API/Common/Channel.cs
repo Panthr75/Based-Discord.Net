@@ -47,6 +47,9 @@ namespace Discord.API
         [JsonPropertyName("video_quality_mode")]
         public Optional<VideoQualityMode> VideoQualityMode { get; set; }
 
+        [JsonPropertyName("status")]
+        public Optional<string> Status { get; set; }
+
         //PrivateChannel
         [JsonPropertyName("recipients")]
         public Optional<User[]> Recipients { get; set; }

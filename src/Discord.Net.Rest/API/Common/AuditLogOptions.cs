@@ -36,4 +36,7 @@ internal class AuditLogOptions
 
     [JsonPropertyName("auto_moderation_rule_trigger_type")]
     public AutoModTriggerType? AutoModRuleTriggerType { get; set; }
+
+    [JsonPropertyName("status")]
+    public string? Status { get; set; }
 }

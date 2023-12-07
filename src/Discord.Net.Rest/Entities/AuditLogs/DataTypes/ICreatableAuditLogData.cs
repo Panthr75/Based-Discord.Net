@@ -241,6 +241,16 @@ partial class WebhookUpdateAuditLogData : ICreatableAuditLogData<WebhookUpdateAu
 {
     static WebhookUpdateAuditLogData ICreatableAuditLogData<WebhookUpdateAuditLogData>.Create(BaseDiscordClient discord, EntryModel entry, Model? log) => Create(discord, entry, log);
 }
+partial class VoiceChannelStatusDeletedAuditLogData : ICreatableAuditLogData<VoiceChannelStatusDeletedAuditLogData>
+{
+    static VoiceChannelStatusDeletedAuditLogData ICreatableAuditLogData<VoiceChannelStatusDeletedAuditLogData>.Create(BaseDiscordClient discord, EntryModel entry, Model? log)
+        => Create(entry);
+}
+partial class VoiceChannelStatusUpdateAuditLogData : ICreatableAuditLogData<VoiceChannelStatusUpdateAuditLogData>
+{
+    static VoiceChannelStatusUpdateAuditLogData ICreatableAuditLogData<VoiceChannelStatusUpdateAuditLogData>.Create(BaseDiscordClient discord, EntryModel entry, Model? log)
+        => Create(entry);
+}
 #else
 partial class AutoModBlockedMessageAuditLogData
 {
@@ -369,5 +379,13 @@ partial class ThreadDeleteAuditLogData
 partial class WebhookDeleteAuditLogData
 {
     internal static WebhookDeleteAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log) => Create(discord, entry);
+}
+partial class VoiceChannelStatusDeletedAuditLogData
+{
+    internal static VoiceChannelStatusDeletedAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log) => Create(entry);
+}
+partial class VoiceChannelStatusUpdateAuditLogData
+{
+    internal static VoiceChannelStatusUpdateAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log) => Create(entry);
 }
 #endif

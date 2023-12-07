@@ -645,5 +645,19 @@ namespace Discord.Rest
             await client.ApiClient.ModifyGuildChannelAsync(channel.Id, apiArgs, options).ConfigureAwait(false);
         }
         #endregion
+
+        #region Voice
+
+        public static async Task ModifyVoiceChannelStatusAsync(IVoiceChannel channel, string? status, BaseDiscordClient client, RequestOptions? options)
+        {
+            if (status != null)
+            {
+                Preconditions.AtMost(status.Length, DiscordConfig.MaxVoiceChannelStatusLength, $"Voice channel status length must be less than {DiscordConfig.MaxVoiceChannelStatusLength}.");
+            }
+
+            await client.ApiClient.ModifyVoiceChannelStatusAsync(channel.Id, status, options).ConfigureAwait(false);
+        }
+
+        #endregion
     }
 }

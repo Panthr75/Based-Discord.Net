@@ -43,6 +43,12 @@ namespace Discord.WebSocket
         public IReadOnlyCollection<SocketGuildUser> Speakers
             => Users.Where(x => !x.IsSuppressed).ToImmutableArray();
 
+        /// <inheritdoc/>
+        /// <remarks>
+        ///     This property is not supported in stage channels and will always return <see langword="null"/>
+        /// </remarks>
+        public override string? Status => null;
+
         internal new SocketStageChannel Clone() => (SocketStageChannel)MemberwiseClone();
 
         internal SocketStageChannel(DiscordSocketClient discord, ulong id, SocketGuild guild)
@@ -161,5 +167,13 @@ namespace Discord.WebSocket
 
             return Discord.ApiClient.ModifyUserVoiceState(Guild.Id, user.Id, args);
         }
+
+        /// <inheritdoc />
+        /// <remarks>
+        ///     Setting voice channel status is not supported in stage channels.
+        /// </remarks>
+        /// <exception cref="NotSupportedException">Setting voice channel status is not supported in stage channels.</exception>
+        public override Task SetStatusAsync(string? status, RequestOptions? options = null)
+            => throw new NotSupportedException("Setting voice channel status is not supported in stage channels.");
     }
 }

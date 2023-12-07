@@ -78,6 +78,7 @@ namespace Discord
         public Task<IWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null) => throw new NotImplementedException();
         public Task<IReadOnlyCollection<IWebhook>> GetWebhooksAsync(RequestOptions? options = null) => throw new NotImplementedException();
         public Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions? options = null) => throw new NotImplementedException();
+        public Task SetStatusAsync(string? status, RequestOptions? options = null) => throw new NotImplementedException();
         public Task ModifyAsync(Action<TextChannelProperties> func, RequestOptions? options = null) => throw new NotImplementedException();
         public Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions? options = null) => throw new NotImplementedException();
         public Task ModifyAsync(Action<AudioChannelProperties> func, RequestOptions? options = null) => throw new NotImplementedException();

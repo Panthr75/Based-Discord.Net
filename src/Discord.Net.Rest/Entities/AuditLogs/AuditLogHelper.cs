@@ -104,6 +104,9 @@ internal static class AuditLogHelper
         AddAction<OnboardingPromptCreatedAuditLogData>(ActionType.OnboardingQuestionCreated);
         AddAction<OnboardingPromptUpdatedAuditLogData>(ActionType.OnboardingQuestionUpdated);
         AddAction<OnboardingUpdatedAuditLogData>(ActionType.OnboardingUpdated);
+
+        AddAction<VoiceChannelStatusUpdateAuditLogData>(ActionType.VoiceChannelStatusUpdated);
+        AddAction<VoiceChannelStatusDeletedAuditLogData>(ActionType.VoiceChannelStatusDeleted);
 #else
         AddAction(ActionType.GuildUpdated, GuildUpdateAuditLogData.Create); // log
         AddAction(ActionType.ChannelCreated, ChannelCreateAuditLogData.Create);
@@ -178,6 +181,10 @@ internal static class AuditLogHelper
         AddAction(ActionType.OnboardingQuestionCreated, OnboardingPromptCreatedAuditLogData.Create);
         AddAction(ActionType.OnboardingQuestionUpdated, OnboardingPromptUpdatedAuditLogData.Create);
         AddAction(ActionType.OnboardingUpdated, OnboardingUpdatedAuditLogData.Create);
+
+
+        AddAction(ActionType.VoiceChannelStatusUpdated, VoiceChannelStatusUpdateAuditLogData.Create);
+        AddAction(ActionType.VoiceChannelStatusDeleted, VoiceChannelStatusDeletedAuditLogData.Create);
 #endif
     }
 

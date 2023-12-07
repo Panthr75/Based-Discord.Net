@@ -37,6 +37,10 @@ namespace Discord.WebSocket
         public string? RTCRegion { get; private set; }
         /// <inheritdoc/>
         public VideoQualityMode VideoQualityMode { get; private set; }
+        /// <summary>
+        ///     Gets the voice channel status set in this channel. <see langword="null" /> if it is not set.
+        /// </summary>
+        public virtual string? Status { get; private set; }
 
         /// <summary>
         ///     Gets a collection of users that are currently connected to this voice channel.
@@ -57,6 +61,12 @@ namespace Discord.WebSocket
             entity.Update(state, model);
             return entity;
         }
+
+        internal void UpdateVoiceStatus(string? status)
+        {
+            Status = status;
+        }
+
         /// <inheritdoc />
         internal override void Update(ClientState state, Model model)
         {
@@ -65,7 +75,12 @@ namespace Discord.WebSocket
             UserLimit = model.UserLimit.GetValueOrDefault() != 0 ? model.UserLimit.Value : (int?)null;
             VideoQualityMode = model.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
             RTCRegion = model.RTCRegion.GetValueOrDefault(null);
+            Status = model.Status.GetValueOrDefault(null);
         }
+
+        /// <inheritdoc />
+        public virtual Task SetStatusAsync(string? status, RequestOptions? options = null)
+            => ChannelHelper.ModifyVoiceChannelStatusAsync(this, status, Discord, options);
 
         /// <inheritdoc />
         public Task ModifyAsync(Action<VoiceChannelProperties> func, RequestOptions? options = null)
