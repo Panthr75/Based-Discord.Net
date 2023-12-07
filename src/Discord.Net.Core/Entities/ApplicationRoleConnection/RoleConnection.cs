@@ -34,10 +34,5 @@ public class RoleConnection
     ///     Initializes a new <see cref="RoleConnectionProperties"/> with the data from this object.
     /// </summary>
     public RoleConnectionProperties ToRoleConnectionProperties()
-        => new()
-        {
-            PlatformName = PlatformName,
-            PlatformUsername = PlatformUsername,
-            Metadata = Metadata.ToDictionary()
-        };
+        => RoleConnectionProperties.FromRoleConnection(this);
 }

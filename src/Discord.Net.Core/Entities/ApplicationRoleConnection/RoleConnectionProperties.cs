@@ -14,7 +14,7 @@ public class RoleConnectionProperties
 
     private string? _platformName;
     private string? _platformUsername;
-    private Dictionary<string, string>? _metadata;
+    private Dictionary<string, string> _metadata;
 
     /// <summary>
     ///     Gets or sets the vanity name of the platform a bot has connected. Max 50 characters.
@@ -47,13 +47,20 @@ public class RoleConnectionProperties
     /// <summary>
     ///     Gets or sets object mapping <see cref="RoleConnectionMetadata"/> keys to their string-ified values.
     /// </summary>
-    public Dictionary<string, string>? Metadata
+    public Dictionary<string, string> Metadata
     {
         get => _metadata;
         set
         {
-            if (value is not null)
+            if (value is null)
+            {
+                value = new();
+            }
+            else
+            {
                 Preconditions.AtMost(value.Count, MaxPlatformUsernameLength, nameof(Metadata), $"Metadata records count must be less or equal to {MaxMetadataRecords}");
+            }
+
             _metadata = value;
         }
     }
@@ -118,15 +125,19 @@ public class RoleConnectionProperties
     /// <param name="metadata">Object mapping <see cref="RoleConnectionMetadata"/> keys to their values.</param>
     public RoleConnectionProperties(string? platformName, string? platformUsername, IDictionary<string, string>? metadata = null)
     {
+        _metadata = null!;
         PlatformName = platformName;
         PlatformUsername = platformUsername;
-        Metadata = metadata?.ToDictionary();
+        Metadata = metadata?.ToDictionary() ?? new();
     }
 
     /// <summary>
     ///     Initializes a new instance of <see cref="RoleConnectionProperties"/>.
     /// </summary>
-    public RoleConnectionProperties() { }
+    public RoleConnectionProperties()
+    {
+        _metadata = new();
+    }
 
     /// <summary>
     ///     Initializes a new <see cref="RoleConnectionProperties"/> with the data from provided <see cref="RoleConnection"/>.
