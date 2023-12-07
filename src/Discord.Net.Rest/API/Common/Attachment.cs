@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -31,4 +32,10 @@ internal class Attachment
     public Optional<string> Waveform { get; set; }
     [JsonPropertyName("flags")]
     public Optional<AttachmentFlags> Flags { get; set; }
+    [JsonPropertyName("title")]
+    public Optional<string> Title { get; set; }
+    [JsonPropertyName("clip_created_at")]
+    public Optional<DateTimeOffset> ClipCreatedAt { get; set; }
+    [JsonPropertyName("clip_participants")]
+    public Optional<User[]> ClipParticipants { get; set; }
 }

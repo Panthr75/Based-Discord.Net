@@ -1,4 +1,9 @@
+using Discord.Rest;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using Model = Discord.API.Attachment;
 
 namespace Discord
@@ -31,11 +36,18 @@ namespace Discord
         public string? Waveform { get; }
         /// <inheritdoc />
         public double? Duration { get; }
+        /// <inheritdoc cref="IAttachment.ClipParticipants" />
+        public IReadOnlyCollection<RestUser> ClipParticipants { get; }
+        /// <inheritdoc />
+        public string? Title { get; }
+        /// <inheritdoc />
+        public DateTimeOffset? ClipCreatedAt { get; }
         /// <inheritdoc />
         public AttachmentFlags Flags { get; }
 
         internal Attachment(ulong id, string filename, string url, string proxyUrl, int size, int? height, int? width,
-            bool? ephemeral, string? description, string? contentType, double? duration, string? waveform, AttachmentFlags flags)
+            bool? ephemeral, string? description, string? contentType, double? duration, string? waveform, AttachmentFlags flags, string? title,
+            IReadOnlyCollection<RestUser> clipParticipants, DateTimeOffset? clipCreatedAt)
         {
             Id = id;
             Filename = filename;
@@ -50,18 +62,33 @@ namespace Discord
             Duration = duration;
             Waveform = waveform;
             Flags = flags;
+            Title = title;
+            ClipParticipants = clipParticipants;
+            ClipCreatedAt = clipCreatedAt;
         }
-        internal static Attachment Create(Model model)
+        internal static Attachment Create(Model model, BaseDiscordClient discord)
         {
-            return new Attachment(model.Id, model.Filename, model.Url, model.ProxyUrl, model.Size,
+            return new Attachment(
+                model.Id,
+                model.Filename,
+                model.Url,
+                model.ProxyUrl,
+                model.Size,
                 model.Height.IsSpecified ? model.Height.Value : (int?)null,
                 model.Width.IsSpecified ? model.Width.Value : (int?)null,
                 model.Ephemeral.ToNullable(), model.Description.GetValueOrDefault(),
                 model.ContentType.GetValueOrDefault(),
                 model.DurationSeconds.IsSpecified ? model.DurationSeconds.Value : null,
                 model.Waveform.GetValueOrDefault(null),
-                model.Flags.GetValueOrDefault(AttachmentFlags.None));
+                model.Flags.GetValueOrDefault(AttachmentFlags.None),
+                model.Title.GetValueOrDefault(null),
+                model.ClipParticipants.GetValueOrDefault(Array.Empty<API.User>()).Select(x => RestUser.Create(discord, x)).ToImmutableArray(),
+                model.ClipCreatedAt.ToNullable());
         }
+
+
+        /// <inheritdoc />
+        public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
         /// <summary>
         ///     Returns the filename of this attachment.
@@ -71,5 +98,7 @@ namespace Discord
         /// </returns>
         public override string ToString() => Filename;
         private string DebuggerDisplay => $"{Filename} ({Size} bytes)";
+        /// <inheritdoc />
+        IReadOnlyCollection<IUser> IAttachment.ClipParticipants => ClipParticipants;
     }
 }
