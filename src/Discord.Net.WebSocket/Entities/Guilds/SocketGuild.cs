@@ -144,6 +144,8 @@ namespace Discord.WebSocket
         public bool IsBoostProgressBarEnabled { get; private set; }
         /// <inheritdoc />
         public GuildFeatures Features { get; private set; }
+        /// <inheritdoc />
+        public GuildInventorySettings? InventorySettings { get; private set; }
         /// <inheritdoc/>
         public GuildIncidentsData IncidentsData { get; private set; }
 
@@ -575,6 +577,8 @@ namespace Discord.WebSocket
             PreferredCulture = new CultureInfo(PreferredLocale);
             if (model.IsBoostProgressBarEnabled.IsSpecified)
                 IsBoostProgressBarEnabled = model.IsBoostProgressBarEnabled.Value;
+            if (model.InventorySettings.IsSpecified)
+                InventorySettings = model.InventorySettings.Value is null ? null : new(model.InventorySettings.Value.IsEmojiPackCollectible.GetValueOrDefault(false));
             IncidentsData = model.IncidentsData is not null
                 ? new GuildIncidentsData { DmsDisabledUntil = model.IncidentsData.DmsDisabledUntil, InvitesDisabledUntil = model.IncidentsData.InvitesDisabledUntil }
                 : new GuildIncidentsData();
