@@ -60,8 +60,9 @@ internal static class ForumHelper
                 }
                 : Optional<ModifyForumReactionEmojiParams>.Unspecified,
             DefaultSortOrder = args.DefaultSortOrder,
-            DefaultLayout = args.DefaultLayout,
+            DefaultLayout = channel is not IMediaChannel ? args.DefaultLayout : Optional<ForumLayout>.Unspecified,
         };
         return await client.ApiClient.ModifyGuildChannelAsync(channel.Id, apiArgs, options).ConfigureAwait(false);
     }
 }
+

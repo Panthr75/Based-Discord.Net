@@ -341,6 +341,15 @@ namespace Discord.WebSocket
             => Channels.OfType<SocketForumChannel>().ToImmutableArray();
 
         /// <summary>
+        ///     Gets a collection of all media channels in this guild.
+        /// </summary>
+        /// <returns>
+        ///     A read-only collection of forum channels found within this guild.
+        /// </returns>
+        public IReadOnlyCollection<SocketMediaChannel> MediaChannels
+            => Channels.OfType<SocketMediaChannel>().ToImmutableArray();
+
+        /// <summary>
         ///     Gets the current logged-in user.
         /// </summary>
         /// <exception cref="KeyNotFoundException">The current user isn't found
@@ -765,6 +774,17 @@ namespace Discord.WebSocket
         /// </returns>
         public SocketForumChannel? GetForumChannel(ulong id)
             => GetChannel(id) as SocketForumChannel;
+
+        /// <summary>
+        ///     Gets a media channel in this guild.
+        /// </summary>
+        /// <param name="id">The snowflake identifier for the stage channel.</param>
+        /// <returns>
+        ///     A stage channel associated with the specified <paramref name="id" />; <see langword="null"/> if none is found.
+        /// </returns>
+        public SocketMediaChannel? GetMediaChannel(ulong id)
+            => GetChannel(id) as SocketMediaChannel;
+
         /// <summary>
         ///     Gets a voice channel in this guild.
         /// </summary>
@@ -860,7 +880,7 @@ namespace Discord.WebSocket
             => GuildHelper.CreateCategoryChannelAsync(this, Discord, name, options, func);
 
         /// <summary>
-        ///     Creates a new channel forum in this guild.
+        ///     Creates a new forum channel in this guild.
         /// </summary>
         /// <param name="name">The new name for the forum.</param>
         /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
@@ -872,6 +892,20 @@ namespace Discord.WebSocket
         /// </returns>
         public Task<RestForumChannel> CreateForumChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null)
             => GuildHelper.CreateForumChannelAsync(this, Discord, name, options, func);
+
+        /// <summary>
+        ///     Creates a new media channel in this guild.
+        /// </summary>
+        /// <param name="name">The new name for the media channel.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     media channel.
+        /// </returns>
+        public Task<RestMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null)
+            => GuildHelper.CreateMediaChannelAsync(this, Discord, name, options, func);
 
         internal SocketGuildChannel AddChannel(ClientState state, ChannelModel model)
         {
@@ -2093,6 +2127,20 @@ namespace Discord.WebSocket
         Task<ITextChannel?> IGuild.GetPublicUpdatesChannelAsync(CacheMode mode, RequestOptions? options)
             => Task.FromResult<ITextChannel?>(PublicUpdatesChannel);
         /// <inheritdoc />
+        Task<IForumChannel?> IGuild.GetForumChannelAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IForumChannel?>(GetForumChannel(id));
+        /// <inheritdoc />
+        Task<IReadOnlyCollection<IForumChannel>> IGuild.GetForumChannelsAsync(CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IReadOnlyCollection<IForumChannel>>(ForumChannels);
+
+        /// <inheritdoc />
+        Task<IMediaChannel?> IGuild.GetMediaChannelAsync(ulong id, CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IMediaChannel?>(GetMediaChannel(id));
+        /// <inheritdoc />
+        Task<IReadOnlyCollection<IMediaChannel>> IGuild.GetMediaChannelsAsync(CacheMode mode, RequestOptions? options)
+            => Task.FromResult<IReadOnlyCollection<IMediaChannel>>(MediaChannels);
+
+        /// <inheritdoc />
         async Task<ITextChannel> IGuild.CreateTextChannelAsync(string name, Action<TextChannelProperties>? func, RequestOptions? options)
             => await CreateTextChannelAsync(name, func, options).ConfigureAwait(false);
         /// <inheritdoc />
@@ -2107,6 +2155,10 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         async Task<IForumChannel> IGuild.CreateForumChannelAsync(string name, Action<ForumChannelProperties>? func, RequestOptions? options)
             => await CreateForumChannelAsync(name, func, options).ConfigureAwait(false);
+
+        /// <inheritdoc />
+        async Task<IMediaChannel> IGuild.CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func, RequestOptions? options)
+            => await CreateMediaChannelAsync(name, func, options).ConfigureAwait(false);
 
         /// <inheritdoc />
         async Task<IReadOnlyCollection<IVoiceRegion>> IGuild.GetVoiceRegionsAsync(RequestOptions? options)
