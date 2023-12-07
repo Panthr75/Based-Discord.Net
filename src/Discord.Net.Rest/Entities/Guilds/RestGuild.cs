@@ -116,6 +116,9 @@ namespace Discord.Rest
         /// <inheritdoc />
         public GuildFeatures Features { get; private set; }
 
+        /// <inheritdoc/>
+        public GuildIncidentsData IncidentsData { get; private set; }
+
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
 
@@ -149,6 +152,7 @@ namespace Discord.Rest
             this.PreferredLocale = "en-US";
             this.PreferredCulture = CultureInfo.GetCultureInfo("en-US");
             this.Features = new GuildFeatures(GuildFeature.None, null);
+            this.IncidentsData = new();
         }
         internal static RestGuild Create(BaseDiscordClient discord, Model model)
         {
@@ -189,6 +193,9 @@ namespace Discord.Rest
             Description = model.Description;
             PremiumSubscriptionCount = model.PremiumSubscriptionCount.GetValueOrDefault();
             NsfwLevel = model.NsfwLevel;
+            IncidentsData = model.IncidentsData is not null
+                ? new GuildIncidentsData { DmsDisabledUntil = model.IncidentsData.DmsDisabledUntil, InvitesDisabledUntil = model.IncidentsData.InvitesDisabledUntil }
+                : new GuildIncidentsData();
             if (model.MaxPresences.IsSpecified)
                 MaxPresences = model.MaxPresences.Value ?? 25000;
             if (model.MaxMembers.IsSpecified)
@@ -326,6 +333,14 @@ namespace Discord.Rest
         /// <inheritdoc />
         public Task LeaveAsync(RequestOptions? options = null)
             => GuildHelper.LeaveAsync(this, Discord, options);
+
+        /// <inheritdoc />
+        public async Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props, RequestOptions? options = null)
+        {
+            IncidentsData = await GuildHelper.ModifyGuildIncidentActionsAsync(this, Discord, props, options);
+
+            return IncidentsData;
+        }
         #endregion
 
         #region Interactions

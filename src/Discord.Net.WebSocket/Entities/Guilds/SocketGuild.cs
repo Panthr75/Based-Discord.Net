@@ -144,6 +144,8 @@ namespace Discord.WebSocket
         public bool IsBoostProgressBarEnabled { get; private set; }
         /// <inheritdoc />
         public GuildFeatures Features { get; private set; }
+        /// <inheritdoc/>
+        public GuildIncidentsData IncidentsData { get; private set; }
 
         /// <inheritdoc />
         public DateTimeOffset CreatedAt => SnowflakeUtils.FromSnowflake(Id);
@@ -431,6 +433,7 @@ namespace Discord.WebSocket
             _emotes = ImmutableArray.Create<GuildEmote>();
             _automodRules = new ConcurrentDictionary<ulong, SocketAutoModRule>();
             _auditLogs = new AuditLogCache(client);
+            IncidentsData = new GuildIncidentsData();
         }
         internal static SocketGuild Create(DiscordSocketClient discord, ClientState state, ExtendedModel model)
         {
@@ -563,6 +566,9 @@ namespace Discord.WebSocket
             PreferredCulture = new CultureInfo(PreferredLocale);
             if (model.IsBoostProgressBarEnabled.IsSpecified)
                 IsBoostProgressBarEnabled = model.IsBoostProgressBarEnabled.Value;
+            IncidentsData = model.IncidentsData is not null
+                ? new GuildIncidentsData { DmsDisabledUntil = model.IncidentsData.DmsDisabledUntil, InvitesDisabledUntil = model.IncidentsData.InvitesDisabledUntil }
+                : new GuildIncidentsData();
             if (model.Emojis != null)
             {
                 var emojis = ImmutableArray.CreateBuilder<GuildEmote>(model.Emojis.Length);
@@ -659,6 +665,10 @@ namespace Discord.WebSocket
         /// <inheritdoc />
         public Task LeaveAsync(RequestOptions? options = null)
             => GuildHelper.LeaveAsync(this, Discord, options);
+
+        /// <inheritdoc />
+        public Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props, RequestOptions? options = null)
+            => GuildHelper.ModifyGuildIncidentActionsAsync(this, Discord, props, options);
         #endregion
 
         #region Bans

@@ -94,5 +94,8 @@ namespace Discord.API
 
         [JsonPropertyName("max_stage_video_channel_users")]
         public Optional<int> MaxStageVideoChannelUsers { get; set; }
+
+        [JsonPropertyName("incidents_data")]
+        public GuildIncidentsData? IncidentsData { get; set; }
     }
 }
