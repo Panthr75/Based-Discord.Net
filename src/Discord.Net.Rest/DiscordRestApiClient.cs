@@ -1713,7 +1713,7 @@ namespace Discord.API
 
         public async Task<GuildIncidentsData> ModifyGuildIncidentActionsAsync(ulong guildId, ModifyGuildIncidentsDataParams? args, RequestOptions? options = null)
         {
-            Preconditions.NotEqual(guildId, 0, nameof(guildId));
+            Preconditions.NotEqual(guildId, 0UL, nameof(guildId));
 
             var ids = new BucketIds(guildId: guildId);
 
