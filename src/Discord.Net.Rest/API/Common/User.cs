@@ -22,6 +22,8 @@ namespace Discord.API
 
         [JsonPropertyName("global_name")]
         public Optional<string> GlobalName { get; set; }
+        [JsonPropertyName("avatar_decoration_data")]
+        public Optional<AvatarDecorationData> AvatarDecoration { get; set; }
         [JsonPropertyName("pronouns")]
         public Optional<string> Pronouns { get; set; }
 

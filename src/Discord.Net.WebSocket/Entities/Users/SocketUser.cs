@@ -50,6 +50,12 @@ namespace Discord.WebSocket
         public IReadOnlyCollection<ClientType> ActiveClients => Presence?.ActiveClients ?? ImmutableHashSet<ClientType>.Empty;
         /// <inheritdoc />
         public IReadOnlyCollection<IActivity> Activities => Presence?.Activities ?? ImmutableList<IActivity>.Empty;
+
+        /// <inheritdoc />
+        public string? AvatarDecorationHash { get; private set; }
+
+        /// <inheritdoc />
+        public ulong? AvatarDecorationSkuId { get; private set; }
         /// <summary>
         ///     Gets mutual guilds shared with this user.
         /// </summary>
@@ -106,6 +112,13 @@ namespace Discord.WebSocket
                 Pronouns = model.Pronouns.Value;
                 hasChanges = true;
             }
+            if (model.AvatarDecoration is { IsSpecified: true, Value: not null }
+    && (model.AvatarDecoration.Value.Asset != AvatarDecorationHash || model.AvatarDecoration.Value.SkuId != AvatarDecorationSkuId))
+            {
+                AvatarDecorationHash = model.AvatarDecoration.Value?.Asset;
+                AvatarDecorationSkuId = model.AvatarDecoration.Value?.SkuId;
+                hasChanges = true;
+            }
             return hasChanges;
         }
 
@@ -129,6 +142,12 @@ namespace Discord.WebSocket
             => DiscriminatorValue != 0
                 ? CDN.GetDefaultUserAvatarUrl(DiscriminatorValue)
                 : CDN.GetDefaultUserAvatarUrl(Id);
+
+        /// <inheritdoc />
+        public string? GetAvatarDecorationUrl()
+            => AvatarDecorationHash is not null
+                ? CDN.GetAvatarDecorationUrl(AvatarDecorationHash)
+                : null;
 
         /// <summary>
         ///     Gets the full name of the user (e.g. Example#0001).
