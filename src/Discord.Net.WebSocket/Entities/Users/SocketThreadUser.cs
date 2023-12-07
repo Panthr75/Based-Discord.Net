@@ -328,10 +328,11 @@ namespace Discord.WebSocket
         IReadOnlyCollection<ulong> IGuildUser.RoleIds => GuildUser?.Roles?.Select(x => x.Id)?.ToImmutableArray() ?? ImmutableArray<ulong>.Empty;
 
         /// <inheritdoc />
-        string? IGuildUser.GetDisplayAvatarUrl(ImageFormat format, ushort size) => GuildUser?.GetDisplayAvatarUrl(format, size);
+        string? IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => GuildUser?.GetGuildAvatarUrl(format, size);
 
         /// <inheritdoc />
-        string? IGuildUser.GetGuildAvatarUrl(ImageFormat format, ushort size) => GuildUser?.GetGuildAvatarUrl(format, size);
+        public override string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
+            => GuildUser.GetGuildAvatarUrl() ?? base.GetDisplayAvatarUrl(format, size);
 
         /// <exception cref="InvalidOperationException">
         /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.
