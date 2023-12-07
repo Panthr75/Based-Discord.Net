@@ -485,9 +485,19 @@ namespace Discord.Rest
         #region Roles
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestRole> CreateRoleAsync(IGuild guild, BaseDiscordClient client,
-            string name, GuildPermissions? permissions, Color? color, bool isHoisted, bool isMentionable, RequestOptions? options = null)
+            string name, GuildPermissions? permissions, Color? color, bool isHoisted, bool isMentionable, RequestOptions? options, Image? icon, Emoji? emoji)
         {
             Preconditions.NotNull(name, nameof(name));
+
+            if (icon is not null || emoji is not null)
+            {
+                guild.Features.EnsureFeature(GuildFeature.RoleIcons);
+
+                if (icon is not null && emoji is not null)
+                {
+                    throw new ArgumentException("Emoji and Icon properties cannot be present on a role at the same time.");
+                }
+            }
 
             var createGuildRoleParams = new API.Rest.ModifyGuildRoleParams
             {
@@ -495,7 +505,9 @@ namespace Discord.Rest
                 Hoist = isHoisted,
                 Mentionable = isMentionable,
                 Name = name,
-                Permissions = permissions?.RawValue.ToString() ?? Optional.Create<string>()
+                Permissions = permissions?.RawValue.ToString() ?? Optional.Create<string>(),
+                Icon = icon?.ToModel(),
+                Emoji = Optional.CreateFromNullable(emoji?.Name)
             };
 
             var model = await client.ApiClient.CreateGuildRoleAsync(guild.Id, createGuildRoleParams, options).ConfigureAwait(false);
