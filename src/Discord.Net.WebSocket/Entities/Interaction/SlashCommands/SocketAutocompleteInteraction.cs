@@ -179,7 +179,7 @@ namespace Discord.WebSocket
         /// <exception cref="NotSupportedException"></exception>
         [Obsolete("This operation is not supported on Autocomplete Interactions. Instead, use SocketAutocompleteInteraction.RespondAsync(RequestOptions?, AutocompleteResult), or SocketAutocompleteInteraction.RespondAsync(IEnumerable<AutocompleteResult>, RequestOptions?)", error: true)]
         public override Task RespondWithModalAsync(Modal modal, RequestOptions? requestOptions = null)
-            => throw new NotSupportedException("Autocomplete interactions cannot have normal responces!");
+            => throw new NotSupportedException("Autocomplete interactions cannot have normal responses!");
 #pragma warning restore CS0809 // Obsolete member overrides non-obsolete member
 
         //IAutocompleteInteraction

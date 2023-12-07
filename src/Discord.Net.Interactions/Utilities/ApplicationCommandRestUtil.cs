@@ -298,8 +298,7 @@ namespace Discord.Interactions
                         throw new InvalidOperationException($"{input.GetType().FullName} isn't a valid component info class");
                 }
 
-            if (modifyModal is not null)
-                modifyModal(builder);
+            modifyModal?.Invoke(builder);
 
             return builder.Build();
         }
