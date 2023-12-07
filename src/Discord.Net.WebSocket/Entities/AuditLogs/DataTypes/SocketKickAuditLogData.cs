@@ -1,4 +1,5 @@
 using Discord.Rest;
+
 using EntryModel = Discord.API.AuditLogEntry;
 
 namespace Discord.WebSocket;
@@ -15,10 +16,10 @@ public class SocketKickAuditLogData : ISocketAuditLogData
 
     internal static SocketKickAuditLogData Create(DiscordSocketClient discord, EntryModel entry)
     {
-        var cachedUser = discord.GetUser(entry.Id);
+        var cachedUser = discord.GetUser(entry.TargetId!.Value);
         var cacheableUser = new Cacheable<SocketUser, RestUser, IUser, ulong>(
             cachedUser,
-            entry.Id,
+            entry.TargetId!.Value,
             cachedUser is not null,
             async () =>
             {
