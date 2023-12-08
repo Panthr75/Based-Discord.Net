@@ -4,7 +4,7 @@ using System;
 
 namespace Discord.Net.Converters
 {
-    public class UnixTimestampConverter : JsonConverter<Optional<DateTimeOffset>>
+    internal sealed class UnixTimestampConverter : JsonConverter<Optional<DateTimeOffset>>
     {
         // 1e13 unix ms = year 2286
         // necessary to prevent discord.js from sending values in the e15 and overflowing a DTO

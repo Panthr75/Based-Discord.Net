@@ -2,45 +2,12 @@ using Discord.Net.Converters;
 
 using System;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 namespace Discord.Rest;
 
 public static class EmbedBuilderUtils
 {
-    private static readonly Lazy<JsonSerializerOptions> _options = new(() =>
-    {
-        return new()
-        {
-            AllowTrailingCommas = true,
-            IncludeFields = true,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-            {
-                Modifiers = { Optional.OptionalModifier }
-            },
-            Converters =
-            {
-                new EmbedTypeConverter(),
-                new UInt64Converter(),
-                new EnumStringValueConverter<GuildPermission>(),
-                new GuildFeaturesConverter(),
-                new ApplicationCommandOptionValueConverter(),
-                new OptionalConverterFactory(),
-                new ImageConverter(),
-                new InteractionConverter(),
-                new NumericValueConverter(),
-                new JsonNodeConverter(),
-                new MessageComponentConverter(),
-                new StringEntityConverter(),
-                new UInt64EntityConverter(),
-                new UInt64EntityOrIdConverter(),
-                new UserStatusConverter(),
-                new SelectMenuDefaultValueTypeConverter(),
-            }
-        };
-    });
+    private static readonly Lazy<JsonSerializerOptions> _options = new(DiscordJsonOptionsFactory.CreateDefaultOptions);
 
     /// <summary>
     ///     Parses a string into an <see cref="EmbedBuilder"/>.

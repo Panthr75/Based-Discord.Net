@@ -23,35 +23,7 @@ namespace Discord.Rest
         private RestApplication? _applicationInfo;
         private RestApplication? _currentBotApplication;
 
-        internal static readonly JsonSerializerOptions SerializerOptions = new()
-        {
-            AllowTrailingCommas = true,
-            IncludeFields = true,
-            NumberHandling = JsonNumberHandling.AllowReadingFromString,
-            TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-            {
-                Modifiers = { Optional.OptionalModifier }
-            },
-            Converters =
-            {
-                new EmbedTypeConverter(),
-                new UInt64Converter(),
-                new EnumStringValueConverter<GuildPermission>(),
-                new GuildFeaturesConverter(),
-                new ApplicationCommandOptionValueConverter(),
-                new OptionalConverterFactory(),
-                new ImageConverter(),
-                new InteractionConverter(),
-                new NumericValueConverter(),
-                new JsonNodeConverter(),
-                new MessageComponentConverter(),
-                new StringEntityConverter(),
-                new UInt64EntityConverter(),
-                new UInt64EntityOrIdConverter(),
-                new UserStatusConverter(),
-                new SelectMenuDefaultValueTypeConverter()
-            }
-        };
+        internal static readonly JsonSerializerOptions SerializerOptions = DiscordJsonOptionsFactory.CreateDefaultOptions();
 
         /// <summary>
         ///     Gets the logged-in user.
