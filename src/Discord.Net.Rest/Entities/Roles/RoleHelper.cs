@@ -8,11 +8,10 @@ namespace Discord.Rest
     internal static class RoleHelper
     {
         #region General
-        public static async Task DeleteAsync(IRole role, BaseDiscordClient client,
+        public static Task DeleteAsync(IRole role, BaseDiscordClient client,
             RequestOptions? options)
-        {
-            await client.ApiClient.DeleteGuildRoleAsync(role.Guild.Id, role.Id, options).ConfigureAwait(false);
-        }
+            => client.ApiClient.DeleteGuildRoleAsync(role.Guild.Id, role.Id, options);
+
         public static async Task<Model> ModifyAsync(IRole role, BaseDiscordClient client,
             Action<RoleProperties> func, RequestOptions? options = null)
         {

@@ -49,10 +49,8 @@ namespace Discord
         ///     A task that represents the asynchronous download operation. The task result contains the downloaded
         ///     entity.
         /// </returns>
-        public async Task<TEntity?> DownloadAsync()
-        {
-            return await DownloadFunc().ConfigureAwait(false);
-        }
+        public Task<TEntity?> DownloadAsync()
+            => DownloadFunc();
 
         /// <summary>
         ///     Returns the cached entity if it exists; otherwise downloads it.
@@ -106,9 +104,9 @@ namespace Discord
         ///     A task that represents the asynchronous download operation. The task result contains the downloaded
         ///     entity.
         /// </returns>
-        public async Task<TDownloadableEntity?> DownloadAsync()
+        public Task<TDownloadableEntity?> DownloadAsync()
         {
-            return await DownloadFunc().ConfigureAwait(false);
+            return DownloadFunc();
         }
 
         /// <summary>

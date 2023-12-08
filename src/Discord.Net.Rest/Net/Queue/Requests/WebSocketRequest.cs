@@ -30,14 +30,14 @@ namespace Discord.Net.Queue
             Promise = new TaskCompletionSource<Stream>();
         }
 
-        public async Task SendAsync()
+        public Task SendAsync()
         {
             if (this.Client is null || this.Data is null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            await Client.SendAsync(Data, 0, Data.Length, IsText).ConfigureAwait(false);
+            return Client.SendAsync(Data, 0, Data.Length, IsText);
         }
     }
 }

@@ -281,7 +281,7 @@ namespace Discord.Rest
             if (ephemeral)
                 args.Flags = MessageFlags.Ephemeral;
 
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, await this.GetChannelAsync(options).ConfigureAwait(false), options);
+            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, await this.GetChannelAsync(options).ConfigureAwait(false), options).ConfigureAwait(false);
         }
 
         /// <inheritdoc/>

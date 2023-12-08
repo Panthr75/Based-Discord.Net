@@ -311,7 +311,7 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public override async Task<RestFollowupMessage> FollowupAsync(
+        public override Task<RestFollowupMessage> FollowupAsync(
             string? text = null,
             Embed[]? embeds = null,
             bool isTTS = false,
@@ -344,11 +344,11 @@ namespace Discord.WebSocket
             if (ephemeral)
                 args.Flags = MessageFlags.Ephemeral;
 
-            return await InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel!, options);
+            return InteractionHelper.SendFollowupAsync(Discord.Rest, args, Token, Channel!, options);
         }
 
         /// <inheritdoc/>
-        public override async Task<RestFollowupMessage> FollowupWithFilesAsync(
+        public override Task<RestFollowupMessage> FollowupWithFilesAsync(
             IEnumerable<FileAttachment> attachments,
             string? text = null,
             Embed[]? embeds = null,
@@ -404,7 +404,7 @@ namespace Discord.WebSocket
                 AllowedMentions = Optional.CreateFromNullable(allowedMentions).Map(m => m.ToModel()),
                 MessageComponents = Optional.CreateFromNullable(components).Map(c => c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
             };
-            return await InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel!, options).ConfigureAwait(false);
+            return InteractionHelper.SendFollowupAsync(Discord, args, Token, Channel!, options);
         }
 
         /// <inheritdoc/>

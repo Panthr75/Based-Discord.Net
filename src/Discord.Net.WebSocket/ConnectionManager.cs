@@ -200,23 +200,23 @@ namespace Discord
             await this._logger.InfoAsync("Disconnected").ConfigureAwait(false);
         }
 
-        public async Task CompleteAsync()
+        public Task CompleteAsync()
         {
             if (this._readyPromise is null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            await this._readyPromise.TrySetResultAsync(true).ConfigureAwait(false);
+            return this._readyPromise.TrySetResultAsync(true);
         }
-        public async Task WaitAsync()
+        public Task WaitAsync()
         {
             if (this._readyPromise is null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            await this._readyPromise.Task.ConfigureAwait(false);
+            return this._readyPromise.Task;
         }
 
         public void Cancel()

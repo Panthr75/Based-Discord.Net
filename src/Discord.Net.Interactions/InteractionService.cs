@@ -508,12 +508,12 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
         /// </returns>
-        public async Task<IReadOnlyCollection<RestGuildCommand>> AddCommandsToGuildAsync(IGuild guild, bool deleteMissing = false, params ICommandInfo[] commands)
+        public Task<IReadOnlyCollection<RestGuildCommand>> AddCommandsToGuildAsync(IGuild guild, bool deleteMissing = false, params ICommandInfo[] commands)
         {
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await AddCommandsToGuildAsync(guild.Id, deleteMissing, commands).ConfigureAwait(false);
+            return AddCommandsToGuildAsync(guild.Id, deleteMissing, commands);
         }
 
         /// <summary>
@@ -569,12 +569,12 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the command registration process. The task result contains the active application commands of the target guild.
         /// </returns>
-        public async Task<IReadOnlyCollection<RestGuildCommand>> AddModulesToGuildAsync(IGuild guild, bool deleteMissing = false, params ModuleInfo[] modules)
+        public Task<IReadOnlyCollection<RestGuildCommand>> AddModulesToGuildAsync(IGuild guild, bool deleteMissing = false, params ModuleInfo[] modules)
         {
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await AddModulesToGuildAsync(guild.Id, deleteMissing, modules).ConfigureAwait(false);
+            return AddModulesToGuildAsync(guild.Id, deleteMissing, modules);
         }
 
         /// <summary>
@@ -763,12 +763,12 @@ namespace Discord.Interactions
         /// <returns>
         ///     A task representing the command de-registration process. The task result contains the active application commands of the target guild.
         /// </returns>
-        public async Task<IReadOnlyCollection<RestGuildCommand>> RemoveModulesFromGuildAsync(IGuild guild, params ModuleInfo[] modules)
+        public Task<IReadOnlyCollection<RestGuildCommand>> RemoveModulesFromGuildAsync(IGuild guild, params ModuleInfo[] modules)
         {
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await RemoveModulesFromGuildAsync(guild.Id, modules).ConfigureAwait(false);
+            return RemoveModulesFromGuildAsync(guild.Id, modules);
         }
 
         /// <summary>
@@ -1244,7 +1244,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     The active command permissions after the modification.
         /// </returns>
-        public async Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(ModuleInfo module, IGuild guild,
+        public Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(ModuleInfo module, IGuild guild,
             params ApplicationCommandPermission[] permissions)
         {
             if (module is null)
@@ -1253,7 +1253,7 @@ namespace Discord.Interactions
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await ModifySlashCommandPermissionsAsync(module, guild.Id, permissions).ConfigureAwait(false);
+            return ModifySlashCommandPermissionsAsync(module, guild.Id, permissions);
         }
 
         /// <summary>
@@ -1292,7 +1292,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     The active command permissions after the modification.
         /// </returns>
-        public async Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(SlashCommandInfo command, IGuild guild,
+        public Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(SlashCommandInfo command, IGuild guild,
             params ApplicationCommandPermission[] permissions)
         {
             if (command is null)
@@ -1301,7 +1301,7 @@ namespace Discord.Interactions
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await ModifyApplicationCommandPermissionsAsync(command, guild.Id, permissions).ConfigureAwait(false);
+            return ModifyApplicationCommandPermissionsAsync(command, guild.Id, permissions);
         }
 
         /// <summary>
@@ -1313,8 +1313,9 @@ namespace Discord.Interactions
         /// <returns>
         ///     The active command permissions after the modification.
         /// </returns>
-        public async Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(SlashCommandInfo command, ulong guildId,
-            params ApplicationCommandPermission[] permissions) => await ModifyApplicationCommandPermissionsAsync(command, guildId, permissions).ConfigureAwait(false);
+        public Task<GuildApplicationCommandPermission> ModifySlashCommandPermissionsAsync(SlashCommandInfo command, ulong guildId,
+            params ApplicationCommandPermission[] permissions)
+            => ModifyApplicationCommandPermissionsAsync(command, guildId, permissions);
 
         /// <summary>
         ///     Modify the command permissions of the matching Discord Slash Command.
@@ -1325,7 +1326,7 @@ namespace Discord.Interactions
         /// <returns>
         ///     The active command permissions after the modification.
         /// </returns>
-        public async Task<GuildApplicationCommandPermission> ModifyContextCommandPermissionsAsync(ContextCommandInfo command, IGuild guild,
+        public Task<GuildApplicationCommandPermission> ModifyContextCommandPermissionsAsync(ContextCommandInfo command, IGuild guild,
             params ApplicationCommandPermission[] permissions)
         {
             if (command is null)
@@ -1334,7 +1335,7 @@ namespace Discord.Interactions
             if (guild is null)
                 throw new ArgumentNullException(nameof(guild));
 
-            return await ModifyApplicationCommandPermissionsAsync(command, guild.Id, permissions).ConfigureAwait(false);
+            return ModifyApplicationCommandPermissionsAsync(command, guild.Id, permissions);
         }
 
         /// <summary>
@@ -1346,8 +1347,9 @@ namespace Discord.Interactions
         /// <returns>
         ///     The active command permissions after the modification.
         /// </returns>
-        public async Task<GuildApplicationCommandPermission> ModifyContextCommandPermissionsAsync(ContextCommandInfo command, ulong guildId,
-            params ApplicationCommandPermission[] permissions) => await ModifyApplicationCommandPermissionsAsync(command, guildId, permissions).ConfigureAwait(false);
+        public Task<GuildApplicationCommandPermission> ModifyContextCommandPermissionsAsync(ContextCommandInfo command, ulong guildId,
+            params ApplicationCommandPermission[] permissions)
+            => ModifyApplicationCommandPermissionsAsync(command, guildId, permissions);
 
         private async Task<GuildApplicationCommandPermission> ModifyApplicationCommandPermissionsAsync<T>(T command, ulong guildId,
             params ApplicationCommandPermission[] permissions) where T : class, IApplicationCommandInfo, ICommandInfo

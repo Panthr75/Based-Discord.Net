@@ -98,7 +98,7 @@ namespace Discord.Net.Queue
             createdTokenSource?.Dispose();
         }
 
-        internal async Task EnterGlobalAsync(int id, RestRequest request)
+        internal Task EnterGlobalAsync(int id, RestRequest request)
         {
             int millis = (int)Math.Ceiling((_waitUntil - DateTimeOffset.UtcNow).TotalMilliseconds);
             if (millis > 0)
@@ -106,23 +106,27 @@ namespace Discord.Net.Queue
 #if DEBUG_LIMITS
                 Debug.WriteLine($"[{id}] Sleeping {millis} ms (Pre-emptive) [Global]");
 #endif
-                await Task.Delay(millis).ConfigureAwait(false);
+                return Task.Delay(millis);
             }
+
+            return Task.CompletedTask;
         }
+
         internal void PauseGlobal(RateLimitInfo info)
         {
             _waitUntil = DateTimeOffset.UtcNow.AddMilliseconds((info.RetryAfter ?? 0) + (info.Lag?.TotalMilliseconds ?? 0.0));
         }
-        internal async Task EnterGlobalAsync(int id, WebSocketRequest request)
+
+        internal Task EnterGlobalAsync(int id, WebSocketRequest request)
         {
             //If this is a global request (unbucketed), it'll be dealt in EnterAsync
             if (request.Options.BucketId is null)
             {
-                return;
+                return Task.CompletedTask;
             }
             var requestBucket = GatewayBucket.Get(request.Options.BucketId);
             if (requestBucket.Type == GatewayBucketType.Unbucketed)
-                return;
+                return Task.CompletedTask;
 
             //It's not a global request, so need to remove one from global (per-session)
             var globalBucketType = GatewayBucket.Get(GatewayBucketType.Unbucketed);
@@ -130,7 +134,7 @@ namespace Discord.Net.Queue
             options.BucketId = globalBucketType.Id;
             var globalRequest = new WebSocketRequest(null, null, false, false, options);
             var globalBucket = GetOrCreateBucket(options, globalRequest);
-            await globalBucket.TriggerAsync(id, globalRequest);
+            return globalBucket.TriggerAsync(id, globalRequest);
         }
 
         private RequestBucket GetOrCreateBucket(RequestOptions options, IRequest request)
@@ -144,14 +148,14 @@ namespace Discord.Net.Queue
             }
             return (RequestBucket)obj;
         }
-        internal async Task RaiseRateLimitTriggered(BucketId bucketId, RateLimitInfo? info, string endpoint)
+        internal Task RaiseRateLimitTriggered(BucketId bucketId, RateLimitInfo? info, string endpoint)
         {
             if (this.RateLimitTriggered == null)
             {
-                return;
+                return Task.CompletedTask;
             }
 
-            await RateLimitTriggered(bucketId, info, endpoint).ConfigureAwait(false);
+            return RateLimitTriggered(bucketId, info, endpoint);
         }
         internal (RequestBucket?, BucketId?) UpdateBucketHash(BucketId id, string discordHash)
         {

@@ -24,7 +24,7 @@ namespace Discord.Rest
             return RestApplication.Create(client, model);
         }
 
-        public static async Task<API.Application> ModifyCurrentBotApplicationAsync(BaseDiscordClient client, Action<ModifyApplicationProperties> func, RequestOptions? options)
+        public static Task<API.Application> ModifyCurrentBotApplicationAsync(BaseDiscordClient client, Action<ModifyApplicationProperties> func, RequestOptions? options)
         {
             var args = new ModifyApplicationProperties();
             func(args);
@@ -39,7 +39,7 @@ namespace Discord.Rest
             if(args.Description.IsSpecified)
                 Preconditions.AtMost(args.Description.Value.Length, DiscordConfig.MaxApplicationDescriptionLength, nameof(args.Description), $"An application description tag mus have length less or equal to {DiscordConfig.MaxApplicationDescriptionLength}");
 
-            return await client.ApiClient.ModifyCurrentBotApplicationAsync(new()
+            return client.ApiClient.ModifyCurrentBotApplicationAsync(new()
             {
                 Description = args.Description,
                 Tags = args.Tags,
@@ -51,7 +51,7 @@ namespace Discord.Rest
                 CustomInstallUrl = args.CustomInstallUrl,
                 InstallParams = args.InstallParams.Map(a => new InstallParams
                 {
-                    Permission = (ulong)args.InstallParams.Value.Permission,
+                    Permission = (ulong?)a.Permission ?? 0UL,
                     Scopes = args.InstallParams.Value.Scopes.ToArray()
                 })
             }, options);

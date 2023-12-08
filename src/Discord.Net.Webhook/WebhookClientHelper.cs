@@ -65,7 +65,7 @@ namespace Discord.Webhook
             return model.Id;
         }
 
-        public static async Task ModifyMessageAsync(DiscordWebhookClient client, ulong messageId,
+        public static Task ModifyMessageAsync(DiscordWebhookClient client, ulong messageId,
             Action<WebhookMessageProperties> func, RequestOptions? options, ulong? threadId)
         {
             var args = new WebhookMessageProperties();
@@ -112,8 +112,7 @@ namespace Discord.Webhook
                         c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
                 };
 
-                await client.ApiClient.ModifyWebhookMessageAsync(client.Webhook.Id, messageId, apiArgs, options, threadId)
-                    .ConfigureAwait(false);
+                return client.ApiClient.ModifyWebhookMessageAsync(client.Webhook.Id, messageId, apiArgs, options, threadId);
             }
             else
             {
@@ -129,15 +128,12 @@ namespace Discord.Webhook
                         c.Components.Select(x => new API.ActionRowComponent(x)).ToArray()),
                 };
 
-                await client.ApiClient.ModifyWebhookMessageAsync(client.Webhook.Id, messageId, apiArgs, options, threadId)
-                    .ConfigureAwait(false);
+                return client.ApiClient.ModifyWebhookMessageAsync(client.Webhook.Id, messageId, apiArgs, options, threadId);
             }
         }
 
-        public static async Task DeleteMessageAsync(DiscordWebhookClient client, ulong messageId, RequestOptions? options, ulong? threadId)
-        {
-            await client.ApiClient.DeleteWebhookMessageAsync(client.Webhook.Id, messageId, options, threadId).ConfigureAwait(false);
-        }
+        public static Task DeleteMessageAsync(DiscordWebhookClient client, ulong messageId, RequestOptions? options, ulong? threadId)
+            => client.ApiClient.DeleteWebhookMessageAsync(client.Webhook.Id, messageId, options, threadId);
 
         public static async Task<ulong> SendFileAsync(DiscordWebhookClient client, string filePath,
             string? text,
@@ -250,7 +246,7 @@ namespace Discord.Webhook
             return msg.Id;
         }
 
-        public static async Task<WebhookModel> ModifyAsync(DiscordWebhookClient client, Action<WebhookProperties> func, RequestOptions? options)
+        public static Task<WebhookModel> ModifyAsync(DiscordWebhookClient client, Action<WebhookProperties> func, RequestOptions? options)
         {
             var args = new WebhookProperties();
             func(args);
@@ -263,12 +259,10 @@ namespace Discord.Webhook
             if (!apiArgs.Avatar.IsSpecified && client.Webhook.AvatarId != null)
                 apiArgs.Avatar = new ImageModel(client.Webhook.AvatarId);
 
-            return await client.ApiClient.ModifyWebhookAsync(client.Webhook.Id, apiArgs, options).ConfigureAwait(false);
+            return client.ApiClient.ModifyWebhookAsync(client.Webhook.Id, apiArgs, options);
         }
 
-        public static async Task DeleteAsync(DiscordWebhookClient client, RequestOptions? options)
-        {
-            await client.ApiClient.DeleteWebhookAsync(client.Webhook.Id, options).ConfigureAwait(false);
-        }
+        public static Task DeleteAsync(DiscordWebhookClient client, RequestOptions? options)
+            => client.ApiClient.DeleteWebhookAsync(client.Webhook.Id, options);
     }
 }
