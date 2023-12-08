@@ -1,4 +1,93 @@
+
 # Changelog
+
+## [4.2.0] - 2023-12-7
+\* Mirror of Discord.NET 3.13.0
+
+### Added
+
+- Added Super reactions support*
+- Added Media channel support*
+- Added additional Update/Modify Async Attachment's*
+- Added missing parameters to `RespondWithModalAsync` methods and implement missing overloads*
+- Added useful utility methods to `ModalBuilder`*
+- Added Select menu default values*
+- Added Voice channel status support*
+- Added premium subscriptions support*
+- Added Avatar decorations support*
+- Added App subscriptions additional support*
+- Added Guild incident actions*
+- Added Embed `ToJsonString` & `(Try)Parse`*
+- Added Automod member profile moderation, new application fields, use clyde ai & guild invenory settings*
+- Added create roles with icons*
+- Added clips support (poggers)*
+
+### Fixed
+
+- Fixed Slash Command Localizations lost after AddCommandsToGuildAsync and deleteMissing = false*
+- Fixed missing null checks in `RoleConnectionProperties`*
+- Fixed UpdateAsync Remove Attachment Bug*
+- Fixed SocketKickAuditLogData User never having value*
+- Fixed URL encode timestamps sent as query parameters*
+- Fixed some IDiscordClient methods are not properly implemented in clients*
+- Fixed multiline values in short TextInputs*
+- Fixed `BaseSocketClient` and `DiscordRestClient` not properly implementing some of the new interface methods inside `IDiscordClient` from the `Premium Subscriptions` feature.
+- Fixed stack overflow with `SocketGlobalUser.set_GlobalName`
+
+### Misc
+
+- Remove some unnecessary async/await*
+- Replace Moq with NSubstitute for Mocking in GuildHelperTests*
+- Use Discord heartbeat interval in audio.*
+- Extract `GetDisplayAvatarUrl` in `IUser`*
+
+## [4.1.0] - 2023-9-10
+**Note: This release is broken. Please use a newer release**
+
+\* Mirror of Discord.NET 3.12.0
+
+### Added
+
+- Added `ComponentBuilder` component removal methods.*
+- Added a method for sending silent audio frames on `OpusEncodeStream`.*
+- Added missing `remove` property to `MemberRoleAudit`.*
+- Added role & attachment flags*
+- Added missing properties to webhook implementation*
+- Added new onboarding methods/properties*
+- Added new `ModifyCurrentApplication` features*
+- Added support for setting custom status*
+- Added improvements to `Optional<T>`
+
+### Fixed
+
+- Fixed modifying guild resets preferred locale*
+- Fixed some `ReplyAsync` methods missing `MessageFlags` parameter.*
+- Fixed disconnecting socket client not sending close code.*
+- Fixed modal's `DeferAsync` implementation*
+- Fixed global name not being passed to `UserUpdated` event*
+- Fixed `ModifyAsync` attachments*
+- Fixed `GetMessagesAsync` with `Direction.After` not working as expected*
+- Fixed `IDiscordClient` BulkOverride and CreateCommand methods are properly implemented on `DiscordSocketClient`, `DiscordShardedClient`, and `DiscordRestClient`
+- Fixed a broken implementation of `Optional<T>.Map<U>(Func<T, U>)`
+- Fixed broken casting with `ApplicationCommandOptionValue`
+- Some things not properly being nullable.
+
+## [4.0.0]
+**Note: This release is broken. Please use a newer release**
+
+### Added
+
+- Added Nullable Support
+- Added `ApplicationCommandOptionValue` struct to handle application command option values
+- Added `NumericValue` that stores a `double` and `long` representation of a number, allowing more precision when working with large application command option values.
+- Added Pronoun Support
+
+### Misc
+- Migrated `Newtonsoft.Json` to `System.Text.Json`
+- Added Interop between different .NET Features (e.g Nullable Attributes)
+
+### Deprecated
+- No longer targeting .NET Framework. If using .NET Framework, please update to >= .NET Core 3.0, >= .NET Standard 2.0, or >= .NET 5.0
 
 ## [3.11.0] - 2023-6-27
 
