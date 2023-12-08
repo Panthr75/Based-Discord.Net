@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Discord.Net.Converters;
 
-internal class SelectMenuDefaultValueTypeConverter : JsonConverter<SelectDefaultValueType>
+internal sealed class SelectMenuDefaultValueTypeConverter : JsonConverter<SelectDefaultValueType>
 {
     public override SelectDefaultValueType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

@@ -4,135 +4,127 @@ using System.Text.Json.Serialization;
 using System;
 using Discord.Rest;
 
-namespace Discord.Net.Converters
+namespace Discord.Net.Converters;
+
+internal sealed class InteractionConverter : JsonConverter<API.Interaction>
 {
-    internal class InteractionConverter : JsonConverter<API.Interaction>
+    /// <summary>
+    /// A dummy converter that's only job is to write null to the Data
+    /// property of an <see cref="API.Interaction"/>.
+    /// </summary>
+    private sealed class InteractionDataNullConverter : JsonConverter<IDiscordInteractionData>
     {
-        //private static bool _isParsing;
+        public override IDiscordInteractionData? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            // parse value to properly advance the reader
+            JsonElement.ParseValue(ref reader);
+            return null;
+        }
+
+        public override void Write(Utf8JsonWriter writer, IDiscordInteractionData value, JsonSerializerOptions options)
+        {
+            writer.WriteNullValue();
+        }
+    }
+
+    // a wrapper class used for deserialization to only
+    // deserialize the data property.
+    private sealed class InteractionDataWrapper<TData>
+        where TData : IDiscordInteractionData
+    {
+        [JsonPropertyName("data")]
+        public TData? Data { get; set; }
+
 
         /// <summary>
-        /// A dummy converter that's only job is to write null to the Data
-        /// property of an <see cref="API.Interaction"/>.
+        /// A utility method that deserializes the passed reader as
+        /// an <see cref="InteractionDataWrapper{TData}"/>, then returns
+        /// the <see cref="Data"/> property.
         /// </summary>
-        internal sealed class InteractionDataNullConverter : JsonConverter<IDiscordInteractionData>
+        /// <param name="reader">The Json Reader</param>
+        /// <param name="options">The serializer options</param>
+        /// <returns>
+        /// <see langword="null"/> if deserializing to an
+        /// <see cref="InteractionDataWrapper{TData}"/> returned
+        /// <see langword="null"/>, or if <see cref="Data"/> was
+        /// <see langword="null"/>
+        /// </returns>
+        public static TData? Deserialize(ref Utf8JsonReader reader, JsonSerializerOptions? options = null)
         {
-            public override IDiscordInteractionData? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            var wrapper = JsonSerializer.Deserialize<InteractionDataWrapper<TData>>(ref reader, options);
+
+            if (wrapper is null)
             {
-                // parse value to properly advance the reader
-                JsonElement.ParseValue(ref reader);
-                return null;
+                return default;
             }
 
-            public override void Write(Utf8JsonWriter writer, IDiscordInteractionData value, JsonSerializerOptions options)
-            {
-                writer.WriteNullValue();
-            }
+            return wrapper.Data;
         }
 
-        // a wrapper class used for deserialization to only
-        // deserialize the data property.
-        private sealed class InteractionDataWrapper<TData>
-            where TData : IDiscordInteractionData
+        public static void DeserializeAndApply(API.Interaction apiInteraction, ref Utf8JsonReader reader, JsonSerializerOptions? options = null)
         {
-            [JsonPropertyName("data")]
-            public TData? Data { get; set; }
-
-
-            /// <summary>
-            /// A utility method that deserializes the passed reader as
-            /// an <see cref="InteractionDataWrapper{TData}"/>, then returns
-            /// the <see cref="Data"/> property.
-            /// </summary>
-            /// <param name="reader">The Json Reader</param>
-            /// <param name="options">The serializer options</param>
-            /// <returns>
-            /// <see langword="null"/> if deserializing to an
-            /// <see cref="InteractionDataWrapper{TData}"/> returned
-            /// <see langword="null"/>, or if <see cref="Data"/> was
-            /// <see langword="null"/>
-            /// </returns>
-            public static TData? Deserialize(ref Utf8JsonReader reader, JsonSerializerOptions? options = null)
+            var data = Deserialize(ref reader, options);
+            if (data is null)
             {
-                InteractionDataWrapper<TData>? wrapper = JsonSerializer.Deserialize<InteractionDataWrapper<TData>>(ref reader, options);
-
-                if (wrapper is null)
-                {
-                    return default;
-                }
-
-                return wrapper.Data;
+                apiInteraction.Data = Optional<IDiscordInteractionData>.Unspecified;
+                return;
             }
 
-            public static void DeserializeAndApply(API.Interaction apiInteraction, ref Utf8JsonReader reader, JsonSerializerOptions? options = null)
-            {
-                TData? data = Deserialize(ref reader, options);
-                if (data is null)
-                {
-                    apiInteraction.Data = Optional<IDiscordInteractionData>.Unspecified;
-                    return;
-                }
+            apiInteraction.Data = data;
+        }
+    }
 
-                apiInteraction.Data = data;
-            }
+    public override API.Interaction? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Null)
+        {
+            return null;
         }
 
-        public override API.Interaction? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        // make a copy of the reader for serializing the base interaction.
+        var interactionReader = reader;
+
+        var optionsThatSkipData = options.DeepCopy();
+        optionsThatSkipData.Converters.Add(new InteractionDataNullConverter());
+        // use .ToArray() so that we make a copy of the list and dont run into
+        // concurrent modification exceptions.
+        foreach (var thisConverter in optionsThatSkipData.Converters.OfType<InteractionConverter>().ToArray())
         {
-            if (reader.TokenType == JsonTokenType.Null)
-            {
-                return null;
-            }
-            //if (_isParsing)
-            //{
-            //    return ((JsonConverter<API.Interaction>)new JsonSerializerOptions()
-            //        .GetConverter(typeof(API.Interaction))).Read(ref reader, typeToConvert, options);
-            //}
-
-            // make a copy of the reader for serializing the base interaction.
-            Utf8JsonReader interactionReader = reader;
-
-            JsonSerializerOptions optionsThatSkipData = options.DeepCopy();
-            optionsThatSkipData.Converters.Add(new InteractionDataNullConverter());
-            foreach (InteractionConverter thisConverter in optionsThatSkipData.Converters.OfType<InteractionConverter>().ToArray())
-            {
-                optionsThatSkipData.Converters.Remove(thisConverter);
-            }
-
-            //_isParsing = true;
-            API.Interaction? apiInteraction = JsonSerializer.Deserialize<API.Interaction>(ref interactionReader, optionsThatSkipData);
-            //_isParsing = false;
-
-            if (apiInteraction == null)
-            {
-                return null;
-            }
-
-            // now use the base reader and options for this
-            switch (apiInteraction.Type)
-            {
-                case InteractionType.ApplicationCommand:
-                    InteractionDataWrapper<API.ApplicationCommandInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
-                    break;
-                case InteractionType.MessageComponent:
-                    InteractionDataWrapper<API.MessageComponentInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
-                    break;
-                case InteractionType.ApplicationCommandAutocomplete:
-                    InteractionDataWrapper<API.AutocompleteInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
-                    break;
-                case InteractionType.ModalSubmit:
-                    InteractionDataWrapper<API.ModalInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
-                    break;
-                default:
-                    apiInteraction.Data = Optional<IDiscordInteractionData>.Unspecified;
-                    break;
-            }
-
-            return apiInteraction;
+            optionsThatSkipData.Converters.Remove(thisConverter);
         }
 
-        public override void Write(Utf8JsonWriter writer, API.Interaction value, JsonSerializerOptions options)
+        var apiInteraction = JsonSerializer.Deserialize<API.Interaction>(ref interactionReader, optionsThatSkipData);
+
+        if (apiInteraction == null)
         {
-            throw new NotImplementedException();
+            return null;
         }
+
+        // now use the base reader and options for this
+        switch (apiInteraction.Type)
+        {
+            case InteractionType.ApplicationCommand:
+                InteractionDataWrapper<API.ApplicationCommandInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
+                break;
+            case InteractionType.MessageComponent:
+                InteractionDataWrapper<API.MessageComponentInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
+                break;
+            case InteractionType.ApplicationCommandAutocomplete:
+                InteractionDataWrapper<API.AutocompleteInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
+                break;
+            case InteractionType.ModalSubmit:
+                InteractionDataWrapper<API.ModalInteractionData>.DeserializeAndApply(apiInteraction, ref reader, options);
+                break;
+            default:
+                apiInteraction.Data = Optional<IDiscordInteractionData>.Unspecified;
+                break;
+        }
+
+        return apiInteraction;
+    }
+
+    public override void Write(Utf8JsonWriter writer, API.Interaction value, JsonSerializerOptions options)
+    {
+        throw new NotImplementedException();
     }
 }
