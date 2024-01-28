@@ -43,6 +43,9 @@ namespace Discord.API.Rest
         [JsonPropertyName("thread_name")]
         public Optional<string> ThreadName { get; set; }
 
+        [JsonPropertyName("applied_tags")]
+        public Optional<ulong[]> AppliedTags { get; set; }
+
         public IReadOnlyDictionary<string, object> ToDictionary(JsonSerializerOptions? options)
         {
             var d = new Dictionary<string, object>();
@@ -73,6 +76,8 @@ namespace Discord.API.Rest
                 payload["components"] = Components.Value;
             if (ThreadName.IsSpecified)
                 payload["thread_name"] = ThreadName.Value;
+            if (AppliedTags.IsSpecified)
+                payload["applied_tags"] = AppliedTags.Value;
 
             d["payload_json"] = JsonSerializer.Serialize(payload, options);
 

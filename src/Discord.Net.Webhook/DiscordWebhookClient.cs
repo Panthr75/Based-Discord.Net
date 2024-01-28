@@ -123,8 +123,9 @@ public partial class DiscordWebhookClient : IDisposable
         MessageComponent? components = null,
         MessageFlags flags = MessageFlags.None,
         ulong? threadId = null,
-        string? threadName = null)
-        => WebhookClientHelper.SendMessageAsync(this, text, isTTS, embeds, username, avatarUrl, allowedMentions, options, components, flags, threadId, threadName);
+        string? threadName = null,
+        ulong[]? appliedTags = null)
+        => WebhookClientHelper.SendMessageAsync(this, text, isTTS, embeds, username, avatarUrl, allowedMentions, options, components, flags, threadId, threadName, appliedTags);
 
     /// <summary>
     ///     Modifies a message posted using this webhook.
@@ -175,9 +176,10 @@ public partial class DiscordWebhookClient : IDisposable
         MessageComponent? components = null,
         MessageFlags flags = MessageFlags.None,
         ulong? threadId = null,
-        string? threadName = null)
+        string? threadName = null,
+        ulong[]? appliedTags = null)
         => WebhookClientHelper.SendFileAsync(this, filePath, text, isTTS, embeds, username, avatarUrl,
-            allowedMentions, options, isSpoiler, components, flags, threadId, threadName);
+            allowedMentions, options, isSpoiler, components, flags, threadId, threadName, appliedTags);
             
     /// <summary> 
     ///     Sends a message to the channel for this webhook with an attachment. 
@@ -197,9 +199,10 @@ public partial class DiscordWebhookClient : IDisposable
         MessageComponent? components = null,
         MessageFlags flags = MessageFlags.None,
         ulong? threadId = null,
-        string? threadName = null)
+        string? threadName = null,
+        ulong[]? appliedTags = null)
         => WebhookClientHelper.SendFileAsync(this, stream, filename, text, isTTS, embeds, username,
-            avatarUrl, allowedMentions, options, isSpoiler, components, flags, threadId, threadName);
+            avatarUrl, allowedMentions, options, isSpoiler, components, flags, threadId, threadName, appliedTags);
 
     /// <summary> Sends a message to the channel for this webhook with an attachment. </summary>
     /// <returns> Returns the ID of the created message. </returns>
@@ -214,9 +217,10 @@ public partial class DiscordWebhookClient : IDisposable
         MessageComponent? components = null,
         MessageFlags flags = MessageFlags.None,
         ulong? threadId = null,
-        string? threadName = null)
+        string? threadName = null,
+        ulong[]? appliedTags = null)
         => WebhookClientHelper.SendFileAsync(this, attachment, text, isTTS, embeds, username,
-            avatarUrl, allowedMentions, components, options, flags, threadId, threadName);
+            avatarUrl, allowedMentions, components, options, flags, threadId, threadName, appliedTags);
 
     /// <summary> 
     ///     Sends a message to the channel for this webhook with an attachment.
@@ -235,9 +239,10 @@ public partial class DiscordWebhookClient : IDisposable
         MessageComponent? components = null,
         MessageFlags flags = MessageFlags.None,
         ulong? threadId = null,
-        string? threadName = null)
+        string? threadName = null,
+        ulong[]? appliedTags = null)
         => WebhookClientHelper.SendFilesAsync(this, attachments, text, isTTS, embeds, username, avatarUrl,
-            allowedMentions, components, options, flags, threadId, threadName);
+            allowedMentions, components, options, flags, threadId, threadName, appliedTags);
 
     /// <summary> 
     ///     Modifies the properties of this webhook.
