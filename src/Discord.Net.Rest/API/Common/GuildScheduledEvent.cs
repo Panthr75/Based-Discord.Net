@@ -1,10 +1,5 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Discord.API
 {
@@ -17,7 +12,7 @@ namespace Discord.API
         [JsonPropertyName("channel_id")]
         public Optional<ulong?> ChannelId { get; set; }
         [JsonPropertyName("creator_id")]
-        public Optional<ulong> CreatorId { get; set; }
+        public Optional<ulong?> CreatorId { get; set; }
         [JsonPropertyName("name")]
         public string Name { get; set; } = string.Empty;
         [JsonPropertyName("description")]
