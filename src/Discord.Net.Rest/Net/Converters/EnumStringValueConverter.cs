@@ -4,22 +4,21 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Discord.Net.Converters
+namespace Discord.Net.Converters;
+
+internal sealed class EnumStringValueConverter<T> : JsonConverter<T>
+    where T : struct, Enum
 {
-    internal sealed class EnumStringValueConverter<T> : JsonConverter<T>
-        where T : struct, Enum
+    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
 #if NETSTANDARD2_0
-            return (T)Enum.Parse(typeof(T), reader.GetString()!, true);
+        return (T)Enum.Parse(typeof(T), reader.GetString()!, true);
 #else
-            return Enum.Parse<T>(reader.GetString()!, true);
+        return Enum.Parse<T>(reader.GetString()!, true);
 #endif
-        }
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            writer.WriteStringValue(value.ToString("D"));
-        }
+    }
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString("D"));
     }
 }

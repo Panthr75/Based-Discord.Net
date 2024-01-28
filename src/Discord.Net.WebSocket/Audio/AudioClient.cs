@@ -86,32 +86,7 @@ namespace Discord.Audio
             _ssrcMap = new ConcurrentDictionary<uint, ulong>();
             _streams = new ConcurrentDictionary<ulong, StreamPair>();
 
-            _serializerOptions = new JsonSerializerOptions()
-            {
-                AllowTrailingCommas = true,
-                IncludeFields = true,
-                NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-                {
-                    Modifiers = { Optional.OptionalModifier }
-                }
-            };
-            _serializerOptions.AddConverter<EmbedTypeConverter>();
-            _serializerOptions.AddConverter<UInt64Converter>();
-            _serializerOptions.AddConverter<GuildFeaturesConverter>();
-            _serializerOptions.AddConverter<ApplicationCommandOptionValueConverter>();
-            _serializerOptions.AddConverter<EnumStringValueConverter<GuildPermission>>();
-            _serializerOptions.AddConverter<OptionalConverterFactory>();
-            _serializerOptions.AddConverter<ImageConverter>();
-            _serializerOptions.AddConverter<InteractionConverter>();
-            _serializerOptions.AddConverter<NumericValueConverter>();
-            _serializerOptions.AddConverter<JsonNodeConverter>();
-            _serializerOptions.AddConverter<MessageComponentConverter>();
-            _serializerOptions.AddConverter<StringEntityConverter>();
-            _serializerOptions.AddConverter<UInt64EntityConverter>();
-            _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
-            _serializerOptions.AddConverter<UserStatusConverter>();
-            _serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
+            _serializerOptions = DiscordJsonOptionsFactory.CreateDefaultOptions();
 
             LatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"Latency = {val} ms").ConfigureAwait(false);
             UdpLatencyUpdated += async (old, val) => await _audioLogger.DebugAsync($"UDP Latency = {val} ms").ConfigureAwait(false);

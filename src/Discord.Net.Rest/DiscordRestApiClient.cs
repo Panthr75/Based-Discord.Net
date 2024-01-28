@@ -61,34 +61,7 @@ namespace Discord.API
         public DiscordRestApiClient(RestClientProvider restClientProvider, string userAgent, RetryMode defaultRetryMode = RetryMode.AlwaysRetry,
             JsonSerializerOptions? serializerOptions = null, bool useSystemClock = true, Func<IRateLimitInfo, Task>? defaultRatelimitCallback = null)
         {
-            if (serializerOptions == null)
-            {
-                serializerOptions = new JsonSerializerOptions()
-                {
-                    AllowTrailingCommas = true,
-                    IncludeFields = true,
-                    TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-                    {
-                        Modifiers = { Optional.OptionalModifier }
-                    }
-                };
-                serializerOptions.AddConverter<EmbedTypeConverter>();
-                serializerOptions.AddConverter<UInt64Converter>();
-                serializerOptions.AddConverter<GuildFeaturesConverter>();
-                serializerOptions.AddConverter<ApplicationCommandOptionValueConverter>();
-                serializerOptions.AddConverter<EnumStringValueConverter<GuildPermission>>();
-                serializerOptions.AddConverter<OptionalConverterFactory>();
-                serializerOptions.AddConverter<ImageConverter>();
-                serializerOptions.AddConverter<InteractionConverter>();
-                serializerOptions.AddConverter<NumericValueConverter>();
-                serializerOptions.AddConverter<JsonNodeConverter>();
-                serializerOptions.AddConverter<MessageComponentConverter>();
-                serializerOptions.AddConverter<StringEntityConverter>();
-                serializerOptions.AddConverter<UInt64EntityConverter>();
-                serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
-                serializerOptions.AddConverter<UserStatusConverter>();
-                serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
-            }
+            serializerOptions ??= DiscordJsonOptionsFactory.CreateDefaultOptions();
 
             _restClientProvider = restClientProvider;
             UserAgent = userAgent;

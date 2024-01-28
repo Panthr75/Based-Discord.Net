@@ -53,7 +53,7 @@ namespace Discord.Audio
 
         public ushort UdpPort => _udp.Port;
 
-        internal DiscordVoiceAPIClient(ulong guildId, WebSocketProvider webSocketProvider, UdpSocketProvider udpSocketProvider, JsonSerializerOptions? serializer = null)
+        internal DiscordVoiceAPIClient(ulong guildId, WebSocketProvider webSocketProvider, UdpSocketProvider udpSocketProvider, JsonSerializerOptions? serializerOptions = null)
         {
             GuildId = guildId;
             _connectionLock = new SemaphoreSlim(1, 1);
@@ -97,38 +97,7 @@ namespace Discord.Audio
                 await _disconnectedEvent.InvokeAsync(ex).ConfigureAwait(false);
             };
 
-            if (serializer == null)
-            {
-
-                _serializerOptions = new JsonSerializerOptions()
-                {
-                    AllowTrailingCommas = true,
-                    IncludeFields = true,
-                    NumberHandling = JsonNumberHandling.AllowReadingFromString,
-                    TypeInfoResolver = new DefaultJsonTypeInfoResolver()
-                    {
-                        Modifiers = { Optional.OptionalModifier }
-                    }
-                };
-                _serializerOptions.AddConverter<EmbedTypeConverter>();
-                _serializerOptions.AddConverter<UInt64Converter>();
-                _serializerOptions.AddConverter<EnumStringValueConverter<GuildPermission>>();
-                _serializerOptions.AddConverter<GuildFeaturesConverter>();
-                _serializerOptions.AddConverter<ApplicationCommandOptionValueConverter>();
-                _serializerOptions.AddConverter<OptionalConverterFactory>();
-                _serializerOptions.AddConverter<ImageConverter>();
-                _serializerOptions.AddConverter<InteractionConverter>();
-                _serializerOptions.AddConverter<NumericValueConverter>();
-                _serializerOptions.AddConverter<JsonNodeConverter>();
-                _serializerOptions.AddConverter<MessageComponentConverter>();
-                _serializerOptions.AddConverter<StringEntityConverter>();
-                _serializerOptions.AddConverter<UInt64EntityConverter>();
-                _serializerOptions.AddConverter<UInt64EntityOrIdConverter>();
-                _serializerOptions.AddConverter<UserStatusConverter>();
-                _serializerOptions.AddConverter<SelectMenuDefaultValueTypeConverter>();
-            }
-            else
-                _serializerOptions = serializer;
+            _serializerOptions = serializerOptions ?? DiscordJsonOptionsFactory.CreateDefaultOptions();
         }
         private void Dispose(bool disposing)
         {

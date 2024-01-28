@@ -20,7 +20,7 @@ namespace Discord.Rest
                 IncludeFields = true,
                 TypeInfoResolver = new DefaultJsonTypeInfoResolver()
                 {
-                    Modifiers = { Optional.OptionalModifier }
+                    Modifiers = { Optional.JsonModifier }
                 }
             };
             serializerOptions.AddConverter<EmbedTypeConverter>();
