@@ -11,10 +11,11 @@ namespace Discord.Rest;
 /// </summary>
 public partial class MemberRoleAuditLogData : IAuditLogData
 {
-    private MemberRoleAuditLogData(IReadOnlyCollection<MemberRoleEditInfo> roles, IUser? target)
+    private MemberRoleAuditLogData(IReadOnlyCollection<MemberRoleEditInfo> roles, IUser? target, string? integrationType)
     {
         Roles = roles;
         Target = target;
+        IntegrationType = integrationType;
     }
 
     internal static MemberRoleAuditLogData Create(BaseDiscordClient discord, EntryModel entry, Model? log)
@@ -29,7 +30,7 @@ public partial class MemberRoleAuditLogData : IAuditLogData
         var userInfo = log?.Users?.FirstOrDefault(x => x.Id == entry.TargetId);
         RestUser? user = (userInfo != null) ? RestUser.Create(discord, userInfo) : null;
 
-        return new MemberRoleAuditLogData(roleInfos.ToReadOnlyCollection(), user);
+        return new MemberRoleAuditLogData(roleInfos.ToReadOnlyCollection(), user, entry.Options?.IntegrationType);
     }
 
     /// <summary>
@@ -48,4 +49,9 @@ public partial class MemberRoleAuditLogData : IAuditLogData
     ///     A user object representing the user that the role changes were performed on.
     /// </returns>
     public IUser? Target { get; }
+
+    /// <summary>
+    ///     Gets the type of integration which performed the action. <see langword="null"/> if the action was performed by a user.
+    /// </summary>
+    public string? IntegrationType { get; }
 }
