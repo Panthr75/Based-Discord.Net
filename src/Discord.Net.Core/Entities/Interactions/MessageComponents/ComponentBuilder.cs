@@ -1101,7 +1101,7 @@ namespace Discord
         /// </returns>
         public SelectMenuBuilder WithDefaultValues(params SelectMenuDefaultValue[] defaultValues)
         {
-            DefaultValues = defaultValues.ToList();
+            DefaultValues = defaultValues?.ToList();
             return this;
         }
 
