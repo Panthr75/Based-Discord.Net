@@ -27,7 +27,7 @@ internal sealed class NumericValueConverter : JsonConverter<NumericValue>
         {
             // no decimal, less than long.MaxValue, greater than
             // long.MinValue, use integer part
-            if (Math.Abs(value.UnderlyingDouble % 1) == (double.Epsilon * 100) &&
+            if (Math.Abs(value.UnderlyingDouble % 1) <= (double.Epsilon * 100) &&
                 value.UnderlyingDouble > long.MinValue &&
                 value.UnderlyingDouble < long.MaxValue)
             {
