@@ -1361,7 +1361,17 @@ namespace Discord
         /// <returns>The newly built <see cref="SelectMenuOption"/>.</returns>
         public SelectMenuOption Build()
         {
-            return new SelectMenuOption(Label ?? string.Empty, Value ?? string.Empty, Description, Emote, IsDefault);
+            if (string.IsNullOrWhiteSpace(Label))
+                throw new ArgumentNullException(nameof(Label), "Option must have a label.");
+
+            Preconditions.AtMost(Label.Length, MaxSelectLabelLength, nameof(Label), $"Label length must be less or equal to {MaxSelectLabelLength}.");
+
+            if (string.IsNullOrWhiteSpace(Value))
+                throw new ArgumentNullException(nameof(Value), "Option must have a value.");
+
+            Preconditions.AtMost(Value.Length, MaxSelectValueLength, nameof(Value), $"Value length must be less or equal to {MaxSelectValueLength}.");
+
+            return new SelectMenuOption(Label!, Value!, Description, Emote, IsDefault);
         }
     }
 
