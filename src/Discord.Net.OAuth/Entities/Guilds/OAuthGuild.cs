@@ -608,6 +608,9 @@ public sealed class OAuthGuild : IGuild, IUserGuild
     Task<ITextChannel> IGuild.CreateTextChannelAsync(string name, Action<TextChannelProperties>? func, RequestOptions? options)
         => Task.FromException<ITextChannel>(new NotSupportedException());
 
+    Task<INewsChannel> IGuild.CreateNewsChannelAsync(string name, Action<TextChannelProperties>? func, RequestOptions? options)
+        => Task.FromException<INewsChannel>(new NotSupportedException());
+
     Task<IVoiceChannel> IGuild.CreateVoiceChannelAsync(string name, Action<VoiceChannelProperties>? func, RequestOptions? options)
         => Task.FromException<IVoiceChannel>(new NotSupportedException());
 
