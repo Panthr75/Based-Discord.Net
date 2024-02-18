@@ -1,57 +1,57 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>Discord.Net</id>
-    <version>3.10.0$suffix$</version>
-    <title>Discord.Net</title>
+    <id>Bonnel.Discord</id>
+    <version>4.2.1$suffix$</version>
+    <title>Bonnel.Discord</title>
     <authors>Discord.Net Contributors</authors>
     <owners>foxbot</owners>
-    <description>An asynchronous API wrapper for Discord. This metapackage includes all of the optional Discord.Net components.</description>
+    <description>An asynchronous API wrapper for Discord with changes to specifically work with Bonnel. This metapackage includes all of the optional Discord.Net components.</description>
     <tags>discord;discordapp</tags>
-    <projectUrl>https://github.com/discord-net/Discord.Net</projectUrl>
+    <projectUrl>https://github.com/Panthr75/Based-Discord.Net</projectUrl>
     <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <icon>PackageLogo.png</icon>
     <dependencies>
+        <group targetFramework="net8.0">
+            <dependency id="Bonnel.Discord.Core" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Rest" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.WebSocket" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Commands" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Webhook" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Interactions" version="4.2.1$suffix$" />
+        </group>
+        <group targetFramework="net7.0">
+            <dependency id="Bonnel.Discord.Core" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Rest" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.WebSocket" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Commands" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Webhook" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Interactions" version="4.2.1$suffix$" />
+        </group>
         <group targetFramework="net6.0">
-            <dependency id="Discord.Net.Core" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Rest" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.WebSocket" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Commands" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Webhook" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Interactions" version="3.10.0$suffix$" />
-        </group>
-        <group targetFramework="net5.0">
-            <dependency id="Discord.Net.Core" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Rest" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.WebSocket" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Commands" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Webhook" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Interactions" version="3.10.0$suffix$" />
-        </group>
-        <group targetFramework="net461">
-            <dependency id="Discord.Net.Core" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Rest" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.WebSocket" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Commands" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Webhook" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Interactions" version="3.10.0$suffix$" />
+            <dependency id="Bonnel.Discord.Core" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Rest" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.WebSocket" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Commands" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Webhook" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Interactions" version="4.2.1$suffix$" />
         </group>
         <group targetFramework="netstandard2.0">
-            <dependency id="Discord.Net.Core" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Rest" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.WebSocket" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Commands" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Webhook" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Interactions" version="3.10.0$suffix$" />
+            <dependency id="Bonnel.Discord.Core" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Rest" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.WebSocket" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Commands" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Webhook" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Interactions" version="4.2.1$suffix$" />
         </group>
         <group targetFramework="netstandard2.1">
-            <dependency id="Discord.Net.Core" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Rest" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.WebSocket" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Commands" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Webhook" version="3.10.0$suffix$" />
-            <dependency id="Discord.Net.Interactions" version="3.10.0$suffix$" />
+            <dependency id="Bonnel.Discord.Core" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Rest" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.WebSocket" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Commands" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Webhook" version="4.2.1$suffix$" />
+            <dependency id="Bonnel.Discord.Interactions" version="4.2.1$suffix$" />
         </group>
     </dependencies>
   </metadata>
