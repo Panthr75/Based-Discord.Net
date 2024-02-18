@@ -7,4 +7,4 @@ Some .NET versions have been completely removed from support due to not allowing
 
 - Removed .NET Framework support
 - Added .NET 7.0 Support
-- .NET 8.0 Support is in progress...
+- Added .NET 8.0 Support
