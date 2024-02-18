@@ -113,7 +113,7 @@ namespace Discord
         ///     <see cref="GetPermissionOverwrite(Discord.IRole)"/>; if not, it denies the role from sending any
         ///     messages to the channel.</para>
         ///     <code language="cs" region="AddPermissionOverwriteAsyncRole"
-        ///           source="..\..\..\Discord.Net.Examples\Core\Entities\Channels\IGuildChannel.Examples.cs"/>
+        ///           source="../../../Discord.Net.Examples/Core/Entities/Channels/IGuildChannel.Examples.cs"/>
         /// </example>
         /// <param name="role">The role to add the overwrite to.</param>
         /// <param name="permissions">The overwrite to add to the role.</param>
@@ -132,7 +132,7 @@ namespace Discord
         ///     <see cref="GetPermissionOverwrite(Discord.IUser)"/>; if not, it denies the user from sending any
         ///     messages to the channel.</para>
         ///     <code language="cs" region="AddPermissionOverwriteAsyncUser"
-        ///           source="..\..\..\Discord.Net.Examples\Core\Entities\Channels\IGuildChannel.Examples.cs"/>
+        ///           source="../../../Discord.Net.Examples/Core/Entities/Channels/IGuildChannel.Examples.cs"/>
         /// </example>
         /// <param name="user">The user to add the overwrite to.</param>
         /// <param name="permissions">The overwrite to add to the user.</param>

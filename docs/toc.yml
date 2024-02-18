@@ -7,5 +7,8 @@
 - name: API Documentation
   href: api/
   topicUid: API.Docs
+- name: Fork Changes
+  href: fork-changes/
+  topicUid: ForkChanges.Introduction
 - name: Changelog
-  topicHref: ../CHANGELOG.md
+  href: ../CHANGELOG.md

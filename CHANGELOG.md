@@ -1,7 +1,32 @@
 
 # Changelog
 
-## [4.2.0] - 2023-12-7
+## [4.2.1] - 2023-02-11
+\* Mirror of Discord.NET 3.13.1
+
+### Added
+- Add Incident actions message types
+- Add `AppliedTags` to `DiscordWebhookClient.SendXAsync`
+- Optional Aliasses, Summary and Remarks Properties to CommandAttribute
+- Log InteractionCommand execution exceptions in Wrapped Exception
+- `44` (Add message type 44)
+- Allow creating announcement channels
+
+### Fixed
+- Add null check in `SelectMenuBuilder`
+- Incorrect json model for Guild Scheduled Events
+- Warning about missing intents not being logged
+- `GetEventCoverImageUrl` throwing NRE in case event cover image is null
+
+### Misc
+- Incorrect xmldoc
+- Update sample projects & samples in docs
+- [2024] Very important changes (update licence & docs)
+- Add checks for whitespace-only strings in button builder
+- Additional select menu option validations
+- Build support for .NET 8
+
+## [4.2.0] - 2023-12-07
 \* Mirror of Discord.NET 3.13.0
 
 ### Added
