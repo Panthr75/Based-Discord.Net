@@ -34,7 +34,7 @@ namespace Discord
         /// <returns>
         ///     A <see langword="string"/> with the description of this sticker.
         /// </returns>
-        string? Description { get; }
+        string Description { get; }
         /// <summary>
         ///     Gets the list of tags of this sticker.
         /// </summary>
