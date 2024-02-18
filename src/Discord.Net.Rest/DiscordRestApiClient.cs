@@ -92,6 +92,7 @@ namespace Discord.API
             {
                 TokenType.Bot => $"Bot {token}",
                 TokenType.Bearer => $"Bearer {token}",
+                TokenType.OAuthClient => $"Basic {token}",
                 _ => throw new ArgumentException(message: "Unknown OAuth token type.", paramName: nameof(tokenType)),
             };
         }
@@ -243,6 +244,25 @@ namespace Discord.API
             return SendInternalAsync(method, endpoint, request);
         }
 
+        internal Task SendWwwFormUrlEncodedAsync(string method, Expression<Func<string>> endpointExpr, IEnumerable<KeyValuePair<string, string>> nameValueCollection, BucketIds ids,
+             ClientBucketType clientBucket = ClientBucketType.Unbucketed, RequestOptions? options = null, [CallerMemberName] string? funcName = null)
+            => SendWwwFormUrlEncodedAsync(method, GetEndpoint(endpointExpr), nameValueCollection, GetBucketId(method, ids, endpointExpr, funcName), clientBucket, options);
+        public Task SendWwwFormUrlEncodedAsync(string method, string endpoint, IEnumerable<KeyValuePair<string, string>> nameValueCollection,
+            BucketId? bucketId = null, ClientBucketType clientBucket = ClientBucketType.Unbucketed, RequestOptions? options = null)
+        {
+            if (this.RestClient == null)
+            {
+                throw new InvalidOperationException("Cannot send with null Rest Client.");
+            }
+
+            options ??= new RequestOptions();
+            options.HeaderOnly = true;
+            options.BucketId = bucketId;
+
+            var request = new WwwFormUrlEncodedRequest(RestClient, method, endpoint, nameValueCollection, options);
+            return SendInternalAsync(method, endpoint, request);
+        }
+
         internal Task SendMultipartAsync(string method, Expression<Func<string>> endpointExpr, IReadOnlyDictionary<string, object> multipartArgs, BucketIds ids,
              ClientBucketType clientBucket = ClientBucketType.Unbucketed, RequestOptions? options = null, [CallerMemberName] string? funcName = null)
             => SendMultipartAsync(method, GetEndpoint(endpointExpr), multipartArgs, GetBucketId(method, ids, endpointExpr, funcName), clientBucket, options);
@@ -297,6 +317,24 @@ namespace Discord.API
             string? json = payload != null ? SerializeJson(payload) : null;
 
             var request = new JsonRestRequest(RestClient, method, endpoint, json, options);
+            return DeserializeJson<TResponse>(await SendInternalAsync(method, endpoint, request).ConfigureAwait(false));
+        }
+
+        internal Task<TResponse> SendWwwFormUrlEncodedAsync<TResponse>(string method, Expression<Func<string>> endpointExpr, IEnumerable<KeyValuePair<string, string>> nameValueCollection, BucketIds ids,
+             ClientBucketType clientBucket = ClientBucketType.Unbucketed, RequestOptions? options = null, [CallerMemberName] string? funcName = null)
+            => SendWwwFormUrlEncodedAsync<TResponse>(method, GetEndpoint(endpointExpr), nameValueCollection, GetBucketId(method, ids, endpointExpr, funcName), clientBucket, options);
+        public async Task<TResponse> SendWwwFormUrlEncodedAsync<TResponse>(string method, string endpoint, IEnumerable<KeyValuePair<string, string>> nameValueCollection,
+            BucketId? bucketId = null, ClientBucketType clientBucket = ClientBucketType.Unbucketed, RequestOptions? options = null)
+        {
+            if (this.RestClient == null)
+            {
+                throw new InvalidOperationException("Cannot send with null Rest Client.");
+            }
+
+            options ??= new RequestOptions();
+            options.BucketId = bucketId;
+
+            var request = new WwwFormUrlEncodedRequest(RestClient, method, endpoint, nameValueCollection, options);
             return DeserializeJson<TResponse>(await SendInternalAsync(method, endpoint, request).ConfigureAwait(false));
         }
 

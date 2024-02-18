@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Discord.Net.targets" />
+  <Import Project="../../StyleAnalyzer.targets" />
+  <Import Project="../../BuildFrameworks.targets" />
+  <PropertyGroup>
+    <AssemblyName>Discord.Net.OAuth</AssemblyName>
+    <RootNamespace>Discord.OAuth</RootNamespace>
+    <Description>A core Discord.Net library containing the utilities for discord OAuth.</Description>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Discord.Net.Core\Discord.Net.Core.csproj" />
+    <ProjectReference Include="..\Discord.Net.Rest\Discord.Net.Rest.csproj" />
+    <ProjectReference Include="..\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'  or '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+  </ItemGroup>
+</Project>

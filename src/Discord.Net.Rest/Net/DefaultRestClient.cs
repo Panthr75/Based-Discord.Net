@@ -81,6 +81,21 @@ namespace Discord.Net.Rest
                 return await SendInternalAsync(restRequest, cancelToken, headerOnly).ConfigureAwait(false);
             }
         }
+        public async Task<RestResponse> SendAsync(string method, string endpoint, IEnumerable<KeyValuePair<string, string>> nameValueData, CancellationToken cancelToken, bool headerOnly, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
+        {
+            string uri = Path.Combine(_baseUrl, endpoint);
+            using (var restRequest = new HttpRequestMessage(GetMethod(method), uri))
+            {
+                if (reason != null)
+                    restRequest.Headers.Add("X-Audit-Log-Reason", Uri.EscapeDataString(reason));
+                if (requestHeaders != null)
+                    foreach (var header in requestHeaders)
+                        restRequest.Headers.Add(header.Key, header.Value);
+                restRequest.Content = new FormUrlEncodedContent(nameValueData);
+                return await SendInternalAsync(restRequest, cancelToken, headerOnly).ConfigureAwait(false);
+            }
+        }
         public async Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly, string? reason = null,
             IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null)
         {

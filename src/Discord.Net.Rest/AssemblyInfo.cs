@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("Discord.Net.Tests.Unit")]
 [assembly: InternalsVisibleTo("Discord.Net.Tests.Integration")]
 [assembly: InternalsVisibleTo("Discord.Net.Interactions")]
+[assembly: InternalsVisibleTo("Discord.Net.OAuth")]
 
 [assembly: TypeForwardedTo(typeof(Discord.Embed))]
 [assembly: TypeForwardedTo(typeof(Discord.EmbedBuilder))]

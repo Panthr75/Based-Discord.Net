@@ -37,7 +37,7 @@ namespace Discord.Rest
         {
             this.Name = string.Empty;
             this.Description = string.Empty;
-            this.Tags = ImmutableArray<string>.Empty;
+            this.Tags = Array.Empty<string>();
         }
         internal static Sticker Create(BaseDiscordClient client, Model model)
         {

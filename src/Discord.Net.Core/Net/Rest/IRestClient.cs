@@ -34,6 +34,8 @@ namespace Discord.Net.Rest
         /// <returns></returns>
         Task<RestResponse> SendAsync(string method, string endpoint, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
             IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
+        Task<RestResponse> SendAsync(string method, string endpoint, IEnumerable<KeyValuePair<string, string>> nameValueData, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
+            IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
         Task<RestResponse> SendAsync(string method, string endpoint, string json, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
             IEnumerable<KeyValuePair<string, IEnumerable<string>>>? requestHeaders = null);
         Task<RestResponse> SendAsync(string method, string endpoint, IReadOnlyDictionary<string, object> multipartParams, CancellationToken cancelToken, bool headerOnly = false, string? reason = null,
