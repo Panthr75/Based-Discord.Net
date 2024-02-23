@@ -13,14 +13,269 @@ namespace Discord.Rest
     internal static class ChannelHelper
     {
         #region General
-        public static Task DeleteAsync(IChannel channel, BaseDiscordClient client,
-            RequestOptions? options)
-            => client.ApiClient.DeleteChannelAsync(channel.Id, options);
 
-        public static Task<Model> ModifyAsync(IGuildChannel channel, BaseDiscordClient client,
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateTextChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options = null, Action<TextChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new TextChannelProperties();
+            func?.Invoke(props);
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Text)
+            {
+                CategoryId = props.CategoryId,
+                Topic = props.Topic,
+                IsNsfw = props.IsNsfw,
+                Position = props.Position,
+                SlowModeInterval = props.SlowModeInterval,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                DefaultAutoArchiveDuration = props.AutoArchiveDuration
+            };
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateNewsChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options, Action<TextChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new TextChannelProperties();
+            func?.Invoke(props);
+
+            var args = new CreateGuildChannelParams(name, ChannelType.News)
+            {
+                CategoryId = props.CategoryId,
+                Topic = props.Topic,
+                IsNsfw = props.IsNsfw,
+                Position = props.Position,
+                SlowModeInterval = props.SlowModeInterval,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                DefaultAutoArchiveDuration = props.AutoArchiveDuration
+            };
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateVoiceChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options = null, Action<VoiceChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new VoiceChannelProperties();
+            func?.Invoke(props);
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Voice)
+            {
+                CategoryId = props.CategoryId,
+                Bitrate = props.Bitrate,
+                UserLimit = props.UserLimit,
+                Position = props.Position,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                VideoQuality = props.VideoQualityMode,
+                RtcRegion = props.RTCRegion
+            };
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateStageChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options = null, Action<VoiceChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new VoiceChannelProperties();
+            func?.Invoke(props);
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Stage)
+            {
+                CategoryId = props.CategoryId,
+                Bitrate = props.Bitrate,
+                UserLimit = props.UserLimit,
+                Position = props.Position,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray())
+            };
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateCategoryChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options = null, Action<GuildChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new GuildChannelProperties();
+            func?.Invoke(props);
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Category)
+            {
+                Position = props.Position,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+            };
+
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateForumChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options = null, Action<ForumChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new ForumChannelProperties();
+            func?.Invoke(props);
+
+            if (props.Tags.IsSpecified && props.Tags.Value.Count() > 20)
+                return Task.FromException<Model>(new ArgumentException("Forum channel can have at most 20 tags.", nameof(props.Tags)));
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Forum)
+            {
+                Position = props.Position,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                SlowModeInterval = props.ThreadCreationInterval,
+                AvailableTags = props.Tags.Map(x => x.Select(
+                    tag => new API.ModifyForumTagParams()
+                    {
+                        Id = Optional.CreateFromNullable(tag.Id),
+                        Name = tag.Name,
+                        EmojiId = tag.Emoji is Emote emote
+                            ? emote.Id
+                            : Optional<ulong?>.Unspecified,
+                        EmojiName = tag.Emoji is Emoji emoji
+                            ? emoji.Name
+                            : Optional<string>.Unspecified,
+                        Moderated = tag.IsModerated
+                    }).ToArray()),
+                DefaultReactionEmoji = props.DefaultReactionEmoji.Map(
+                    x => new API.ModifyForumReactionEmojiParams()
+                    {
+                        EmojiId = x is Emote emote
+                            ? emote.Id
+                            : Optional<ulong?>.Unspecified,
+                        EmojiName = x is Emoji emoji
+                            ? emoji.Name
+                            : Optional<string>.Unspecified
+                    }),
+                ThreadRateLimitPerUser = props.DefaultSlowModeInterval,
+                CategoryId = props.CategoryId,
+                IsNsfw = props.IsNsfw,
+                Topic = props.Topic,
+                DefaultAutoArchiveDuration = props.AutoArchiveDuration,
+                DefaultSortOrder = props.DefaultSortOrder.GetValueOrDefault(ForumSortOrder.LatestActivity),
+                DefaultLayout = props.DefaultLayout,
+            };
+
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        public static Task<Model> CreateMediaChannelAsync(ulong guildId, BaseDiscordClient client,
+            string name, RequestOptions? options, Action<ForumChannelProperties>? func = null)
+        {
+            if (name is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(name)));
+
+            var props = new ForumChannelProperties();
+            func?.Invoke(props);
+
+            if (props.Tags.IsSpecified && props.Tags.Value.Count() > 20)
+                return Task.FromException<Model>(new ArgumentException("Media channel can have at most 20 tags.", nameof(props.Tags)));
+
+            var args = new CreateGuildChannelParams(name, ChannelType.Media)
+            {
+                Position = props.Position,
+                Overwrites = props.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                SlowModeInterval = props.ThreadCreationInterval,
+                AvailableTags = props.Tags.Map(x => x.Select(
+                    tag => new API.ModifyForumTagParams()
+                    {
+                        Id = Optional.CreateFromNullable(tag.Id),
+                        Name = tag.Name,
+                        EmojiId = tag.Emoji is Emote emote
+                            ? emote.Id
+                            : Optional<ulong?>.Unspecified,
+                        EmojiName = tag.Emoji is Emoji emoji
+                            ? emoji.Name
+                            : Optional<string>.Unspecified,
+                        Moderated = tag.IsModerated
+                    }).ToArray()),
+                DefaultReactionEmoji = props.DefaultReactionEmoji.Map(
+                    x => new API.ModifyForumReactionEmojiParams()
+                    {
+                        EmojiId = x is Emote emote
+                            ? emote.Id
+                            : Optional<ulong?>.Unspecified,
+                        EmojiName = x is Emoji emoji
+                            ? emoji.Name
+                            : Optional<string>.Unspecified
+                    }),
+                ThreadRateLimitPerUser = props.DefaultSlowModeInterval,
+                CategoryId = props.CategoryId,
+                IsNsfw = props.IsNsfw,
+                Topic = props.Topic,
+                DefaultAutoArchiveDuration = props.AutoArchiveDuration,
+                DefaultSortOrder = props.DefaultSortOrder.GetValueOrDefault(ForumSortOrder.LatestActivity),
+            };
+
+            return client.ApiClient.CreateGuildChannelAsync(guildId, args, options);
+        }
+
+        public static Task DeleteChannelAsync(ulong channelId, BaseDiscordClient client,
+            RequestOptions? options)
+            => client.ApiClient.DeleteChannelAsync(channelId, options);
+
+        public static Task<Model> ModifyGenericGuildChannelAsync(ulong channelId, BaseDiscordClient client,
             Action<GuildChannelProperties> func,
             RequestOptions? options)
         {
+            Preconditions.NotNull(func, nameof(func));
+
             var args = new GuildChannelProperties();
             func(args);
             var apiArgs = new API.Rest.ModifyGuildChannelParams
@@ -28,24 +283,50 @@ namespace Discord.Rest
                 Name = args.Name,
                 Position = args.Position,
                 CategoryId = args.CategoryId,
-                Overwrites = args.PermissionOverwrites.IsSpecified
-                    ? args.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
                 Flags = args.Flags.GetValueOrDefault(),
             };
-            return client.ApiClient.ModifyGuildChannelAsync(channel.Id, apiArgs, options);
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
         }
 
-        public static Task<Model> ModifyAsync(ITextChannel channel, BaseDiscordClient client,
+        public static Task<Model> ModifyCategoryChannelAsync(ulong channelId, BaseDiscordClient client,
+            Action<GuildChannelProperties> func,
+            RequestOptions? options)
+        {
+            Preconditions.NotNull(func, nameof(func));
+
+            var args = new GuildChannelProperties();
+            func(args);
+            var apiArgs = new API.Rest.ModifyGuildChannelParams
+            {
+                Name = args.Name,
+                Position = args.Position,
+                CategoryId = args.CategoryId,
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                Flags = args.Flags.GetValueOrDefault(),
+            };
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
+        }
+
+        public static Task<Model> ModifyTextChannelAsync(ulong channelId, BaseDiscordClient client,
             Action<TextChannelProperties> func,
             RequestOptions? options)
         {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
             var args = new TextChannelProperties();
             func(args);
             var apiArgs = new API.Rest.ModifyTextChannelParams
@@ -57,24 +338,55 @@ namespace Discord.Rest
                 Topic = args.Topic,
                 IsNsfw = args.IsNsfw,
                 SlowModeInterval = args.SlowModeInterval,
-                Overwrites = args.PermissionOverwrites.IsSpecified
-                    ? args.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
                 DefaultSlowModeInterval = args.DefaultSlowModeInterval
             };
-            return client.ApiClient.ModifyGuildChannelAsync(channel.Id, apiArgs, options);
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
         }
 
-        public static Task<Model> ModifyAsync(IVoiceChannel channel, BaseDiscordClient client,
+        public static Task<Model> ModifyNewsChannelAsync(ulong channelId, BaseDiscordClient client,
+            Action<TextChannelProperties> func,
+            RequestOptions? options)
+        {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
+            var args = new TextChannelProperties();
+            func(args);
+            var apiArgs = new API.Rest.ModifyTextChannelParams
+            {
+                Type = args.ChannelType,
+                Name = args.Name,
+                Position = args.Position,
+                CategoryId = args.CategoryId,
+                Topic = args.Topic,
+                IsNsfw = args.IsNsfw,
+                SlowModeInterval = args.SlowModeInterval,
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                DefaultSlowModeInterval = args.DefaultSlowModeInterval
+            };
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
+        }
+
+        public static Task<Model> ModifyVoiceChannelAsync(ulong channelId, BaseDiscordClient client,
             Action<VoiceChannelProperties> func,
             RequestOptions? options)
         {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
             var args = new VoiceChannelProperties();
             func(args);
             var apiArgs = new API.Rest.ModifyVoiceChannelParams
@@ -85,22 +397,154 @@ namespace Discord.Rest
                 Position = args.Position,
                 CategoryId = args.CategoryId,
                 UserLimit = args.UserLimit.IsSpecified ? (args.UserLimit.Value ?? 0) : Optional.Create<int>(),
-                Overwrites = args.PermissionOverwrites.IsSpecified
-                    ? args.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
                 SlowModeInterval = args.SlowModeInterval,
                 IsNsfw = args.IsNsfw,
             };
-            return client.ApiClient.ModifyGuildChannelAsync(channel.Id, apiArgs, options);
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
         }
 
-        public static Task<StageInstance> ModifyAsync(IStageChannel channel, BaseDiscordClient client,
+        public static Task<Model> ModifyStageChannelAsync(ulong channelId, BaseDiscordClient client,
+            Action<VoiceChannelProperties> func,
+            RequestOptions? options)
+        {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
+            var args = new VoiceChannelProperties();
+            func(args);
+            var apiArgs = new API.Rest.ModifyVoiceChannelParams
+            {
+                Bitrate = args.Bitrate,
+                Name = args.Name,
+                RTCRegion = args.RTCRegion,
+                Position = args.Position,
+                CategoryId = args.CategoryId,
+                UserLimit = args.UserLimit.IsSpecified ? (args.UserLimit.Value ?? 0) : Optional.Create<int>(),
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                SlowModeInterval = args.SlowModeInterval,
+                IsNsfw = args.IsNsfw,
+            };
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
+        }
+        public static Task<Model> ModifyForumChannelAsync(ulong channelId, BaseDiscordClient client,
+            Action<ForumChannelProperties> func,
+            RequestOptions? options)
+        {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
+            var args = new ForumChannelProperties();
+            func(args);
+
+            if (args.Tags.IsSpecified && args.Tags.Value.Count() > 20)
+                return Task.FromException<Model>(new ArgumentException("Forum channel can have at most 20 tags.", nameof(args.Tags)));
+
+            var apiArgs = new API.Rest.ModifyForumChannelParams()
+            {
+                Name = args.Name,
+                Position = args.Position,
+                CategoryId = args.CategoryId,
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                DefaultSlowModeInterval = args.DefaultSlowModeInterval,
+                ThreadCreationInterval = args.ThreadCreationInterval,
+                Tags = args.Tags.Map(x => x.Select(tag => new API.ModifyForumTagParams
+                {
+                    Id = Optional.CreateFromNullable(tag.Id),
+                    Name = tag.Name,
+                    EmojiId = tag.Emoji is Emote emote
+                        ? emote.Id
+                        : Optional<ulong?>.Unspecified,
+                    EmojiName = tag.Emoji is Emoji emoji
+                        ? emoji.Name
+                        : Optional<string>.Unspecified
+                }).ToArray()),
+                Flags = args.Flags.GetValueOrDefault(),
+                Topic = args.Topic,
+                DefaultReactionEmoji = args.DefaultReactionEmoji.Map(x => new API.ModifyForumReactionEmojiParams
+                {
+                    EmojiId = x is Emote emote ?
+                            emote.Id : Optional<ulong?>.Unspecified,
+                    EmojiName = x is Emoji emoji ?
+                            emoji.Name : Optional<string>.Unspecified
+                }),
+                DefaultSortOrder = args.DefaultSortOrder,
+                DefaultLayout = args.DefaultLayout
+            };
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
+        }
+        public static Task<Model> ModifyMediaChannelAsync(ulong channelId, BaseDiscordClient client,
+            Action<ForumChannelProperties> func,
+            RequestOptions? options)
+        {
+            if (func is null)
+                return Task.FromException<Model>(new ArgumentNullException(nameof(func)));
+
+            var args = new ForumChannelProperties();
+            func(args);
+
+            if (args.Tags.IsSpecified && args.Tags.Value.Count() > 20)
+                return Task.FromException<Model>(new ArgumentException("Media channel can have at most 20 tags.", nameof(args.Tags)));
+
+            var apiArgs = new API.Rest.ModifyForumChannelParams()
+            {
+                Name = args.Name,
+                Position = args.Position,
+                CategoryId = args.CategoryId,
+                Overwrites = args.PermissionOverwrites.Map(x => x.Select(overwrite => new API.Overwrite
+                {
+                    TargetId = overwrite.TargetId,
+                    TargetType = overwrite.TargetType,
+                    Allow = overwrite.Permissions.AllowValue.ToString(),
+                    Deny = overwrite.Permissions.DenyValue.ToString()
+                }).ToArray()),
+                DefaultSlowModeInterval = args.DefaultSlowModeInterval,
+                ThreadCreationInterval = args.ThreadCreationInterval,
+                Tags = args.Tags.Map(x => x.Select(tag => new API.ModifyForumTagParams
+                {
+                    Id = Optional.CreateFromNullable(tag.Id),
+                    Name = tag.Name,
+                    EmojiId = tag.Emoji is Emote emote
+                        ? emote.Id
+                        : Optional<ulong?>.Unspecified,
+                    EmojiName = tag.Emoji is Emoji emoji
+                        ? emoji.Name
+                        : Optional<string>.Unspecified
+                }).ToArray()),
+                Flags = args.Flags.GetValueOrDefault(),
+                Topic = args.Topic,
+                DefaultReactionEmoji = args.DefaultReactionEmoji.Map(x => new API.ModifyForumReactionEmojiParams
+                {
+                    EmojiId = x is Emote emote ?
+                            emote.Id : Optional<ulong?>.Unspecified,
+                    EmojiName = x is Emoji emoji ?
+                            emoji.Name : Optional<string>.Unspecified
+                }),
+                DefaultSortOrder = args.DefaultSortOrder,
+                DefaultLayout = args.DefaultLayout
+            };
+            return client.ApiClient.ModifyGuildChannelAsync(channelId, apiArgs, options);
+        }
+
+        public static Task<StageInstance> ModifyStageInstanceAsync(ulong channelId, BaseDiscordClient client,
             Action<StageInstanceProperties> func, RequestOptions? options = null)
         {
             var args = new StageInstanceProperties();
@@ -112,7 +556,7 @@ namespace Discord.Rest
                 Topic = args.Topic
             };
 
-            return client.ApiClient.ModifyStageInstanceAsync(channel.Id, apiArgs, options);
+            return client.ApiClient.ModifyStageInstanceAsync(channelId, apiArgs, options);
         }
         #endregion
 

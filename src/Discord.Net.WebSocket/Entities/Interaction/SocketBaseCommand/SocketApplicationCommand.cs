@@ -94,11 +94,11 @@ namespace Discord.WebSocket
         internal SocketApplicationCommand(DiscordSocketClient client, ulong id, ulong? guildId)
             : base(client, id)
         {
-            this.Name = string.Empty;
-            this.Description = string.Empty;
-            this.Options = ImmutableArray<SocketApplicationCommandOption>.Empty;
-            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
-            this.DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
+            Name = string.Empty;
+            Description = string.Empty;
+            Options = ImmutableArray<SocketApplicationCommandOption>.Empty;
+            NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
             GuildId = guildId;
         }
         internal static SocketApplicationCommand Create(DiscordSocketClient client, GatewayModel model)
@@ -142,8 +142,18 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc/>
-        public Task DeleteAsync(RequestOptions? options = null)
-            => InteractionHelper.DeleteUnknownApplicationCommandAsync(Discord, GuildId, this, options);
+        public async Task DeleteAsync(RequestOptions? options = null)
+        {
+            if (!GuildId.HasValue)
+            {
+                await InteractionHelper.DeleteGlobalCommandAsync(Discord, Id, options).ConfigureAwait(false);
+                Discord.State.RemoveCommand(Id);
+                return;
+            }
+
+            await InteractionHelper.DeleteGuildCommandAsync(Discord, GuildId.Value, Id, options).ConfigureAwait(false);
+            Discord.State.PurgeCommands(x => !x.IsGlobalCommand && x.GuildId == GuildId);
+        }
 
         /// <inheritdoc />
         public Task ModifyAsync(Action<ApplicationCommandProperties> func, RequestOptions? options = null)

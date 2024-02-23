@@ -603,7 +603,7 @@ namespace Discord
             {
                 Type.None => throw new InvalidCastException("Cannot convert None value to char"),
                 Type.Boolean => System.Convert.ToChar(this.m_booleanValue),
-                Type.String => System.Convert.ToChar(this.m_stringValue),
+                Type.String => System.Convert.ToChar(this.m_stringValue!),
                 Type.Number => System.Convert.ToChar(this.m_numericValue),
                 Type.User => System.Convert.ToChar(this.m_userValue),
                 Type.Channel => System.Convert.ToChar(this.m_channelValue),

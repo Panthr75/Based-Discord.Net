@@ -54,24 +54,15 @@ namespace Discord.WebSocket
         /// <inheritdoc/>
         public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions? options = null)
         {
-            if (Guild is null)
-            {
-                throw new InvalidOperationException("Missing guild!");
-            }
-
-            if (!Guild.CurrentUser.GuildPermissions.Has(GuildPermission.ManageEmojisAndStickers))
-                throw new InvalidOperationException($"Missing permission {nameof(GuildPermission.ManageEmojisAndStickers)}");
-
-            var model = await GuildHelper.ModifyStickerAsync(Discord, Guild.Id, this, func, options);
-
+            var model = await GuildHelper.ModifyStickerAsync(Discord, GuildId, Id, func, options).ConfigureAwait(false);
             Update(model);
         }
 
         /// <inheritdoc/>
         public async Task DeleteAsync(RequestOptions? options = null)
         {
-            await GuildHelper.DeleteStickerAsync(Discord, GuildId, this, options);
-            this.Guild?.RemoveSticker(Id);
+            await GuildHelper.DeleteStickerAsync(Discord, GuildId, Id, options).ConfigureAwait(false);
+            Guild?.RemoveSticker(Id);
         }
 
         internal SocketCustomSticker Clone() => (SocketCustomSticker)MemberwiseClone();

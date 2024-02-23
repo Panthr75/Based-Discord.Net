@@ -8,19 +8,21 @@ namespace Discord.Rest
     internal static class RoleHelper
     {
         #region General
-        public static Task DeleteAsync(IRole role, BaseDiscordClient client,
+        public static Task DeleteAsync(IGuild guild, ulong roleId, BaseDiscordClient client,
             RequestOptions? options)
-            => client.ApiClient.DeleteGuildRoleAsync(role.Guild.Id, role.Id, options);
+            => client.ApiClient.DeleteGuildRoleAsync(guild.Id, roleId, options);
 
-        public static async Task<Model> ModifyAsync(IRole role, BaseDiscordClient client,
+        public static async Task<Model> ModifyAsync(IGuild guild, ulong roleId, BaseDiscordClient client,
             Action<RoleProperties> func, RequestOptions? options = null)
         {
+            Preconditions.NotNull(func, nameof(func));
+
             var args = new RoleProperties();
             func(args);
 
             if (args.Icon.IsSpecified || args.Emoji.IsSpecified)
             {
-                role.Guild.Features.EnsureFeature(GuildFeature.RoleIcons);
+               guild.Features.EnsureFeature(GuildFeature.RoleIcons);
 
                 if (args.Icon.IsSpecified && args.Icon.Value != null && args.Emoji.IsSpecified && args.Emoji.Value != null)
                 {
@@ -39,22 +41,21 @@ namespace Discord.Rest
                 Emoji = args.Emoji.IsSpecified ? args.Emoji.Value?.Name ?? "" : Optional.Create<string>(),
             };
 
-            if (args.Icon.IsSpecified && args.Icon.Value != null && role.Emoji != null)
+            if (args.Icon.IsSpecified && args.Icon.Value != null)
             {
                 apiArgs.Emoji = "";
             }
-
-            if (args.Emoji.IsSpecified && args.Emoji.Value != null && !string.IsNullOrEmpty(role.Icon))
+            else if (args.Emoji.IsSpecified && args.Emoji.Value != null)
             {
                 apiArgs.Icon = Optional<API.Image?>.Unspecified;
             }
 
-            var model = await client.ApiClient.ModifyGuildRoleAsync(role.Guild.Id, role.Id, apiArgs, options).ConfigureAwait(false);
+            var model = await client.ApiClient.ModifyGuildRoleAsync(guild.Id, roleId, apiArgs, options).ConfigureAwait(false);
 
             if (args.Position.IsSpecified)
             {
-                var bulkArgs = new[] { new BulkParams(role.Id, args.Position.Value) };
-                await client.ApiClient.ModifyGuildRolesAsync(role.Guild.Id, bulkArgs, options).ConfigureAwait(false);
+                var bulkArgs = new[] { new BulkParams(roleId, args.Position.Value) };
+                await client.ApiClient.ModifyGuildRolesAsync(guild.Id, bulkArgs, options).ConfigureAwait(false);
                 model.Position = args.Position.Value;
             }
             return model;

@@ -390,12 +390,20 @@ namespace Discord
         /// <summary>
         ///     Modifies this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission inside the guild in order to modify the guild.
+        ///     </note>
+        /// </remarks>
         /// <param name="func">The delegate containing the properties to modify the guild with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
         Task ModifyAsync(Action<GuildProperties> func, RequestOptions? options = null);
+
         /// <summary>
         ///     Modifies this guild's widget.
         /// </summary>
@@ -404,25 +412,8 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous modification operation.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func" /> is <see langword="null"/>.</exception>
         Task ModifyWidgetAsync(Action<GuildWidgetProperties> func, RequestOptions? options = null);
-        /// <summary>
-        ///     Bulk-modifies the order of channels in this guild.
-        /// </summary>
-        /// <param name="args">The properties used to modify the channel positions with.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous reorder operation.
-        /// </returns>
-        Task ReorderChannelsAsync(IEnumerable<ReorderChannelProperties> args, RequestOptions? options = null);
-        /// <summary>
-        ///     Bulk-modifies the order of roles in this guild.
-        /// </summary>
-        /// <param name="args">The properties used to modify the role positions with.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous reorder operation.
-        /// </returns>
-        Task ReorderRolesAsync(IEnumerable<ReorderRoleProperties> args, RequestOptions? options = null);
         /// <summary>
         ///     Leaves this guild.
         /// </summary>
@@ -437,10 +428,16 @@ namespace Discord
         ///     A task that represents the asynchronous leave operation.
         /// </returns>
         Task LeaveAsync(RequestOptions? options = null);
+
+        #region Bans
         /// <summary>
         ///     Gets <paramref name="limit"/> amount of bans from the guild ordered by user ID.
         /// </summary>
         /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to view bans.
+        ///     </note>
         ///     <note type="important">
         ///         The returned collection is an asynchronous enumerable object; one must call
         ///         <see cref="AsyncEnumerableExtensions.FlattenAsync{T}"/> to access the individual messages as a
@@ -457,10 +454,15 @@ namespace Discord
         ///     A paged collection of bans.
         /// </returns>
         IAsyncEnumerable<IReadOnlyCollection<IBan>> GetBansAsync(int limit = DiscordConfig.MaxBansPerBatch, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets <paramref name="limit"/> amount of bans from the guild starting at the provided <paramref name="fromUserId"/> ordered by user ID.
         /// </summary>
         /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to view bans.
+        ///     </note>
         ///     <note type="important">
         ///         The returned collection is an asynchronous enumerable object; one must call
         ///         <see cref="AsyncEnumerableExtensions.FlattenAsync{T}"/> to access the individual messages as a
@@ -479,10 +481,15 @@ namespace Discord
         ///     A paged collection of bans.
         /// </returns>
         IAsyncEnumerable<IReadOnlyCollection<IBan>> GetBansAsync(ulong fromUserId, Direction dir, int limit = DiscordConfig.MaxBansPerBatch, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets <paramref name="limit"/> amount of bans from the guild starting at the provided <paramref name="fromUser"/> ordered by user ID.
         /// </summary>
         /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to view bans.
+        ///     </note>
         ///     <note type="important">
         ///         The returned collection is an asynchronous enumerable object; one must call
         ///         <see cref="AsyncEnumerableExtensions.FlattenAsync{T}"/> to access the individual messages as a
@@ -501,9 +508,16 @@ namespace Discord
         ///     A paged collection of bans.
         /// </returns>
         IAsyncEnumerable<IReadOnlyCollection<IBan>> GetBansAsync(IUser fromUser, Direction dir, int limit = DiscordConfig.MaxBansPerBatch, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets a ban object for a banned user.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to view bans.
+        ///     </note>
+        /// </remarks>
         /// <param name="user">The banned user.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
@@ -511,9 +525,16 @@ namespace Discord
         ///     contains the user information and the reason for the ban; <see langword="null" /> if the ban entry cannot be found.
         /// </returns>
         Task<IBan?> GetBanAsync(IUser user, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets a ban object for a banned user.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to view bans.
+        ///     </note>
+        /// </remarks>
         /// <param name="userId">The snowflake identifier for the banned user.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
@@ -521,9 +542,16 @@ namespace Discord
         ///     contains the user information and the reason for the ban; <see langword="null" /> if the ban entry cannot be found.
         /// </returns>
         Task<IBan?> GetBanAsync(ulong userId, RequestOptions? options = null);
+
         /// <summary>
         ///     Bans the user from this guild and optionally prunes their recent messages.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to ban members.
+        ///     </note>
+        /// </remarks>
         /// <param name="user">The user to ban.</param>
         /// <param name="pruneDays">The number of days to remove messages from this user for, and this number must be between [0, 7].</param>
         /// <param name="reason">The reason of the ban to be written in the audit log.</param>
@@ -533,9 +561,16 @@ namespace Discord
         ///     A task that represents the asynchronous add operation for the ban.
         /// </returns>
         Task AddBanAsync(IUser user, int pruneDays = 0, string? reason = null, RequestOptions? options = null);
+
         /// <summary>
         ///     Bans the user from this guild and optionally prunes their recent messages.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to ban members.
+        ///     </note>
+        /// </remarks>
         /// <param name="userId">The snowflake ID of the user to ban.</param>
         /// <param name="pruneDays">The number of days to remove messages from this user for, and this number must be between [0, 7].</param>
         /// <param name="reason">The reason of the ban to be written in the audit log.</param>
@@ -545,25 +580,41 @@ namespace Discord
         ///     A task that represents the asynchronous add operation for the ban.
         /// </returns>
         Task AddBanAsync(ulong userId, int pruneDays = 0, string? reason = null, RequestOptions? options = null);
+
         /// <summary>
         ///     Unbans the user if they are currently banned.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to unban members.
+        ///     </note>
+        /// </remarks>
         /// <param name="user">The user to be unbanned.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous removal operation for the ban.
         /// </returns>
         Task RemoveBanAsync(IUser user, RequestOptions? options = null);
+
         /// <summary>
         ///     Unbans the user if they are currently banned.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.BanMembers">BAN_MEMBERS</see>
+        ///         permission inside the guild in order to unban members.
+        ///     </note>
+        /// </remarks>
         /// <param name="userId">The snowflake identifier of the user to be unbanned.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous removal operation for the ban.
         /// </returns>
         Task RemoveBanAsync(ulong userId, RequestOptions? options = null);
+        #endregion
 
+        #region Channels
         /// <summary>
         ///     Gets a collection of all channels in this guild.
         /// </summary>
@@ -574,6 +625,7 @@ namespace Discord
         ///     generic channels found within this guild.
         /// </returns>
         Task<IReadOnlyCollection<IGuildChannel>> GetChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets a channel in this guild.
         /// </summary>
@@ -585,6 +637,45 @@ namespace Discord
         ///     associated with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
         Task<IGuildChannel?> GetChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Bulk-modifies the order of channels in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to reorder channels.
+        ///     </note>
+        /// </remarks>
+        /// <param name="args">The properties used to modify the channel positions with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous reorder operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="args" /> is <see langword="null"/>.</exception>
+        Task ReorderChannelsAsync(IEnumerable<ReorderChannelProperties> args, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Deletes a channel from this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to delete it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the channel.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous deletion operation.
+        /// </returns>
+        Task DeleteChannelAsync(ulong id, RequestOptions? options = null);
+
+        #region Text Channels
         /// <summary>
         ///     Gets a collection of all text channels in this guild.
         /// </summary>
@@ -595,6 +686,7 @@ namespace Discord
         ///     message channels found within this guild.
         /// </returns>
         Task<IReadOnlyCollection<ITextChannel>> GetTextChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets a text channel in this guild.
         /// </summary>
@@ -606,128 +698,137 @@ namespace Discord
         ///     associated with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
         Task<ITextChannel?> GetTextChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
-        ///     Gets a collection of all voice channels in this guild.
+        ///     Creates a new text channel in this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create text channels.
+        ///     </note>
+        /// </remarks>
+        /// <example>
+        ///     <para>The following example creates a new text channel under an existing category named <c>Wumpus</c> with a set topic.</para>
+        ///     <code language="cs" region="CreateTextChannelAsync"
+        ///           source="../../../Discord.Net.Examples/Core/Entities/Guilds/IGuild.Examples.cs"/>
+        /// </example>
+        /// <param name="name">The new name for the text channel.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     text channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<ITextChannel> CreateTextChannelAsync(string name, Action<TextChannelProperties>? func = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies a text channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the text channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified text channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<ITextChannel> ModifyTextChannelAsync(ulong id, Action<TextChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region News Channels
+        /// <summary>
+        ///     Gets a collection of all announcement channels in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         Announcement channels are only available in Community guilds.
+        ///     </note>
+        /// </remarks>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
-        ///     voice channels found within this guild.
+        ///     announcement channels found within this guild.
         /// </returns>
-        Task<IReadOnlyCollection<IVoiceChannel>> GetVoiceChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        Task<IReadOnlyCollection<INewsChannel>> GetNewsChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
-        ///     Gets a collection of all category channels in this guild.
+        ///     Gets an announcement channel in this guild.
         /// </summary>
-        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
-        ///     category channels found within this guild.
-        /// </returns>
-        Task<IReadOnlyCollection<ICategoryChannel>> GetCategoriesAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets a voice channel in this guild.
-        /// </summary>
-        /// <param name="id">The snowflake identifier for the voice channel.</param>
+        /// <remarks>
+        ///     <note>
+        ///         Announcement channels are only available in Community guilds.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the announcement channel.</param>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the voice channel associated
-        ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        ///     A task that represents the asynchronous get operation. The task result contains the announcement channel
+        ///     associated with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
-        Task<IVoiceChannel?> GetVoiceChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        Task<INewsChannel?> GetNewsChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
-        ///     Gets a stage channel in this guild.
+        ///     Creates a new announcement channel in this guild.
         /// </summary>
-        /// <param name="id">The snowflake identifier for the stage channel.</param>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create announcement channels.
+        ///     </note>
+        ///     <note>
+        ///         Announcement channels are only available in Community guilds.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The new name for the announcement channel.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the stage channel associated
-        ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     announcement channel.
         /// </returns>
-        Task<IStageChannel?> GetStageChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<INewsChannel> CreateNewsChannelAsync(string name, Action<TextChannelProperties>? func = null, RequestOptions? options = null);
+
         /// <summary>
-        ///     Gets a collection of all stage channels in this guild.
+        ///     Modifies an announcement channel in this guild.
         /// </summary>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        ///     <note>
+        ///         Announcement channels are only available in Community guilds.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the announcement channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
-        ///     stage channels found within this guild.
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified announcement channel.
         /// </returns>
-        Task<IReadOnlyCollection<IStageChannel>> GetStageChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the AFK voice channel in this guild.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the voice channel that the
-        ///     AFK users will be moved to after they have idled for too long; <see langword="null" /> if none is set.
-        /// </returns>
-        Task<IVoiceChannel?> GetAFKChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the system channel where randomized welcome messages are sent in this guild.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the text channel where
-        ///     randomized welcome messages will be sent to; <see langword="null" /> if none is set.
-        /// </returns>
-        Task<ITextChannel?> GetSystemChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the first viewable text channel in this guild.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the first viewable text
-        ///     channel in this guild; <see langword="null" /> if none is found.
-        /// </returns>
-        Task<ITextChannel?> GetDefaultChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the widget channel (i.e. the channel set in the guild's widget settings) in this guild.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the widget channel set
-        ///     within the server's widget settings; <see langword="null" /> if none is set.
-        /// </returns>
-        Task<IGuildChannel?> GetWidgetChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the text channel where Community guilds can display rules and/or guidelines.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the text channel
-        ///     where Community guilds can display rules and/or guidelines; <see langword="null" /> if none is set.
-        /// </returns>
-        Task<ITextChannel?> GetRulesChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets the text channel where admins and moderators of Community guilds receive notices from Discord.
-        /// </summary>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the text channel where
-        ///     admins and moderators of Community guilds receive notices from Discord; <see langword="null" /> if none is set.
-        /// </returns>
-        Task<ITextChannel?> GetPublicUpdatesChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
-        /// <summary>
-        ///     Gets a thread channel within this guild.
-        /// </summary>
-        /// <param name="id">The id of the thread channel.</param>
-        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the thread channel.
-        /// </returns>
-        Task<IThreadChannel?> GetThreadChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<INewsChannel> ModifyNewsChannelAsync(ulong id, Action<TextChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Thread Channels
         /// <summary>
         ///     Gets a collection of all thread channels in this guild.
         /// </summary>
@@ -740,7 +841,97 @@ namespace Discord
         Task<IReadOnlyCollection<IThreadChannel>> GetThreadChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets a forum channel in this guild.
+        ///     Gets a thread channel within this guild.
+        /// </summary>
+        /// <param name="id">The id of the thread channel.</param>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the thread channel.
+        /// </returns>
+        Task<IThreadChannel?> GetThreadChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        #endregion
+
+        #region Voice Channels
+        /// <summary>
+        ///     Gets a collection of all voice channels in this guild.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
+        ///     voice channels found within this guild.
+        /// </returns>
+        Task<IReadOnlyCollection<IVoiceChannel>> GetVoiceChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets a voice channel in this guild.
+        /// </summary>
+        /// <param name="id">The snowflake identifier for the voice channel.</param>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the voice channel associated
+        ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        /// </returns>
+        Task<IVoiceChannel?> GetVoiceChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Creates a new voice channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create voice channels.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The new name for the voice channel.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     voice channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<IVoiceChannel> CreateVoiceChannelAsync(string name, Action<VoiceChannelProperties>? func = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies a voice channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the voice channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified voice channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<IVoiceChannel> ModifyVoiceChannelAsync(ulong id, Action<VoiceChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Stage Channels
+        /// <summary>
+        ///     Gets a collection of all stage channels in this guild.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
+        ///     stage channels found within this guild.
+        /// </returns>
+        Task<IReadOnlyCollection<IStageChannel>> GetStageChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets a stage channel in this guild.
         /// </summary>
         /// <param name="id">The snowflake identifier for the stage channel.</param>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
@@ -749,8 +940,51 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the stage channel associated
         ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
-        Task<IForumChannel?> GetForumChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        Task<IStageChannel?> GetStageChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
+        /// <summary>
+        ///     Creates a new stage channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create stage channels.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The new name for the stage channel.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     stage channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<IStageChannel> CreateStageChannelAsync(string name, Action<VoiceChannelProperties>? func = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies a stage channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the stage channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified stage channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<IStageChannel> ModifyStageChannelAsync(ulong id, Action<VoiceChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Forum Channels
         /// <summary>
         ///     Gets a collection of all forum channels in this guild.
         /// </summary>
@@ -765,17 +999,60 @@ namespace Discord
         /// <summary>
         ///     Gets a forum channel in this guild.
         /// </summary>
-        /// <param name="id">The snowflake identifier for the stage channel.</param>
+        /// <param name="id">The snowflake identifier for the forum channel.</param>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the stage channel associated
+        ///     A task that represents the asynchronous get operation. The task result contains the forum channel associated
         ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
-        Task<IMediaChannel?> GetMediaChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        Task<IForumChannel?> GetForumChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets a collection of all forum channels in this guild.
+        ///     Creates a new channel forum in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create forum channels.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The new name for the forum.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
+        ///     forum channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<IForumChannel> CreateForumChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies a forum channel in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the forum channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified forum channel.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<IForumChannel> ModifyForumChannelAsync(ulong id, Action<ForumChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Media Channels
+        /// <summary>
+        ///     Gets a collection of all media channels in this guild.
         /// </summary>
         /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -786,62 +1063,92 @@ namespace Discord
         Task<IReadOnlyCollection<IMediaChannel>> GetMediaChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new text channel in this guild.
+        ///     Gets a media channel in this guild.
         /// </summary>
-        /// <example>
-        ///     <para>The following example creates a new text channel under an existing category named <c>Wumpus</c> with a set topic.</para>
-        ///     <code language="cs" region="CreateTextChannelAsync"
-        ///           source="../../../Discord.Net.Examples/Core/Entities/Guilds/IGuild.Examples.cs"/>
-        /// </example>
-        /// <param name="name">The new name for the text channel.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="id">The snowflake identifier for the media channel.</param>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     text channel.
+        ///     A task that represents the asynchronous get operation. The task result contains the media channel associated
+        ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
-        Task<ITextChannel> CreateTextChannelAsync(string name, Action<TextChannelProperties>? func = null, RequestOptions? options = null);
+        Task<IMediaChannel?> GetMediaChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new announcement channel in this guild.
+        ///     Creates a new media channel in this guild.
         /// </summary>
         /// <remarks>
-        ///     Announcement channels are only available in Community guilds.
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create media channels.
+        ///     </note>
         /// </remarks>
-        /// <param name="name">The new name for the announcement channel.</param>
+        /// <param name="name">The new name for the media channel.</param>
         /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     announcement channel.
+        ///     media channel.
         /// </returns>
-        Task<INewsChannel> CreateNewsChannelAsync(string name, Action<TextChannelProperties>? func = null, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new voice channel in this guild.
+        ///     Modifies a media channel in this guild.
         /// </summary>
-        /// <param name="name">The new name for the voice channel.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the media channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     voice channel.
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified media channel.
         /// </returns>
-        Task<IVoiceChannel> CreateVoiceChannelAsync(string name, Action<VoiceChannelProperties>? func = null, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<IMediaChannel> ModifyMediaChannelAsync(ulong id, Action<ForumChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Category Channels
         /// <summary>
-        ///     Creates a new stage channel in this guild.
+        ///     Gets a collection of all category channels in this guild.
         /// </summary>
-        /// <param name="name">The new name for the stage channel.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     stage channel.
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
+        ///     category channels found within this guild.
         /// </returns>
-        Task<IStageChannel> CreateStageChannelAsync(string name, Action<VoiceChannelProperties>? func = null, RequestOptions? options = null);
+        Task<IReadOnlyCollection<ICategoryChannel>> GetCategoryChannelsAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets a category channel in this guild.
+        /// </summary>
+        /// <param name="id">The snowflake identifier for the category channel.</param>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the category channel associated
+        ///     with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        /// </returns>
+        Task<ICategoryChannel?> GetCategoryChannelAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
         ///     Creates a new channel category in this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the guild in order to create category channels.
+        ///     </note>
+        /// </remarks>
         /// <param name="name">The new name for the category.</param>
         /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -849,45 +1156,119 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     category channel.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
+        Task<ICategoryChannel> CreateCategoryChannelAsync(string name, Action<GuildChannelProperties>? func = null, RequestOptions? options = null);
+
+        /// <inheritdoc cref="GetCategoryChannelsAsync(CacheMode, RequestOptions?)"/>
+        [Obsolete("Use 'GetCategoryChannelsAsync' instead.")]
+        Task<IReadOnlyCollection<ICategoryChannel>> GetCategoriesAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <inheritdoc cref="CreateCategoryChannelAsync(string, Action{GuildChannelProperties}?, RequestOptions?)"/>
+        [Obsolete("Use 'CreateCategoryChannelAsync' instead.")]
         Task<ICategoryChannel> CreateCategoryAsync(string name, Action<GuildChannelProperties>? func = null, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new channel forum in this guild.
+        ///     Modifies a category channel in this guild.
         /// </summary>
-        /// <param name="name">The new name for the forum.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the channel exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the category channel.</param>
+        /// <param name="func">The delegate containing the properties to modify the channel with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     forum channel.
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified category channel.
         /// </returns>
-        Task<IForumChannel> CreateForumChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<ICategoryChannel> ModifyCategoryChannelAsync(ulong id, Action<GuildChannelProperties> func, RequestOptions? options = null);
+        #endregion
+
+        #region Special Channels
+        /// <summary>
+        ///     Gets the AFK voice channel in this guild.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the voice channel that the
+        ///     AFK users will be moved to after they have idled for too long; <see langword="null" /> if none is set.
+        /// </returns>
+        Task<IVoiceChannel?> GetAFKChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new media channel in this guild.
+        ///     Gets the system channel where randomized welcome messages are sent in this guild.
         /// </summary>
-        /// <param name="name">The new name for the media channel.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the channel upon its creation.</param>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the newly created
-        ///     forum channel.
+        ///     A task that represents the asynchronous get operation. The task result contains the text channel where
+        ///     randomized welcome messages will be sent to; <see langword="null" /> if none is set.
         /// </returns>
-        Task<IMediaChannel> CreateMediaChannelAsync(string name, Action<ForumChannelProperties>? func = null, RequestOptions? options = null);
+        Task<ITextChannel?> GetSystemChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets a collection of all the voice regions this guild can access.
+        ///     Gets the first viewable text channel in this guild.
         /// </summary>
+        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
-        ///     voice regions the guild can access.
+        ///     A task that represents the asynchronous get operation. The task result contains the first viewable text
+        ///     channel in this guild; <see langword="null" /> if none is found.
         /// </returns>
-        Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null);
+        Task<ITextChannel?> GetDefaultChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
+        /// <summary>
+        ///     Gets the widget channel (i.e. the channel set in the guild's widget settings) in this guild.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the widget channel set
+        ///     within the server's widget settings; <see langword="null" /> if none is set.
+        /// </returns>
+        Task<IGuildChannel?> GetWidgetChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets the text channel where Community guilds can display rules and/or guidelines.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the text channel
+        ///     where Community guilds can display rules and/or guidelines; <see langword="null" /> if none is set.
+        /// </returns>
+        Task<ITextChannel?> GetRulesChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets the text channel where admins and moderators of Community guilds receive notices from Discord.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode"/> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the text channel where
+        ///     admins and moderators of Community guilds receive notices from Discord; <see langword="null" /> if none is set.
+        /// </returns>
+        Task<ITextChannel?> GetPublicUpdatesChannelAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        #endregion
+        #endregion
+
+        #region Integrations
         /// <summary>
         ///     Gets a collection of all the integrations this guild contains.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission inside the guild in order to get it's integrations.
+        ///     </note>
+        /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
@@ -898,32 +1279,55 @@ namespace Discord
         /// <summary>
         ///     Deletes an integration.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission inside the guild in order to delete integrations.
+        ///     </note>
+        /// </remarks>
         /// <param name="id">The id for the integration.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
         Task DeleteIntegrationAsync(ulong id, RequestOptions? options = null);
+        #endregion
 
+        #region Invites
         /// <summary>
         ///     Gets a collection of all invites in this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission inside the guild in order to get it's invites.
+        ///     </note>
+        /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
         ///     invite metadata, each representing information for an invite found within this guild.
         /// </returns>
         Task<IReadOnlyCollection<IInviteMetadata>> GetInvitesAsync(RequestOptions? options = null);
+
         /// <summary>
         ///     Gets the vanity invite URL of this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission inside the guild in order to get it's vanity invite.
+        ///     </note>
+        /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains the partial metadata of
         ///     the vanity invite found within this guild; <see langword="null" /> if none is found.
         /// </returns>
         Task<IInviteMetadata?> GetVanityInviteAsync(RequestOptions? options = null);
+        #endregion
 
+        #region Roles
         /// <summary>
         ///     Gets a role in this guild.
         /// </summary>
@@ -932,9 +1336,16 @@ namespace Discord
         ///     A role that is associated with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
         IRole? GetRole(ulong id);
+
         /// <summary>
         ///     Creates a new role with the provided name.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to create new roles.
+        ///     </note>
+        /// </remarks>
         /// <param name="name">The new name for the role.</param>
         /// <param name="permissions">The guild permission that the role should possess.</param>
         /// <param name="color">The color of the role.</param>
@@ -944,11 +1355,19 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     role.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null, bool isHoisted = false, RequestOptions? options = null);
+
         // TODO remove CreateRoleAsync overload that does not have isMentionable when breaking change is acceptable
         /// <summary>
         ///     Creates a new role with the provided name.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to create new roles.
+        ///     </note>
+        /// </remarks>
         /// <param name="name">The new name for the role.</param>
         /// <param name="permissions">The guild permission that the role should possess.</param>
         /// <param name="color">The color of the role.</param>
@@ -961,26 +1380,71 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the newly created
         ///     role.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         Task<IRole> CreateRoleAsync(string name, GuildPermissions? permissions = null, Color? color = null, bool isHoisted = false, bool isMentionable = false, RequestOptions? options = null, Image? icon = null, Emoji? emoji = null);
 
         /// <summary>
-        ///     Adds a user to this guild.
+        ///     Bulk-modifies the order of roles in this guild.
         /// </summary>
         /// <remarks>
-        ///     This method requires you have an OAuth2 access token for the user, requested with the guilds.join scope, and that the bot have the MANAGE_INVITES permission in the guild.
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to reorder roles.
+        ///     </note>
         /// </remarks>
-        /// <param name="userId">The snowflake identifier of the user.</param>
-        /// <param name="accessToken">The OAuth2 access token for the user, requested with the guilds.join scope.</param>
-        /// <param name="func">The delegate containing the properties to be applied to the user upon being added to the guild.</param>
+        /// <param name="args">The properties used to modify the role positions with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>A guild user associated with the specified <paramref name="userId" />; <see langword="null" /> if the user is already in the guild.</returns>
-        Task<IGuildUser?> AddGuildUserAsync(ulong userId, string accessToken, Action<AddGuildUserProperties>? func = null, RequestOptions? options = null);
+        /// <returns>
+        ///     A task that represents the asynchronous reorder operation.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="args" /> is <see langword="null"/>.</exception>
+        Task ReorderRolesAsync(IEnumerable<ReorderRoleProperties> args, RequestOptions? options = null);
+
         /// <summary>
-        ///     Disconnects the user from its current voice channel.
+        ///     Modifies a role in this guild.
         /// </summary>
-        /// <param name="user">The user to disconnect.</param>
-        /// <returns>A task that represents the asynchronous operation for disconnecting a user.</returns>
-        Task DisconnectAsync(IGuildUser user);
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the role exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to modify roles.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the role.</param>
+        /// <param name="func">A delegate containing the properties to modify the role with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified
+        ///     role.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func" /> is <see langword="null"/>.</exception>
+        Task<IRole> ModifyRoleAsync(ulong id, Action<RoleProperties> func, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Deletes a role from this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the role exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to delete roles.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the role.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous deletion operation.
+        /// </returns>
+        Task DeleteRoleAsync(ulong id, RequestOptions? options = null);
+        #endregion
+
+        #region Users
         /// <summary>
         ///     Gets a collection of all users in this guild.
         /// </summary>
@@ -990,6 +1454,9 @@ namespace Discord
         ///         This may return an incomplete collection in the WebSocket implementation due to how Discord does not
         ///         send a complete user list for large guilds.
         ///     </note>
+        ///     <note type="important">
+        ///         Getting users in a guild requires the <see cref="GatewayIntents.GuildMembers">GUILD_MEMBERS </see> Privileged Intent to be enabled for your application.
+        ///     </note>
         /// </remarks>
         /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -998,6 +1465,24 @@ namespace Discord
         ///     users found within this guild.
         /// </returns>
         Task<IReadOnlyCollection<IGuildUser>> GetUsersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Downloads all users for this guild if the current list is incomplete.
+        /// </summary>
+        /// <remarks>
+        ///     This method downloads all users found within this guild through the Gateway and caches them.
+        ///     <note type="important">
+        ///         Getting users in a guild requires the <see cref="GatewayIntents.GuildMembers">GUILD_MEMBERS </see> Privileged Intent to be enabled for your application.
+        ///     </note>
+        /// </remarks>
+        /// <returns>
+        ///     A task that represents the asynchronous download operation.
+        /// </returns>
+        /// <exception cref="NotSupportedException">
+        /// Downloading users is not supported for a REST-based guild.
+        /// </exception>
+        Task DownloadUsersAsync();
+
         /// <summary>
         ///     Gets a user from this guild.
         /// </summary>
@@ -1016,6 +1501,7 @@ namespace Discord
         ///     associated with the specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
         Task<IGuildUser?> GetUserAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets the current user for this guild.
         /// </summary>
@@ -1027,6 +1513,7 @@ namespace Discord
         /// </returns>
         /// <exception cref="KeyNotFoundException">Thrown if the current user could not be found.</exception>
         Task<IGuildUser> GetCurrentUserAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
         ///     Gets the owner of this guild.
         /// </summary>
@@ -1036,16 +1523,22 @@ namespace Discord
         ///     A task that represents the asynchronous get operation. The task result contains the owner of this guild.
         /// </returns>
         Task<IGuildUser?> GetOwnerAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+
         /// <summary>
-        ///     Downloads all users for this guild if the current list is incomplete.
+        ///     Adds a user to this guild.
         /// </summary>
         /// <remarks>
-        ///     This method downloads all users found within this guild through the Gateway and caches them.
+        ///     <note>
+        ///         This method requires you have an OAuth2 access token for the user, requested with the <c>guilds.join</c> scope, and that the bot has the <see cref="GuildPermission.CreateInstantInvite"/> permission in the guild.
+        ///     </note>
         /// </remarks>
-        /// <returns>
-        ///     A task that represents the asynchronous download operation.
-        /// </returns>
-        Task DownloadUsersAsync();
+        /// <param name="userId">The snowflake identifier of the user.</param>
+        /// <param name="accessToken">The OAuth2 access token for the user, requested with the guilds.join scope.</param>
+        /// <param name="func">The delegate containing the properties to be applied to the user upon being added to the guild.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>A guild user associated with the specified <paramref name="userId" />; <see langword="null" /> if the user is already in the guild.</returns>
+        Task<IGuildUser?> AddGuildUserAsync(ulong userId, string accessToken, Action<AddGuildUserProperties>? func = null, RequestOptions? options = null);
+
         /// <summary>
         ///     Prunes inactive users.
         /// </summary>
@@ -1057,6 +1550,10 @@ namespace Discord
         ///         If <paramref name="simulate" /> is <see langword="true" />, this method will only return the number of users that
         ///         would be removed without kicking the users.
         ///     </para>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.KickMembers">KICK_MEMBERS</see>
+        ///         permission inside the guild in order to prune members.
+        ///     </note>
         /// </remarks>
         /// <param name="days">The number of days required for the users to be kicked.</param>
         /// <param name="simulate">Whether this prune action is a simulation.</param>
@@ -1067,6 +1564,7 @@ namespace Discord
         ///     be or has been removed from this guild.
         /// </returns>
         Task<int> PruneUsersAsync(int days = 30, bool simulate = false, RequestOptions? options = null, IEnumerable<ulong>? includeRoleIds = null);
+
         /// <summary>
         ///     Gets a collection of users in this guild that the name or nickname starts with the
         ///     provided <see cref="string"/> at <paramref name="query"/>.
@@ -1083,10 +1581,18 @@ namespace Discord
         ///     users that the name or nickname starts with the provided <see cref="string"/> at <paramref name="query"/>.
         /// </returns>
         Task<IReadOnlyCollection<IGuildUser>> SearchUsersAsync(string query, int limit = DiscordConfig.MaxUsersPerBatch, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        #endregion
 
+        #region Audit Logs
         /// <summary>
         ///     Gets the specified number of audit log entries for this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ViewAuditLog">VIEW_AUDIT_LOG</see>
+        ///         permission inside the guild in order to view it's audit log entries.
+        ///     </note>
+        /// </remarks>
         /// <param name="limit">The number of audit log entries to fetch.</param>
         /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -1101,20 +1607,59 @@ namespace Discord
         Task<IReadOnlyCollection<IAuditLogEntry>> GetAuditLogsAsync(int limit = DiscordConfig.MaxAuditLogEntriesPerBatch,
             CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null, ulong? beforeId = null, ulong? userId = null,
             ActionType? actionType = null, ulong? afterId = null);
+        #endregion
+
+        #region Voice
+        /// <summary>
+        ///     Disconnects the user from its current voice channel.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.MoveMembers">MOVE_MEMBERS</see>
+        ///         permission inside the guild to disconnect <paramref name="user"/>.
+        ///     </note>
+        /// </remarks>
+        /// <param name="user">The user to disconnect.</param>
+        /// <returns>A task that represents the asynchronous operation for disconnecting a user.</returns>
+        Task DisconnectAsync(IGuildUser user);
 
         /// <summary>
-        ///     Gets a webhook found within this guild.
+        /// Moves the user to the voice channel.
         /// </summary>
-        /// <param name="id">The identifier for the webhook.</param>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.MoveMembers">MOVE_MEMBERS</see>
+        ///         permission inside the guild AND must have the <see cref="ChannelPermission.Connect">CONNECT</see>
+        ///         permission inside <paramref name="targetChannel"/> in order to move
+        ///         <paramref name="user"/> to it.
+        ///     </note>
+        /// </remarks>
+        /// <param name="user">The user to move.</param>
+        /// <param name="targetChannel">the channel where the user gets moved to.</param>
+        /// <returns>A task that represents the asynchronous operation for moving a user.</returns>
+        Task MoveAsync(IGuildUser user, IVoiceChannel targetChannel);
+
+        /// <summary>
+        ///     Gets a collection of all the voice regions this guild can access.
+        /// </summary>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains the webhook with the
-        ///     specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection of
+        ///     voice regions the guild can access.
         /// </returns>
-        Task<IWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null);
+        Task<IReadOnlyCollection<IVoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null);
+        #endregion
+
+        #region Webhooks
         /// <summary>
         ///     Gets a collection of all webhook from this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageWebhooks">MANAGE_WEBHOOKS</see>
+        ///         permission inside the guild in order to view the it's webhooks.
+        ///     </note>
+        /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
@@ -1122,6 +1667,112 @@ namespace Discord
         /// </returns>
         Task<IReadOnlyCollection<IWebhook>> GetWebhooksAsync(RequestOptions? options = null);
 
+        /// <summary>
+        ///     Gets a webhook found within this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageWebhooks">MANAGE_WEBHOOKS</see>
+        ///         permission inside the guild in order to view the it's webhooks.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The identifier for the webhook.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains the webhook with the
+        ///     specified <paramref name="id"/>; <see langword="null" /> if none is found.
+        /// </returns>
+        Task<IWebhook?> GetWebhookAsync(ulong id, RequestOptions? options = null);
+        #endregion
+
+        #region Interactions
+        /// <summary>
+        ///     Gets the bot's application commands in this guild.
+        /// </summary>
+        /// <param name="withLocalizations">
+        ///     Whether to include full localization dictionaries in the returned objects,
+        ///     instead of the localized name and description fields.
+        /// </param>
+        /// <param name="locale">The target locale of the localized name and description fields. Sets the <c>X-Discord-Locale</c> header, which takes precedence over <c>Accept-Language</c>.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
+        ///     of application commands created by the bot that were found within the guild.
+        /// </returns>
+        Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false, string? locale = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets the bot's application command within this guild with the specified id.
+        /// </summary>
+        /// <param name="id">The id of the application command to get.</param>
+        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A Task that represents the asynchronous get operation. The task result contains a <see cref="IApplicationCommand"/>
+        ///     if found, otherwise <see langword="null"/>.
+        /// </returns>
+        Task<IApplicationCommand?> GetApplicationCommandAsync(ulong id, CacheMode mode = CacheMode.AllowDownload,
+            RequestOptions? options = null);
+
+        /// <summary>
+        ///     Creates an application command within this guild.
+        /// </summary>
+        /// <param name="properties">The properties to use when creating the command.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the command that was created.
+        /// </returns>
+        Task<IApplicationCommand> CreateApplicationCommandAsync(ApplicationCommandProperties properties, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Overwrites the bot's application commands within this guild.
+        /// </summary>
+        /// <param name="properties">A collection of properties to use when creating the commands.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains a collection of commands that was created.
+        /// </returns>
+        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteApplicationCommandsAsync(ApplicationCommandProperties[] properties,
+            RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies the specified application command in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the application command exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the application command.</param>
+        /// <param name="func">The new properties to use when modifying the command.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified application command.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when you pass in an invalid <see cref="ApplicationCommandProperties"/> type.</exception>
+        Task<IApplicationCommand> ModifyApplicationCommandAsync<TArg>(ulong id, Action<TArg> func, RequestOptions? options = null)
+            where TArg : ApplicationCommandProperties;
+
+        /// <summary>
+        ///     Deletes an application command from this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the application command exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the application command.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous deletion operation.
+        /// </returns>
+        Task DeleteApplicationCommandAsync(ulong id, RequestOptions? options = null);
+        #endregion
+
+        #region Emotes
         /// <summary>
         ///     Gets a collection of emotes from this guild.
         /// </summary>
@@ -1131,6 +1782,17 @@ namespace Discord
         ///     of emotes found within the guild.
         /// </returns>
         Task<IReadOnlyCollection<GuildEmote>> GetEmotesAsync(RequestOptions? options = null);
+
+        /// <summary>
+        ///     Gets a specific emote from this guild.
+        /// </summary>
+        /// <param name="id">The snowflake identifier for the guild emote.</param>
+        /// <returns>
+        ///     The emote found with the specified <paramref name="id"/>; <see langword="null" /> if none
+        ///     is found.
+        /// </returns>
+        GuildEmote? GetEmote(ulong id);
+
         /// <summary>
         ///     Gets a specific emote from this guild.
         /// </summary>
@@ -1141,9 +1803,16 @@ namespace Discord
         ///     specified <paramref name="id"/>; <see langword="null" /> if none is found.
         /// </returns>
         Task<GuildEmote?> GetEmoteAsync(ulong id, RequestOptions? options = null);
+
         /// <summary>
         ///     Creates a new <see cref="GuildEmote"/> in this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to create emotes.
+        ///     </note>
+        /// </remarks>
         /// <param name="name">The name of the guild emote.</param>
         /// <param name="image">The image of the new emote.</param>
         /// <param name="roles">The roles to limit the emote usage to.</param>
@@ -1151,11 +1820,19 @@ namespace Discord
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains the created emote.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
         Task<GuildEmote> CreateEmoteAsync(string name, Image image, Optional<IEnumerable<IRole>?> roles = default(Optional<IEnumerable<IRole>?>), RequestOptions? options = null);
 
         /// <summary>
         ///     Modifies an existing <see cref="GuildEmote"/> in this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to modify emotes, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
         /// <param name="emote">The emote to be modified.</param>
         /// <param name="func">The delegate containing the properties to modify the emote with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -1163,65 +1840,94 @@ namespace Discord
         ///     A task that represents the asynchronous modification operation. The task result contains the modified
         ///     emote.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> or <paramref name="emote"/> is <see langword="null"/>.</exception>
         Task<GuildEmote> ModifyEmoteAsync(GuildEmote emote, Action<EmoteProperties> func, RequestOptions? options = null);
 
         /// <summary>
-        /// Moves the user to the voice channel.
+        ///     Modifies an existing <see cref="GuildEmote"/> in this guild.
         /// </summary>
-        /// <param name="user">The user to move.</param>
-        /// <param name="targetChannel">the channel where the user gets moved to.</param>
-        /// <returns>A task that represents the asynchronous operation for moving a user.</returns>
-        Task MoveAsync(IGuildUser user, IVoiceChannel targetChannel);
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the emote exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to modify emotes, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the guild emote.</param>
+        /// <param name="func">The delegate containing the properties to modify the emote with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified
+        ///     emote.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<GuildEmote> ModifyEmoteAsync(ulong id, Action<EmoteProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Deletes an existing <see cref="GuildEmote"/> from this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to delete emotes, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
         /// <param name="emote">The emote to delete.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="emote"/> is <see langword="null"/>.</exception>
         Task DeleteEmoteAsync(GuildEmote emote, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new sticker in this guild.
+        ///     Deletes an existing <see cref="GuildEmote"/> from this guild.
         /// </summary>
-        /// <param name="name">The name of the sticker.</param>
-        /// <param name="description">The description of the sticker.</param>
-        /// <param name="tags">The tags of the sticker.</param>
-        /// <param name="image">The image of the new emote.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the emote exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to delete emotes, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The snowflake identifier for the guild emote.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
+        ///     A task that represents the asynchronous removal operation.
         /// </returns>
-        Task<ICustomSticker> CreateStickerAsync(string name, Image image, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
+        Task DeleteEmoteAsync(ulong id, RequestOptions? options = null);
+        #endregion
+
+        #region Stickers
+        /// <summary>
+        ///     Gets a collection of all stickers within this guild.
+        /// </summary>
+        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
+        ///     of stickers found within the guild.
+        /// </returns>
+        Task<IReadOnlyCollection<ICustomSticker>> GetStickersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Creates a new sticker in this guild.
+        ///     Gets a specific sticker within this guild.
         /// </summary>
-        /// <param name="name">The name of the sticker.</param>
-        /// <param name="description">The description of the sticker.</param>
-        /// <param name="tags">The tags of the sticker.</param>
-        /// <param name="path">The path of the file to upload.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
+        /// <param name="id">The id of the sticker to get.</param>
         /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
+        ///     The sticker found with the specified <paramref name="id"/>; <see langword="null" /> if none
+        ///     is found.
         /// </returns>
-        Task<ICustomSticker> CreateStickerAsync(string name, string path, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
-
-        /// <summary>
-        ///     Creates a new sticker in this guild.
-        /// </summary>
-        /// <param name="name">The name of the sticker.</param>
-        /// <param name="description">The description of the sticker.</param>
-        /// <param name="tags">The tags of the sticker.</param>
-        /// <param name="stream">The stream containing the file data.</param>
-        /// <param name="filename">The name of the file <b>with</b> the extension, ex: image.png.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
-        /// </returns>
-        Task<ICustomSticker> CreateStickerAsync(string name, Stream stream, string filename, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
+        ICustomSticker? GetSticker(ulong id);
 
         /// <summary>
         ///     Gets a specific sticker within this guild.
@@ -1236,25 +1942,145 @@ namespace Discord
         Task<ICustomSticker?> GetStickerAsync(ulong id, CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets a collection of all stickers within this guild.
+        ///     Creates a new sticker in this guild.
         /// </summary>
-        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to create stickers.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="image">The image of the new emote.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
-        ///     of stickers found within the guild.
+        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
         /// </returns>
-        Task<IReadOnlyCollection<ICustomSticker>> GetStickersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="tags"/> is <see langword="null"/>.</exception>
+        Task<ICustomSticker> CreateStickerAsync(string name, Image image, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Creates a new sticker in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to create stickers.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="path">The path of the file to upload.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/>, <paramref name="path"/>, or <paramref name="tags"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="path"/> is invalidly formatted</exception>
+        /// <exception cref="PathTooLongException"><paramref name="path"/> exceeds the system-defined maximum length</exception>
+        /// <exception cref="DirectoryNotFoundException"><paramref name="path"/> is invalid (for example, it is on an unmapped drive).</exception>
+        /// <exception cref="UnauthorizedAccessException"><paramref name="path"/> is a directory or The caller does not have the required permission.</exception>
+        /// <exception cref="FileNotFoundException"><paramref name="path"/> isn't a path to a file.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="path"/> is in an invalid format.</exception>
+        /// <exception cref="IOException">An I/O error occurs whilst reading the file at <paramref name="path"/>.</exception>
+        Task<ICustomSticker> CreateStickerAsync(string name, string path, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Creates a new sticker in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to create stickers.
+        ///     </note>
+        /// </remarks>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="stream">The stream containing the file data.</param>
+        /// <param name="filename">The name of the file <b>with</b> the extension, ex: image.png.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous creation operation. The task result contains the created sticker.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="name"/>, <paramref name="stream"/>, <paramref name="filename"/>, or <paramref name="tags"/> is <see langword="null"/>.</exception>
+        Task<ICustomSticker> CreateStickerAsync(string name, Stream stream, string filename, IEnumerable<string> tags, string? description = null, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Modifies a sticker in this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the sticker exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to modify stickers, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The id of sticker to modify.</param>
+        /// <param name="func">A delegate containing the properties to modify the sticker with.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified sticker.
+        /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<ICustomSticker> ModifyStickerAsync(ulong id, Action<StickerProperties> func, RequestOptions? options = null);
 
         /// <summary>
         ///     Deletes a sticker within this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to delete stickers, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
         /// <param name="sticker">The sticker to delete.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous removal operation.
         /// </returns>
+        /// <exception cref="ArgumentNullException"><paramref name="sticker"/> is <see langword="null"/>.</exception>
         Task DeleteStickerAsync(ICustomSticker sticker, RequestOptions? options = null);
+
+        /// <summary>
+        ///     Deletes a sticker within this guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the sticker exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEmojisAndStickers">MANAGE_GUILD_EXPRESSIONS</see>
+        ///         permission inside the guild in order to delete stickers, unless they were created by the bot,
+        ///         in which case only the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission is required.
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The id of sticker to delete.</param>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous removal operation.
+        /// </returns>
+        Task DeleteStickerAsync(ulong id, RequestOptions? options = null);
+        #endregion
+
+        #region Events
+        /// <summary>
+        ///     Gets a collection of events within this guild.
+        /// </summary>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///     A task that represents the asynchronous get operation.
+        /// </returns>
+        Task<IReadOnlyCollection<IGuildScheduledEvent>> GetEventsAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a event within this guild.
@@ -1267,17 +2093,36 @@ namespace Discord
         Task<IGuildScheduledEvent?> GetEventAsync(ulong id, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets a collection of events within this guild.
-        /// </summary>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous get operation.
-        /// </returns>
-        Task<IReadOnlyCollection<IGuildScheduledEvent>> GetEventsAsync(RequestOptions? options = null);
-
-        /// <summary>
         ///     Creates an event within this guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.CreateEvents">CREATE_EVENTS</see> permission and all of the following permisions to create a guild event (based on <paramref name="type"/>):
+        ///         <list type="table">
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Stage">STAGE</see></term>
+        ///                 <description>
+        ///                     The bot in <paramref name="channelId"/> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see></item>
+        ///                         <item><see cref="ChannelPermission.MuteMembers">MUTE_MEMBERS</see></item>
+        ///                         <item><see cref="ChannelPermission.MoveMembers">MOVE_MEMBERS</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Voice">VOICE</see></term>
+        ///                 <description>
+        ///                     The bot in <paramref name="channelId"/> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ViewChannel">VIEW_CHANNEL</see></item>
+        ///                         <item><see cref="ChannelPermission.Connect">CONNECT</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///     </note>
+        /// </remarks>
         /// <param name="name">The name of the event.</param>
         /// <param name="privacyLevel">The privacy level of the event.</param>
         /// <param name="startTime">The start time of the event.</param>
@@ -1310,54 +2155,97 @@ namespace Discord
             RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets this guilds application commands.
+        ///     Modifies a guild event in this guild.
         /// </summary>
-        /// <param name="withLocalizations">
-        ///     Whether to include full localization dictionaries in the returned objects,
-        ///     instead of the localized name and description fields.
-        /// </param>
-        /// <param name="locale">The target locale of the localized name and description fields. Sets the <c>X-Discord-Locale</c> header, which takes precedence over <c>Accept-Language</c>.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the event exists before it's modified. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEvents">MANAGE_EVENTS</see>
+        ///         or if the event was created by the bot, the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission,
+        ///         and all of the following permisions to modify the guild event (based on it's type):
+        ///         <list type="table">
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Stage">STAGE</see></term>
+        ///                 <description>
+        ///                     The bot in the event's channel must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see></item>
+        ///                         <item><see cref="ChannelPermission.MuteMembers">MUTE_MEMBERS</see></item>
+        ///                         <item><see cref="ChannelPermission.MoveMembers">MOVE_MEMBERS</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Voice">VOICE</see></term>
+        ///                 <description>
+        ///                     The bot in the event's channel must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ViewChannel">VIEW_CHANNEL</see></item>
+        ///                         <item><see cref="ChannelPermission.Connect">CONNECT</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The id of the event.</param>
+        /// <param name="func">The delegate containing the properties to modify the event with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A task that represents the asynchronous get operation. The task result contains a read-only collection
-        ///     of application commands found within the guild.
+        ///     A task that represents the asynchronous modification operation. The task result contains the modified event.
         /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> GetApplicationCommandsAsync(bool withLocalizations = false, string? locale = null, RequestOptions? options = null);
+        /// <exception cref="ArgumentNullException"><paramref name="func"/> is <see langword="null"/>.</exception>
+        Task<IGuildScheduledEvent> ModifyEventAsync(ulong id, Action<GuildScheduledEventsProperties> func, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets an application command within this guild with the specified id.
+        ///     Deletes a guild event from this guild.
         /// </summary>
-        /// <param name="id">The id of the application command to get.</param>
-        /// <param name="mode">The <see cref="CacheMode" /> that determines whether the object should be fetched from cache.</param>
+        /// <remarks>
+        ///     <note type="warning">
+        ///         No checks are made to ensure the event exists before it's deleted. This can result in
+        ///         Not Found <see cref="Discord.Net.HttpException">Http Exceptions</see>.
+        ///     </note>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEvents">MANAGE_EVENTS</see>
+        ///         or if this event was created by the bot, the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission,
+        ///         and all of the following permisions to delete a guild event (based on it's type):
+        ///         <list type="table">
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Stage">STAGE</see></term>
+        ///                 <description>
+        ///                     The bot in the event's channel must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see></item>
+        ///                         <item><see cref="ChannelPermission.MuteMembers">MUTE_MEMBERS</see></item>
+        ///                         <item><see cref="ChannelPermission.MoveMembers">MOVE_MEMBERS</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Voice">VOICE</see></term>
+        ///                 <description>
+        ///                     The bot in the event's channel must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ViewChannel">VIEW_CHANNEL</see></item>
+        ///                         <item><see cref="ChannelPermission.Connect">CONNECT</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///     </note>
+        /// </remarks>
+        /// <param name="id">The id of the event.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     A ValueTask that represents the asynchronous get operation. The task result contains a <see cref="IApplicationCommand"/>
-        ///     if found, otherwise <see langword="null"/>.
+        ///     A task that represents the asynchronous delete operation.
         /// </returns>
-        Task<IApplicationCommand?> GetApplicationCommandAsync(ulong id, CacheMode mode = CacheMode.AllowDownload,
-            RequestOptions? options = null);
+        Task DeleteEventAsync(ulong id, RequestOptions? options = null);
+        #endregion
 
-        /// <summary>
-        ///     Creates an application command within this guild.
-        /// </summary>
-        /// <param name="properties">The properties to use when creating the command.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains the command that was created.
-        /// </returns>
-        Task<IApplicationCommand> CreateApplicationCommandAsync(ApplicationCommandProperties properties, RequestOptions? options = null);
-
-        /// <summary>
-        ///     Overwrites the application commands within this guild.
-        /// </summary>
-        /// <param name="properties">A collection of properties to use when creating the commands.</param>
-        /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     A task that represents the asynchronous creation operation. The task result contains a collection of commands that was created.
-        /// </returns>
-        Task<IReadOnlyCollection<IApplicationCommand>> BulkOverwriteApplicationCommandsAsync(ApplicationCommandProperties[] properties,
-            RequestOptions? options = null);
-
+        #region Welcome Screen
         /// <summary>
         ///     Gets the welcome screen of the guild. Returns <see langword="null"/> if the welcome channel is not set.
         /// </summary>
@@ -1373,7 +2261,9 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains a <see cref="WelcomeScreen"/>.
         /// </returns>
         Task<WelcomeScreen?> ModifyWelcomeScreenAsync(bool enabled, WelcomeScreenChannelProperties[] channels, string? description = null, RequestOptions? options = null);
+        #endregion
 
+        #region AutoMod
         /// <summary>
         ///     Get a list of all rules currently configured for the guild.
         /// </summary>
@@ -1397,7 +2287,9 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the created <see cref="IAutoModRule"/>.
         /// </returns>
         Task<IAutoModRule> CreateAutoModRuleAsync(Action<AutoModRuleProperties> props, RequestOptions? options = null);
+        #endregion
 
+        #region Onboarding
         /// <summary>
         ///     Gets the onboarding object configured for the guild.
         /// </summary>
@@ -1409,11 +2301,20 @@ namespace Discord
         /// <summary>
         ///     Modifies the onboarding object configured for the guild.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageGuild">MANAGE_GUILD</see>
+        ///         permission and the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to modify the guild onboarding.
+        ///     </note>
+        /// </remarks>
         /// <returns>
         ///     A task that represents the asynchronous creation operation. The task result contains the modified <see cref="IGuildOnboarding"/>.
         /// </returns>
         Task<IGuildOnboarding> ModifyOnboardingAsync(Action<GuildOnboardingProperties> props, RequestOptions? options = null);
+        #endregion
 
+        #region Incidents Data
         /// <summary>
         ///     Modifies the incident actions of the guild.
         /// </summary>
@@ -1421,5 +2322,20 @@ namespace Discord
         ///     A task that represents the asynchronous creation operation. The task result contains the modified <see cref="IncidentsData"/>.
         /// </returns>
         Task<GuildIncidentsData> ModifyIncidentActionsAsync(Action<GuildIncidentsDataProperties> props, RequestOptions? options = null);
+        #endregion
+
+        /// <summary>
+        ///     Deletes the current guild.
+        /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot must be the owner to delete this guild.
+        ///     </note>
+        /// </remarks>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///      A task that represents the asynchronous deletion operation.
+        /// </returns>
+        new Task DeleteAsync(RequestOptions? options = null);
     }
 }

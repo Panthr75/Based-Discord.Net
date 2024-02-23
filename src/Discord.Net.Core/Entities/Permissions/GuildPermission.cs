@@ -269,6 +269,11 @@ namespace Discord
         CreateGuildExpressions = 1L << 43,
 
         /// <summary>
+        ///     Allows for creating events, and editing and deleting those created by the current user.
+        /// </summary>
+        CreateEvents = 1L << 44,
+
+        /// <summary>
         ///     Allows sending voice messages.
         /// </summary>
         SendVoiceMessages = 1L << 46,

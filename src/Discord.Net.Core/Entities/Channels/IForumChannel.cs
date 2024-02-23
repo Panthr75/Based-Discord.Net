@@ -84,6 +84,10 @@ namespace Discord
         /// <remarks>
         ///     This method modifies the current forum channel with the specified properties. To see an example of this
         ///     method and what properties are available, please refer to <see cref="ForumChannelProperties"/>.
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify it.
+        ///     </note>
         /// </remarks>
         /// <param name="func">The delegate containing the properties to modify the channel with.</param>
         /// <param name="options">The options to be used when sending the request.</param>

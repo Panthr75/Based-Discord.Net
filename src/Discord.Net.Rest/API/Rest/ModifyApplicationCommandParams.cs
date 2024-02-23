@@ -22,7 +22,7 @@ namespace Discord.API.Rest
         public Optional<bool> Nsfw { get; set; }
 
         [JsonPropertyName("default_member_permissions")]
-        public Optional<GuildPermission?> DefaultMemberPermission { get; set; }
+        public Optional<GuildPermission> DefaultMemberPermission { get; set; }
 
         [JsonPropertyName("name_localizations")]
         public Optional<Dictionary<string, string>> NameLocalizations { get; set; }

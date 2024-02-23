@@ -116,6 +116,8 @@ namespace Discord.Rest
         public static Task ReorderChannelsAsync(IGuild guild, BaseDiscordClient client,
             IEnumerable<ReorderChannelProperties> args, RequestOptions? options = null)
         {
+            Preconditions.NotNull(args, nameof(args));
+
             var apiArgs = args.Select(x => new API.Rest.ModifyGuildChannelsParams(x.Id, x.Position));
             return client.ApiClient.ModifyGuildChannelsAsync(guild.Id, apiArgs, options);
         }
@@ -123,6 +125,8 @@ namespace Discord.Rest
         public static Task<IReadOnlyCollection<RoleModel>> ReorderRolesAsync(IGuild guild, BaseDiscordClient client,
             IEnumerable<ReorderRoleProperties> args, RequestOptions? options = null)
         {
+            Preconditions.NotNull(args, nameof(args));
+
             var apiArgs = args.Select(x => new API.Rest.ModifyGuildRolesParams(x.Id, x.Position));
             return client.ApiClient.ModifyGuildRolesAsync(guild.Id, apiArgs, options);
         }
@@ -155,7 +159,7 @@ namespace Discord.Rest
 
             var args = props.DmsDisabledUntil.IsSpecified || props.InvitesDisabledUntil.IsSpecified
                 ? new ModifyGuildIncidentsDataParams { DmsDisabledUntil = props.DmsDisabledUntil, InvitesDisabledUntil = props.InvitesDisabledUntil }
-                : null;
+                : new ModifyGuildIncidentsDataParams();
 
             var model = await client.ApiClient.ModifyGuildIncidentActionsAsync(guild.Id, args, options);
 
@@ -249,148 +253,110 @@ namespace Discord.Rest
             var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
             return models.Select(x => RestGuildChannel.Create(client, guild, x)).ToImmutableArray();
         }
+        public static async Task<IReadOnlyCollection<RestTextChannel>> GetTextChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestTextChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestNewsChannel>> GetNewsChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestNewsChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestThreadChannel>> GetThreadChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestThreadChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestVoiceChannel>> GetVoiceChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestVoiceChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestStageChannel>> GetStageChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestStageChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestForumChannel>> GetForumChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestForumChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestMediaChannel>> GetMediaChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestMediaChannel>()
+                .ToImmutableArray();
+        }
+        public static async Task<IReadOnlyCollection<RestCategoryChannel>> GetCategoryChannelsAsync(IGuild guild, BaseDiscordClient client,
+            RequestOptions? options)
+        {
+            var models = await client.ApiClient.GetGuildChannelsAsync(guild.Id, options).ConfigureAwait(false);
+            return models
+                .Select(x => RestGuildChannel.Create(client, guild, x))
+                .OfType<RestCategoryChannel>()
+                .ToImmutableArray();
+        }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestTextChannel> CreateTextChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options = null, Action<TextChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new TextChannelProperties();
-            func?.Invoke(props);
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Text)
-            {
-                CategoryId = props.CategoryId,
-                Topic = props.Topic,
-                IsNsfw = props.IsNsfw,
-                Position = props.Position,
-                SlowModeInterval = props.SlowModeInterval,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-                DefaultAutoArchiveDuration = props.AutoArchiveDuration
-            };
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateTextChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestTextChannel.Create(client, guild, model);
         }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestNewsChannel> CreateNewsChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options, Action<TextChannelProperties>? func = null)
         {
-            if (name == null)
-                throw new ArgumentNullException(paramName: nameof(name));
-
-            var props = new TextChannelProperties();
-            func?.Invoke(props);
-
-            var args = new CreateGuildChannelParams(name, ChannelType.News)
-            {
-                CategoryId = props.CategoryId,
-                Topic = props.Topic,
-                IsNsfw = props.IsNsfw,
-                Position = props.Position,
-                SlowModeInterval = props.SlowModeInterval,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-                DefaultAutoArchiveDuration = props.AutoArchiveDuration
-            };
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateNewsChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestNewsChannel.Create(client, guild, model);
         }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestVoiceChannel> CreateVoiceChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options = null, Action<VoiceChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new VoiceChannelProperties();
-            func?.Invoke(props);
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Voice)
-            {
-                CategoryId = props.CategoryId,
-                Bitrate = props.Bitrate,
-                UserLimit = props.UserLimit,
-                Position = props.Position,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-                VideoQuality = props.VideoQualityMode,
-                RtcRegion = props.RTCRegion
-            };
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateVoiceChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestVoiceChannel.Create(client, guild, model);
         }
         public static async Task<RestStageChannel> CreateStageChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options = null, Action<VoiceChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new VoiceChannelProperties();
-            func?.Invoke(props);
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Stage)
-            {
-                CategoryId = props.CategoryId,
-                Bitrate = props.Bitrate,
-                UserLimit = props.UserLimit,
-                Position = props.Position,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-            };
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateStageChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestStageChannel.Create(client, guild, model);
         }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestCategoryChannel> CreateCategoryChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options = null, Action<GuildChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new GuildChannelProperties();
-            func?.Invoke(props);
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Category)
-            {
-                Position = props.Position,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-            };
-
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateCategoryChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestCategoryChannel.Create(client, guild, model);
         }
 
@@ -398,115 +364,14 @@ namespace Discord.Rest
         public static async Task<RestForumChannel> CreateForumChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options = null, Action<ForumChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new ForumChannelProperties();
-            func?.Invoke(props);
-
-            Preconditions.AtMost(props.Tags.IsSpecified ? props.Tags.Value.Count() : 0, 5, nameof(props.Tags), "Forum channel can have max 20 tags.");
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Forum)
-            {
-                Position = props.Position,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-                SlowModeInterval = props.ThreadCreationInterval,
-                AvailableTags = props.Tags.GetValueOrDefault(Array.Empty<ForumTagProperties>()).Select(
-                    x => new ModifyForumTagParams
-                    {
-                        Id = Optional.CreateFromNullable(x.Id),
-                        Name = x.Name,
-                        EmojiId = x.Emoji is Emote emote
-                            ? emote.Id
-                            : Optional<ulong?>.Unspecified,
-                        EmojiName = x.Emoji is Emoji emoji
-                            ? emoji.Name
-                            : Optional<string>.Unspecified,
-                        Moderated = x.IsModerated
-                    }).ToArray(),
-                DefaultReactionEmoji = props.DefaultReactionEmoji.IsSpecified
-                    ? new API.ModifyForumReactionEmojiParams
-                    {
-                        EmojiId = props.DefaultReactionEmoji.Value is Emote emote ?
-                            emote.Id : Optional<ulong?>.Unspecified,
-                        EmojiName = props.DefaultReactionEmoji.Value is Emoji emoji ?
-                            emoji.Name : Optional<string>.Unspecified
-                    }
-                    : Optional<ModifyForumReactionEmojiParams>.Unspecified,
-                ThreadRateLimitPerUser = props.DefaultSlowModeInterval,
-                CategoryId = props.CategoryId,
-                IsNsfw = props.IsNsfw,
-                Topic = props.Topic,
-                DefaultAutoArchiveDuration = props.AutoArchiveDuration,
-                DefaultSortOrder = props.DefaultSortOrder.GetValueOrDefault(ForumSortOrder.LatestActivity),
-                DefaultLayout = props.DefaultLayout,
-            };
-
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateForumChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestForumChannel.Create(client, guild, model);
         }
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
         public static async Task<RestMediaChannel> CreateMediaChannelAsync(IGuild guild, BaseDiscordClient client,
             string name, RequestOptions? options, Action<ForumChannelProperties>? func = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            var props = new ForumChannelProperties();
-            func?.Invoke(props);
-
-            Preconditions.AtMost(props.Tags.IsSpecified ? props.Tags.Value.Count() : 0, 20, nameof(props.Tags), "Media channel can have max 20 tags.");
-
-            var args = new CreateGuildChannelParams(name, ChannelType.Media)
-            {
-                Position = props.Position,
-                Overwrites = props.PermissionOverwrites.IsSpecified
-                    ? props.PermissionOverwrites.Value.Select(overwrite => new API.Overwrite
-                    {
-                        TargetId = overwrite.TargetId,
-                        TargetType = overwrite.TargetType,
-                        Allow = overwrite.Permissions.AllowValue.ToString(),
-                        Deny = overwrite.Permissions.DenyValue.ToString()
-                    }).ToArray()
-                    : Optional.Create<API.Overwrite[]>(),
-                SlowModeInterval = props.ThreadCreationInterval,
-                AvailableTags = props.Tags.GetValueOrDefault(Array.Empty<ForumTagProperties>()).Select(
-                    x => new ModifyForumTagParams
-                    {
-                        Id = Optional.CreateFromNullable(x.Id),
-                        Name = x.Name,
-                        EmojiId = x.Emoji is Emote emote
-                            ? emote.Id
-                            : Optional<ulong?>.Unspecified,
-                        EmojiName = x.Emoji is Emoji emoji
-                            ? emoji.Name
-                            : Optional<string>.Unspecified,
-                        Moderated = x.IsModerated
-                    }).ToArray(),
-                DefaultReactionEmoji = props.DefaultReactionEmoji.IsSpecified
-                    ? new API.ModifyForumReactionEmojiParams
-                    {
-                        EmojiId = props.DefaultReactionEmoji.Value is Emote emote ?
-                            emote.Id : Optional<ulong?>.Unspecified,
-                        EmojiName = props.DefaultReactionEmoji.Value is Emoji emoji ?
-                            emoji.Name : Optional<string>.Unspecified
-                    }
-                    : Optional<ModifyForumReactionEmojiParams>.Unspecified,
-                ThreadRateLimitPerUser = props.DefaultSlowModeInterval,
-                CategoryId = props.CategoryId,
-                IsNsfw = props.IsNsfw,
-                Topic = props.Topic,
-                DefaultAutoArchiveDuration = props.AutoArchiveDuration,
-                DefaultSortOrder = props.DefaultSortOrder.GetValueOrDefault(ForumSortOrder.LatestActivity),
-            };
-
-            var model = await client.ApiClient.CreateGuildChannelAsync(guild.Id, args, options).ConfigureAwait(false);
+            var model = await ChannelHelper.CreateMediaChannelAsync(guild.Id, client, name, options, func).ConfigureAwait(false);
             return RestMediaChannel.Create(client, guild, model);
         }
         #endregion
@@ -558,12 +423,12 @@ namespace Discord.Rest
             var models = await client.ApiClient.GetGuildInvitesAsync(guild.Id, options).ConfigureAwait(false);
             return models.Select(x => RestInviteMetadata.Create(client, guild, null, x)).ToImmutableArray();
         }
-        public static async Task<RestInviteMetadata> GetVanityInviteAsync(IGuild guild, BaseDiscordClient client,
+        public static async Task<RestInviteMetadata?> GetVanityInviteAsync(IGuild guild, BaseDiscordClient client,
             RequestOptions? options)
         {
             var vanityModel = await client.ApiClient.GetVanityInviteAsync(guild.Id, options).ConfigureAwait(false);
-            if (vanityModel == null)
-                throw new InvalidOperationException("This guild does not have a vanity URL.");
+            if (vanityModel is null || vanityModel.Code is null)
+                return null;
             var inviteModel = (await client.ApiClient.GetInviteAsync(vanityModel.Code, options).ConfigureAwait(false))!;
             inviteModel.Uses = vanityModel.Uses;
             return RestInviteMetadata.Create(client, guild, null, inviteModel);
@@ -573,9 +438,11 @@ namespace Discord.Rest
 
         #region Roles
         /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
-        public static async Task<RestRole> CreateRoleAsync(IGuild guild, BaseDiscordClient client,
+        public static Task<RoleModel> CreateRoleAsync(IGuild guild, BaseDiscordClient client,
             string name, GuildPermissions? permissions, Color? color, bool isHoisted, bool isMentionable, RequestOptions? options, Image? icon, Emoji? emoji)
         {
+            if (name is null)
+                return Task.FromException<RoleModel>(new ArgumentNullException(nameof(name)));
             Preconditions.NotNull(name, nameof(name));
 
             if (icon is not null || emoji is not null)
@@ -584,7 +451,7 @@ namespace Discord.Rest
 
                 if (icon is not null && emoji is not null)
                 {
-                    throw new ArgumentException("Emoji and Icon properties cannot be present on a role at the same time.");
+                    Task.FromException<RoleModel>(new ArgumentException("Emoji and Icon properties cannot be present on a role at the same time."));
                 }
             }
 
@@ -599,9 +466,7 @@ namespace Discord.Rest
                 Emoji = Optional.CreateFromNullable(emoji?.Name)
             };
 
-            var model = await client.ApiClient.CreateGuildRoleAsync(guild.Id, createGuildRoleParams, options).ConfigureAwait(false);
-
-            return RestRole.Create(client, guild, model);
+            return client.ApiClient.CreateGuildRoleAsync(guild.Id, createGuildRoleParams, options);
         }
         #endregion
 
@@ -864,22 +729,30 @@ namespace Discord.Rest
             return client.ApiClient.CreateGuildStickerAsync(apiArgs, guild.Id, options);
         }
 
-        public static Task<API.Sticker> CreateStickerAsync(BaseDiscordClient client, IGuild guild, string name, Stream file, string filename, IEnumerable<string> tags,
+        public static Task<API.Sticker> CreateStickerAsync(BaseDiscordClient client, IGuild guild, string name, Stream stream, string filename, IEnumerable<string> tags,
             string? description = null, RequestOptions? options = null)
         {
-            Preconditions.NotNull(file, nameof(file));
-            Preconditions.NotNull(filename, nameof(filename));
+            string tagString;
+            try
+            {
+                Preconditions.NotNull(stream, nameof(stream));
+                Preconditions.NotNull(filename, nameof(filename));
 
-            name = StickerProperties.ValidateName(name);
-            description = StickerProperties.ValidateDescription(description);
+                name = StickerProperties.ValidateName(name);
+                description = StickerProperties.ValidateDescription(description);
 
-            var tagString = StickerProperties.ValidateTagString(tags);
+                tagString = StickerProperties.ValidateTagString(tags);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException<API.Sticker>(ex);
+            }
 
             var apiArgs = new CreateStickerParams()
             {
                 Name = name,
                 Description = description,
-                File = file,
+                File = stream,
                 Tags = tagString,
                 FileName = filename
             };
@@ -887,10 +760,11 @@ namespace Discord.Rest
             return client.ApiClient.CreateGuildStickerAsync(apiArgs, guild.Id, options);
         }
 
-        public static Task<API.Sticker> ModifyStickerAsync(BaseDiscordClient client, ulong guildId, ISticker sticker, Action<StickerProperties> func,
+        public static Task<API.Sticker> ModifyStickerAsync(BaseDiscordClient client, ulong guildId, ulong stickerId, Action<StickerProperties> func,
             RequestOptions? options = null)
         {
-            Preconditions.NotNull(func, nameof(func));
+            if (func is null)
+                return Task.FromException<API.Sticker>(new ArgumentNullException(nameof(func)));
 
             var props = new StickerProperties();
             func(props);
@@ -904,11 +778,11 @@ namespace Discord.Rest
                     Optional<string>.Unspecified
             };
 
-            return client.ApiClient.ModifyStickerAsync(apiArgs, guildId, sticker.Id, options);
+            return client.ApiClient.ModifyStickerAsync(apiArgs, guildId, stickerId, options);
         }
 
-        public static Task DeleteStickerAsync(BaseDiscordClient client, ulong guildId, ISticker sticker, RequestOptions? options = null)
-            => client.ApiClient.DeleteStickerAsync(guildId, sticker.Id, options);
+        public static Task DeleteStickerAsync(BaseDiscordClient client, ulong guildId, ulong stickerId, RequestOptions? options = null)
+            => client.ApiClient.DeleteStickerAsync(guildId, stickerId, options);
         #endregion
 
         #region Events
@@ -998,9 +872,8 @@ namespace Discord.Rest
                 count: limit
             );
         }
-
         public static Task<API.GuildScheduledEvent> ModifyGuildEventAsync(BaseDiscordClient client, Action<GuildScheduledEventsProperties> func,
-            IGuildScheduledEvent guildEvent, RequestOptions? options = null)
+    IGuildScheduledEvent guildEvent, RequestOptions? options = null)
         {
             Preconditions.NotNull(func, nameof(func));
 
@@ -1047,11 +920,7 @@ namespace Discord.Rest
                 StartTime = args.StartTime,
                 Status = args.Status,
                 Type = args.Type,
-                Image = args.CoverImage.IsSpecified
-                    ? args.CoverImage.Value.HasValue
-                        ? args.CoverImage.Value.Value.ToModel()
-                        : null
-                    : Optional<ImageModel?>.Unspecified
+                Image = args.CoverImage.Map(x => x?.ToModel())
             };
 
             if (args.Location.IsSpecified)
@@ -1063,6 +932,58 @@ namespace Discord.Rest
             }
 
             return client.ApiClient.ModifyGuildScheduledEventAsync(apiArgs, guildEvent.Id, guildEvent.GuildId, options);
+        }
+
+        public static Task<API.GuildScheduledEvent> ModifyGuildEventAsync(BaseDiscordClient client, Action<GuildScheduledEventsProperties> func,
+            ulong guildId,
+            ulong guildEventId, RequestOptions? options = null)
+        {
+            Preconditions.NotNull(func, nameof(func));
+
+            var args = new GuildScheduledEventsProperties();
+
+            func(args);
+
+            if (args.Type.IsSpecified)
+            {
+                // taken from https://discord.com/developers/docs/resources/guild-scheduled-event#modify-guild-scheduled-event
+                switch (args.Type.Value)
+                {
+                    case GuildScheduledEventType.External:
+                        if (!args.Location.IsSpecified)
+                            throw new ArgumentException("Location must be specified for external events.");
+                        if (!args.EndTime.IsSpecified)
+                            throw new ArgumentException("End time must be specified for external events.");
+                        if (!args.ChannelId.IsSpecified)
+                            throw new ArgumentException("Channel id must be set to null!");
+                        if (args.ChannelId.Value != null)
+                            throw new ArgumentException("Channel id must be set to null!");
+                        break;
+                }
+            }
+
+            var apiArgs = new ModifyGuildScheduledEventParams()
+            {
+                ChannelId = args.ChannelId,
+                Description = args.Description,
+                EndTime = args.EndTime,
+                Name = args.Name,
+                PrivacyLevel = args.PrivacyLevel,
+                StartTime = args.StartTime,
+                Status = args.Status,
+                Type = args.Type,
+                Image = args.CoverImage.Map(x => x?.ToModel())
+            };
+
+            if (args.Location.IsSpecified)
+            {
+                apiArgs.EntityMetadata = new API.GuildScheduledEventEntityMetadata()
+                {
+                    Location = args.Location,
+                };
+            }
+
+            return client.ApiClient.ModifyGuildScheduledEventAsync(apiArgs, guildEventId, guildId, options);
         }
 
         public static async Task<RestGuildEvent?> GetGuildEventAsync(BaseDiscordClient client, ulong id, IGuild guild, RequestOptions? options = null)
@@ -1082,7 +1003,7 @@ namespace Discord.Rest
             return models.Select(x => RestGuildEvent.Create(client, guild, x)).ToImmutableArray();
         }
 
-        public static async Task<RestGuildEvent> CreateGuildEventAsync(BaseDiscordClient client, IGuild guild,
+        public static Task<GuildScheduledEvent> CreateGuildEventAsync(BaseDiscordClient client, IGuild guild,
             string name,
             GuildScheduledEventPrivacyLevel privacyLevel,
             DateTimeOffset startTime,
@@ -1094,30 +1015,37 @@ namespace Discord.Rest
             Image? bannerImage = null,
             RequestOptions? options = null)
         {
-            Preconditions.NotNull(name, nameof(name));
-
-            if (location != null)
+            try
             {
-                Preconditions.AtMost(location.Length, 100, nameof(location));
-            }
+                Preconditions.NotNull(name, nameof(name));
 
-            switch (type)
+                if (location != null)
+                {
+                    Preconditions.AtMost(location.Length, 100, nameof(location));
+                }
+
+                switch (type)
+                {
+                    case GuildScheduledEventType.Stage or GuildScheduledEventType.Voice when channelId == null:
+                        throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
+                    case GuildScheduledEventType.External when channelId != null:
+                        throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
+                    case GuildScheduledEventType.External when location == null:
+                        throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
+                    case GuildScheduledEventType.External when endTime == null:
+                        throw new ArgumentException($"{nameof(endTime)} must not be null when using external event type", nameof(endTime));
+                }
+
+                if (startTime <= DateTimeOffset.Now)
+                    throw new ArgumentOutOfRangeException(nameof(startTime), "The start time for an event cannot be in the past");
+
+                if (endTime != null && endTime <= startTime)
+                    throw new ArgumentOutOfRangeException(nameof(endTime), $"{nameof(endTime)} cannot be before the start time");
+            }
+            catch (Exception ex)
             {
-                case GuildScheduledEventType.Stage or GuildScheduledEventType.Voice when channelId == null:
-                    throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
-                case GuildScheduledEventType.External when channelId != null:
-                    throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
-                case GuildScheduledEventType.External when location == null:
-                    throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
-                case GuildScheduledEventType.External when endTime == null:
-                    throw new ArgumentException($"{nameof(endTime)} must not be null when using external event type", nameof(endTime));
+                return Task.FromException<GuildScheduledEvent>(ex);
             }
-
-            if (startTime <= DateTimeOffset.Now)
-                throw new ArgumentOutOfRangeException(nameof(startTime), "The start time for an event cannot be in the past");
-
-            if (endTime != null && endTime <= startTime)
-                throw new ArgumentOutOfRangeException(nameof(endTime), $"{nameof(endTime)} cannot be before the start time");
 
 
             var apiArgs = new CreateGuildScheduledEventParams()
@@ -1140,13 +1068,11 @@ namespace Discord.Rest
                 };
             }
 
-            var model = await client.ApiClient.CreateGuildScheduledEventAsync(apiArgs, guild.Id, options).ConfigureAwait(false);
-
-            return RestGuildEvent.Create(client, guild, client.CurrentUser, model);
+            return client.ApiClient.CreateGuildScheduledEventAsync(apiArgs, guild.Id, options);
         }
 
-        public static Task DeleteEventAsync(BaseDiscordClient client, IGuildScheduledEvent guildEvent, RequestOptions? options = null)
-            => client.ApiClient.DeleteGuildScheduledEventAsync(guildEvent.Id, guildEvent.GuildId, options);
+        public static Task DeleteEventAsync(BaseDiscordClient client, ulong guildId, ulong guildEventId, RequestOptions? options = null)
+            => client.ApiClient.DeleteGuildScheduledEventAsync(guildEventId, guildId, options);
 
         #endregion
 

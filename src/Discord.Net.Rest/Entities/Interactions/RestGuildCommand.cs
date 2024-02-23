@@ -29,7 +29,7 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public override Task DeleteAsync(RequestOptions? options = null)
-            => InteractionHelper.DeleteGuildCommandAsync(Discord, GuildId, this);
+            => InteractionHelper.DeleteGuildCommandAsync(Discord, GuildId, Id);
 
         /// <summary>
         ///     Modifies this <see cref="RestApplicationCommand"/>.

@@ -12,7 +12,7 @@ namespace Discord.API
         /// The unique code for the invite link.
         /// </summary>
         [JsonPropertyName("code")]
-        public string Code { get; set; } = string.Empty;
+        public string? Code { get; set; }
 
         /// <summary>
         /// The total amount of vanity invite uses.

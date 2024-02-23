@@ -93,11 +93,23 @@ namespace Discord
         RoleFlags Flags { get; }
 
         /// <summary>
+        ///     Gets the image url of the icon role.
+        /// </summary>
+        /// <returns>
+        ///     An image url of the icon role.
+        /// </returns>
+        string? GetIconUrl();
+
+        /// <summary>
         ///     Modifies this role.
         /// </summary>
         /// <remarks>
         ///     This method modifies this role with the specified properties. To see an example of this
         ///     method and what properties are available, please refer to <see cref="RoleProperties"/>.
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to modify roles.
+        ///     </note>
         /// </remarks>
         /// <param name="func">A delegate containing the properties to modify the role with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
@@ -107,11 +119,18 @@ namespace Discord
         Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null);
 
         /// <summary>
-        ///     Gets the image url of the icon role.
+        ///     Deletes the current role.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageRoles">MANAGE_ROLES</see>
+        ///         permission inside the guild in order to delete roles.
+        ///     </note>
+        /// </remarks>
+        /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
-        ///     An image url of the icon role.
+        ///      A task that represents the asynchronous deletion operation.
         /// </returns>
-        string? GetIconUrl();
+        new Task DeleteAsync(RequestOptions? options = null);
     }
 }

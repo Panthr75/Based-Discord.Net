@@ -60,17 +60,22 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public Task DeleteAsync(RequestOptions? options = null)
-            => GuildHelper.DeleteStickerAsync(Discord, GuildId, this, options);
+        {
+            if (Guild is null)
+                return GuildHelper.DeleteStickerAsync(Discord, GuildId, Id, options);
+            else
+                return Guild.DeleteStickerAsync(Id, options);
+        }
 
         /// <inheritdoc/>
         public async Task ModifyAsync(Action<StickerProperties> func, RequestOptions? options = null)
         {
-            var model = await GuildHelper.ModifyStickerAsync(Discord, GuildId, this, func, options);
+            var model = await GuildHelper.ModifyStickerAsync(Discord, GuildId, Id, func, options);
             Update(model);
         }
 
         private string DebuggerDisplay => Guild != null ? $"{Name} in {Guild.Name} ({Id})" : $"{Name} ({Id})";
 
-        IGuild ICustomSticker.Guild => Guild ?? new RestGuild(this.Discord, this.GuildId);
+        IGuild ICustomSticker.Guild => Guild ?? new RestGuild(Discord, GuildId);
     }
 }

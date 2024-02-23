@@ -25,6 +25,7 @@ namespace Discord
         /// <summary>
         ///     Gets or sets whether the command is enabled by default when the app is added to a guild. Default is <see langword="true"/>
         /// </summary>
+        [Obsolete("Instead use 'DefaultMemberPermissions'. This will be removed in the future.")]
         public Optional<bool> IsDefaultPermission { get; set; }
 
         /// <summary>

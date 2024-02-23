@@ -8,7 +8,7 @@ namespace Discord
     /// <summary>
     ///     Represents a generic guild scheduled event.
     /// </summary>
-    public interface IGuildScheduledEvent : IEntity<ulong>
+    public interface IGuildScheduledEvent : IEntity<ulong>, IDeletable
     {
         /// <summary>
         ///     Gets the guild this event is scheduled in, if cached.
@@ -81,7 +81,7 @@ namespace Discord
         /// If <see langword="true"/>, <see cref="Location"/> will not
         /// be <see langword="null"/>.
         /// </remarks>
-        [MemberNotNullWhen(true, nameof(this.Location))]
+        [MemberNotNullWhen(true, nameof(Location))]
         bool IsExternal { get; }
 
         /// <summary>
@@ -128,6 +128,36 @@ namespace Discord
         /// <summary>
         ///     Modifies the guild event.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEvents">MANAGE_EVENTS</see>
+        ///         or if this event was created by the bot, the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission,
+        ///         and all of the following permisions to modify this guild event (based on <see cref="Type">Type</see>):
+        ///         <list type="table">
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Stage">STAGE</see></term>
+        ///                 <description>
+        ///                     The bot in <see cref="ChannelId">ChannelId</see> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see></item>
+        ///                         <item><see cref="ChannelPermission.MuteMembers">MUTE_MEMBERS</see></item>
+        ///                         <item><see cref="ChannelPermission.MoveMembers">MOVE_MEMBERS</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Voice">VOICE</see></term>
+        ///                 <description>
+        ///                     The bot in <see cref="ChannelId">ChannelId</see> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ViewChannel">VIEW_CHANNEL</see></item>
+        ///                         <item><see cref="ChannelPermission.Connect">CONNECT</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///     </note>
+        /// </remarks>
         /// <param name="func">The delegate containing the properties to modify the event with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
@@ -138,11 +168,41 @@ namespace Discord
         /// <summary>
         ///     Deletes the current event.
         /// </summary>
+        /// <remarks>
+        ///     <note>
+        ///         The bot needs the <see cref="GuildPermission.ManageEvents">MANAGE_EVENTS</see>
+        ///         or if this event was created by the bot, the <see cref="GuildPermission.CreateGuildExpressions">CREATE_GUILD_EXPRESSIONS</see> permission,
+        ///         and all of the following permisions to delete this guild event (based on <see cref="Type">Type</see>):
+        ///         <list type="table">
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Stage">STAGE</see></term>
+        ///                 <description>
+        ///                     The bot in <see cref="ChannelId">ChannelId</see> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see></item>
+        ///                         <item><see cref="ChannelPermission.MuteMembers">MUTE_MEMBERS</see></item>
+        ///                         <item><see cref="ChannelPermission.MoveMembers">MOVE_MEMBERS</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///             <item>
+        ///                 <term><see cref="GuildScheduledEventType.Voice">VOICE</see></term>
+        ///                 <description>
+        ///                     The bot in <see cref="ChannelId">ChannelId</see> must have the following permissions:
+        ///                     <list type="bullet">
+        ///                         <item><see cref="ChannelPermission.ViewChannel">VIEW_CHANNEL</see></item>
+        ///                         <item><see cref="ChannelPermission.Connect">CONNECT</see></item>
+        ///                     </list>
+        ///                 </description>
+        ///             </item>
+        ///         </list>
+        ///     </note>
+        /// </remarks>
         /// <param name="options">The options to be used when sending the request.</param>
         /// <returns>
         ///     A task that represents the asynchronous delete operation.
         /// </returns>
-        Task DeleteAsync(RequestOptions? options = null);
+        new Task DeleteAsync(RequestOptions? options = null);
 
         /// <summary>
         ///     Gets a collection of N users interested in the event.

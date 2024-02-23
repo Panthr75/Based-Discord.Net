@@ -45,11 +45,10 @@ namespace Discord.Rest
         {
             get
             {
-                if (this.Guild == null)
-                {
+                if (Guild is null)
                     return false;
-                }
-                return Id == Guild.Id;
+                else
+                    return Id == Guild.Id;
             }
         }
         /// <inheritdoc />
@@ -92,14 +91,12 @@ namespace Discord.Rest
         }
 
         /// <inheritdoc />
-        public async Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null)
-        {
-            var model = await RoleHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
-            Update(model);
-        }
+        public Task ModifyAsync(Action<RoleProperties> func, RequestOptions? options = null)
+            => Guild!.ModifyRoleAsync(Id, func, options);
+
         /// <inheritdoc />
         public Task DeleteAsync(RequestOptions? options = null)
-            => RoleHelper.DeleteAsync(this, Discord, options);
+            => Guild!.DeleteRoleAsync(Id, options);
 
         /// <inheritdoc />
         public string? GetIconUrl()

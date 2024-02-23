@@ -21,16 +21,13 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public override Task DeleteAsync(RequestOptions? options = null)
-            => InteractionHelper.DeleteGlobalCommandAsync(Discord, this);
+            => InteractionHelper.DeleteGlobalCommandAsync(Discord, Id, options);
 
         /// <summary>
         ///     Modifies this <see cref="RestApplicationCommand"/>.
         /// </summary>
         /// <param name="func">The delegate containing the properties to modify the command with.</param>
         /// <param name="options">The options to be used when sending the request.</param>
-        /// <returns>
-        ///     The modified command.
-        /// </returns>
         public override async Task ModifyAsync<TArg>(Action<TArg> func, RequestOptions? options = null)
         {
             var cmd = await InteractionHelper.ModifyGlobalCommandAsync(Discord, this, func, options).ConfigureAwait(false);

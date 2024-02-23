@@ -60,7 +60,7 @@ namespace Discord.Rest
         }
         /// <inheritdoc />
         public Task CloseAsync(RequestOptions? options = null)
-            => ChannelHelper.DeleteAsync(this, Discord, options);
+            => ChannelHelper.DeleteChannelAsync(Id, Discord, options);
 
 
         /// <summary>

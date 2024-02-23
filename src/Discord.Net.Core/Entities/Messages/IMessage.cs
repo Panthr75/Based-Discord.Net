@@ -329,5 +329,18 @@ namespace Discord
         /// </returns>
         IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions? options = null,
             ReactionType type = ReactionType.Normal);
+
+        /// <summary>
+        ///     Deletes this message.
+        /// </summary>
+        /// <remarks>
+        ///     The bot needs the MANAGE_MESSAGES permission inside the guild in order to delete messages.
+        ///     Only messages sent by the bot in direct messages can be deleted.
+        /// </remarks>
+        /// <param name="options">The options to be used when sending the request.</param>
+        /// <returns>
+        ///      A task that represents the asynchronous deletion operation.
+        /// </returns>
+        new Task DeleteAsync(RequestOptions? options = null);
     }
 }

@@ -73,6 +73,64 @@ namespace Discord
         private static ArgumentException CreateNotEmptyException(string name, string? msg)
             => new ArgumentException(message: msg ?? "Argument cannot be blank.", paramName: name);
 
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be at least <paramref name="value"/>.</exception>
+        public static void LengthAtLeast(string obj, int value, string name, string? msg = null)
+        {
+            if (obj.Length < value)
+                throw CreateLengthAtLeastException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be at least <paramref name="value"/>.</exception>
+        public static void LengthAtLeast(Optional<string> obj, int value, string name, string? msg = null)
+        {
+            if (obj.IsSpecified && obj.Value.Length < value)
+                throw CreateLengthAtLeastException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be greater than <paramref name="value"/>.</exception>
+        public static void LengthGreaterThan(string obj, int value, string name, string? msg = null)
+        {
+            if (obj.Length <= value)
+                throw CreateLengthGreaterThanException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be greater than <paramref name="value"/>.</exception>
+        public static void LengthGreaterThan(Optional<string> obj, int value, string name, string? msg = null)
+        {
+            if (obj.IsSpecified && obj.Value.Length <= value)
+                throw CreateLengthGreaterThanException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be at most <paramref name="value"/>.</exception>
+        public static void LengthAtMost(string obj, int value, string name, string? msg = null)
+        {
+            if (obj.Length > value)
+                throw CreateLengthAtMostException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be at most <paramref name="value"/>.</exception>
+        public static void LengthAtMost(Optional<string> obj, int value, string name, string? msg = null)
+        {
+            if (obj.IsSpecified && obj.Value.Length > value)
+                throw CreateLengthAtMostException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be less than <paramref name="value"/>.</exception>
+        public static void LengthLessThan(string obj, int value, string name, string? msg = null)
+        {
+            if (obj.Length > value)
+                throw CreateLengthLessThanException(name, msg, value);
+        }
+        /// <exception cref="ArgumentException"><paramref name="obj"/> must be less than <paramref name="value"/>.</exception>
+        public static void LengthLessThan(Optional<string> obj, int value, string name, string? msg = null)
+        {
+            if (obj.IsSpecified && obj.Value.Length > value)
+                throw CreateLengthLessThanException(name, msg, value);
+        }
+
+        private static ArgumentException CreateLengthAtLeastException(string name, string? msg, int value)
+            => new ArgumentException(message: msg ?? $"Length must be at least {value}.", paramName: name);
+        private static ArgumentException CreateLengthGreaterThanException(string name, string? msg, int value)
+            => new ArgumentException(message: msg ?? $"Length must be greater than {value}.", paramName: name);
+        private static ArgumentException CreateLengthAtMostException(string name, string? msg, int value)
+            => new ArgumentException(message: msg ?? $"Length must be at most {value}.", paramName: name);
+        private static ArgumentException CreateLengthLessThanException(string name, string? msg, int value)
+            => new ArgumentException(message: msg ?? $"Length must be less than {value}.", paramName: name);
+
         #endregion
 
         #region Message Validation

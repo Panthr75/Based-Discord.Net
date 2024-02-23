@@ -259,7 +259,7 @@ namespace Discord
             if (Components.ActionRows?.SelectMany(x => x.Components).Any(x => x.Type != ComponentType.TextInput) ?? false)
                 throw new ArgumentException($"Only components of type {nameof(TextInputComponent)} are allowed.", nameof(Components));
 
-            return new(Title, CustomId, Components.Build());
+            return new(Title!, CustomId!, Components.Build());
         }
     }
 

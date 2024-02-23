@@ -106,13 +106,13 @@ namespace Discord.Rest
         internal RestApplication(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
-            this.Name = string.Empty;
-            this.Description = string.Empty;
-            this.RPCOrigins = ImmutableArray<string>.Empty;
-            this.VerifyKey = string.Empty;
-            this.RedirectUris = ImmutableArray<string>.Empty;
-            this.InteractionEventTypes = ImmutableArray<string>.Empty;
-            this.Tags = ImmutableArray<string>.Empty;
+            Name = string.Empty;
+            Description = string.Empty;
+            RPCOrigins = ImmutableArray<string>.Empty;
+            VerifyKey = string.Empty;
+            RedirectUris = ImmutableArray<string>.Empty;
+            InteractionEventTypes = ImmutableArray<string>.Empty;
+            Tags = ImmutableArray<string>.Empty;
         }
         internal static RestApplication Create(BaseDiscordClient discord, Model model)
         {
@@ -123,12 +123,16 @@ namespace Discord.Rest
         internal void Update(Model model)
         {
             Description = model.Description;
-            RPCOrigins = model.RPCOrigins.IsSpecified ? model.RPCOrigins.Value.ToImmutableArray() : ImmutableArray<string>.Empty;
+            RPCOrigins = model.RPCOrigins
+                .Map(x => x.ToImmutableArray())
+                .GetValueOrDefault(ImmutableArray<string>.Empty);
             Name = model.Name;
             _iconId = model.Icon;
-            IsBotPublic = model.IsBotPublic.IsSpecified ? model.IsBotPublic.Value : null;
-            BotRequiresCodeGrant = model.BotRequiresCodeGrant.IsSpecified ? model.BotRequiresCodeGrant.Value : null;
-            Tags = model.Tags.GetValueOrDefault(null)?.ToImmutableArray() ?? ImmutableArray<string>.Empty;
+            IsBotPublic = model.IsBotPublic.ToNullable();
+            BotRequiresCodeGrant = model.BotRequiresCodeGrant.ToNullable();
+            Tags = model.Tags
+                .Map(x => x.ToImmutableArray())
+                .GetValueOrDefault(ImmutableArray<string>.Empty);
             PrivacyPolicy = model.PrivacyPolicy;
             TermsOfService = model.TermsOfService;
 
@@ -143,7 +147,7 @@ namespace Discord.Rest
             if (model.Team != null)
                 Team = RestTeam.Create(Discord, model.Team);
 
-            CustomInstallUrl = model.CustomInstallUrl.IsSpecified ? model.CustomInstallUrl.Value : null;
+            CustomInstallUrl = model.CustomInstallUrl.GetValueOrDefault();
             RoleConnectionsVerificationUrl = model.RoleConnectionsUrl.IsSpecified ? model.RoleConnectionsUrl.Value : null;
             VerifyKey = model.VerifyKey;
 
@@ -162,7 +166,7 @@ namespace Discord.Rest
             ExplicitContentFilterLevel = model.ExplicitContentFilter.GetValueOrDefault(ApplicationExplicitContentFilterLevel.Disabled);
             IsHook = model.IsHook;
 
-            InteractionEventTypes = model.InteractionsEventTypes.GetValueOrDefault(Array.Empty<string>()).ToImmutableArray();
+            InteractionEventTypes = model.InteractionsEventTypes.Map(x => x.ToImmutableArray()).GetValueOrDefault(ImmutableArray<string>.Empty);
             InteractionsVersion = model.InteractionsVersion.GetValueOrDefault(ApplicationInteractionsVersion.Version1);
 
             IsMonetized = model.IsMonetized;

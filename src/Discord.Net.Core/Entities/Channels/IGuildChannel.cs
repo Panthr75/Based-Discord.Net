@@ -9,6 +9,7 @@ namespace Discord
     /// </summary>
     /// <seealso cref="ITextChannel"/>
     /// <seealso cref="IVoiceChannel"/>
+    /// <seealso cref="IForumChannel"/>
     /// <seealso cref="ICategoryChannel"/>
     public interface IGuildChannel : IChannel, IDeletable
     {
@@ -61,6 +62,10 @@ namespace Discord
         /// <remarks>
         ///     This method modifies the current guild channel with the specified properties. To see an example of this
         ///     method and what properties are available, please refer to <see cref="GuildChannelProperties"/>.
+        ///     <note>
+        ///         The bot needs the <see cref="ChannelPermission.ManageChannels">MANAGE_CHANNELS</see>
+        ///         permission inside the channel in order to modify channels.
+        ///     </note>
         /// </remarks>
         /// <param name="func">The delegate containing the properties to modify the channel with.</param>
         /// <param name="options">The options to be used when sending the request.</param>

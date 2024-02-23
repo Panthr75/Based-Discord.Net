@@ -105,7 +105,7 @@ namespace Discord.WebSocket
 
         /// <inheritdoc />
         public virtual Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions? options = null)
-            => ForumHelper.ModifyAsync(this, Discord, func, options);
+            => ChannelHelper.ModifyGuildChannelAsync(Id, Discord, func, options);
 
         /// <inheritdoc cref="IForumChannel.CreatePostAsync(string, ThreadArchiveDuration, int?, string, Embed, RequestOptions, AllowedMentions, MessageComponent, ISticker[], Embed[], MessageFlags, ForumTag[])"/>
         public Task<RestThreadChannel> CreatePostAsync(string title, ThreadArchiveDuration archiveDuration = ThreadArchiveDuration.OneDay, int? slowmode = null, string? text = null, Embed? embed = null, RequestOptions? options = null, AllowedMentions? allowedMentions = null, MessageComponent? components = null, ISticker[]? stickers = null, Embed[]? embeds = null, MessageFlags flags = MessageFlags.None, ForumTag[]? tags = null)

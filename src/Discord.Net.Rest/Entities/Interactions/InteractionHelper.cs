@@ -87,6 +87,8 @@ namespace Discord.Rest
         public static Task<ApplicationCommand> CreateGlobalCommandAsync<TArg>(BaseDiscordClient client,
             Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
         {
+            Preconditions.NotNull(func, nameof(func));
+
             var args = Activator.CreateInstance(typeof(TArg));
             func((TArg)args!);
             return CreateGlobalCommandAsync(client, (TArg)args!, options);
@@ -101,27 +103,24 @@ namespace Discord.Rest
             {
                 Name = arg.Name.Value,
                 Type = arg.Type,
-                DefaultPermission = arg.IsDefaultPermission.IsSpecified
-                        ? arg.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
+#pragma warning disable CS0618 // Type or member is obsolete
+                DefaultPermission = arg.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
                 NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
                 DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
-
-                // TODO: better conversion to nullable optionals
-                DefaultMemberPermission = arg.DefaultMemberPermissions.ToNullable(),
-                DmPermission = arg.IsDMEnabled.ToNullable(),
+                DefaultMemberPermission = arg.DefaultMemberPermissions,
+                DmPermission = arg.IsDMEnabled,
                 Nsfw = arg.IsNsfw.GetValueOrDefault(false),
             };
 
             if (arg is SlashCommandProperties slashProps)
             {
                 Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
 
                 model.Description = slashProps.Description.Value;
 
-                model.Options = slashProps.Options.IsSpecified
-                    ? slashProps.Options.Value.Select(x => new ApplicationCommandOption(x)).ToArray()
-                    : Optional<ApplicationCommandOption[]>.Unspecified;
+                model.Options = slashProps.Options.Map(x => x.Select(option => new ApplicationCommandOption(option)).ToArray());
             }
 
             return client.ApiClient.CreateGlobalApplicationCommandAsync(model, options);
@@ -137,82 +136,36 @@ namespace Discord.Rest
             foreach (var arg in args)
             {
                 Preconditions.NotNullOrEmpty(arg.Name, nameof(arg.Name));
+                Preconditions.LengthAtMost(arg.Name, SlashCommandBuilder.MaxNameLength, nameof(arg.Name));
 
                 var model = new CreateApplicationCommandParams
                 {
                     Name = arg.Name.Value,
                     Type = arg.Type,
-                    DefaultPermission = arg.IsDefaultPermission.IsSpecified
-                        ? arg.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
+#pragma warning disable CS0618 // Type or member is obsolete
+                    DefaultPermission = arg.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
                     NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
                     DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
-
-                    // TODO: better conversion to nullable optionals
-                    DefaultMemberPermission = arg.DefaultMemberPermissions.ToNullable(),
-                    DmPermission = arg.IsDMEnabled.ToNullable(),
-                    Nsfw = arg.IsNsfw.GetValueOrDefault(false)
+                    DefaultMemberPermission = arg.DefaultMemberPermissions,
+                    DmPermission = arg.IsDMEnabled,
+                    Nsfw = arg.IsNsfw
                 };
 
                 if (arg is SlashCommandProperties slashProps)
                 {
                     Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                    Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
 
                     model.Description = slashProps.Description.Value;
 
-                    model.Options = slashProps.Options.IsSpecified
-                        ? slashProps.Options.Value.Select(x => new ApplicationCommandOption(x)).ToArray()
-                        : Optional<ApplicationCommandOption[]>.Unspecified;
+                    model.Options = slashProps.Options.Map(x => x.Select(option => new ApplicationCommandOption(option)).ToArray());
                 }
 
                 models.Add(model);
             }
 
             return client.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(models.ToArray(), options);
-        }
-
-        public static async Task<IReadOnlyCollection<ApplicationCommand>> BulkOverwriteGuildCommandsAsync(BaseDiscordClient client, ulong guildId,
-            ApplicationCommandProperties[] args, RequestOptions? options = null)
-        {
-            Preconditions.NotNull(args, nameof(args));
-
-            var models = new List<CreateApplicationCommandParams>();
-
-            foreach (var arg in args)
-            {
-                Preconditions.NotNullOrEmpty(arg.Name, nameof(arg.Name));
-
-                var model = new CreateApplicationCommandParams
-                {
-                    Name = arg.Name.Value,
-                    Type = arg.Type,
-                    DefaultPermission = arg.IsDefaultPermission.IsSpecified
-                        ? arg.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
-                    NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
-                    DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
-
-                    // TODO: better conversion to nullable optionals
-                    DefaultMemberPermission = arg.DefaultMemberPermissions.ToNullable(),
-                    DmPermission = arg.IsDMEnabled.ToNullable(),
-                    Nsfw = arg.IsNsfw.GetValueOrDefault(false)
-                };
-
-                if (arg is SlashCommandProperties slashProps)
-                {
-                    Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
-
-                    model.Description = slashProps.Description.Value;
-
-                    model.Options = slashProps.Options.IsSpecified
-                        ? slashProps.Options.Value.Select(x => new ApplicationCommandOption(x)).ToArray()
-                        : Optional<ApplicationCommandOption[]>.Unspecified;
-                }
-
-                models.Add(model);
-            }
-
-            return await client.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(guildId, models.ToArray(), options).ConfigureAwait(false);
         }
 
         private static TArg GetApplicationCommandProperties<TArg>(IApplicationCommand command)
@@ -233,42 +186,57 @@ namespace Discord.Rest
             }
         }
 
+        private static TArg GetApplicationCommandProperties<TArg>()
+            where TArg : ApplicationCommandProperties
+        {
+            if (typeof(TArg) == typeof(SlashCommandProperties))
+                return (new SlashCommandProperties() as TArg)!;
+            else if (typeof(TArg) == typeof(MessageCommandProperties))
+                return (new MessageCommandProperties() as TArg)!;
+            else if (typeof(TArg) == typeof(UserCommandProperties))
+                return (new UserCommandProperties() as TArg)!;
+            else
+                throw new InvalidOperationException($"Cannot modify application command with the parameter type {typeof(TArg).FullName}");
+        }
+
         public static Task<ApplicationCommand> ModifyGlobalCommandAsync<TArg>(BaseDiscordClient client, IApplicationCommand command,
             Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
         {
             var arg = GetApplicationCommandProperties<TArg>(command);
             func(arg);
-            return ModifyGlobalCommandAsync(client, command, arg, options);
+            return ModifyGlobalCommandAsync(client, command.Id, arg, options);
         }
 
-        public static Task<ApplicationCommand> ModifyGlobalCommandAsync(BaseDiscordClient client, IApplicationCommand command,
+        public static Task<ApplicationCommand> ModifyGlobalCommandAsync<TArg>(BaseDiscordClient client, ulong commandId,
+            Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
+        {
+            var arg = GetApplicationCommandProperties<TArg>();
+            func(arg);
+            return ModifyGlobalCommandAsync(client, commandId, arg, options);
+        }
+
+        public static Task<ApplicationCommand> ModifyGlobalCommandAsync(BaseDiscordClient client, ulong commandId,
            ApplicationCommandProperties args, RequestOptions? options = null)
         {
-            if (args.Name.IsSpecified)
-            {
-                Preconditions.AtMost(args.Name.Value.Length, 32, nameof(args.Name));
-                Preconditions.AtLeast(args.Name.Value.Length, 1, nameof(args.Name));
-            }
+            Preconditions.NotNullOrEmpty(args.Name, nameof(args.Name));
+            Preconditions.LengthAtMost(args.Name, SlashCommandBuilder.MaxNameLength, nameof(args.Name));
 
             var model = new ModifyApplicationCommandParams
             {
                 Name = args.Name,
-                DefaultPermission = args.IsDefaultPermission.IsSpecified
-                        ? args.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
+#pragma warning disable CS0618 // Type or member is obsolete
+                DefaultPermission = args.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
                 NameLocalizations = Optional.CreateFromNullable(args.NameLocalizations?.ToDictionary()),
                 DescriptionLocalizations = Optional.CreateFromNullable(args.DescriptionLocalizations?.ToDictionary()),
-                Nsfw = args.IsNsfw.GetValueOrDefault(false),
-                DefaultMemberPermission = args.DefaultMemberPermissions.ToNullable()
+                Nsfw = args.IsNsfw,
+                DefaultMemberPermission = args.DefaultMemberPermissions
             };
 
             if (args is SlashCommandProperties slashProps)
             {
-                if (slashProps.Description.IsSpecified)
-                {
-                    Preconditions.AtMost(slashProps.Description.Value.Length, 100, nameof(slashProps.Description));
-                    Preconditions.AtLeast(slashProps.Description.Value.Length, 1, nameof(slashProps.Description));
-                }
+                Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
 
                 if (slashProps.Options.IsSpecified)
                 {
@@ -283,15 +251,12 @@ namespace Discord.Rest
                     : Optional<ApplicationCommandOption[]>.Unspecified;
             }
 
-            return client.ApiClient.ModifyGlobalApplicationCommandAsync(model, command.Id, options);
+            return client.ApiClient.ModifyGlobalApplicationCommandAsync(model, commandId, options);
         }
 
-        public static Task DeleteGlobalCommandAsync(BaseDiscordClient client, IApplicationCommand command, RequestOptions? options = null)
+        public static Task DeleteGlobalCommandAsync(BaseDiscordClient client, ulong commandId, RequestOptions? options = null)
         {
-            Preconditions.NotNull(command, nameof(command));
-            Preconditions.NotEqual(command.Id, 0UL, nameof(command.Id));
-
-            return client.ApiClient.DeleteGlobalApplicationCommandAsync(command.Id, options);
+            return client.ApiClient.DeleteGlobalApplicationCommandAsync(commandId, options);
         }
         #endregion
 
@@ -307,31 +272,30 @@ namespace Discord.Rest
         public static Task<ApplicationCommand> CreateGuildCommandAsync(BaseDiscordClient client, ulong guildId,
            ApplicationCommandProperties arg, RequestOptions? options = null)
         {
+            Preconditions.NotNullOrEmpty(arg.Name, nameof(arg.Name));
+            Preconditions.LengthAtMost(arg.Name, SlashCommandBuilder.MaxNameLength, nameof(arg.Name));
+
             var model = new CreateApplicationCommandParams
             {
                 Name = arg.Name.Value,
                 Type = arg.Type,
-                DefaultPermission = arg.IsDefaultPermission.IsSpecified
-                        ? arg.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
+#pragma warning disable CS0618 // Type or member is obsolete
+                DefaultPermission = arg.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
                 NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
                 DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
-
-                // TODO: better conversion to nullable optionals
-                DefaultMemberPermission = arg.DefaultMemberPermissions.ToNullable(),
-                DmPermission = arg.IsDMEnabled.ToNullable(),
+                DefaultMemberPermission = arg.DefaultMemberPermissions,
+                DmPermission = arg.IsDMEnabled,
                 Nsfw = arg.IsNsfw.GetValueOrDefault(false)
             };
 
             if (arg is SlashCommandProperties slashProps)
             {
                 Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
 
                 model.Description = slashProps.Description.Value;
-
-                model.Options = slashProps.Options.IsSpecified
-                    ? slashProps.Options.Value.Select(x => new ApplicationCommandOption(x)).ToArray()
-                    : Optional<ApplicationCommandOption[]>.Unspecified;
+                model.Options = slashProps.Options.Map(x => x.Select(option => new ApplicationCommandOption(option)).ToArray());
             }
 
             return client.ApiClient.CreateGuildApplicationCommandAsync(model, guildId, options);
@@ -340,53 +304,106 @@ namespace Discord.Rest
         public static Task<ApplicationCommand> ModifyGuildCommandAsync<TArg>(BaseDiscordClient client, IApplicationCommand command, ulong guildId,
             Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
         {
+            Preconditions.NotNull(func, nameof(func));
+
             var arg = GetApplicationCommandProperties<TArg>(command);
             func(arg);
-            return ModifyGuildCommandAsync(client, command, guildId, arg, options);
+            return ModifyGuildCommandAsync(client, command.Id, guildId, arg, options);
         }
 
-        public static Task<ApplicationCommand> ModifyGuildCommandAsync(BaseDiscordClient client, IApplicationCommand command, ulong guildId,
+        public static Task<ApplicationCommand> ModifyGuildCommandAsync<TArg>(BaseDiscordClient client, ulong commandId, ulong guildId,
+            Action<TArg> func, RequestOptions? options = null) where TArg : ApplicationCommandProperties
+        {
+            Preconditions.NotNull(func, nameof(func));
+
+            var arg = GetApplicationCommandProperties<TArg>();
+            func(arg);
+            return ModifyGuildCommandAsync(client, commandId, guildId, arg, options);
+        }
+
+        public static Task<ApplicationCommand> ModifyGuildCommandAsync(BaseDiscordClient client, ulong commandId, ulong guildId,
             ApplicationCommandProperties arg, RequestOptions? options = null)
         {
+            Preconditions.NotNullOrEmpty(arg.Name, nameof(arg.Name));
+            Preconditions.LengthAtMost(arg.Name, SlashCommandBuilder.MaxNameLength, nameof(arg.Name));
+
             var model = new ModifyApplicationCommandParams
             {
                 Name = arg.Name,
-                DefaultPermission = arg.IsDefaultPermission.IsSpecified
-                        ? arg.IsDefaultPermission.Value
-                        : Optional<bool>.Unspecified,
+#pragma warning disable CS0618 // Type or member is obsolete
+                DefaultPermission = arg.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
                 NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
                 DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
-                Nsfw = arg.IsNsfw.GetValueOrDefault(false),
-                DefaultMemberPermission = arg.DefaultMemberPermissions.ToNullable()
+                Nsfw = arg.IsNsfw,
+                DefaultMemberPermission = arg.DefaultMemberPermissions
             };
 
             if (arg is SlashCommandProperties slashProps)
             {
                 Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
 
-                model.Description = slashProps.Description.Value;
+                model.Description = slashProps.Description;
 
-                model.Options = slashProps.Options.IsSpecified
-                    ? slashProps.Options.Value.Select(x => new ApplicationCommandOption(x)).ToArray()
-                    : Optional<ApplicationCommandOption[]>.Unspecified;
+                model.Options = slashProps.Options.Map(x => x.Select(option => new ApplicationCommandOption(option)).ToArray());
             }
 
-            return client.ApiClient.ModifyGuildApplicationCommandAsync(model, guildId, command.Id, options);
+            return client.ApiClient.ModifyGuildApplicationCommandAsync(model, guildId, commandId, options);
         }
 
-        public static Task DeleteGuildCommandAsync(BaseDiscordClient client, ulong guildId, IApplicationCommand command, RequestOptions? options = null)
+        public static async Task<IReadOnlyCollection<ApplicationCommand>> BulkOverwriteGuildCommandsAsync(BaseDiscordClient client, ulong guildId,
+            ApplicationCommandProperties[] args, RequestOptions? options = null)
         {
-            Preconditions.NotNull(command, nameof(command));
-            Preconditions.NotEqual(command.Id, 0UL, nameof(command.Id));
+            Preconditions.NotNull(args, nameof(args));
 
-            return client.ApiClient.DeleteGuildApplicationCommandAsync(guildId, command.Id, options);
+            var models = new List<CreateApplicationCommandParams>();
+
+            foreach (var arg in args)
+            {
+                Preconditions.NotNullOrEmpty(arg.Name, nameof(arg.Name));
+                Preconditions.LengthAtMost(arg.Name, SlashCommandBuilder.MaxNameLength, nameof(arg.Name));
+
+                var model = new CreateApplicationCommandParams
+                {
+                    Name = arg.Name.Value,
+                    Type = arg.Type,
+#pragma warning disable CS0618 // Type or member is obsolete
+                    DefaultPermission = arg.IsDefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
+                    NameLocalizations = Optional.CreateFromNullable(arg.NameLocalizations?.ToDictionary()),
+                    DescriptionLocalizations = Optional.CreateFromNullable(arg.DescriptionLocalizations?.ToDictionary()),
+                    DefaultMemberPermission = arg.DefaultMemberPermissions,
+                    DmPermission = arg.IsDMEnabled,
+                    Nsfw = arg.IsNsfw
+                };
+
+                if (arg is SlashCommandProperties slashProps)
+                {
+                    Preconditions.NotNullOrEmpty(slashProps.Description, nameof(slashProps.Description));
+                    Preconditions.LengthAtMost(slashProps.Description, SlashCommandBuilder.MaxDescriptionLength, nameof(slashProps.Description));
+
+                    model.Description = slashProps.Description.Value;
+
+                    model.Options = slashProps.Options.Map(x => x.Select(option => new ApplicationCommandOption(option)).ToArray());
+                }
+
+                models.Add(model);
+            }
+
+            return await client.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(guildId, models.ToArray(), options).ConfigureAwait(false);
         }
 
-        public static Task DeleteUnknownApplicationCommandAsync(BaseDiscordClient client, ulong? guildId, IApplicationCommand command, RequestOptions? options = null)
+        public static Task DeleteGuildCommandAsync(BaseDiscordClient client, ulong guildId, ulong commandId, RequestOptions? options = null)
+        {
+            return client.ApiClient.DeleteGuildApplicationCommandAsync(guildId, commandId, options);
+        }
+
+        public static Task DeleteUnknownApplicationCommandAsync(BaseDiscordClient client, ulong? guildId, ulong commandId, RequestOptions? options = null)
         {
             return guildId.HasValue
-                ? DeleteGuildCommandAsync(client, guildId.Value, command, options)
-                : DeleteGlobalCommandAsync(client, command, options);
+                ? DeleteGuildCommandAsync(client, guildId.Value, commandId, options)
+                : DeleteGlobalCommandAsync(client, commandId, options);
         }
         #endregion
 

@@ -131,6 +131,7 @@ namespace Discord
         /// <remarks>
         /// This property will be <see langword="null"/> if the user has no pronouns set.
         /// </remarks>
+        [Obsolete("Will be removed in the next release due to Discord not willing to send this over.")]
         string? Pronouns { get; }
 
         /// <summary>

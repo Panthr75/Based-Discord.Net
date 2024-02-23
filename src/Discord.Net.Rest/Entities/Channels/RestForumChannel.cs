@@ -50,7 +50,7 @@ namespace Discord.Rest
         internal RestForumChannel(BaseDiscordClient client, IGuild? guild, ulong id)
             : base(client, guild, id)
         {
-            this.Tags = Array.Empty<ForumTag>();
+            Tags = ImmutableArray<ForumTag>.Empty;
         }
 
         internal new static RestForumChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
@@ -75,9 +75,9 @@ namespace Discord.Rest
 
             DefaultSortOrder = model.DefaultSortOrder.GetValueOrDefault();
 
-            Tags = model.ForumTags.GetValueOrDefault(Array.Empty<API.ForumTag>()).Select(
-                x => new ForumTag(x.Id, x.Name, x.EmojiId.GetValueOrDefault(null), x.EmojiName.GetValueOrDefault(), x.Moderated)
-            ).ToImmutableArray();
+            Tags = model.ForumTags.Map(x => x.Select(
+                tag => new ForumTag(tag.Id, tag.Name, tag.EmojiId.GetValueOrDefault(null), tag.EmojiName.GetValueOrDefault(), tag.Moderated)
+            ).ToImmutableArray()).GetValueOrDefault(ImmutableArray<ForumTag>.Empty);
 
             if (model.DefaultReactionEmoji.IsSpecified && model.DefaultReactionEmoji.Value is not null)
             {
@@ -96,7 +96,7 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public async Task ModifyAsync(Action<ForumChannelProperties> func, RequestOptions? options = null)
         {
-            var model = await ForumHelper.ModifyAsync(this, Discord, func, options);
+            var model = await ChannelHelper.ModifyGuildChannelAsync(Id, Discord, func, options);
             Update(model);
         }
 

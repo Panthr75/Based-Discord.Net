@@ -74,7 +74,7 @@ namespace Discord.WebSocket
             Name = model.Name.Value;
             Position = model.Position.GetValueOrDefault(0);
 
-            var overwrites = model.PermissionOverwrites.GetValueOrDefault(new API.Overwrite[0]);
+            var overwrites = model.PermissionOverwrites.GetValueOrDefault(Array.Empty<API.Overwrite>());
             var newOverwrites = ImmutableArray.CreateBuilder<Overwrite>(overwrites.Length);
             for (int i = 0; i < overwrites.Length; i++)
                 newOverwrites.Add(overwrites[i].ToEntity());
@@ -84,11 +84,17 @@ namespace Discord.WebSocket
         }
 
         /// <inheritdoc />
-        public Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions? options = null)
-            => ChannelHelper.ModifyAsync(this, Discord, func, options);
+        public async Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions? options = null)
+        {
+            var model = await ChannelHelper.ModifyGenericGuildChannelAsync(Id, Discord, func, options).ConfigureAwait(false);
+            Update(Discord.State, model);
+        }
         /// <inheritdoc />
-        public Task DeleteAsync(RequestOptions? options = null)
-            => ChannelHelper.DeleteAsync(this, Discord, options);
+        public async Task DeleteAsync(RequestOptions? options = null)
+        {
+            await ChannelHelper.DeleteChannelAsync(Id, Discord, options).ConfigureAwait(false);
+            Guild.RemoveChannel(Discord.State, Id);
+        }
 
         /// <summary>
         ///     Gets the permission overwrite for a specific user.

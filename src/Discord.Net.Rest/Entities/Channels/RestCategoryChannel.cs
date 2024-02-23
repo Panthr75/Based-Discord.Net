@@ -35,7 +35,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         /// <exception cref="NotSupportedException">This method is not supported with category channels.</exception>
         Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
-            => throw new NotSupportedException();
+            => Task.FromException<IUser?>(new NotSupportedException());
         #endregion
     }
 }

@@ -568,7 +568,7 @@ namespace Discord.WebSocket
             System.Diagnostics.Debug.Assert(entity != null, "There should be at least one shard to get the entity");
 
 
-            return entity;
+            return entity!;
         }
 
         public async Task<IReadOnlyCollection<SocketApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(
@@ -591,7 +591,7 @@ namespace Discord.WebSocket
             }
 
             System.Diagnostics.Debug.Assert(entities != null, "There should be at least one shard to get the entities");
-            return entities.ToImmutableArray();
+            return entities!.ToImmutableArray();
         }
 
         #endregion

@@ -74,11 +74,11 @@ namespace Discord.Rest
         internal RestApplicationCommand(BaseDiscordClient client, ulong id)
             : base(client, id)
         {
-            this.Name = string.Empty;
-            this.Description = string.Empty;
-            this.Options = ImmutableArray<RestApplicationCommandOption>.Empty;
-            this.NameLocalizations = ImmutableDictionary<string, string>.Empty;
-            this.DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
+            Name = string.Empty;
+            Description = string.Empty;
+            Options = ImmutableArray<RestApplicationCommandOption>.Empty;
+            NameLocalizations = ImmutableDictionary<string, string>.Empty;
+            DescriptionLocalizations = ImmutableDictionary<string, string>.Empty;
         }
 
         internal static RestApplicationCommand Create(BaseDiscordClient client, Model model, ulong? guildId)

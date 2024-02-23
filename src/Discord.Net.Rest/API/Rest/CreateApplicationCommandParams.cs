@@ -1,8 +1,5 @@
-using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace Discord.API.Rest
@@ -31,18 +28,18 @@ namespace Discord.API.Rest
         public Optional<Dictionary<string, string>> DescriptionLocalizations { get; set; }
 
         [JsonPropertyName("dm_permission")]
-        public Optional<bool?> DmPermission { get; set; }
+        public Optional<bool> DmPermission { get; set; }
 
         [JsonPropertyName("default_member_permissions")]
-        public Optional<GuildPermission?> DefaultMemberPermission { get; set; }
+        public Optional<GuildPermission> DefaultMemberPermission { get; set; }
 
         [JsonPropertyName("nsfw")]
         public Optional<bool> Nsfw { get; set; }
 
         public CreateApplicationCommandParams()
         {
-            this.Name = string.Empty;
-            this.Description = string.Empty;
+            Name = string.Empty;
+            Description = string.Empty;
         }
         public CreateApplicationCommandParams(string name,
             string description,

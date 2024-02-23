@@ -56,7 +56,7 @@ namespace Discord.Rest
         /// <inheritdoc/>
         public async Task ModifyInstanceAsync(Action<StageInstanceProperties> func, RequestOptions? options = null)
         {
-            var model = await ChannelHelper.ModifyAsync(this, Discord, func, options);
+            var model = await ChannelHelper.ModifyStageInstanceAsync(Id, Discord, func, options).ConfigureAwait(false);
 
             Update(model, true);
         }
@@ -107,7 +107,7 @@ namespace Discord.Rest
                 ChannelId = Id,
                 RequestToSpeakTimestamp = DateTimeOffset.UtcNow
             };
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
@@ -119,7 +119,7 @@ namespace Discord.Rest
                 ChannelId = Id,
                 Suppressed = false
             };
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
@@ -131,7 +131,7 @@ namespace Discord.Rest
                 ChannelId = Id,
                 Suppressed = true
             };
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return Discord.ApiClient.ModifyMyVoiceState(Guild.Id, args, options);
         }
 
@@ -144,7 +144,7 @@ namespace Discord.Rest
                 Suppressed = false
             };
 
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return Discord.ApiClient.ModifyUserVoiceState(Guild.Id, user.Id, args);
         }
 
@@ -157,7 +157,7 @@ namespace Discord.Rest
                 Suppressed = true
             };
 
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return Discord.ApiClient.ModifyUserVoiceState(Guild.Id, user.Id, args);
         }
 

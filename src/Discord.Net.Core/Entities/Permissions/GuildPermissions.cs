@@ -114,6 +114,8 @@ namespace Discord
         public bool UseClydeAI => Permissions.GetValue(RawValue, GuildPermission.UseClydeAI);
         /// <summary> If <see langword="true"/>, a user can create guild expressions in this guild.</summary>
         public bool CreateGuildExpressions => Permissions.GetValue(RawValue, GuildPermission.CreateGuildExpressions);
+        /// <summary> If <see langword="true"/>, a user can create guild events in this guild.</summary>
+        public bool CreateEvents => Permissions.GetValue(RawValue, GuildPermission.CreateEvents);
         /// <summary> If <see langword="true"/>, a user can set the status of a voice channel.</summary>
         public bool SetVoiceChannelStatus => Permissions.GetValue(RawValue, GuildPermission.SetVoiceChannelStatus);
 
@@ -170,7 +172,8 @@ namespace Discord
             bool? sendVoiceMessages = null,
             bool? useClydeAI = null,
             bool? createGuildExpressions = null,
-            bool? setVoiceChannelStatus = null)
+            bool? setVoiceChannelStatus = null,
+            bool? createEvents = null)
         {
             ulong value = initialValue;
 
@@ -221,6 +224,7 @@ namespace Discord
             Permissions.SetValue(ref value, useClydeAI, GuildPermission.UseClydeAI);
             Permissions.SetValue(ref value, createGuildExpressions, GuildPermission.CreateGuildExpressions);
             Permissions.SetValue(ref value, setVoiceChannelStatus, GuildPermission.SetVoiceChannelStatus);
+            Permissions.SetValue(ref value, createEvents, GuildPermission.CreateEvents);
 
             RawValue = value;
         }
@@ -273,7 +277,8 @@ namespace Discord
             bool sendVoiceMessages = false,
             bool useClydeAI = false,
             bool createGuildExpressions = false,
-            bool setVoiceChannelStatus = false)
+            bool setVoiceChannelStatus = false,
+            bool createEvents = false)
             : this(0,
                 createInstantInvite: createInstantInvite,
                 manageRoles: manageRoles,
@@ -321,7 +326,8 @@ namespace Discord
                 sendVoiceMessages: sendVoiceMessages,
                 useClydeAI: useClydeAI,
                 createGuildExpressions: createGuildExpressions,
-                setVoiceChannelStatus: setVoiceChannelStatus)
+                setVoiceChannelStatus: setVoiceChannelStatus,
+                createEvents: createEvents)
         { }
 
         /// <summary> Creates a new <see cref="GuildPermissions"/> from this one, changing the provided non-null permissions. </summary>
@@ -372,13 +378,14 @@ namespace Discord
             bool? sendVoiceMessages = null,
             bool? useClydeAI = null,
             bool? createGuildExpressions = null,
-            bool? setVoiceChannelStatus = null)
+            bool? setVoiceChannelStatus = null,
+            bool? createEvents = null)
             => new GuildPermissions(RawValue, createInstantInvite, kickMembers, banMembers, administrator, manageChannels, manageGuild, addReactions,
                 viewAuditLog, viewGuildInsights, viewChannel, sendMessages, sendTTSMessages, manageMessages, embedLinks, attachFiles,
                 readMessageHistory, mentionEveryone, useExternalEmojis, connect, speak, muteMembers, deafenMembers, moveMembers,
                 useVoiceActivation, prioritySpeaker, stream, changeNickname, manageNicknames, manageRoles, manageWebhooks, manageEmojisAndStickers,
                 useApplicationCommands, requestToSpeak, manageEvents, manageThreads, createPublicThreads, createPrivateThreads, useExternalStickers, sendMessagesInThreads,
-                startEmbeddedActivities, moderateMembers, useSoundboard, viewMonetizationAnalytics, sendVoiceMessages, useClydeAI, createGuildExpressions, setVoiceChannelStatus);
+                startEmbeddedActivities, moderateMembers, useSoundboard, viewMonetizationAnalytics, sendVoiceMessages, useClydeAI, createGuildExpressions, setVoiceChannelStatus, createEvents);
 
         /// <summary>
         ///     Returns a value that indicates if a specific <see cref="GuildPermission"/> is enabled

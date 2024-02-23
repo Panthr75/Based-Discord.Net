@@ -30,7 +30,7 @@ namespace Discord.Rest
             get
             {
                 ValidateGuildExists();
-                return this.Guild.Id;
+                return Guild.Id;
             }
         }
 
@@ -41,7 +41,7 @@ namespace Discord.Rest
             : base(discord, id)
         {
             Guild = guild;
-            this.Name = string.Empty;
+            Name = string.Empty;
         }
         internal static RestGuildChannel Create(BaseDiscordClient discord, IGuild? guild, Model model)
         {
@@ -92,16 +92,12 @@ namespace Discord.Rest
         /// <inheritdoc />
         public async Task ModifyAsync(Action<GuildChannelProperties> func, RequestOptions? options = null)
         {
-            var model = await ChannelHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
-            if (model == null)
-            {
-                return;
-            }
+            var model = await ChannelHelper.ModifyGenericGuildChannelAsync(Id, Discord, func, options).ConfigureAwait(false);
             Update(model);
         }
         /// <inheritdoc />
         public Task DeleteAsync(RequestOptions? options = null)
-            => ChannelHelper.DeleteAsync(this, Discord, options);
+            => ChannelHelper.DeleteChannelAsync(Id, Discord, options);
 
         /// <summary>
         ///     Gets the permission overwrite for a specific user.
@@ -217,10 +213,10 @@ namespace Discord.Rest
         /// </returns>
         public override string ToString() => Name;
 
-        [MemberNotNull(nameof(this.Guild))]
+        [MemberNotNull(nameof(Guild))]
         internal void ValidateGuildExists()
         {
-            if (this.Guild == null)
+            if (Guild == null)
             {
                 throw new InvalidOperationException("Unable to return this entity's parent unless it was fetched through that object.");
             }
@@ -233,8 +229,8 @@ namespace Discord.Rest
         {
             get
             {
-                this.ValidateGuildExists();
-                return this.Guild;
+                ValidateGuildExists();
+                return Guild;
             }
         }
 
@@ -266,6 +262,8 @@ namespace Discord.Rest
         #endregion
 
         #region IChannel
+        /// <inheritdoc />
+        string IChannel.Name => Name;
         /// <inheritdoc />
         IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)
             => AsyncEnumerable.Empty<IReadOnlyCollection<IUser>>(); //Overridden in Text/Voice

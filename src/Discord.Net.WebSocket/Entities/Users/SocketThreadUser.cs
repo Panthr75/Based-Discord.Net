@@ -332,7 +332,7 @@ namespace Discord.WebSocket
 
         /// <inheritdoc />
         public override string GetDisplayAvatarUrl(ImageFormat format = ImageFormat.Auto, ushort size = 128)
-            => GuildUser.GetGuildAvatarUrl() ?? base.GetDisplayAvatarUrl(format, size);
+            => GuildUser?.GetGuildAvatarUrl() ?? base.GetDisplayAvatarUrl(format, size);
 
         /// <exception cref="InvalidOperationException">
         /// Thrown if <see cref="GuildUser"/> is <see langword="null"/>.

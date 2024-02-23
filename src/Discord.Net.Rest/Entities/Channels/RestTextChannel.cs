@@ -62,7 +62,7 @@ namespace Discord.Rest
         /// <inheritdoc />
         public virtual async Task ModifyAsync(Action<TextChannelProperties> func, RequestOptions? options = null)
         {
-            var model = await ChannelHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
+            var model = await ChannelHelper.ModifyTextChannelAsync(Id, Discord, func, options).ConfigureAwait(false);
             Update(model);
         }
 
@@ -80,7 +80,7 @@ namespace Discord.Rest
         /// </returns>
         public Task<RestGuildUser?> GetUserAsync(ulong id, RequestOptions? options = null)
         {
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return ChannelHelper.GetUserAsync(this, Guild, Discord, id, options);
         }
 
@@ -98,7 +98,7 @@ namespace Discord.Rest
         /// </returns>
         public IAsyncEnumerable<IReadOnlyCollection<RestGuildUser>> GetUsersAsync(RequestOptions? options = null)
         {
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return ChannelHelper.GetUsersAsync(this, Guild, Discord, null, null, options);
         }
 
@@ -302,7 +302,7 @@ namespace Discord.Rest
         /// <inheritdoc cref="ITextChannel.GetActiveThreadsAsync(RequestOptions)"/>
         public virtual Task<IReadOnlyCollection<RestThreadChannel>> GetActiveThreadsAsync(RequestOptions? options = null)
         {
-            this.ValidateGuildExists();
+            ValidateGuildExists();
             return ThreadHelper.GetActiveThreadsAsync(Guild, Id, Discord, options);
         }
         #endregion

@@ -129,7 +129,7 @@ namespace Discord.Rest
 
         /// <inheritdoc/>
         public Task DeleteAsync(RequestOptions? options = null)
-            => GuildHelper.DeleteEventAsync(Discord, this, options);
+            => GuildHelper.DeleteEventAsync(Discord, GuildId, Id, options);
 
         /// <inheritdoc/>
         public async Task ModifyAsync(Action<GuildScheduledEventsProperties> func, RequestOptions? options = null)

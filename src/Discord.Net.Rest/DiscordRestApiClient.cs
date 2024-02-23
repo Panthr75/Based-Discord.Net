@@ -1726,7 +1726,7 @@ namespace Discord.API
             return SendAsync<GetGuildPruneCountResponse>("GET", () => $"guilds/{guildId}/prune?days={args.Days}{endpointRoleIds}", ids, options: options);
         }
 
-        public Task<GuildIncidentsData> ModifyGuildIncidentActionsAsync(ulong guildId, ModifyGuildIncidentsDataParams? args, RequestOptions? options = null)
+        public Task<GuildIncidentsData> ModifyGuildIncidentActionsAsync(ulong guildId, ModifyGuildIncidentsDataParams args, RequestOptions? options = null)
         {
             Preconditions.NotEqual(guildId, 0UL, nameof(guildId));
 

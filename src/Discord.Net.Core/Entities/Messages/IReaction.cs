@@ -18,5 +18,5 @@ public interface IReaction
     /// <remarks>
     ///     The collection will be empty if the reaction is a normal reaction.
     /// </remarks>
-    public IReadOnlyCollection<Color> BurstColors { get; }
+    IReadOnlyCollection<Color> BurstColors { get; }
 }

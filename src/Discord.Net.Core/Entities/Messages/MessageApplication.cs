@@ -25,7 +25,7 @@ namespace Discord
         ///     Gets the Url of the application's icon.
         /// </summary>
         public string? IconUrl
-            => string.IsNullOrEmpty(Icon) ? null : $"https://cdn.discordapp.com/app-icons/{Id}/{Icon}";
+            => CDN.GetApplicationIconUrl(Id, Icon);
         /// <summary>
         ///     Gets the name of the application.
         /// </summary>

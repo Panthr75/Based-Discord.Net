@@ -32,8 +32,8 @@ namespace Discord.Rest
         internal RestGroupChannel(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
-            this.Name = string.Empty;
-            this._users = ImmutableDictionary.Create<ulong, RestGroupUser>();
+            Name = string.Empty;
+            _users = ImmutableDictionary<ulong, RestGroupUser>.Empty;
         }
         internal new static RestGroupChannel Create(BaseDiscordClient discord, Model model)
         {
@@ -72,7 +72,7 @@ namespace Discord.Rest
         }
         /// <inheritdoc />
         public Task LeaveAsync(RequestOptions? options = null)
-            => ChannelHelper.DeleteAsync(this, Discord, options);
+            => ChannelHelper.DeleteChannelAsync(Id, Discord, options);
 
         public RestUser? GetUser(ulong id)
         {
@@ -187,7 +187,7 @@ namespace Discord.Rest
         private string DebuggerDisplay => $"{Name} ({Id}, Group)";
         #endregion
 
-        #region ISocketPrivateChannel
+        #region IRestPrivateChannel
         IReadOnlyCollection<RestUser> IRestPrivateChannel.Recipients => Recipients;
         #endregion
 
@@ -272,7 +272,8 @@ namespace Discord.Rest
         Task IAudioChannel.ModifyAsync(Action<AudioChannelProperties> func, RequestOptions? options) { throw new NotSupportedException(); }
         #endregion
 
-        #region IChannel        
+        #region IChannel
+        string IChannel.Name => Name;
         Task<IUser?> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions? options)
             => Task.FromResult<IUser?>(GetUser(id));
         IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions? options)

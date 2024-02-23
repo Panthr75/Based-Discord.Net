@@ -90,7 +90,7 @@ namespace Discord.WebSocket
 
         /// <inheritdoc />
         public virtual Task ModifyAsync(Action<TextChannelProperties> func, RequestOptions? options = null)
-            => ChannelHelper.ModifyAsync(this, Discord, func, options);
+            => ChannelHelper.ModifyTextChannelAsync(Id, Discord, func, options);
 
         /// <summary>
         ///     Creates a thread within this <see cref="ITextChannel"/>.

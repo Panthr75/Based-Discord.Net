@@ -2376,7 +2376,7 @@ namespace Discord.WebSocket
                                     var channel = State.GetChannel(data.Id) as SocketVoiceChannel;
                                     var channelCacheable = new Cacheable<SocketVoiceChannel, ulong>(channel, data.Id, channel is not null, () => Task.FromResult<SocketVoiceChannel?>(null));
 
-                                    var before = (string)channel?.Status?.Clone();
+                                    var before = (string?)channel?.Status?.Clone();
                                     var after = data.Status;
                                     channel?.UpdateVoiceStatus(data.Status);
 

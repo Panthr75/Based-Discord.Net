@@ -129,7 +129,7 @@ namespace Discord
         /// <param name="channelTypes">Menus valid channel types (only for <see cref="ComponentType.ChannelSelect"/>)</param>
         /// <returns></returns>
         public ComponentBuilder WithSelectMenu(string customId, List<SelectMenuOptionBuilder>? options = null,
-            string? placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false, int row = 0, ComponentType type = ComponentType.SelectMenu, ChannelType[]? channelTypes = null, SelectMenuDefaultValue[] defaultValues = null)
+            string? placeholder = null, int minValues = 1, int maxValues = 1, bool disabled = false, int row = 0, ComponentType type = ComponentType.SelectMenu, ChannelType[]? channelTypes = null, SelectMenuDefaultValue[]? defaultValues = null)
         {
             return WithSelectMenu(new SelectMenuBuilder()
                 .WithCustomId(customId)
@@ -1099,7 +1099,7 @@ namespace Discord
         /// <returns>
         ///     The current builder.
         /// </returns>
-        public SelectMenuBuilder WithDefaultValues(params SelectMenuDefaultValue[] defaultValues)
+        public SelectMenuBuilder WithDefaultValues(params SelectMenuDefaultValue[]? defaultValues)
         {
             DefaultValues = defaultValues?.ToList();
             return this;
@@ -1364,12 +1364,12 @@ namespace Discord
             if (string.IsNullOrWhiteSpace(Label))
                 throw new ArgumentNullException(nameof(Label), "Option must have a label.");
 
-            Preconditions.AtMost(Label.Length, MaxSelectLabelLength, nameof(Label), $"Label length must be less or equal to {MaxSelectLabelLength}.");
+            Preconditions.AtMost(Label!.Length, MaxSelectLabelLength, nameof(Label), $"Label length must be less or equal to {MaxSelectLabelLength}.");
 
             if (string.IsNullOrWhiteSpace(Value))
                 throw new ArgumentNullException(nameof(Value), "Option must have a value.");
 
-            Preconditions.AtMost(Value.Length, MaxSelectValueLength, nameof(Value), $"Value length must be less or equal to {MaxSelectValueLength}.");
+            Preconditions.AtMost(Value!.Length, MaxSelectValueLength, nameof(Value), $"Value length must be less or equal to {MaxSelectValueLength}.");
 
             return new SelectMenuOption(Label!, Value!, Description, Emote, IsDefault);
         }
